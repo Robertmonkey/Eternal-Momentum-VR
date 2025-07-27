@@ -40,6 +40,9 @@ development.
 * **Power queue cycling** — Use the grip buttons on your VR controllers to
   rotate through your offensive and defensive power queues. Upcoming powers are
   shown beneath the main icons so you always know what will trigger next.
+* **Controller shortcuts** — Face buttons open common menus (A: stage select,
+  B: pause, X: core menu, Y: ascension grid). Press the left thumbstick for the
+  lore codex and the right thumbstick for the orrery menu.
 
 ## Running the Prototype
 
