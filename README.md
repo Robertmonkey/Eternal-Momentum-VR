@@ -1,110 +1,90 @@
-# Eternal Momentum VR Prototype
+# Eternal Momentum: Conduit Command VR
 
-This repository contains a **proof‑of‑concept** virtual‑reality port of the
-**Eternal Momentum** game.  The goal of this prototype is to demonstrate how
-the 2D canvas‑based gameplay of Eternal Momentum can be transported into a
-three‑dimensional VR environment using modern WebXR technologies.  It is not
-a complete game, but rather a polished starting point for further
-development.
+## Project Vision & Directive
 
-## Features
+This project is to transform the 2D browser game, **Eternal Momentum**, into a fully immersive, first-person 3D virtual reality experience for the Meta Quest 3. The current repository contains an early prototype and the complete, functional source code of the original 2D game. The primary directive for all future development is to evolve the prototype into the vision detailed below, using the original game's logic as the foundational engine.
 
-* **360° battlefield** — A hidden `<canvas>` element renders a simplified
-  approximation of the original 2D game.  The contents of this canvas are
-  wrapped around the player on the inner surface of a cylinder using a
-  custom `canvas‑texture` component.  As you turn your head you can see
-  different parts of the canvas.
-* **Waist‑height UI table** — A circular table surrounds the player at
-  waist level.  Score, health and aberration core cooldown indicators are
-  presented on panels placed on the table so they are easy to glance at
-  without breaking immersion.
-* **Aberration core** — A spinning sphere floats above the table and plays
-  positional audio.  Clicking the sphere triggers an example “active
-  ability” which starts a cooldown timer and awards points.  The sphere is
-  interactive and can be extended with more mechanics (e.g. grabbing or
-  swapping cores).
-* **Drag‑to‑move avatar** — Your in‑game avatar is represented by a blue
-  box on the platform.  Grab it with your VR controller and move it around
-  the platform; its position is projected back onto the 2D canvas.  In
-  this prototype moving the avatar gives you points and clamps the
-  movement to the platform boundary.
-* **Directional audio** — The aberration core emits a continuous tone
-  (`assets/core_sound.wav`) which gets quieter as you move away or turn
-  your head, giving a sense of spatial presence.
+The core fantasy is that the player **is the Conduit**, physically situated within a high-tech command center. From a balcony-like platform, they look down upon a vast, 3D battlefield where the game's events unfold.
 
-## Running the Prototype
+---
+## The Core Experience: Inside the Conduit
 
-1. Install a recent version of the [Meta Quest 3](https://www.meta.com/)
-   browser or any WebXR‑capable browser on your VR headset or desktop.
-2. Serve the contents of this `vr_port` folder using a simple HTTP server
-   (browsers often block local file access for security reasons).  From
-   within the repository root, run for example:
+### 1. The Command Deck (Player Environment)
 
-   ```bash
-   npx http-server vr_port
-   ```
+The player does not stand on a simple platform; they are inside the Conduit's command deck. This is a sleek, futuristic environment that must be styled to match the aesthetic of the original game (dark backgrounds, neon glows, and the color palette defined in `style.css`).
 
-   Then open the reported URL in your VR browser.  Alternatively you can
-   drag `vr_port/index.html` into a WebXR‑capable desktop browser for a
-   non‑VR preview.
-3. Use your controllers to grab the blue avatar box and move it around.
-   Click the red aberration core to trigger its cooldown and see the UI
-   update.  Turn your head to observe the battlefield wrapped around you.
+* **Balcony View:** The player stands on a raised platform, giving them a commanding, top-down tactical view of the massive 3D game screen below. This creates a powerful sense of scale and strategic oversight.
+* **Wrap-Around Console:** In front of the player is a wrap-around desk or console. This console is a hybrid of screens and tactile controls, featuring **physical, 3D buttons** that glow and provide satisfying feedback when pressed.
 
-## Integrating the Full Game
+---
+### 2. The 3D Gameplay Arena (The Timeline Projection)
 
-This prototype does **not** include the full Eternal Momentum codebase
-(`modules/bosses.js`, `modules/gameLoop.js`, etc.).  To turn this into a
-complete VR version:
+The current prototype's method of projecting the 2D canvas onto a cylinder is to be **completely replaced**. The gameplay will take place in a fully realized 3D space below the player's command deck.
 
-1. **Copy the game modules** — Place the original game’s JavaScript
-   modules and assets into the `vr_port/game` folder.  Preserve their
-   directory structure (e.g. copy the entire `modules/` directory and
-   any required `assets/` subfolders).  The updated `script.js` uses
-   dynamic `import` statements such as:
+* **Full 3D Conversion:** All gameplay elements—the player's avatar (the Nexus), enemies, bosses (Aberrations), and projectiles—must be rendered as 3D objects.
+* **State-Driven Rendering:** The positions, animations, and behaviors of these 3D objects will be directly driven by the original game's state object (`state` from `modules/state.js`). The `gameTick` function will read the `x`, `y` coordinates from the 2D logic and translate them into `x`, `y`, `z` positions in the 3D A-Frame scene.
+* **Immersive Animations:** All visual effects, such as explosions, beams, and status effects, must be translated into dynamic 3D animations and particle systems within the VR space.
 
-   ```js
-   import { gameTick } from './game/modules/gameLoop.js';
-   import { state } from './game/modules/state.js';
-   import { activateCorePower } from './game/modules/cores.js';
-   ```
+---
+### 3. The UI Console (Tactile Interaction)
 
-   These imports will resolve once you have copied the corresponding
-   files into `vr_port/game/modules`.
+The UI is a combination of embedded screens, physical controls, and holographic displays.
 
-2. **Ensure the canvas ID matches** — The hidden canvas element in
-   `index.html` has the id `gameCanvas`, which matches what
-   `gameLoop.js` expects.  You do not need to rename anything; simply
-   make sure the original game’s rendering code draws onto this canvas.
+* **Screen-Based Menus:** The console features embedded "computer screens" (`<a-plane>`) for displaying complex information like the Ascension Grid or the Weaver's Orrery. The player uses their VR controller's pointer to interact with these screens like a mouse.
+* **Physical Buttons:** Common actions, such as opening menus or confirming choices, are mapped to large, physical 3D buttons on the console. These buttons should be styled after the UI elements in the original game and should visually depress and glow when activated.
+* **Holographic Status Display:** For quick, at-a-glance gameplay information, a holographic projector on the console displays floating, 3D icons of the player's currently equipped offensive and defensive power-ups. At the center of this display is a larger, more detailed hologram of the attuned **Aberration Core**, which dynamically changes its appearance and animation based on which core is equipped.
 
-3. **Synchronise the avatar** — When the blue avatar box is moved in
-   VR, `script.js` converts its 3D position back into 2D coordinates and
-   assigns them to `state.player.x` and `state.player.y`.  If you
-   customise the canvas projection (e.g. wrapping it differently), you
-   may need to adjust the conversion logic in `script.js`.
+---
+## Directive for AI-Assisted Development
 
-4. **Extend the UI** — Add additional panels to the table for displaying
-   talents, ascension grids, stage selection, etc.  These can be built
-   from `a-plane` elements with `a-text` children.  Use A‑Frame’s
-   interaction components to make them clickable and bind their actions
-   to functions imported from the game’s modules.
+This README serves as the primary brief for AI development tools (e.g., ChatGPT Codex). Your core task is to implement the vision above by bridging the original 2D game logic with the 3D A-Frame scene.
 
-5. **Replace placeholder assets** — Swap the simple sphere representing
-   the aberration core with a proper 3D model (GLTF/GLB) that matches
-   your art style.  Place the file in `assets/` and reference it via
-   `<a-gltf-model src="assets/yourModel.glb">`.
+### Your Workflow:
 
-## Known Limitations
+1.  **Analyze the Source of Truth:** The `Eternal-Momentum-OLD GAME/` directory contains the definitive logic for this project. Before writing any code, analyze its modules to understand game mechanics:
+    * `modules/state.js`: Defines the structure of the entire game state. All 3D rendering will be a visualization of this object.
+    * `modules/gameLoop.js`: Contains the core `gameTick` function that updates the state.
+    * `modules/bosses.js`: Details the unique AI, attacks, and phases for every Aberration.
+    * `modules/powers.js`, `modules/cores.js`, `modules/talents.js`: Define all player abilities and progression systems.
+    * `style.css`: Contains the color variables (`--primary-glow`, `--secondary-glow`, etc.) and general aesthetic that the 3D environment **must** adhere to.
 
-* The original Eternal Momentum is a complex 2D browser game.  Porting
-  every mechanic to VR will require thoughtful redesign of interfaces and
-  controls.  This prototype focuses on establishing the spatial UI and
-  demonstrating how the 2D surface can wrap around the player.
-* Performance may vary depending on the target hardware.  Meta Quest 3
-  should handle the simple geometry and textures used here, but once the
-  full game logic and assets are integrated profiling and optimisation
-  will be necessary.
+2.  **Bridge, Don't Rewrite:** Do not modify the original game logic files. The VR `script.js` is the **bridge**. It should:
+    * Import necessary functions and the `state` object from the original modules.
+    * Run the `gameTick` in its animation loop.
+    * Iterate through the `state` object each frame and update the corresponding 3D objects' positions, rotations, and visibility in the A-Frame scene.
+    * Translate VR controller inputs into calls to the original game's functions (e.g., `usePower()`, `activateCorePower()`).
 
-Feel free to build upon this foundation to create a fully fledged VR
-experience for Eternal Momentum.  Contributions and pull requests are
-welcome!
+3.  **Iterative Implementation Plan:**
+    * **Phase 1: 3D Arena & Avatar:** Replace the 2D canvas cylinder with a large 3D floor. Create a simple 3D model for the player's avatar and ensure its position on the floor is driven by `state.player.x` and `state.player.y`.
+    * **Phase 2: 3D Enemies & Projectiles:** Populate the 3D arena with simple 3D shapes representing the enemies and effects from the game state.
+    * **Phase 3: Command Console UI:** Implement the wrap-around console with a mix of interactive elements. Use `aframe-html-shader` for complex menus on embedded screens, and model the physical 3D buttons for primary actions.
+    * **Phase 4: Holographic Displays:** Create the central holographic display. Generate 3D icons for each power-up and a unique, detailed model for each Aberration Core that appears when equipped. Ensure these holograms update in real-time.
+    * **Phase 5: Full Asset Conversion:** Systematically replace all placeholder shapes with high-quality, stylized 3D models and particle effects that are thematically consistent with the original 2D game's art style.
+
+---
+## Development & Testing Workflow
+
+### Prerequisites
+
+* A VR headset with WebXR support (e.g., Meta Quest 3).
+* Node.js (for local testing).
+
+### Live Testing on Headset (GitHub Pages) 🚀
+
+This is the primary method for testing on the target device.
+
+1.  **Push Changes:** Commit and push your code changes to a new branch on GitHub.
+2.  **Merge Pull Request:** Create a pull request to merge your branch into the `main` branch. Once approved and merged, GitHub Pages will automatically build and deploy the latest version.
+3.  **Test in VR:** Open the project's GitHub Pages URL in your Meta Quest browser. Refresh the page to load the new updates.
+
+### Local Development 💻
+
+For faster iteration, you can run a local web server.
+
+1.  Navigate to the project's root directory in your terminal.
+2.  Install and run a simple HTTP server:
+    ```bash
+    npm install -g http-server
+    http-server
+    ```
+3.  Open the provided local URL (e.g., `http://127.0.0.1:8080`) in a WebXR-compatible browser on your PC or headset.
