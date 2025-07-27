@@ -39,11 +39,11 @@
     <a-assets>
       <!-- Intentionally left empty to avoid unwanted sounds. -->
       <a-mixin id="console-button"
-               geometry="primitive: cylinder; radius:0.28; height:0.12"
-               material="color:#141428; opacity:0.95; transparent:true; emissive:#00ffff; emissiveIntensity:0.8; metalness:0.2; roughness:0.4"
-               animation__press="property: scale; startEvents: mousedown; dir: alternate; dur: 100; to: 0.9 0.9 0.9"
-               animation__release="property: scale; startEvents: mouseup; dir: alternate; dur: 100; to: 1 1 1"
-               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.2"></a-mixin>
+               geometry="primitive: cylinder; radius:0.3; height:0.1"
+               material="color:#141428; opacity:0.95; transparent:true; emissive:#00ffff; emissiveIntensity:1.0; metalness:0.4; roughness:0.2"
+               animation__press="property: position; startEvents: mousedown; dir: alternate; dur: 100; to: 0 -0.02 0"
+               animation__release="property: position; startEvents: mouseup; dir: alternate; dur: 100; to: 0 0 0"
+               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.5"></a-mixin>
       <audio id="bgMusic1" class="game-audio" src="assets/bgMusic_01.mp3" preload="auto" loop></audio>
       <audio id="bgMusic2" class="game-audio" src="assets/bgMusic_02.mp3" preload="auto" loop></audio>
       <audio id="uiHoverSound" class="game-audio" src="assets/uiHoverSound.mp3" preload="auto"></audio>
