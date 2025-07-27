@@ -105,6 +105,3 @@ complete VR version:
   full game logic and assets are integrated profiling and optimisation
   will be necessary.
 
-Feel free to build upon this foundation to create a fully fledged VR
-experience for Eternal Momentum.  Contributions and pull requests are
-welcome!
