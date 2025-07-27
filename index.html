@@ -62,8 +62,8 @@
 
     <!-- Camera rig.  It contains the camera and both controllers.  The rig is positioned
          so that the player's eyes start at 1.6 m above the platform.  Movement
-         controls are disabled because this game uses a stationary platform; users
-         move their avatar by grabbing and dragging the box. -->
+        controls are disabled because this game uses a stationary platform; users
+         move their on-screen avatar by grabbing and dragging the small marker on the table. -->
     <a-entity id="rig" position="0 1.6 0">
       <a-camera id="camera" wasd-controls-enabled="false"></a-camera>
       <!-- Left hand controller with laser pointer and interaction components -->
@@ -122,6 +122,11 @@
                position="-2 1.2 -0.5" rotation="0 30 0">
         <a-text id="statusEffectsText" value="" align="center" width="1.1" color="#eaf2ff"></a-text>
       </a-plane>
+
+      <!-- Draggable marker showing where the on-screen avatar is positioned -->
+      <a-sphere id="cursorMarker" radius="0.15"
+                material="color: #00aaff; emissive: #00aaff; emissiveIntensity: 0.6"
+                position="0 1 0" class="interactive grabbable draggable"></a-sphere>
 
     <!-- Aberration core representation.  A glowing sphere slowly spins and
          emits a continuous tone using positional audio.  When the core’s
@@ -217,8 +222,13 @@
         <a-text value="Start" align="center" width="0.7" color="#eaf2ff"></a-text>
       </a-plane>
     </a-plane>
-    <!-- Large screen showing the 2D game canvas -->
-    <a-plane id="gameScreen" width="4" height="2" position="0 1.6 -3" material="color: #21213c" canvas-texture="#gameCanvas" class="interactive"></a-plane>
+    <!-- Large cylindrical screen showing the 2D game canvas
+         The canvas wraps 180° around the player so pointing the controller
+         feels like using a giant curved monitor. -->
+    <a-cylinder id="gameScreen" radius="4" height="2" theta-length="180"
+                position="0 1.6 0" rotation="0 -90 0"
+                material="color: #21213c; side:double"
+                canvas-texture="#gameCanvas" class="interactive"></a-cylinder>
     
     <!-- script.js contains game logic and canvas updates.  Load it as an ES module so it can import the game's modules and call into them. -->
     <a-plane id="aberrationCorePanel" width="2.2" height="1.3" position="0 1.6 -1.5" material="shader: html; target: #aberrationCoreModal; transparent: true" visible="false" class="interactive"></a-plane>
