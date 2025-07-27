@@ -132,7 +132,25 @@ window.addEventListener('load', () => {
     const closeAberrationCoreBtn = document.getElementById('closeAberrationCoreBtn');
     const unequipCoreBtn = document.getElementById('unequipCoreBtn');
 
+    const ascensionToggle = document.getElementById("ascensionToggle");
+    const ascensionGridModal = document.getElementById("ascensionGridModal");
+    const closeAscensionGridBtn = document.getElementById("closeAscensionGridBtn");
+    const apTotalAscGrid = document.getElementById("ap-total-asc-grid");
+    const codexToggle = document.getElementById("codexToggle");
+    const loreCodexModal = document.getElementById("loreCodexModal");
+    const closeLoreCodexBtn = document.getElementById("closeLoreCodexBtn");
+    const soundOptionsToggle = document.getElementById("soundOptionsToggle");
+    const soundOptionsModal = document.getElementById("soundOptionsModal");
+    const closeSoundOptionsBtn = document.getElementById("closeSoundOptionsBtn");
+    const musicVolume = document.getElementById("musicVolume");
+    const sfxVolume = document.getElementById("sfxVolume");
+    const muteToggle = document.getElementById("muteToggle");
+    const bossInfoModal = document.getElementById("bossInfoModal");
+    const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");
     const maxStage = STAGE_CONFIG.length;
+    const audioEls = Array.from(document.querySelectorAll(".game-audio"));
+    AudioManager.setup(audioEls, muteToggle);
+    document.addEventListener("visibilitychange", () => AudioManager.handleVisibilityChange());
     let selectedStage = state.currentStage;
 
     function updateStageSelectDisplay() {
@@ -319,6 +337,54 @@ window.addEventListener('load', () => {
         aberrationCoreModal.style.display = 'none';
       });
     }
+      if (ascensionToggle && ascensionGridModal) {
+        ascensionToggle.addEventListener("click", () => {
+          apTotalAscGrid.innerText = state.player.ascensionPoints;
+          renderAscensionGrid();
+          ascensionGridModal.style.display = "flex";
+        });
+      }
+      if (closeAscensionGridBtn) {
+        closeAscensionGridBtn.addEventListener("click", () => {
+          ascensionGridModal.style.display = "none";
+        });
+      }
+      if (codexToggle && loreCodexModal) {
+        codexToggle.addEventListener("click", () => {
+          populateLoreCodex();
+          loreCodexModal.style.display = "flex";
+        });
+      }
+      if (closeLoreCodexBtn) {
+        closeLoreCodexBtn.addEventListener("click", () => {
+          loreCodexModal.style.display = "none";
+        });
+      }
+      if (soundOptionsToggle && soundOptionsModal) {
+        soundOptionsToggle.addEventListener("click", () => {
+          musicVolume.value = AudioManager.musicVolume;
+          sfxVolume.value = AudioManager.sfxVolume;
+          muteToggle.innerText = AudioManager.userMuted ? "Unmute" : "Mute";
+          soundOptionsModal.style.display = "flex";
+        });
+      }
+      if (closeSoundOptionsBtn) {
+        closeSoundOptionsBtn.addEventListener("click", () => {
+          soundOptionsModal.style.display = "none";
+        });
+      }
+      if (muteToggle) {
+        muteToggle.addEventListener("click", () => {
+          AudioManager.toggleMute();
+          muteToggle.innerText = AudioManager.userMuted ? "Unmute" : "Mute";
+        });
+      }
+      if (musicVolume) {
+        musicVolume.addEventListener("input", e => AudioManager.setMusicVolume(parseFloat(e.target.value)));
+      }
+      if (sfxVolume) {
+        sfxVolume.addEventListener("input", e => AudioManager.setSfxVolume(parseFloat(e.target.value)));
+      }
 
     // Trigger equipped powers when the controller triggers are pressed.
     const leftHand = document.getElementById('leftHand');

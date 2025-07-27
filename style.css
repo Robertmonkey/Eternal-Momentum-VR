@@ -1451,3 +1451,73 @@ button:hover { background: rgba(0, 255, 255, 0.4); }
     font-weight: bold;
     font-size: 0.85rem;
 }
+# Lore Codex modal
+#loreCodexModal {
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10,10,20,0.8);
+    backdrop-filter: blur(8px) brightness(0.7);
+    display: none;
+    align-items: center; justify-content: center;
+    color: var(--font-color);
+    pointer-events: all;
+    z-index: 101;
+}
+#lore-codex-container {
+    width: 90%; max-width: 600px;
+    height: 80vh;
+    background: var(--ui-bg);
+    border: 2px solid var(--secondary-glow);
+    border-radius: 15px;
+    box-shadow: 0 0 30px var(--secondary-glow);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+#lore-codex-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+.codex-item {
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: var(--cursor-link);
+}
+.codex-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+#soundOptionsModal {
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10,10,20,0.8);
+    backdrop-filter: blur(8px) brightness(0.7);
+    display: none;
+    align-items: center; justify-content: center;
+    color: var(--font-color);
+    pointer-events: all;
+    z-index: 101;
+}
+#sound-options-container {
+    background: var(--ui-bg);
+    border: 2px solid var(--secondary-glow);
+    border-radius: 15px;
+    box-shadow: 0 0 30px var(--secondary-glow);
+    padding: 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+#sound-options-container h1 {
+    margin-top: 0;
+    color: var(--secondary-glow);
+    text-align: center;
+}
+#sound-options-container label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

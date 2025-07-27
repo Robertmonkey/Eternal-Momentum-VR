@@ -601,3 +601,17 @@ export function populateOrreryMenu(onStart) {
 
     render();
 }
+
+export function populateLoreCodex() {
+    const list = document.getElementById('lore-codex-list');
+    if (!list) return;
+    list.innerHTML = '';
+    bossData.forEach(boss => {
+        if (!boss.lore) return;
+        const item = document.createElement('div');
+        item.className = 'codex-item';
+        item.textContent = boss.name;
+        item.onclick = () => showBossInfo([boss.id], 'lore');
+        list.appendChild(item);
+    });
+}
