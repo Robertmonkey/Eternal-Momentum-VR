@@ -34,9 +34,11 @@
   // Import the core game modules.  The original source lives in the
   // `modules/` directory at the repository root, so we import from there
   // directly rather than using the old vr_port path.
-  import { gameTick } from './modules/gameLoop.js';
-  import { state } from './modules/state.js';
+  import { gameTick, spawnBossesForStage } from './modules/gameLoop.js';
+  import { state, resetGame } from './modules/state.js';
   import { activateCorePower } from './modules/cores.js';
+  import { usePower, powers } from './modules/powers.js';
+  import { applyAllTalentEffects } from './modules/ascension.js';
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
   // continuously copies the canvas contents into the material map.
@@ -84,6 +86,11 @@ window.addEventListener('load', () => {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
+    // Kick off a basic game run so the original modules have state to work with.
+    resetGame(false);
+    applyAllTalentEffects();
+    state.currentStage = 1;
+
     // Initialise our own meta state for VR‑specific elements.  The actual
     // game logic lives in the imported `state` object.  We only track
     // cooldowns for the VR core interaction and the current 3D avatar
@@ -99,6 +106,8 @@ window.addEventListener('load', () => {
     const scoreText = document.getElementById('scoreText');
     const healthText = document.getElementById('healthText');
     const cooldownText = document.getElementById('cooldownText');
+    const offPowerText = document.getElementById('offPowerText');
+    const defPowerText = document.getElementById('defPowerText');
 
     // Helper to update the scoreboard and health bars.  Values are read
     // directly from the imported game state.  You can customise which
@@ -110,6 +119,12 @@ window.addEventListener('load', () => {
       scoreText.setAttribute('value', `Essence: ${Math.floor(essence)}`);
       const health = state.player.health ?? 0;
       healthText.setAttribute('value', `Health: ${Math.floor(health)}`);
+      if (offPowerText && defPowerText) {
+        const offKey = state.offensiveInventory[0];
+        const defKey = state.defensiveInventory[0];
+        offPowerText.setAttribute('value', offKey ? powers[offKey].emoji : '');
+        defPowerText.setAttribute('value', defKey ? powers[defKey].emoji : '');
+      }
       const now = performance.now();
       const elapsed = (now - gameState.lastCoreUse) / 1000;
       const remaining = gameState.coreCooldown - elapsed;
@@ -186,6 +201,20 @@ window.addEventListener('load', () => {
         }
       }
     });
+
+    // Trigger equipped powers when the controller triggers are pressed.
+    const leftHand = document.getElementById('leftHand');
+    const rightHand = document.getElementById('rightHand');
+    if (leftHand && rightHand) {
+      leftHand.addEventListener('triggerdown', () => {
+        const key = state.offensiveInventory[0];
+        if (key) usePower(key);
+      });
+      rightHand.addEventListener('triggerdown', () => {
+        const key = state.defensiveInventory[0];
+        if (key) usePower(key);
+      });
+    }
 
     // Handle dragging of the player avatar.  On release update the stored
     // VR position and also update the underlying game state if the
