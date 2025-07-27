@@ -1,6 +1,4 @@
-/* Basic stylesheet for Eternal Momentum VR prototype.  Keeps the page
-   background dark and removes default margins.  A‑Frame uses its
-   own internal styles for VR elements. */
+/* Basic stylesheet for Eternal Momentum VR prototype. */
 
 html, body {
   width: 100%;
@@ -16,4 +14,49 @@ html, body {
 /* Hide the mouse cursor when in VR to avoid distraction */
 body.a-enter-vr {
   cursor: none;
+}
+
+/* Styles for the off-screen modals used for canvas rendering.
+   This ensures they have a fixed, high-resolution size before
+   html2canvas captures them, preventing distorted textures. 
+*/
+.vr-source {
+  position: absolute;
+  left: -10000px; /* Move far off-screen */
+  top: -10000px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.vr-source .modal {
+    display: block !important;
+    width: 1280px; /* High-res width for crisp textures */
+    height: 960px; /* High-res height */
+    position: relative;
+    background: none;
+    backdrop-filter: none;
+}
+
+/*
+A class to apply to modals *during* the html2canvas capture.
+This ensures that elements like scrollbars, which might be styled to
+only appear on hover, are visible for the capture.
+*/
+.vr-source .is-rendering .modal-background {
+    background: var(--ui-bg);
+    border: 2px solid var(--primary-glow);
+}
+
+.vr-source .is-rendering #ascension-grid-container {
+    box-shadow: 0 0 30px var(--primary-glow);
+}
+
+.vr-source .is-rendering #aberration-core-container {
+    border-color: var(--nexus-glow);
+    box-shadow: 0 0 30px var(--nexus-glow);
+}
+
+.vr-source .is-rendering #orrery-modal-content {
+    border-color: var(--secondary-glow);
+    box-shadow: 0 0 30px var(--secondary-glow);
 }
