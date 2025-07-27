@@ -127,6 +127,7 @@ window.addEventListener('load', () => {
   const enemyContainer  = document.getElementById('enemyContainer');
   const projectileContainer = document.getElementById('projectileContainer');
   const pickupContainer    = document.getElementById('pickupContainer');
+  const effectContainer    = document.getElementById('effectContainer');
   const leftHand        = document.getElementById('leftHand');
   const rightHand       = document.getElementById('rightHand');
   const coreModel       = document.getElementById('coreModel');
@@ -136,6 +137,7 @@ window.addEventListener('load', () => {
 
   const projectileMap = new Map();
   const pickupMap = new Map();
+  const shockwaveMap = new Map();
 
   const SPHERE_RADIUS   = 8;
 
@@ -765,6 +767,37 @@ window.addEventListener('load', () => {
         if (!active.has(obj)) {
           el.remove();
           pickupMap.delete(obj);
+        }
+      });
+    }
+    // Visualise shockwave effects as expanding rings
+    if (effectContainer) {
+      const active = new Set();
+      (state.effects || []).forEach(effect => {
+        if (effect.type !== 'shockwave') return;
+        let el = shockwaveMap.get(effect);
+        const pos = uvToSpherePos(effect.x / canvas.width, effect.y / canvas.height, SPHERE_RADIUS + 0.01);
+        const radius = (effect.radius / canvas.width) * SPHERE_RADIUS;
+        if (!el) {
+          el = document.createElement('a-ring');
+          el.setAttribute('segments-theta', 48);
+          const colorMatch = /rgba?\((\d+),(\d+),(\d+)(?:,(\d*\.?\d+))?\)/.exec(effect.color || '');
+          const color = colorMatch ? `rgb(${colorMatch[1]},${colorMatch[2]},${colorMatch[3]})` : (effect.color || '#ffffff');
+          const opacity = colorMatch && colorMatch[4] ? parseFloat(colorMatch[4]) : 0.5;
+          el.setAttribute('material', `color:${color}; opacity:${opacity}; transparent:true; side:double`);
+          effectContainer.appendChild(el);
+          shockwaveMap.set(effect, el);
+        }
+        el.setAttribute('radius-inner', Math.max(0, radius - 0.05));
+        el.setAttribute('radius-outer', radius + 0.05);
+        el.object3D.position.copy(pos);
+        el.object3D.lookAt(new THREE.Vector3(0,0,0));
+        active.add(effect);
+      });
+      shockwaveMap.forEach((el, obj) => {
+        if (!active.has(obj)) {
+          el.remove();
+          shockwaveMap.delete(obj);
         }
       });
     }
