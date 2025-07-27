@@ -36,16 +36,16 @@ development.
 
 1. Install a recent version of the [Meta Quest 3](https://www.meta.com/)
    browser or any WebXR‑capable browser on your VR headset or desktop.
-2. Serve the contents of this `vr_port` folder using a simple HTTP server
+2. Serve the contents of this repository using a simple HTTP server
    (browsers often block local file access for security reasons).  From
    within the repository root, run for example:
 
    ```bash
-   npx http-server vr_port
+   npx http-server .
    ```
 
    Then open the reported URL in your VR browser.  Alternatively you can
-   drag `vr_port/index.html` into a WebXR‑capable desktop browser for a
+   open `index.html` in a WebXR‑capable desktop browser for a
    non‑VR preview.
 3. Use your controllers to grab the blue avatar box and move it around.
    Click the red aberration core to trigger its cooldown and see the UI
@@ -57,20 +57,10 @@ This prototype does **not** include the full Eternal Momentum codebase
 (`modules/bosses.js`, `modules/gameLoop.js`, etc.).  To turn this into a
 complete VR version:
 
-1. **Copy the game modules** — Place the original game’s JavaScript
-   modules and assets into the `vr_port/game` folder.  Preserve their
-   directory structure (e.g. copy the entire `modules/` directory and
-   any required `assets/` subfolders).  The updated `script.js` uses
-   dynamic `import` statements such as:
-
-   ```js
-   import { gameTick } from './game/modules/gameLoop.js';
-   import { state } from './game/modules/state.js';
-   import { activateCorePower } from './game/modules/cores.js';
-   ```
-
-   These imports will resolve once you have copied the corresponding
-   files into `vr_port/game/modules`.
+1. **Ensure the game modules are present** — The core JavaScript modules
+   from Eternal Momentum are included in this repository under the
+   `modules/` directory.  `script.js` imports them directly so no extra
+   copying is required.
 
 2. **Ensure the canvas ID matches** — The hidden canvas element in
    `index.html` has the id `gameCanvas`, which matches what
