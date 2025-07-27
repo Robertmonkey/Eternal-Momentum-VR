@@ -10,7 +10,7 @@ The goal is to build a new, native 3D VR game based on the vision in `README.md`
 
 ---
 
-## Current Beta Test Feedback & Issues (Updated July 2025)
+## Current Beta Test Feedback & Issues (Updated August 2025)
 
 This section lists the current known issues with the prototype. Your immediate priority is to resolve these issues. **This section must be updated with any new user feedback received.**
 
@@ -57,6 +57,10 @@ This section lists the current known issues with the prototype. Your immediate p
 11.  **Button Drift Feedback (July 2025):**
     * **Issue:** Some testers report the console buttons are unlabeled and appear to jump toward the player when pressed instead of opening their menus.
     * **Action:** Ensure each button has a clear emoji label, stays anchored to the command deck, and toggles its corresponding holographic panel without moving.
+12.  **General Beta Feedback (August 2025):**
+    * **Issue:** A recent tester states the VR build is still unrecognizable and unplayable compared to the README vision and the original game.
+    * **Action:** Prioritize fixing critical bugs and failed implementations so the VR version matches the original design before adding new features.
+
 
 ---
 

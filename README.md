@@ -106,3 +106,5 @@ For faster iteration, you can run a local web server.
     http-server
     ```
 3.  Open the provided local URL (e.g., `http://127.0.0.1:8080`) in a WebXR-compatible browser on your PC or headset.
+4.  If the VR scene fails to load or you see the old 2D layout, make sure you are opening `index.html` via an HTTP server. Module imports will fail if you open the file directly.
+5.  As an alternative to `http-server`, you can run `python3 -m http.server` from the project root and open the provided address in your headset browser.
