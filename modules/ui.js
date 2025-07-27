@@ -30,6 +30,7 @@ const bossInfoModal = document.getElementById('bossInfoModal');
 const bossInfoTitle = document.getElementById('bossInfoModalTitle');
 const bossInfoContent = document.getElementById('bossInfoModalContent');
 const closeBossInfoBtn = document.getElementById('closeBossInfoModalBtn');
+const bossInfoPanel = document.getElementById('bossInfoPanel');
 
 const aberrationCoreSocket = document.getElementById('aberration-core-socket');
 const aberrationCoreIcon = document.getElementById('aberration-core-icon');
@@ -319,11 +320,13 @@ export function showBossInfo(bossIds, type) {
     bossInfoTitle.innerHTML = title;
     bossInfoContent.innerHTML = content;
     bossInfoModal.style.display = 'flex';
+    if (bossInfoPanel) bossInfoPanel.setAttribute('visible', 'true');
     AudioManager.playSfx('uiModalOpen');
 }
 
 closeBossInfoBtn.addEventListener('click', () => {
     bossInfoModal.style.display = 'none';
+    if (bossInfoPanel) bossInfoPanel.setAttribute('visible', 'false');
     AudioManager.playSfx('uiModalClose');
 });
 
