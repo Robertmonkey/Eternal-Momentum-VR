@@ -72,13 +72,14 @@
          player so it is easily visible when glancing down at the table.  Two
          text elements display the current score and health; they are updated
          dynamically by script.js every frame. -->
-    <a-plane id="scorePanel" width="1.2" height="0.9"
+    <a-plane id="scorePanel" width="1.2" height="1.1"
              material="color: #141428; opacity: 0.9" position="2 1.2 -0.5" rotation="0 -30 0">
       <!-- Score and health text adopt the original game’s pale font colour. -->
       <a-text id="scoreText" value="Essence: 0" position="0 0.28 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
       <a-text id="healthText" value="Health: 100" position="0 0.05 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
       <a-text id="levelText" value="Level: 1" position="0 -0.18 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
       <a-text id="stageText" value="Stage: 1" position="0 -0.41 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+      <a-text id="apText" value="AP: 0" position="0 -0.64 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
     </a-plane>
     <!-- Panels showing the currently equipped offensive and defensive powers.
          The emojis update each frame and the triggers on the VR controllers
@@ -288,6 +289,18 @@
       <label>SFX <input type="range" id="sfxVolume" min="0" max="1" step="0.01"></label>
       <button id="muteToggle">Mute</button>
       <button id="closeSoundOptionsBtn" class="btn-modal-close">Close</button>
+    </div>
+  </div>
+  <div id="bossBanner"></div>
+  <div id="unlock-notification"></div>
+  <div id="custom-confirm" style="display:none;">
+    <div id="custom-confirm-box">
+      <div id="custom-confirm-title"></div>
+      <div id="custom-confirm-text"></div>
+      <div id="custom-confirm-actions">
+        <button id="confirm-yes">Yes</button>
+        <button id="confirm-no">No</button>
+      </div>
     </div>
   </div>
 </body>
