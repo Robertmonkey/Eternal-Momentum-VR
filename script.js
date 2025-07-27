@@ -35,10 +35,11 @@
   // `modules/` directory at the repository root, so we import from there
   // directly rather than using the old vr_port path.
   import { gameTick, spawnBossesForStage } from './modules/gameLoop.js';
-  import { state, resetGame } from './modules/state.js';
+  import { state, resetGame, savePlayerState } from './modules/state.js';
   import { activateCorePower } from './modules/cores.js';
   import { usePower, powers } from './modules/powers.js';
   import { applyAllTalentEffects } from './modules/ascension.js';
+  import { populateAberrationCoreMenu } from './modules/ui.js';
   import { STAGE_CONFIG } from './modules/config.js';
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
@@ -126,6 +127,10 @@ window.addEventListener('load', () => {
     const prevStageBtn = document.getElementById('prevStageBtn');
     const nextStageBtn = document.getElementById('nextStageBtn');
     const startStageBtn = document.getElementById('startStageBtn');
+    const coreMenuToggle = document.getElementById('coreMenuToggle');
+    const aberrationCoreModal = document.getElementById('aberrationCoreModal');
+    const closeAberrationCoreBtn = document.getElementById('closeAberrationCoreBtn');
+    const unequipCoreBtn = document.getElementById('unequipCoreBtn');
 
     const maxStage = STAGE_CONFIG.length;
     let selectedStage = state.currentStage;
@@ -286,6 +291,32 @@ window.addEventListener('load', () => {
         stageSelectPanel.setAttribute('visible', 'false');
         statusText.setAttribute('value', '');
         updateUI();
+      });
+    }
+
+    function equipCore(coreId) {
+      state.player.equippedAberrationCore = coreId;
+      savePlayerState();
+      applyAllTalentEffects();
+      populateAberrationCoreMenu(equipCore);
+      updateUI();
+    }
+
+    if (coreMenuToggle && aberrationCoreModal) {
+      coreMenuToggle.addEventListener('click', () => {
+        populateAberrationCoreMenu(equipCore);
+        aberrationCoreModal.style.display = 'flex';
+      });
+    }
+    if (closeAberrationCoreBtn) {
+      closeAberrationCoreBtn.addEventListener('click', () => {
+        aberrationCoreModal.style.display = 'none';
+      });
+    }
+    if (unequipCoreBtn) {
+      unequipCoreBtn.addEventListener('click', () => {
+        equipCore(null);
+        aberrationCoreModal.style.display = 'none';
       });
     }
 
