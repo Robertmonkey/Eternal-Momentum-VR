@@ -201,7 +201,7 @@ window.addEventListener('load', () => {
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
     // Main battlefield surface the player interacts with
-    const battlefieldPlane = document.getElementById("battlefieldPlane");
+    const battleSphere = document.getElementById("battleSphere");
     const screenCursor = document.getElementById("screenCursor");
     const playerAvatar = document.getElementById("playerAvatar");
     const enemyContainer = document.getElementById("enemyContainer");
@@ -584,8 +584,8 @@ window.addEventListener('load', () => {
     if (sfxVolume) {
       sfxVolume.addEventListener('input', e => AudioManager.setSfxVolume(parseFloat(e.target.value)));
     }
-    if (battlefieldPlane) {
-      battlefieldPlane.addEventListener("raycaster-intersection", e => {
+    if (battleSphere) {
+      battleSphere.addEventListener("raycaster-intersection", e => {
         const hit = e.detail.intersections[0];
         if (hit && hit.uv) {
           gameState.cursorUV = hit.uv;
@@ -596,17 +596,17 @@ window.addEventListener('load', () => {
           }
         }
       });
-      battlefieldPlane.addEventListener("raycaster-intersection-cleared", e => {
-        if (e.detail.clearedEl === battlefieldPlane) {
+      battleSphere.addEventListener("raycaster-intersection-cleared", e => {
+        if (e.detail.clearedEl === battleSphere) {
           gameState.cursorUV = null;
           if (screenCursor) screenCursor.setAttribute('visible', 'false');
         }
       });
-      battlefieldPlane.addEventListener("click", e => {
+      battleSphere.addEventListener("click", e => {
         const uv = e.detail.intersection?.uv || gameState.cursorUV;
         if (uv) {
           state.player.x = uv.x * canvas.width;
-          state.player.y = (1 - uv.y) * canvas.height;
+          state.player.y = uv.y * canvas.height;
         }
       });
     }
@@ -698,8 +698,18 @@ window.addEventListener('load', () => {
       });
     }
 
-    // Draggable cursor marker to reposition the player
+    // Draggable cursor marker to reposition the player on the command deck
     const PLATFORM_RADIUS = 3;
+    const SPHERE_RADIUS = 8;
+
+    function uvToSpherePos(u, v, radius = SPHERE_RADIUS) {
+      const theta = u * 2 * Math.PI;
+      const phi = v * Math.PI;
+      const x = radius * Math.sin(phi) * Math.cos(theta);
+      const y = radius * Math.cos(phi);
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      return new THREE.Vector3(x, y, z);
+    }
     if (cursorMarker) {
       const updateFromMarker = pos => {
         let x = pos.x;
@@ -715,7 +725,7 @@ window.addEventListener('load', () => {
         const theta = Math.atan2(-z, x) + Math.PI;
         const radial = Math.min(1, Math.hypot(x, z) / PLATFORM_RADIUS);
         state.player.x = (theta / (2 * Math.PI)) * width;
-        state.player.y = (1 - radial) * height;
+        state.player.y = radial * height;
       };
 
       cursorMarker.addEventListener('dragmove', e => {
@@ -732,7 +742,7 @@ window.addEventListener('load', () => {
       // Advance the game if possible
       if (gameState.cursorUV) {
         state.player.x = gameState.cursorUV.x * canvas.width;
-        state.player.y = (1 - gameState.cursorUV.y) * canvas.height;
+        state.player.y = gameState.cursorUV.y * canvas.height;
       }
       if (typeof gameTick === 'function') {
         try {
@@ -768,24 +778,22 @@ window.addEventListener('load', () => {
       if (cursorMarker) {
         const { width, height } = canvas;
         const theta = (state.player.x / width) * 2 * Math.PI;
-        const radial = 1 - (state.player.y / height);
+        const radial = state.player.y / height;
         const r = PLATFORM_RADIUS * radial;
         cursorMarker.object3D.position.set(
           r * Math.cos(theta),
           cursorMarker.object3D.position.y,
-          -r * Math.sin(theta)
+          r * Math.sin(theta)
         );
       }
 
-      // Update 3D arena objects
-      // Battlefield dimensions now larger than the original prototype
-      const w = 18;
-      const h = 10;
-      const baseY = 0;
+      // Update 3D arena objects on spherical surface
       if (playerAvatar) {
-        const px = (state.player.x / canvas.width - 0.5) * w;
-        const pz = (0.5 - state.player.y / canvas.height) * h;
-        playerAvatar.object3D.position.set(px, baseY + 0.1, pz);
+        const u = state.player.x / canvas.width;
+        const v = state.player.y / canvas.height;
+        const pos = uvToSpherePos(u, v);
+        playerAvatar.object3D.position.copy(pos);
+        playerAvatar.object3D.lookAt(0, 0, 0);
       }
       if (enemyContainer) {
         const existing = new Set();
@@ -802,9 +810,8 @@ window.addEventListener('load', () => {
             el.dataset.eid = id;
             enemyContainer.appendChild(el);
           }
-          const ex = (e.x / canvas.width - 0.5) * w;
-          const ez = (0.5 - e.y / canvas.height) * h;
-          el.object3D.position.set(ex, baseY + 0.2, ez);
+          const pos = uvToSpherePos(e.x / canvas.width, e.y / canvas.height);
+          el.object3D.position.copy(pos);
         });
         enemyContainer.querySelectorAll('[data-eid]').forEach(el => {
           if (!existing.has(parseFloat(el.dataset.eid))) {
@@ -831,9 +838,8 @@ window.addEventListener('load', () => {
           } else if (effect.color) {
             el.setAttribute('color', effect.color);
           }
-          const px = (effect.x / canvas.width - 0.5) * w;
-          const pz = (0.5 - effect.y / canvas.height) * h;
-          el.object3D.position.set(px, baseY + 0.15, pz);
+          const pos = uvToSpherePos(effect.x / canvas.width, effect.y / canvas.height);
+          el.object3D.position.copy(pos);
         });
         projectileEls.forEach((el, eff) => {
           if (!active.has(eff)) {
