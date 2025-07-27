@@ -4,21 +4,18 @@
   <meta charset="UTF-8">
   <title>Eternal Momentum VR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Load A‑Frame and helpers -->
   <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-super-hands-component@5.0.0/dist/aframe-super-hands-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <!-- Our VR logic -->
   <script src="script.js" type="module"></script>
-  <!-- Bring in the original CSS for colours and fonts -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="Eternal-Momentum-OLD GAME/style.css">
 </head>
 <body>
-  <!-- Offscreen canvas for drawing the neon grid floor; hidden from view -->
   <canvas id="gridCanvas" width="512" height="512" style="display:none;"></canvas>
+
   <a-scene embedded background="color: #000">
-    <!-- Assets for buttons and audio -->
     <a-assets>
       <a-mixin id="console-button"
                geometry="primitive: cylinder; radius:0.12; height:0.06"
@@ -26,311 +23,82 @@
                         emissive:#00ffff; emissiveIntensity:0.7; metalness:0.2; roughness:0.4"
                animation__press="property: position; startEvents: mousedown; dir: alternate; dur: 100; to: 0 -0.02 0"
                animation__release="property: position; startEvents: mouseup; dir: alternate; dur: 100; to: 0 0 0"
-               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.5"></a-mixin>
+               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.5">
+      </a-mixin>
       <a-mixin id="console-panel"
                geometry="primitive: plane; width:1; height:0.6"
-               material="color:#141428; opacity:0.9; transparent:true; emissive:#00ffff; emissiveIntensity:0.25"></a-mixin>
-      <!-- Basic UI sounds -->
+               material="color:#141428; opacity:0.9; transparent:true; emissive:#00ffff; emissiveIntensity:0.25">
+      </a-mixin>
       <audio id="uiHoverSound" class="game-audio" src="assets/uiHoverSound.mp3" preload="auto"></audio>
       <audio id="uiClickSound" class="game-audio" src="assets/uiClickSound.mp3" preload="auto"></audio>
       <audio id="uiModalOpen" class="game-audio" src="assets/uiModalOpen.mp3" preload="auto"></audio>
       <audio id="uiModalClose" class="game-audio" src="assets/uiModalClose.mp3" preload="auto"></audio>
     </a-assets>
-    <!-- Simple skybox -->
+
     <a-sky color="#000"></a-sky>
-    <!-- VR rig with camera and controllers -->
-    <a-entity id="rig" position="0 0 0">
+
+    <a-entity id="rig" position="0 1.6 0">
       <a-camera id="camera" wasd-controls-enabled="false">
-        <a-ring id="vignette" radius-inner="0.8" radius-outer="1.3" position="0 0 -0.1"
-                material="color: #000; shader: flat; opacity: 0; transparent: true"
-                visible="false"></a-ring>
+        <a-entity id="vignette" geometry="primitive: plane; width: 4; height: 4" position="0 0 -0.1"
+                material="shader: flat; src: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABdElEQVR42u2XwY7DIAwF8+s/dDS1u1t2/wvc7e7+r8ggYJBAkmmd4pA24UlIUhTrBXB4B/D49A8gT0ny8g9wDfjyC3BOkvy8gvJgXwB8SdLrf2i/f/wO8JckX/8DfC/Jg33+f/w+vH8f+NeS3gP8U5KnEPgvyb8ADkvSU4i/J/mH4DAkPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8n+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8Lck/y94DMlD4C8k+f8Ahif5n8B+Se5E8h8+DvBrSe8B/j/Jkwh8S/JrwLskPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8l+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8LckT6P5n5L83wAnJfkLZf8B/Jt+AVfTC2vKxGmdAAAAAElFTkSuQmCC);
+                transparent: true; opacity: 0"
+                visible="false"></a-entity>
       </a-camera>
       <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: .interactive" super-hands></a-entity>
       <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: .interactive" super-hands></a-entity>
+    </a-entity>
 
-    <!-- Floating command deck containing all UI panels and controls -->
-    <a-entity id="commandDeck" position="0 1.2 0">
-      <!-- Neon grid floor -->
-      <a-circle id="deckFloor" radius="3" rotation="-90 0 0"
-                material="transparent:true; opacity:0.6; side:double"
-                canvas-texture="#gridCanvas"></a-circle>
-      <!-- Score & stats panel -->
-      <a-plane id="scorePanel" width="1.2" height="1.1"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
-        <a-text id="scoreText" value="Essence: 0" position="0 0.28 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-        <a-text id="healthText" value="Health: 100" position="0 0.05 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-        <a-text id="levelText" value="Level: 1" position="0 -0.18 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-        <a-text id="stageText" value="Stage: 1" position="0 -0.41 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-        <a-text id="apText" value="AP: 0" position="0 -0.64 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-      </a-plane>
-      <!-- Offensive power panel -->
-      <a-plane id="offPowerPanel" width="0.3" height="0.3"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
-        <a-text id="offPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
-        <a-text id="offPowerQueueText" value="" align="center" width="0.3" color="#eaf2ff" position="0 -0.22 0.01"></a-text>
-      </a-plane>
-      <!-- Defensive power panel -->
-      <a-plane id="defPowerPanel" width="0.3" height="0.3"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
-        <a-text id="defPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
-        <a-text id="defPowerQueueText" value="" align="center" width="0.3" color="#eaf2ff" position="0 -0.22 0.01"></a-text>
-      </a-plane>
-      <!-- Status effects panel -->
-      <a-plane id="statusEffectsPanel" width="1.2" height="0.3"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
-        <a-text id="statusEffectsText" value="" align="center" width="1.1" color="#eaf2ff"></a-text>
-      </a-plane>
-      <!-- Draggable cursor marker (table only) -->
-      <a-sphere id="cursorMarker" radius="0.15"
-                material="color: #00aaff; emissive: #00aaff; emissiveIntensity: 0.6"
-                position="0 1 0" class="interactive grabbable draggable"></a-sphere>
-      <!-- Aberration core and cooldown ring -->
-      <a-sphere id="coreModel" radius="0.3"
-                material="color: #f000ff; emissive: #f000ff; emissiveIntensity: 0.5"
-                position="-2 1.5 -1" class="interactive" visible="false">
-        <a-animation attribute="rotation" dur="8000" to="360 360 0" repeat="indefinite" easing="linear"></a-animation>
-      </a-sphere>
-      <a-ring id="coreCooldownRing" radius-inner="0.32" radius-outer="0.36"
-              position="-2 1.5 -1" material="color:#f000ff; opacity:0.4" rotation="0 0 0" visible="false"></a-ring>
-      <a-plane id="coreCooldownPanel" width="0.6" height="0.3"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-               position="-2 1.0 -1" visible="false">
-        <a-text id="cooldownText" value="Core cooldown: Ready" align="center" width="0.5" color="#eaf2ff"></a-text>
-      </a-plane>
-      <!-- Status message panel -->
-      <a-plane id="statusPanel" width="1.4" height="0.3"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
-        <a-text id="statusText" value="" align="center" width="1.2" color="#eaf2ff"></a-text>
-      </a-plane>
-      <!-- Boss health bar panel: dark wrapper with coloured fill -->
-      <a-plane id="bossPanel" width="2.0" height="0.35"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-               visible="false">
-        <a-text id="bossNameText" value="" align="center" width="2.0" color="#eaf2ff" position="0 0.12 0.01"></a-text>
-        <a-plane id="bossHpBarWrap" width="1.6" height="0.08" position="0 -0.05 0.01"
-                 material="color:#222; opacity:0.7; side: double">
-          <a-plane id="bossHpBarFill" width="1.6" height="0.08" position="-0.8 0 0.001"
-                   material="color:#3498db; opacity:1.0; side: double"></a-plane>
-        </a-plane>
-      </a-plane>
-      <!-- Control buttons around the deck; positions are set dynamically in script -->
-      <a-entity id="resetButton" mixin="console-button" class="interactive">
-        <a-text value="↻" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="pauseToggle" mixin="console-button" class="interactive">
-        <a-text id="pauseText" value="⏸" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="stageSelectToggle" mixin="console-button" class="interactive">
-        <a-text value="🗺️" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="coreMenuToggle" mixin="console-button" class="interactive">
-        <a-text value="◎" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="ascensionToggle" mixin="console-button" class="interactive">
-        <a-text value="💠" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="codexToggle" mixin="console-button" class="interactive">
-        <a-text value="📖" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="orreryToggle" mixin="console-button" class="interactive">
-        <a-text value="🌀" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="soundOptionsToggle" mixin="console-button" class="interactive">
-        <a-text id="soundIconText" value="🔊" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-entity> <!-- end commandDeck -->
-    <!-- Stage selection panel -->
-    <a-plane id="stageSelectPanel" width="2.0" height="1.2"
-             material="color: #141428; opacity: 0.95; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="-0.9 1.6 -2.44" look-at="#commandDeck" visible="false">
-      <a-text id="stageSelectLabel" value="Stage: 1" align="center" width="1.5" color="#eaf2ff" position="0 0.3 0.01"></a-text>
-      <a-entity id="prevStageBtn" mixin="console-button" class="interactive" position="-0.6 -0.1 0.02">
-        <a-text value="Prev" align="center" width="0.4" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="nextStageBtn" mixin="console-button" class="interactive" position="0.6 -0.1 0.02">
-        <a-text value="Next" align="center" width="0.4" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="startStageBtn" mixin="console-button" class="interactive" position="0 -0.35 0.02">
-        <a-text value="Start" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="stageMechanicsBtn" mixin="console-button" class="interactive" position="-0.45 -0.35 0.02">
-        <a-text value="❔" align="center" width="0.4" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="stageLoreBtn" mixin="console-button" class="interactive" position="0.45 -0.35 0.02">
-        <a-text value="ℹ️" align="center" width="0.4" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
+    <a-entity id="commandDeck" position="0 0 0">
+    </a-entity>
+
+    <a-plane id="holographicPanel" class="interactive" width="3.2" height="2.4" position="0 1.6 -2.5" visible="false">
+        <a-entity mixin="console-button" id="closeHolographicPanelBtn" position="0 -1.35 0.02" class="interactive">
+            <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+        </a-entity>
     </a-plane>
-    <!-- Game over panel -->
-    <a-plane id="gameOverPanel" width="2.0" height="1.0"
-             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="0 1.6 -1" look-at="#commandDeck" visible="false">
-      <a-text value="TIMELINE COLLAPSED" align="center" width="1.8" color="#e74c3c" position="0 0.3 0.01"></a-text>
-      <a-entity id="restartStageBtn" mixin="console-button" class="interactive" position="-0.7 -0.1 0.02">
-        <a-text value="Restart Stage" align="center" width="0.8" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="ascensionMenuBtn" mixin="console-button" class="interactive" position="0 0.1 0.02">
-        <a-text value="Ascension Conduit" align="center" width="0.9" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="aberrationCoreMenuBtn" mixin="console-button" class="interactive" position="0 -0.1 0.02">
-        <a-text value="Aberration Cores" align="center" width="0.9" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity id="levelSelectMenuBtn" mixin="console-button" class="interactive" position="0.7 -0.1 0.02">
-        <a-text value="Stage Select" align="center" width="0.8" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-    <!-- Boss info panel -->
-    <a-plane id="bossInfoPanel" width="2.0" height="1.2"
-             material="color: #141428; opacity: 0.95; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="0 1.6 -1.2" look-at="#commandDeck" visible="false">
-      <a-text id="bossInfoPanelTitle" value="" align="center" width="1.8" color="#eaf2ff" position="0 0.45 0.01"></a-text>
-      <a-text id="bossInfoPanelContent" value="" align="center" width="1.8" wrap-count="38" color="#eaf2ff" position="0 -0.05 0.01"></a-text>
-      <a-entity id="closeBossInfoBtn3D" mixin="console-button" class="interactive" position="0 -0.45 0.02">
-        <a-text value="Close" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-    <!-- Floating panels for in-game menus -->
-    <a-plane id="ascensionGridPanel" mixin="console-panel" width="2.4" height="1.4" position="0.89 1.6 -2.44" look-at="#commandDeck" visible="false">
-      <a-text value="ASCENSION GRID" align="center" width="2" color="#eaf2ff" position="0 0.5 0.01"></a-text>
-      <a-entity id="closeAscensionGridBtn" mixin="console-button" class="interactive" position="0 -0.5 0.02">
-        <a-text value="Close" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-    <a-plane id="aberrationCorePanel" mixin="console-panel" width="2.4" height="1.4" position="-0.89 1.6 -2.44" look-at="#commandDeck" visible="false">
-      <a-text value="ABERRATION CORES" align="center" width="2" color="#eaf2ff" position="0 0.5 0.01"></a-text>
-      <a-entity id="closeAberrationCoreBtn" mixin="console-button" class="interactive" position="0 -0.5 0.02">
-        <a-text value="Close" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-    <a-plane id="loreCodexPanel" mixin="console-panel" width="2.4" height="1.4" position="2.25 1.6 -1.3" look-at="#commandDeck" visible="false">
-      <a-text value="LORE CODEX" align="center" width="2" color="#eaf2ff" position="0 0.5 0.01"></a-text>
-      <a-entity id="closeLoreCodexBtn" mixin="console-button" class="interactive" position="0 -0.5 0.02">
-        <a-text value="Close" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-    <a-plane id="orreryPanel" mixin="console-panel" width="2.4" height="1.4" position="-2.25 1.6 -1.3" look-at="#commandDeck" visible="false">
-      <a-text value="WEAVER'S ORRERY" align="center" width="2" color="#eaf2ff" position="0 0.5 0.01"></a-text>
-      <a-entity id="closeOrreryBtn" mixin="console-button" class="interactive" position="0 -0.5 0.02">
-        <a-text value="Close" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-    <a-plane id="soundOptionsPanel" mixin="console-panel" width="1.6" height="1.0" position="2.56 1.6 0.45" look-at="#commandDeck" visible="false">
-      <a-text value="SOUND OPTIONS" align="center" width="1.2" color="#eaf2ff" position="0 0.3 0.01"></a-text>
-      <a-entity id="closeSoundOptionsBtn" mixin="console-button" class="interactive" position="0 -0.3 0.02">
-        <a-text value="Close" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-    <!-- The spherical battlefield that surrounds the deck -->
+
     <a-sphere id="battleSphere" radius="8" segments-height="60" segments-width="60"
               material="color: #080c18; side: back; opacity: 0.0; transparent: true"
               class="interactive"></a-sphere>
-    <!-- Containers for gameplay objects -->
-    <a-entity id="enemyContainer"></a-entity>
-    <a-entity id="projectileContainer"></a-entity>
-    <a-entity id="pickupContainer"></a-entity>
-    <a-entity id="effectContainer"></a-entity>
-    <a-entity id="nexusAvatar">
-      <a-sphere radius="0.3" material="color:#00ff00"></a-sphere>
-    </a-entity>
-    <a-sphere id="screenCursor" radius="0.05" material="color:#ffffff; opacity:0.8" visible="false"></a-sphere>
-    <!-- Neon ring to visualise the command deck perimeter -->
-    <a-torus id="commandDeckEnv" radius="3" radius-tubular="0.02"
-             segments-radial="36" segments-tubular="12"
-             material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.2; transparent:true; opacity:0.6"
-             rotation="90 0 0"></a-torus>
+
+    <a-entity id="gameplayContainer">
+        <a-entity id="enemyContainer"></a-entity>
+        <a-entity id="projectileContainer"></a-entity>
+        <a-entity id="pickupContainer"></a-entity>
+        <a-entity id="effectContainer"></a-entity>
+        <a-entity id="nexusAvatar">
+          <a-sphere radius="0.3" material="color:#00ff00; emissive: #00ff00; emissiveIntensity: 0.5"></a-sphere>
+        </a-entity>
     </a-entity>
   </a-scene>
-  <!-- VR modals and overlays ported from the original interface -->
-  <div id="ascensionGridModal" style="display:none;" class="modal flex-center">
-    <div id="ascension-grid-container" class="modal-background">
-      <div class="ascension-header">
-        <h1>ASCENSION CONDUIT</h1>
-        <div class="ap-display-header">
-          <span>ASCENSION POINTS</span>
-          <span id="ap-total-asc-grid">0</span>
-        </div>
-      </div>
-      <div class="ascension-content"></div>
-      <div class="ascension-footer">
-        <button id="clearSaveBtn">ERASE TIMELINE</button>
-        <button id="closeAscensionBtn" class="btn-modal-close">CLOSE</button>
-      </div>
-    </div>
-  </div>
 
-  <div id="aberrationCoreModal" style="display:none;" class="modal flex-center">
-    <div id="aberration-core-container" class="modal-background">
-      <div class="ascension-header">
-        <h1>ABERRATION CORE ATTUNEMENT</h1>
-        <div id="aberration-core-equipped-display">
-          <span>CURRENTLY ATTUNED</span>
-          <span id="aberration-core-equipped-name">None</span>
+  <div class="vr-source">
+    <div id="ascensionGridModal" class="modal">
+        <div id="ascension-grid-container" class="modal-background">
+            <div class="ascension-header"><h1>ASCENSION CONDUIT</h1><div class="ap-display-header"><span>ASCENSION POINTS</span><span id="ap-total-asc-grid">0</span></div></div>
+            <div class="ascension-content"></div>
+            <div class="ascension-footer"><button id="clearSaveBtn">ERASE TIMELINE</button></div>
         </div>
-      </div>
-      <div id="aberration-core-list-container"></div>
-      <div class="ascension-footer">
-        <button id="unequipCoreBtn">UNEQUIP CORE</button>
-        <button id="closeAberrationCoreBtn" class="btn-modal-close">CLOSE</button>
-      </div>
     </div>
-  </div>
-
-  <div id="orreryModal" style="display:none;" class="modal flex-center">
-    <div id="orrery-modal-content" class="modal-background">
-      <div class="ascension-header">
-        <h1>THE WEAVER'S ORRERY</h1>
-        <div class="ap-display-header">
-          <span>ECHOES OF CREATION</span>
-          <span id="orrery-points-total">0</span>
+    <div id="aberrationCoreModal" class="modal">
+        <div id="aberration-core-container" class="modal-background">
+            <div class="ascension-header"><h1>ABERRATION CORE ATTUNEMENT</h1><div id="aberration-core-equipped-display"><span>CURRENTLY ATTUNED</span><span id="aberration-core-equipped-name">None</span></div></div>
+            <div id="aberration-core-list-container"></div>
+            <div class="ascension-footer"><button id="unequipCoreBtn">UNEQUIP CORE</button></div>
         </div>
-      </div>
-      <div id="orrery-main-content">
-        <div id="orrery-boss-list-container"></div>
-        <div id="orrery-selection-container">
-          <h3>TIMELINE ROSTER</h3>
-          <div id="orrery-selection-display"></div>
-          <div id="orrery-cost-display">
-            <span>ECHOES SPENT: </span>
-            <span id="orrery-current-cost">0</span>
-          </div>
+    </div>
+    <div id="orreryModal" class="modal">
+        <div id="orrery-modal-content" class="modal-background">
+            <div class="ascension-header"><h1>THE WEAVER'S ORRERY</h1><div class="ap-display-header"><span>ECHOES OF CREATION</span><span id="orrery-points-total">0</span></div></div>
+            <div id="orrery-main-content"><div id="orrery-boss-list-container"></div><div id="orrery-selection-container"><h3>TIMELINE ROSTER</h3><div id="orrery-selection-display"></div><div id="orrery-cost-display"><span>ECHOES SPENT: </span><span id="orrery-current-cost">0</span></div></div></div>
+            <div class="ascension-footer"><button id="orrery-reset-btn">CLEAR ROSTER</button><div><button id="orrery-start-btn" class="disabled">FORGE TIMELINE</button></div></div>
         </div>
-      </div>
-      <div class="ascension-footer">
-        <button id="orrery-reset-btn">CLEAR ROSTER</button>
-        <div style="display:flex;gap:15px;">
-          <button id="orrery-start-btn" class="disabled">FORGE TIMELINE</button>
-          <button id="closeOrreryBtn" class="btn-modal-close">CLOSE</button>
+    </div>
+    <div id="bossInfoModal" class="modal">
+        <div id="bossInfoModalBox" class="modal-background">
+            <h2 id="bossInfoModalTitle"></h2>
+            <div id="bossInfoModalContent"></div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="loreCodexModal" style="display:none;" class="modal flex-center">
-    <div id="lore-codex-container" class="modal-background">
-      <h1 style="margin-top:0;">LORE CODEX</h1>
-      <div id="lore-codex-list" style="flex-grow:1;overflow-y:auto;"></div>
-      <div style="text-align:right;margin-top:15px;">
-        <button id="closeLoreCodexBtn" class="btn-modal-close">CLOSE</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="soundOptionsModal" style="display:none;" class="modal flex-center">
-    <div id="sound-options-container">
-      <h1>SOUND OPTIONS</h1>
-      <label>Music <input id="musicVolume" type="range" min="0" max="1" step="0.01"></label>
-      <label>SFX <input id="sfxVolume" type="range" min="0" max="1" step="0.01"></label>
-      <button id="muteToggle">Mute</button>
-      <button id="closeSoundOptionsBtn" class="btn-modal-close">Close</button>
-    </div>
-  </div>
-
-  <div id="bossInfoModal" style="display:none;" class="modal flex-center">
-    <div id="bossInfoModalBox" class="modal-background">
-      <h2 id="bossInfoModalTitle"></h2>
-      <div id="bossInfoModalContent"></div>
-      <div id="bossInfoModalActions">
-        <button id="closeBossInfoModalBtn" class="btn-modal-close">Close</button>
-      </div>
     </div>
   </div>
 </body>
