@@ -681,8 +681,9 @@ window.addEventListener('load', () => {
     try { gameTick(mx, my); } catch (err) { console.error(err); }
     // Move the avatar gradually toward the cursor using the 3D momentum formula
     if (gameState.cursorPoint) {
-      const targetPos = gameState.cursorPoint.clone().normalize().multiplyScalar(SPHERE_RADIUS);
-      avatarPos = moveTowards(avatarPos, targetPos, 0.015 * (state.player.speedModifier || 1));
+        const targetPos = gameState.cursorPoint.clone().normalize().multiplyScalar(SPHERE_RADIUS);
+        const speedFactor = state.player.speed || 1;
+        avatarPos = moveTowards(avatarPos, targetPos, speedFactor);
       const conv = spherePosToUv(avatarPos);
       state.player.x = conv.u * canvas.width;
       state.player.y = conv.v * canvas.height;
