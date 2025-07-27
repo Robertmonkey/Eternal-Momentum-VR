@@ -31,12 +31,16 @@ This section lists the current known issues with the prototype. Your immediate p
     * **Required Fix:** Implement the functionality so that clicking a menu button opens the correct UI panel from the original `index.html` as a large, interactive holographic screen in front of the player.
 
 5.  **Broken VR Layout and Gameplay:**
-    * **Issue:** Upon entering VR, all UI elements and command deck pieces appear high above the player's head with scattered blue cylinders. The Aberration Core sphere is visible before any cores are unlocked, the player cannot move across the battlefield, and the stage never begins.
-    * **Required Fix:** Anchor the command deck and UI relative to the player's camera so they sit at waist level, hide the Aberration Core model until a core is unlocked, automatically start a valid stage when VR begins, and ensure the battle sphere registers pointer input for movement.
+    * **Issue:** Upon entering VR, all UI elements and command deck pieces appear high above the player's head with scattered blue cylinders. These cylinders behave as unlabeled buttons that drop when touched and then float into the player's position, stacking on one another. The Aberration Core sphere is visible before any cores are unlocked, the player cannot move across the battlefield, and the stage never begins.
+    * **Required Fix:** Anchor the command deck and UI relative to the player's camera so they sit at waist level, keep the placeholder buttons from drifting, hide the Aberration Core model until a core is unlocked, automatically start a valid stage when VR begins, and ensure the battle sphere registers pointer input for movement.
 
 6.  **Gameplay Stability Concerns:**
-    * **Issue:** Recent feedback reports that the game is still largely unplayable without specific details.
-    * **Required Fix:** Continue addressing bugs and ensure the default VR entry always launches a playable stage with functional controls.
+    * **Issue:** Recent feedback reports that the game is still largely unplayable. The current build cannot start a level, lacks enemy spawns or power-up pickups, and the player cannot move the Nexus across the sphere.
+    * **Required Fix:** Continue addressing bugs and ensure the default VR entry always launches a playable stage with functional controls, including movement, enemies, bosses, and power-ups.
+
+7.  **UI Aesthetic Mismatch:**
+    * **Issue:** All visible panels and buttons do not resemble the original game's UI. The blue cylinders are oversized, unlabeled, and clash with the intended design.
+    * **Required Fix:** Replace temporary geometry with properly sized, glowing buttons and panels that match the style defined in `style.css` and game screenshots.
 
 ---
 
