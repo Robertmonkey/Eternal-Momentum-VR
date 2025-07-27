@@ -132,6 +132,7 @@ window.addEventListener('load', () => {
   const coreModel       = document.getElementById('coreModel');
   const coreCooldownRing = document.getElementById('coreCooldownRing');
   const coreCooldownPanel = document.getElementById('coreCooldownPanel');
+  const cooldownText    = document.getElementById('cooldownText');
 
   const projectileMap = new Map();
   const pickupMap = new Map();
@@ -273,6 +274,7 @@ window.addEventListener('load', () => {
       }
     }
     updateCoreModelVisibility();
+    updateCoreCooldownDisplay();
   }
 
   function updateCoreModelVisibility() {
@@ -280,6 +282,42 @@ window.addEventListener('load', () => {
     if (coreModel) coreModel.setAttribute('visible', hasCore);
     if (coreCooldownRing) coreCooldownRing.setAttribute('visible', hasCore);
     if (coreCooldownPanel) coreCooldownPanel.setAttribute('visible', hasCore);
+  }
+
+  function updateCoreCooldownDisplay() {
+    if (!coreCooldownPanel || !cooldownText || !coreCooldownRing) return;
+    const coreId = state.player.equippedAberrationCore;
+    if (!coreId) {
+      cooldownText.setAttribute('value', 'No Core Equipped');
+      coreCooldownRing.object3D.scale.set(0, 0, 0);
+      return;
+    }
+    const coreState = state.player.talent_states.core_states[coreId] || {};
+    const cooldowns = {
+      juggernaut: 8000,
+      syphon: 5000,
+      mirror_mirage: 12000,
+      looper: 10000,
+      gravity: 6000,
+      architect: 15000,
+      annihilator: 25000,
+      puppeteer: 8000,
+      helix_weaver: 5000,
+      epoch_ender: 120000,
+      splitter: 500
+    };
+    const now = Date.now();
+    const end = coreState.cooldownUntil || 0;
+    const duration = cooldowns[coreId];
+    if (!duration || now >= end) {
+      cooldownText.setAttribute('value', 'Core cooldown: Ready');
+      coreCooldownRing.object3D.scale.set(1, 1, 1);
+      return;
+    }
+    const remaining = Math.max(0, end - now);
+    const progress = remaining / duration;
+    cooldownText.setAttribute('value', `Core cooldown: ${Math.ceil(remaining / 1000)}s`);
+    coreCooldownRing.object3D.scale.set(progress, progress, progress);
   }
 
   // Event handlers for menu buttons.  These open the respective modals and
