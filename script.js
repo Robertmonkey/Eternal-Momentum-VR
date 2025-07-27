@@ -536,8 +536,22 @@ window.addEventListener('load', () => {
 
   // Animation loop: update game logic and 3D positions every frame.
   function animate() {
-    // Advance the core 2D game simulation
-    try { gameTick(); } catch (err) { console.error(err); }
+    // Determine the current cursor position on the 2D canvas.  When the
+    // raycaster is hitting the gameplay sphere we convert the UV back to
+    // pixel coordinates.  Otherwise fall back to the avatar's location so
+    // logic that relies on mx/my continues to work.
+    let mx, my;
+    if (gameState.cursorUV) {
+      mx = gameState.cursorUV.x * canvas.width;
+      my = gameState.cursorUV.y * canvas.height;
+    } else {
+      const uv = spherePosToUv(avatarPos);
+      mx = uv.u * canvas.width;
+      my = uv.v * canvas.height;
+    }
+
+    // Advance the core 2D game simulation with the mapped coordinates
+    try { gameTick(mx, my); } catch (err) { console.error(err); }
     // Move the avatar gradually toward the cursor using the 3D momentum formula
     if (gameState.cursorPoint) {
       const targetPos = gameState.cursorPoint.clone().normalize().multiplyScalar(SPHERE_RADIUS);
