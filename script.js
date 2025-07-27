@@ -165,6 +165,7 @@ window.addEventListener('load', () => {
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
     const gameScreen = document.getElementById("gameScreen");
+    const screenCursor = document.getElementById("screenCursor");
     const leftHand = document.getElementById("leftHand");
     const rightHand = document.getElementById("rightHand");
     function triggerHaptic(el, intensity = 0.5, duration = 50) {
@@ -476,10 +477,20 @@ window.addEventListener('load', () => {
     if (gameScreen) {
       gameScreen.addEventListener("raycaster-intersection", e => {
         const hit = e.detail.intersections[0];
-        if (hit && hit.uv) gameState.cursorUV = hit.uv;
+        if (hit && hit.uv) {
+          gameState.cursorUV = hit.uv;
+          if (screenCursor) {
+            screenCursor.object3D.position.copy(hit.point);
+            screenCursor.object3D.lookAt(camera.object3D.position);
+            screenCursor.setAttribute('visible', 'true');
+          }
+        }
       });
       gameScreen.addEventListener("raycaster-intersection-cleared", e => {
-        if (e.detail.clearedEl === gameScreen) gameState.cursorUV = null;
+        if (e.detail.clearedEl === gameScreen) {
+          gameState.cursorUV = null;
+          if (screenCursor) screenCursor.setAttribute('visible', 'false');
+        }
       });
       gameScreen.addEventListener("click", e => {
         const uv = e.detail.intersection?.uv || gameState.cursorUV;
