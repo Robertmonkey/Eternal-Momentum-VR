@@ -178,6 +178,16 @@ window.addEventListener('load', () => {
     if (commandDeckEnv)  commandDeckEnv.object3D.position.y = headY - 1.6;
   }
 
+  function showPanel(panelEl) {
+    if (!panelEl) return;
+    const cam = cameraEl.object3D;
+    const offset = new THREE.Vector3(0, 0, -1.2);
+    offset.applyQuaternion(cam.quaternion);
+    panelEl.object3D.position.copy(cam.position).add(offset);
+    panelEl.object3D.quaternion.copy(cam.quaternion);
+    panelEl.setAttribute('visible', 'true');
+  }
+
   // Start the selected stage by resetting and spawning enemies/bosses.
   function restartCurrentStage() {
     resetGame(false);
@@ -276,24 +286,19 @@ window.addEventListener('load', () => {
   // panels defined in the DOM.  They mirror the behaviour of the 2D
   // interface but are adapted for VR.
   const coreMenuToggle     = document.getElementById('coreMenuToggle');
-  const aberrationCoreModal = document.getElementById('aberrationCoreModal');
   const aberrationCorePanel = document.getElementById('aberrationCorePanel');
   const closeAberrationCoreBtn = document.getElementById('closeAberrationCoreBtn');
   const unequipCoreBtn     = document.getElementById('unequipCoreBtn');
   const ascensionToggle    = document.getElementById('ascensionToggle');
-  const ascensionGridModal = document.getElementById('ascensionGridModal');
   const ascensionGridPanel = document.getElementById('ascensionGridPanel');
   const closeAscensionGridBtn = document.getElementById('closeAscensionGridBtn');
   const codexToggle        = document.getElementById('codexToggle');
-  const loreCodexModal     = document.getElementById('loreCodexModal');
   const loreCodexPanel     = document.getElementById('loreCodexPanel');
   const closeLoreCodexBtn  = document.getElementById('closeLoreCodexBtn');
   const orreryToggle       = document.getElementById('orreryToggle');
-  const orreryModal        = document.getElementById('orreryModal');
   const orreryPanel        = document.getElementById('orreryPanel');
   const closeOrreryBtn     = document.getElementById('closeOrreryBtn');
   const soundOptionsToggle = document.getElementById('soundOptionsToggle');
-  const soundOptionsModal  = document.getElementById('soundOptionsModal');
   const soundOptionsPanel  = document.getElementById('soundOptionsPanel');
   const closeSoundOptionsBtn = document.getElementById('closeSoundOptionsBtn');
   const musicVolume        = document.getElementById('musicVolume');
@@ -356,13 +361,11 @@ window.addEventListener('load', () => {
       populateAberrationCoreMenu(() => {});
       updateUI();
     });
-    aberrationCoreModal.style.display = 'flex';
-    aberrationCorePanel.setAttribute('visible', 'true');
+    showPanel(aberrationCorePanel);
     AudioManager.playSfx('uiModalOpen');
   });
   if (closeAberrationCoreBtn) closeAberrationCoreBtn.addEventListener('click', () => {
     aberrationCorePanel.setAttribute('visible', 'false');
-    aberrationCoreModal.style.display = 'none';
     AudioManager.playSfx('uiModalClose');
   });
   if (unequipCoreBtn) unequipCoreBtn.addEventListener('click', () => {
@@ -371,30 +374,25 @@ window.addEventListener('load', () => {
     applyAllTalentEffects();
     populateAberrationCoreMenu(() => {});
     aberrationCorePanel.setAttribute('visible', 'false');
-    aberrationCoreModal.style.display = 'none';
     AudioManager.playSfx('uiModalClose');
     updateUI();
   });
   if (ascensionToggle) ascensionToggle.addEventListener('click', () => {
     renderAscensionGrid();
-    ascensionGridModal.style.display = 'block';
-    ascensionGridPanel.setAttribute('visible', 'true');
+    showPanel(ascensionGridPanel);
     AudioManager.playSfx('uiModalOpen');
   });
   if (closeAscensionGridBtn) closeAscensionGridBtn.addEventListener('click', () => {
     ascensionGridPanel.setAttribute('visible', 'false');
-    ascensionGridModal.style.display = 'none';
     AudioManager.playSfx('uiModalClose');
   });
   if (codexToggle) codexToggle.addEventListener('click', () => {
     populateLoreCodex();
-    loreCodexModal.style.display = 'block';
-    loreCodexPanel.setAttribute('visible', 'true');
+    showPanel(loreCodexPanel);
     AudioManager.playSfx('uiModalOpen');
   });
   if (closeLoreCodexBtn) closeLoreCodexBtn.addEventListener('click', () => {
     loreCodexPanel.setAttribute('visible', 'false');
-    loreCodexModal.style.display = 'none';
     AudioManager.playSfx('uiModalClose');
   });
   if (orreryToggle) orreryToggle.addEventListener('click', () => {
@@ -408,29 +406,24 @@ window.addEventListener('load', () => {
       const uv0 = spherePosToUv(avatarPos);
       state.player.x = uv0.u * canvas.width;
       state.player.y = uv0.v * canvas.height;
-      orreryModal.style.display = 'none';
       updateUI();
     });
-    orreryModal.style.display = 'block';
-    orreryPanel.setAttribute('visible', 'true');
+    showPanel(orreryPanel);
     AudioManager.playSfx('uiModalOpen');
   });
   if (closeOrreryBtn) closeOrreryBtn.addEventListener('click', () => {
     orreryPanel.setAttribute('visible', 'false');
-    orreryModal.style.display = 'none';
     AudioManager.playSfx('uiModalClose');
   });
   if (soundOptionsToggle) soundOptionsToggle.addEventListener('click', () => {
     musicVolume.value = AudioManager.musicVolume;
     sfxVolume.value   = AudioManager.sfxVolume;
     muteToggle.innerText = AudioManager.userMuted ? 'Unmute' : 'Mute';
-    soundOptionsModal.style.display = 'block';
-    soundOptionsPanel.setAttribute('visible', 'true');
+    showPanel(soundOptionsPanel);
     AudioManager.playSfx('uiModalOpen');
   });
   if (closeSoundOptionsBtn) closeSoundOptionsBtn.addEventListener('click', () => {
     soundOptionsPanel.setAttribute('visible', 'false');
-    soundOptionsModal.style.display = 'none';
     AudioManager.playSfx('uiModalClose');
   });
   if (muteToggle) muteToggle.addEventListener('click', () => {
@@ -453,7 +446,7 @@ window.addEventListener('load', () => {
   if (stageSelectToggle) stageSelectToggle.addEventListener('click', () => {
     selectedStage = state.currentStage;
     updateStageSelectDisplay();
-    stageSelectPanel.setAttribute('visible', 'true');
+    showPanel(stageSelectPanel);
   });
 
   if (restartStageBtn) restartStageBtn.addEventListener('click', () => {
