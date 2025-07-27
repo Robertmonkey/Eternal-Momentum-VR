@@ -136,6 +136,9 @@ window.addEventListener('load', () => {
     const startUv = spherePosToUv(avatarPos);
     state.player.x = startUv.u * canvas.width;
     state.player.y = startUv.v * canvas.height;
+    if (nexusAvatar) {
+      nexusAvatar.object3D.position.copy(avatarPos);
+    }
 
     const CORE_COOLDOWNS = {
       juggernaut: 8000,
@@ -545,52 +548,61 @@ window.addEventListener('load', () => {
     if (coreMenuToggle && aberrationCorePanel) {
       coreMenuToggle.addEventListener('click', () => {
         populateAberrationCoreMenu(equipCore);
+        aberrationCoreModal.style.display = 'flex';
         aberrationCorePanel.setAttribute('visible', 'true');
       });
     }
     if (closeAberrationCoreBtn) {
       closeAberrationCoreBtn.addEventListener('click', () => {
         aberrationCorePanel.setAttribute('visible', 'false');
+        aberrationCoreModal.style.display = 'none';
       });
     }
     if (unequipCoreBtn) {
       unequipCoreBtn.addEventListener('click', () => {
         equipCore(null);
         aberrationCorePanel.setAttribute('visible', 'false');
+        aberrationCoreModal.style.display = 'none';
       });
     }
     if (ascensionToggle && ascensionGridPanel) {
       ascensionToggle.addEventListener('click', () => {
         apTotalAscGrid.innerText = state.player.ascensionPoints;
         renderAscensionGrid();
+        ascensionGridModal.style.display = 'block';
         ascensionGridPanel.setAttribute('visible', 'true');
       });
     }
     if (closeAscensionGridBtn) {
       closeAscensionGridBtn.addEventListener('click', () => {
         ascensionGridPanel.setAttribute('visible', 'false');
+        ascensionGridModal.style.display = 'none';
       });
     }
     if (codexToggle && loreCodexPanel) {
       codexToggle.addEventListener('click', () => {
         populateLoreCodex();
+        loreCodexModal.style.display = 'block';
         loreCodexPanel.setAttribute('visible', 'true');
       });
     }
     if (closeLoreCodexBtn) {
       closeLoreCodexBtn.addEventListener('click', () => {
         loreCodexPanel.setAttribute('visible', 'false');
+        loreCodexModal.style.display = 'none';
       });
     }
     if (orreryToggle && orreryPanel) {
       orreryToggle.addEventListener('click', () => {
         populateOrreryMenu(startOrreryEncounter);
+        orreryModal.style.display = 'block';
         orreryPanel.setAttribute('visible', 'true');
       });
     }
     if (closeOrreryBtn) {
       closeOrreryBtn.addEventListener('click', () => {
         orreryPanel.setAttribute('visible', 'false');
+        orreryModal.style.display = 'none';
       });
     }
     if (soundOptionsToggle && soundOptionsPanel) {
@@ -598,12 +610,14 @@ window.addEventListener('load', () => {
         musicVolume.value = AudioManager.musicVolume;
         sfxVolume.value = AudioManager.sfxVolume;
         muteToggle.innerText = AudioManager.userMuted ? 'Unmute' : 'Mute';
+        soundOptionsModal.style.display = 'block';
         soundOptionsPanel.setAttribute('visible', 'true');
       });
     }
     if (closeSoundOptionsBtn) {
       closeSoundOptionsBtn.addEventListener('click', () => {
         soundOptionsPanel.setAttribute('visible', 'false');
+        soundOptionsModal.style.display = 'none';
       });
     }
     if (muteToggle) {
@@ -841,6 +855,7 @@ window.addEventListener('load', () => {
           const id = e.instanceId;
           existing.add(id);
           let el = enemyContainer.querySelector(`[data-eid="${id}"]`);
+          const pos = uvToSpherePos(e.x / canvas.width, e.y / canvas.height, SPHERE_RADIUS);
           if (!el) {
             el = document.createElement('a-box');
             el.setAttribute('depth', 0.4);
@@ -848,9 +863,9 @@ window.addEventListener('load', () => {
             el.setAttribute('width', 0.4);
             el.setAttribute('color', '#ff4040');
             el.dataset.eid = id;
+            el.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
             enemyContainer.appendChild(el);
           }
-          const pos = uvToSpherePos(e.x / canvas.width, e.y / canvas.height, SPHERE_RADIUS);
           el.object3D.position.copy(pos);
           el.object3D.lookAt(0, 0, 0);
         });
@@ -868,18 +883,19 @@ window.addEventListener('load', () => {
           if (!projTypes.includes(effect.type)) return;
           let el = projectileEls.get(effect);
           active.add(effect);
+          const pos = uvToSpherePos(effect.x / canvas.width, effect.y / canvas.height, SPHERE_RADIUS);
           if (!el) {
             el = document.createElement('a-sphere');
             el.setAttribute('radius', 0.05);
             el.setAttribute('segments-height', 6);
             el.setAttribute('segments-width', 6);
             el.setAttribute('color', effect.color || '#ffd400');
+            el.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
             projectileContainer.appendChild(el);
             projectileEls.set(effect, el);
           } else if (effect.color) {
             el.setAttribute('color', effect.color);
           }
-          const pos = uvToSpherePos(effect.x / canvas.width, effect.y / canvas.height, SPHERE_RADIUS);
           el.object3D.position.copy(pos);
         });
         projectileEls.forEach((el, eff) => {
