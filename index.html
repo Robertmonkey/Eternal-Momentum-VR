@@ -196,15 +196,19 @@
       </a-entity>
     </a-plane>
     </a-entity>
-    <!-- Command deck grid floor -->
-    <a-ring id="neonGrid" radius-inner="0" radius-outer="3" rotation="-90 0 0" position="0 0.01 0" canvas-texture="#gridCanvas" material="transparent:true; opacity:0.8"></a-ring>
+
+    <!-- Command deck environment -->
+    <a-entity id="commandDeckEnv">
+      <a-ring id="neonGrid" radius-inner="0" radius-outer="3" rotation="-90 0 0" position="0 0.01 0" canvas-texture="#gridCanvas" material="transparent:true; opacity:0.8"></a-ring>
+      <a-torus id="deckRailing" radius="3.05" radius-tubular="0.02" rotation="-90 0 0" position="0 0.25 0" material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.3; transparent:true; opacity:0.4"></a-torus>
+    </a-entity>
     <!-- Spherical arena that wraps around the player -->
     <a-sphere id="battleSphere" radius="8" segments-width="32" segments-height="32"
               material="color:#21213c; emissive:#00ffff; emissiveIntensity:0.05; side:back"
               class="interactive"></a-sphere>
     <a-entity id="enemyContainer"></a-entity>
     <a-entity id="projectileContainer"></a-entity>
-    <a-sphere id="playerAvatar" radius="0.25" color="#00ff80" position="0 0.1 0"></a-sphere>
+    <a-sphere id="nexusAvatar" radius="0.25" color="#00ff80" position="0 0.1 0"></a-sphere>
     <a-ring id="screenCursor" radius-inner="0.03" radius-outer="0.05" color="#00ffff" visible="false"></a-ring>
     
     <!-- script.js contains game logic and canvas updates.  Load it as an ES module so it can import the game's modules and call into them. -->

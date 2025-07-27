@@ -216,7 +216,7 @@ window.addEventListener('load', () => {
     // Main battlefield surface the player interacts with
     const battleSphere = document.getElementById("battleSphere");
     const screenCursor = document.getElementById("screenCursor");
-    const playerAvatar = document.getElementById("playerAvatar");
+    const nexusAvatar = document.getElementById("nexusAvatar");
     const enemyContainer = document.getElementById("enemyContainer");
     const projectileContainer = document.getElementById("projectileContainer");
     const projectileEls = new Map();
@@ -848,9 +848,9 @@ window.addEventListener('load', () => {
       }
 
       // Update 3D arena objects on spherical surface
-      if (playerAvatar) {
-        playerAvatar.object3D.position.copy(avatarPos);
-        playerAvatar.object3D.lookAt(0, 0, 0);
+      if (nexusAvatar) {
+        nexusAvatar.object3D.position.copy(avatarPos);
+        nexusAvatar.object3D.lookAt(0, 0, 0);
       }
       if (enemyContainer) {
         const existing = new Set();
@@ -869,6 +869,7 @@ window.addEventListener('load', () => {
           }
           const pos = uvToSpherePos(e.x / canvas.width, e.y / canvas.height);
           el.object3D.position.copy(pos);
+          el.object3D.lookAt(0, 0, 0);
         });
         enemyContainer.querySelectorAll('[data-eid]').forEach(el => {
           if (!existing.has(parseFloat(el.dataset.eid))) {
