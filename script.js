@@ -167,6 +167,21 @@ window.addEventListener('load', () => {
     const gameScreen = document.getElementById("gameScreen");
     const leftHand = document.getElementById("leftHand");
     const rightHand = document.getElementById("rightHand");
+    function triggerHaptic(el, intensity = 0.5, duration = 50) {
+      const controller = el?.components["laser-controls"]?.controller ||
+                        el?.components["tracked-controls"]?.controller;
+      const actuator = controller?.hapticActuators?.[0];
+      if (actuator && actuator.pulse) {
+        try { actuator.pulse(intensity, duration); } catch (e) {}
+      } else if (navigator.vibrate) {
+        navigator.vibrate(duration);
+      }
+    }
+
+    function pulseBoth(intensity = 0.5, duration = 50) {
+      if (leftHand) triggerHaptic(leftHand, intensity, duration);
+      if (rightHand) triggerHaptic(rightHand, intensity, duration);
+    }
     AudioManager.setup(audioEls, muteToggle);
     document.addEventListener("visibilitychange", () => AudioManager.handleVisibilityChange());
     let selectedStage = state.currentStage;
@@ -258,13 +273,19 @@ window.addEventListener('load', () => {
         const angle = (i / 12) * 2 * Math.PI;
         ctx.beginPath();
         ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(angle) * maxR, Math.sin(angle) * maxR);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+
       const px = state.player.x ?? width / 2;
       const py = state.player.y ?? height / 2;
       ctx.fillStyle = "#00aaff";
       ctx.beginPath();
       ctx.arc(px, py, 15, 0, 2 * Math.PI);
       ctx.fill();
-      ctx.restore();
+    }
     // Set up interaction on the aberration core.  When the user clicks the
     // core sphere, a cooldown begins.  We call into the imported
     // `activateCorePower()` function which triggers the currently equipped
@@ -285,6 +306,7 @@ window.addEventListener('load', () => {
         } catch (e) {
           console.warn('activateCorePower threw an error', e);
         }
+        pulseBoth(0.7, 100);
       }
     });
 
@@ -483,6 +505,7 @@ window.addEventListener('load', () => {
           } catch (e) {
             console.warn('activateCorePower threw an error', e);
           }
+          pulseBoth(0.7, 100);
         }
         coreTriggerTimeout = setTimeout(() => { coreTriggerTimeout = null; }, 100);
       }
@@ -495,6 +518,7 @@ window.addEventListener('load', () => {
           const key = state.offensiveInventory[0];
           if (key) usePower(key);
         }
+        pulseBoth(0.4, 50);
       });
       leftHand.addEventListener('triggerup', () => { leftTriggerDown = false; });
       rightHand.addEventListener('triggerdown', () => {
@@ -505,6 +529,7 @@ window.addEventListener('load', () => {
           const key = state.defensiveInventory[0];
           if (key) usePower(key);
         }
+        pulseBoth(0.4, 50);
       });
       rightHand.addEventListener('triggerup', () => { rightTriggerDown = false; });
       // Cycle powers with the grip buttons
