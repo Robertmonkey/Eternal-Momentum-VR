@@ -203,7 +203,13 @@ export function loadPlayerState() {
  * stage 1 regardless of the highest stage beaten.
  */
 export function resetGame(isArena = false) {
-  const canvas = document.getElementById('gameCanvas');
+  let canvas = document.getElementById('gameCanvas');
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.id = 'gameCanvas';
+    canvas.width = 2048;
+    canvas.height = 1024;
+  }
   // Place the player at the centre of the screen and fully heal them.
   state.player.x = canvas.width / 2;
   state.player.y = canvas.height / 2;

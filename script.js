@@ -85,9 +85,15 @@ import { AudioManager } from "./modules/audio.js";
   });
 // Once the DOM is fully loaded, set up the game state and event listeners
 window.addEventListener('load', () => {
-    // The hidden 2D canvas has the id "gameCanvas" in index.html.  Grab it here
-    // rather than the old "game2dCanvas" id to ensure the texture updates correctly.
-    const canvas = document.getElementById('gameCanvas');
+    // Create an offscreen canvas for legacy modules that still expect one.
+    // This canvas is not added to the DOM so no 2D elements are visible.
+    let canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'gameCanvas';
+      canvas.width = 2048;
+      canvas.height = 1024;
+    }
     const ctx = canvas.getContext('2d');
     const gridCanvas = document.getElementById('gridCanvas');
     if (gridCanvas) {

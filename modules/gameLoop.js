@@ -8,7 +8,13 @@ import * as utils from './utils.js';
 import { AudioManager } from './audio.js';
 import * as Cores from './cores.js';
 
-const canvas = document.getElementById("gameCanvas");
+let canvas = document.getElementById("gameCanvas");
+if (!canvas) {
+  canvas = document.createElement('canvas');
+  canvas.id = 'gameCanvas';
+  canvas.width = 2048;
+  canvas.height = 1024;
+}
 const ctx = canvas.getContext("2d");
 
 // --- Helper Function ---

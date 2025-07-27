@@ -145,7 +145,13 @@ export function activateCorePower(mx, my, gameHelpers) {
 export function applyCoreTickEffects(gameHelpers) {
   const now = Date.now();
   const { play } = gameHelpers;
-  const ctx = document.getElementById('gameCanvas').getContext('2d');
+  let canvas = document.getElementById('gameCanvas');
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.width = 2048;
+    canvas.height = 1024;
+  }
+  const ctx = canvas.getContext('2d');
   // --- Pantheon rotation ---
   if (state.player.equippedAberrationCore === 'pantheon') {
     const pantheonState = state.player.talent_states.core_states.pantheon;
