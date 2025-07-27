@@ -466,14 +466,45 @@ window.addEventListener('load', () => {
     const leftHand = document.getElementById('leftHand');
     const rightHand = document.getElementById('rightHand');
     if (leftHand && rightHand) {
+      let leftTriggerDown = false;
+      let rightTriggerDown = false;
+      let coreTriggerTimeout = null;
+
+      function tryActivateCore() {
+        if (!leftTriggerDown || !rightTriggerDown || coreTriggerTimeout) return;
+        const now = performance.now();
+        const elapsed = (now - gameState.lastCoreUse) / 1000;
+        if (elapsed >= gameState.coreCooldown) {
+          gameState.lastCoreUse = now;
+          try {
+            activateCorePower(0, 0, {});
+          } catch (e) {
+            console.warn('activateCorePower threw an error', e);
+          }
+        }
+        coreTriggerTimeout = setTimeout(() => { coreTriggerTimeout = null; }, 100);
+      }
+
       leftHand.addEventListener('triggerdown', () => {
-        const key = state.offensiveInventory[0];
-        if (key) usePower(key);
+        leftTriggerDown = true;
+        if (rightTriggerDown) {
+          tryActivateCore();
+        } else {
+          const key = state.offensiveInventory[0];
+          if (key) usePower(key);
+        }
       });
+      leftHand.addEventListener('triggerup', () => { leftTriggerDown = false; });
       rightHand.addEventListener('triggerdown', () => {
-        const key = state.defensiveInventory[0];
-        if (key) usePower(key);
+        rightTriggerDown = true;
+        if (leftTriggerDown) {
+          tryActivateCore();
+        } else {
+          const key = state.defensiveInventory[0];
+          if (key) usePower(key);
+        }
       });
+      rightHand.addEventListener('triggerup', () => { rightTriggerDown = false; });
       // Cycle powers with the grip buttons
       leftHand.addEventListener('gripdown', () => {
         if (state.offensiveInventory.filter(Boolean).length > 1) {
