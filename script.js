@@ -760,9 +760,9 @@ window.addEventListener('load', () => {
       }
 
       // Update 3D arena objects
-      const w = 12;
-      const h = 6;
-      const baseY = -2;
+      const w = parseFloat(arenaFloor?.getAttribute('width')) || 12;
+      const h = parseFloat(arenaFloor?.getAttribute('height')) || 6;
+      const baseY = arenaFloor?.object3D.position.y || -2;
       if (playerAvatar) {
         const px = (state.player.x / canvas.width - 0.5) * w;
         const pz = (0.5 - state.player.y / canvas.height) * h;
@@ -801,16 +801,21 @@ window.addEventListener('load', () => {
           if (!projTypes.includes(effect.type)) return;
           let el = projectileEls.get(effect);
           active.add(effect);
+          const scale = w / canvas.width;
+          const projRadius = (effect.r || 4) * scale;
           if (!el) {
             el = document.createElement('a-sphere');
-            el.setAttribute('radius', 0.05);
+            el.setAttribute('radius', projRadius);
             el.setAttribute('segments-height', 6);
             el.setAttribute('segments-width', 6);
             el.setAttribute('color', effect.color || '#ffd400');
             projectileContainer.appendChild(el);
             projectileEls.set(effect, el);
-          } else if (effect.color) {
-            el.setAttribute('color', effect.color);
+          } else {
+            el.setAttribute('radius', projRadius);
+            if (effect.color) {
+              el.setAttribute('color', effect.color);
+            }
           }
           const px = (effect.x / canvas.width - 0.5) * w;
           const pz = (0.5 - effect.y / canvas.height) * h;
