@@ -1522,3 +1522,6 @@ button:hover { background: rgba(0, 255, 255, 0.4); }
     justify-content: space-between;
     align-items: center;
 }
+
+.vr-source { position:absolute; left:-10000px; top:-10000px; }
+

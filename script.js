@@ -93,18 +93,14 @@ window.addEventListener('load', () => {
     resetGame(false);
     applyAllTalentEffects();
     state.currentStage = 1;
-
-    // Initialise our own meta state for VR‑specific elements.  The actual
-    // game logic lives in the imported `state` object.  We only track
-    // cooldowns for the VR core interaction and the current 3D avatar
-    // position here.
+    // Initialise our own meta state for VR-specific elements.
+    // The actual game logic lives in the imported `state` object.
+    // We only track cooldowns for the core interaction and current cursor position.
     const gameState = {
       coreCooldown: 10,
       lastCoreUse: -Infinity,
-      playerPos: { x: 0, z: -2 },
-      platformRadius: 3.5
+      cursorUV: null
     };
-
     let lastStage = state.currentStage;
     let statusTimeout = null;
     let gameOverShown = false;
@@ -154,14 +150,19 @@ window.addEventListener('load', () => {
     const closeSoundOptionsBtn = document.getElementById("closeSoundOptionsBtn");
     const musicVolume = document.getElementById("musicVolume");
     const sfxVolume = document.getElementById("sfxVolume");
+    const aberrationCorePanel = document.getElementById("aberrationCorePanel");
+    const ascensionGridPanel = document.getElementById("ascensionGridPanel");
+    const loreCodexPanel = document.getElementById("loreCodexPanel");
+    const bossInfoPanel = document.getElementById("bossInfoPanel");
+    const orreryPanel = document.getElementById("orreryPanel");
+    const soundOptionsPanel = document.getElementById("soundOptionsPanel");
     const muteToggle = document.getElementById("muteToggle");
     const bossInfoModal = document.getElementById("bossInfoModal");
-    const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");
-    const playerAvatar = document.getElementById('playerAvatar');
-    const homeScreen = document.getElementById('home-screen');
+    const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");    const homeScreen = document.getElementById('home-screen');
     const startVrBtn = document.getElementById('start-vr-btn');
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
+    const gameScreen = document.getElementById("gameScreen");
     AudioManager.setup(audioEls, muteToggle);
     document.addEventListener("visibilitychange", () => AudioManager.handleVisibilityChange());
     let selectedStage = state.currentStage;
@@ -253,22 +254,13 @@ window.addEventListener('load', () => {
         const angle = (i / 12) * 2 * Math.PI;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(maxR * Math.cos(angle), maxR * Math.sin(angle));
-        ctx.stroke();
-      }
-      // Draw player as a small circle
-      const pos = gameState.playerPos;
-      const theta = Math.atan2(-pos.z, pos.x) + Math.PI;
-      const radial = Math.min(1, Math.hypot(pos.x, pos.z) / gameState.platformRadius);
-      const px = (theta / (2 * Math.PI) - 0.5) * width;
-      const py = (0.5 - radial) * height;
-      ctx.fillStyle = '#00aaff';
+      const px = state.player.x ?? width / 2;
+      const py = state.player.y ?? height / 2;
+      ctx.fillStyle = "#00aaff";
       ctx.beginPath();
       ctx.arc(px, py, 15, 0, 2 * Math.PI);
       ctx.fill();
       ctx.restore();
-    }
-
     // Set up interaction on the aberration core.  When the user clicks the
     // core sphere, a cooldown begins.  We call into the imported
     // `activateCorePower()` function which triggers the currently equipped
@@ -299,10 +291,6 @@ window.addEventListener('load', () => {
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
         statusText.setAttribute('value', '');
-        if (playerAvatar) {
-          playerAvatar.object3D.position.set(0, 1.0, -2);
-          gameState.playerPos.x = 0;
-          gameState.playerPos.z = -2;
         }
         updateUI();
       });
@@ -354,10 +342,6 @@ window.addEventListener('load', () => {
         gameOverShown = false;
         stageSelectPanel.setAttribute('visible', 'false');
         statusText.setAttribute('value', '');
-        if (playerAvatar) {
-          playerAvatar.object3D.position.set(0, 1.0, -2);
-          gameState.playerPos.x = 0;
-          gameState.playerPos.z = -2;
         }
         updateUI();
       });
@@ -377,10 +361,6 @@ window.addEventListener('load', () => {
       gameOverShown = false;
       orreryModal.style.display = 'none';
       statusText.setAttribute('value', '');
-      if (playerAvatar) {
-        playerAvatar.object3D.position.set(0, 1.0, -2);
-        gameState.playerPos.x = 0;
-        gameState.playerPos.z = -2;
       }
       updateUI();
     }
@@ -393,86 +373,98 @@ window.addEventListener('load', () => {
       updateUI();
     }
 
-    if (coreMenuToggle && aberrationCoreModal) {
+    if (coreMenuToggle && aberrationCorePanel) {
       coreMenuToggle.addEventListener('click', () => {
         populateAberrationCoreMenu(equipCore);
-        aberrationCoreModal.style.display = 'flex';
+        aberrationCorePanel.setAttribute('visible', 'true');
       });
     }
     if (closeAberrationCoreBtn) {
       closeAberrationCoreBtn.addEventListener('click', () => {
-        aberrationCoreModal.style.display = 'none';
+        aberrationCorePanel.setAttribute('visible', 'false');
       });
     }
     if (unequipCoreBtn) {
       unequipCoreBtn.addEventListener('click', () => {
         equipCore(null);
-        aberrationCoreModal.style.display = 'none';
+        aberrationCorePanel.setAttribute('visible', 'false');
       });
     }
-      if (ascensionToggle && ascensionGridModal) {
-        ascensionToggle.addEventListener("click", () => {
-          apTotalAscGrid.innerText = state.player.ascensionPoints;
-          renderAscensionGrid();
-          ascensionGridModal.style.display = "flex";
-        });
-      }
-      if (closeAscensionGridBtn) {
-        closeAscensionGridBtn.addEventListener("click", () => {
-          ascensionGridModal.style.display = "none";
-        });
-      }
-      if (codexToggle && loreCodexModal) {
-        codexToggle.addEventListener("click", () => {
-          populateLoreCodex();
-          loreCodexModal.style.display = "flex";
-        });
-      }
-      if (orreryToggle && orreryModal) {
-        orreryToggle.addEventListener("click", () => {
-          populateOrreryMenu(startOrreryEncounter);
-          orreryModal.style.display = "flex";
-        });
-      }
-      if (closeOrreryBtn) {
-        closeOrreryBtn.addEventListener("click", () => {
-          orreryModal.style.display = "none";
-        });
-      }
-      if (closeLoreCodexBtn) {
-        closeLoreCodexBtn.addEventListener("click", () => {
-          loreCodexModal.style.display = "none";
-        });
-      }
-      if (soundOptionsToggle && soundOptionsModal) {
-        soundOptionsToggle.addEventListener("click", () => {
-          musicVolume.value = AudioManager.musicVolume;
-          sfxVolume.value = AudioManager.sfxVolume;
-          muteToggle.innerText = AudioManager.userMuted ? "Unmute" : "Mute";
-          soundOptionsModal.style.display = "flex";
-        });
-      }
-      if (closeSoundOptionsBtn) {
-        closeSoundOptionsBtn.addEventListener("click", () => {
-          soundOptionsModal.style.display = "none";
-        });
-      }
-      if (muteToggle) {
-        muteToggle.addEventListener("click", () => {
-          AudioManager.toggleMute();
-          muteToggle.innerText = AudioManager.userMuted ? "Unmute" : "Mute";
-        });
-      }
-      if (musicVolume) {
-        musicVolume.addEventListener("input", e => AudioManager.setMusicVolume(parseFloat(e.target.value)));
-      }
-      if (sfxVolume) {
-        sfxVolume.addEventListener("input", e => AudioManager.setSfxVolume(parseFloat(e.target.value)));
-      }
-
-    // Trigger equipped powers when the controller triggers are pressed.
-    const leftHand = document.getElementById('leftHand');
-    const rightHand = document.getElementById('rightHand');
+    if (ascensionToggle && ascensionGridPanel) {
+      ascensionToggle.addEventListener('click', () => {
+        apTotalAscGrid.innerText = state.player.ascensionPoints;
+        renderAscensionGrid();
+        ascensionGridPanel.setAttribute('visible', 'true');
+      });
+    }
+    if (closeAscensionGridBtn) {
+      closeAscensionGridBtn.addEventListener('click', () => {
+        ascensionGridPanel.setAttribute('visible', 'false');
+      });
+    }
+    if (codexToggle && loreCodexPanel) {
+      codexToggle.addEventListener('click', () => {
+        populateLoreCodex();
+        loreCodexPanel.setAttribute('visible', 'true');
+      });
+    }
+    if (closeLoreCodexBtn) {
+      closeLoreCodexBtn.addEventListener('click', () => {
+        loreCodexPanel.setAttribute('visible', 'false');
+      });
+    }
+    if (orreryToggle && orreryPanel) {
+      orreryToggle.addEventListener('click', () => {
+        populateOrreryMenu(startOrreryEncounter);
+        orreryPanel.setAttribute('visible', 'true');
+      });
+    }
+    if (closeOrreryBtn) {
+      closeOrreryBtn.addEventListener('click', () => {
+        orreryPanel.setAttribute('visible', 'false');
+      });
+    }
+    if (soundOptionsToggle && soundOptionsPanel) {
+      soundOptionsToggle.addEventListener('click', () => {
+        musicVolume.value = AudioManager.musicVolume;
+        sfxVolume.value = AudioManager.sfxVolume;
+        muteToggle.innerText = AudioManager.userMuted ? 'Unmute' : 'Mute';
+        soundOptionsPanel.setAttribute('visible', 'true');
+      });
+    }
+    if (closeSoundOptionsBtn) {
+      closeSoundOptionsBtn.addEventListener('click', () => {
+        soundOptionsPanel.setAttribute('visible', 'false');
+      });
+    }
+    if (muteToggle) {
+      muteToggle.addEventListener('click', () => {
+        AudioManager.toggleMute();
+        muteToggle.innerText = AudioManager.userMuted ? 'Unmute' : 'Mute';
+      });
+    }
+    if (musicVolume) {
+      musicVolume.addEventListener('input', e => AudioManager.setMusicVolume(parseFloat(e.target.value)));
+    }
+    if (sfxVolume) {
+      sfxVolume.addEventListener('input', e => AudioManager.setSfxVolume(parseFloat(e.target.value)));
+    }
+    if (gameScreen) {
+      gameScreen.addEventListener("raycaster-intersection", e => {
+        const hit = e.detail.intersections[0];
+        if (hit && hit.uv) gameState.cursorUV = hit.uv;
+      });
+      gameScreen.addEventListener("raycaster-intersection-cleared", e => {
+        if (e.detail.clearedEl === gameScreen) gameState.cursorUV = null;
+      });
+      gameScreen.addEventListener("click", e => {
+        const uv = e.detail.intersection?.uv || gameState.cursorUV;
+        if (uv) {
+          state.player.x = uv.x * canvas.width;
+          state.player.y = (1 - uv.y) * canvas.height;
+        }
+      });
+    }
     if (leftHand && rightHand) {
       let leftTriggerDown = false;
       let rightTriggerDown = false;
@@ -560,25 +552,17 @@ window.addEventListener('load', () => {
     // into 2D canvas coordinates and assign them to `state.player.x` and
     // `state.player.y`.  Feel free to adjust this mapping to better fit
     // the gameplay surface.
-    playerAvatar.addEventListener('dragend', evt => {
       const pos3D = evt.detail.target.object3D.position;
       // Clamp to the platform radius so the avatar cannot be dragged off
       let x = pos3D.x;
       let z = pos3D.z;
       const dist = Math.hypot(x, z);
-      if (dist > gameState.platformRadius - 0.25) {
-        const scale = (gameState.platformRadius - 0.25) / dist;
         x *= scale;
         z *= scale;
-        playerAvatar.object3D.position.set(x, pos3D.y, z);
       }
-      gameState.playerPos.x = playerAvatar.object3D.position.x;
-      gameState.playerPos.z = playerAvatar.object3D.position.z;
       // Convert to 2D game coordinates if the original state is present.
       const { width, height } = canvas;
-      const pos = gameState.playerPos;
       const theta = Math.atan2(-pos.z, pos.x) + Math.PI;
-      const radial = Math.min(1, Math.hypot(pos.x, pos.z) / gameState.platformRadius);
       const px = (theta / (2 * Math.PI)) * width;
       const py = (1 - radial) * height;
       if (state && state.player) {
@@ -594,6 +578,10 @@ window.addEventListener('load', () => {
     // canvas.  Otherwise we fall back to drawing a simple grid.
     function animate() {
       // Advance the game if possible
+      if (gameState.cursorUV) {
+        state.player.x = gameState.cursorUV.x * canvas.width;
+        state.player.y = (1 - gameState.cursorUV.y) * canvas.height;
+      }
       if (typeof gameTick === 'function') {
         try {
           // Pass the player's current coordinates as both the cursor
