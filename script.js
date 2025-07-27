@@ -170,7 +170,8 @@ window.addEventListener('load', () => {
       const x   = Math.sin(rad) * p.r;
       const z   = -Math.cos(rad) * p.r;
       p.el.setAttribute('position', `${x} ${p.y} ${z}`);
-      p.el.setAttribute('rotation', `0 ${p.angle} 0`);
+      // Ensure panels always face the player's view
+      p.el.setAttribute('look-at', '#camera');
     });
   }
 
