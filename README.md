@@ -49,8 +49,9 @@ focus is making every original mechanic comfortable to use in VR.
 
 ## Visual Style
 
-The VR prototype inherits the neon aesthetic of the main game. Core colors are
-defined in `style.css` using custom properties:
+The VR prototype mirrors the original game's synth‑wave aesthetic. Deep blues
+and star‑filled backdrops contrast with bright cyan and magenta highlights.
+Core colours are defined in `style.css` using custom properties:
 
 ```css
 :root {
@@ -61,11 +62,11 @@ defined in `style.css` using custom properties:
 }
 ```
 
-Panels and text elements use these variables so that the cyan highlights and
-magenta accents match the 2D interface. The VR scene also includes a starry sky
-(`assets/bg.png`) to give the arena a cosmic backdrop. When creating new VR
-elements, reuse `--primary-glow` and `--secondary-glow` for emissive materials
-and text to keep the look cohesive.
+Panels and text elements use these variables so the glowing accents match the
+2D interface. The VR arena places you above a cosmic horizon using
+`assets/bg.png` for the skybox. When creating new VR elements, reuse
+`--primary-glow` and `--secondary-glow` for emissive colours and text to keep
+the neon look cohesive.
 
 ## Running the Prototype
 

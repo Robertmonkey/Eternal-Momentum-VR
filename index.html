@@ -76,7 +76,8 @@
          raised above ground and large enough that the UI table sits outside
          its edge. -->
     <!-- Platform uses a dark color inspired by the original game’s UI. -->
-    <a-cylinder id="platform" radius="3.5" height="0.2" color="#1e1e2f" position="0 0 0"></a-cylinder>
+    <a-cylinder id="platform" radius="3.5" height="0.2" color="#1e1e2f" position="0 0 0"
+                material="color: #1e1e2f; emissive: #00ffff; emissiveIntensity: 0.15"></a-cylinder>
 
     <!-- Waist‑high table encircling the player.  This is where status panels,
          cooldown timers and other UI widgets live.  A ring is used instead of
@@ -85,14 +86,14 @@
          colour to match the original UI background. -->
     <a-ring id="uiTable" radius-inner="3.4" radius-outer="3.6" theta-length="360"
             rotation="-90 0 0" position="0 1 0"
-            material="color: #141428; opacity: 0.85"></a-ring>
+            material="color: #141428; opacity: 0.85; emissive: #00ffff; emissiveIntensity: 0.3"></a-ring>
 
     <!-- Score and health panel.  Placed slightly forward and to the right of the
          player so it is easily visible when glancing down at the table.  Two
          text elements display the current score and health; they are updated
          dynamically by script.js every frame. -->
     <a-plane id="scorePanel" width="1.2" height="1.1"
-             material="color: #141428; opacity: 0.9" position="2 1.2 -0.5" rotation="0 -30 0">
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25" position="2 1.2 -0.5" rotation="0 -30 0">
       <!-- Score and health text adopt the original game’s pale font colour. -->
       <a-text id="scoreText" value="Essence: 0" position="0 0.28 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
       <a-text id="healthText" value="Health: 100" position="0 0.05 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
@@ -104,13 +105,13 @@
          The emojis update each frame and the triggers on the VR controllers
          activate these powers. -->
     <a-plane id="offPowerPanel" width="0.3" height="0.3"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="1.6 1.2 -0.3" rotation="0 -30 0">
       <a-text id="offPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
       <a-text id="offPowerQueueText" value="" align="center" width="0.3" color="#eaf2ff" position="0 -0.22 0.01"></a-text>
     </a-plane>
       <a-plane id="defPowerPanel" width="0.3" height="0.3"
-               material="color: #141428; opacity: 0.9"
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
                position="1.6 1.2 -0.8" rotation="0 -30 0">
         <a-text id="defPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
         <a-text id="defPowerQueueText" value="" align="center" width="0.3" color="#eaf2ff" position="0 -0.22 0.01"></a-text>
@@ -118,7 +119,7 @@
 
       <!-- Active status effects are shown on a panel opposite the score. -->
       <a-plane id="statusEffectsPanel" width="1.2" height="0.3"
-               material="color: #141428; opacity: 0.9"
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
                position="-2 1.2 -0.5" rotation="0 30 0">
         <a-text id="statusEffectsText" value="" align="center" width="1.1" color="#eaf2ff"></a-text>
       </a-plane>
@@ -141,83 +142,83 @@
       <!-- Sound removed per user request; the core no longer emits audio. -->
     </a-sphere>
     <a-plane id="coreCooldownPanel" width="0.6" height="0.3"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="-2 1.0 -1" rotation="0 30 0">
       <a-text id="cooldownText" value="Core cooldown: Ready" align="center" width="0.5" color="#eaf2ff"></a-text>
     </a-plane>
     <a-plane id="statusPanel" width="1.4" height="0.3"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="0 2 -1.5" rotation="0 0 0">
       <a-text id="statusText" value="" align="center" width="1.2" color="#eaf2ff"></a-text>
     </a-plane>
 
     <a-plane id="bossPanel" width="1.4" height="0.3"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="0 1.7 -1.5" rotation="0 0 0" visible="false">
       <a-text id="bossNameText" value="" align="center" width="1.2" position="0 0.1 0.01" color="#ff5555"></a-text>
       <a-text id="bossHpText" value="" align="center" width="1.2" position="0 -0.12 0.01" color="#eaf2ff"></a-text>
     </a-plane>
 
     <a-plane id="resetButton" width="0.6" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 0.8 -1.2" rotation="0 -30 0" class="interactive">
       <a-text value="Reset" align="center" width="0.5" color="#eaf2ff"></a-text>
     </a-plane>
     <a-plane id="pauseToggle" width="0.6" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 0.95 -1.2" rotation="0 -30 0" class="interactive">
       <a-text id="pauseText" value="Pause" align="center" width="0.5" color="#eaf2ff"></a-text>
     </a-plane>
 
     <a-plane id="stageSelectToggle" width="0.8" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 1.05 -1.2" rotation="0 -30 0" class="interactive">
       <a-text value="Stage Select" align="center" width="0.7" color="#eaf2ff"></a-text>
     </a-plane>
 
     <a-plane id="coreMenuToggle" width="0.8" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 1.3 -1.2" rotation="0 -30 0" class="interactive">
       <a-text value="Core Menu" align="center" width="0.7" color="#eaf2ff"></a-text>
     </a-plane>
     <a-plane id="ascensionToggle" width="0.8" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 1.55 -1.2" rotation="0 -30 0" class="interactive">
       <a-text value="Ascension" align="center" width="0.7" color="#eaf2ff"></a-text>
     </a-plane>
     <a-plane id="codexToggle" width="0.8" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 1.8 -1.2" rotation="0 -30 0" class="interactive">
       <a-text value="Codex" align="center" width="0.7" color="#eaf2ff"></a-text>
     </a-plane>
     <a-plane id="orreryToggle" width="0.8" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 2.05 -1.2" rotation="0 -30 0" class="interactive">
       <a-text value="Orrery" align="center" width="0.7" color="#eaf2ff"></a-text>
     </a-plane>
     <a-plane id="soundOptionsToggle" width="0.8" height="0.2"
-             material="color: #141428; opacity: 0.9"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="2 2.3 -1.2" rotation="0 -30 0" class="interactive">
       <a-text value="Sound" align="center" width="0.7" color="#eaf2ff"></a-text>
     </a-plane>
 
     <a-plane id="stageSelectPanel" width="1.4" height="0.8" visible="false"
-             material="color: #141428; opacity: 0.95"
+             material="color: #141428; opacity: 0.95; emissive: #00ffff; emissiveIntensity: 0.25"
              position="0 1.6 -1.5" rotation="0 0 0">
       <a-text id="stageSelectLabel" value="Stage: 1" align="center" width="1.2"
               position="0 0.25 0.01" color="#eaf2ff"></a-text>
       <a-plane id="prevStageBtn" width="0.4" height="0.2" class="interactive"
-               material="color: #333"
+               material="color: #333; emissive: #00ffff; emissiveIntensity: 0.2"
                position="-0.45 -0.05 0.01">
         <a-text value="Prev" align="center" width="0.4" color="#eaf2ff"></a-text>
       </a-plane>
       <a-plane id="nextStageBtn" width="0.4" height="0.2" class="interactive"
-               material="color: #333"
+               material="color: #333; emissive: #00ffff; emissiveIntensity: 0.2"
                position="0.45 -0.05 0.01">
         <a-text value="Next" align="center" width="0.4" color="#eaf2ff"></a-text>
       </a-plane>
       <a-plane id="startStageBtn" width="0.8" height="0.25" class="interactive"
-               material="color: #555"
+               material="color: #555; emissive: #00ffff; emissiveIntensity: 0.2"
                position="0 -0.35 0.01">
         <a-text value="Start" align="center" width="0.7" color="#eaf2ff"></a-text>
       </a-plane>
@@ -227,7 +228,7 @@
          feels like using a giant curved monitor. -->
     <a-cylinder id="gameScreen" radius="4" height="2" theta-length="180"
                 position="0 1.6 0" rotation="0 -90 0"
-                material="color: #21213c; side:double"
+                material="color: #21213c; emissive: #00ffff; emissiveIntensity: 0.1; side:double"
                 canvas-texture="#gameCanvas" class="interactive"></a-cylinder>
     
     <!-- script.js contains game logic and canvas updates.  Load it as an ES module so it can import the game's modules and call into them. -->
