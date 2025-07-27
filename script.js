@@ -117,6 +117,7 @@ window.addEventListener('load', () => {
     const cooldownText = document.getElementById('cooldownText');
     const statusText = document.getElementById('statusText');
     const statusEffectsText = document.getElementById('statusEffectsText');
+    const apText = document.getElementById('apText');
     const offPowerText = document.getElementById('offPowerText');
     const offPowerQueueText = document.getElementById('offPowerQueueText');
     const defPowerText = document.getElementById('defPowerText');
@@ -156,6 +157,7 @@ window.addEventListener('load', () => {
     const muteToggle = document.getElementById("muteToggle");
     const bossInfoModal = document.getElementById("bossInfoModal");
     const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");
+    const playerAvatar = document.getElementById('playerAvatar');
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
     AudioManager.setup(audioEls, muteToggle);
@@ -180,6 +182,9 @@ window.addEventListener('load', () => {
       healthText.setAttribute('value', `Health: ${Math.floor(health)}`);
       levelText.setAttribute('value', `Level: ${state.player.level}`);
       stageText.setAttribute('value', `Stage: ${state.currentStage}`);
+      if (apText) {
+        apText.setAttribute('value', `AP: ${state.player.ascensionPoints}`);
+      }
       if (offPowerText && defPowerText) {
         const offKey = state.offensiveInventory[0];
         const defKey = state.defensiveInventory[0];
@@ -292,6 +297,11 @@ window.addEventListener('load', () => {
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
         statusText.setAttribute('value', '');
+        if (playerAvatar) {
+          playerAvatar.object3D.position.set(0, 1.0, -2);
+          gameState.playerPos.x = 0;
+          gameState.playerPos.z = -2;
+        }
         updateUI();
       });
     }
@@ -312,7 +322,7 @@ window.addEventListener('load', () => {
 
     if (stageSelectToggle && stageSelectPanel) {
       stageSelectToggle.addEventListener('click', () => {
-        if (stageSelectPanel.getAttribute('visible') === true || stageSelectPanel.getAttribute('visible') === 'true') {
+        if (stageSelectPanel.getAttribute('visible') === 'true') {
           stageSelectPanel.setAttribute('visible', 'false');
         } else {
           selectedStage = state.currentStage;
@@ -342,6 +352,11 @@ window.addEventListener('load', () => {
         gameOverShown = false;
         stageSelectPanel.setAttribute('visible', 'false');
         statusText.setAttribute('value', '');
+        if (playerAvatar) {
+          playerAvatar.object3D.position.set(0, 1.0, -2);
+          gameState.playerPos.x = 0;
+          gameState.playerPos.z = -2;
+        }
         updateUI();
       });
     }
@@ -354,6 +369,11 @@ window.addEventListener('load', () => {
       gameOverShown = false;
       orreryModal.style.display = 'none';
       statusText.setAttribute('value', '');
+      if (playerAvatar) {
+        playerAvatar.object3D.position.set(0, 1.0, -2);
+        gameState.playerPos.x = 0;
+        gameState.playerPos.z = -2;
+      }
       updateUI();
     }
 
@@ -493,7 +513,6 @@ window.addEventListener('load', () => {
     // into 2D canvas coordinates and assign them to `state.player.x` and
     // `state.player.y`.  Feel free to adjust this mapping to better fit
     // the gameplay surface.
-    const playerAvatar = document.getElementById('playerAvatar');
     playerAvatar.addEventListener('dragend', evt => {
       const pos3D = evt.detail.target.object3D.position;
       // Clamp to the platform radius so the avatar cannot be dragged off
