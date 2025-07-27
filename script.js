@@ -10,8 +10,9 @@
  *     the game state.
  *   - Drawing routines for the 2D canvas that approximate the original
  *     Eternal Momentum gameplay surface.  A circle on the canvas shows
- *     where the player's avatar currently stands in the VR world.
- *   - Event handlers for grabbing and moving the avatar as well as
+ *     the player's current position, mirrored in VR by a small draggable
+ *     marker on the table.
+ *   - Event handlers for grabbing and moving that marker as well as
  *     activating the aberration core.  These handlers update the game
  *     state and trigger UI changes accordingly.
  *
@@ -154,6 +155,7 @@ window.addEventListener('load', () => {
     const ascensionGridPanel = document.getElementById("ascensionGridPanel");
     const loreCodexPanel = document.getElementById("loreCodexPanel");
     const bossInfoPanel = document.getElementById("bossInfoPanel");
+    const cursorMarker = document.getElementById("cursorMarker");
     const orreryPanel = document.getElementById("orreryPanel");
     const soundOptionsPanel = document.getElementById("soundOptionsPanel");
     const muteToggle = document.getElementById("muteToggle");
@@ -291,7 +293,6 @@ window.addEventListener('load', () => {
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
         statusText.setAttribute('value', '');
-        }
         updateUI();
       });
     }
@@ -342,7 +343,6 @@ window.addEventListener('load', () => {
         gameOverShown = false;
         stageSelectPanel.setAttribute('visible', 'false');
         statusText.setAttribute('value', '');
-        }
         updateUI();
       });
     }
@@ -361,7 +361,6 @@ window.addEventListener('load', () => {
       gameOverShown = false;
       orreryModal.style.display = 'none';
       statusText.setAttribute('value', '');
-      }
       updateUI();
     }
 
@@ -546,30 +545,30 @@ window.addEventListener('load', () => {
       });
     }
 
-    // Handle dragging of the player avatar.  On release update the stored
-    // VR position and also update the underlying game state if the
-    // original modules are present.  We convert the 3D avatar position
-    // into 2D canvas coordinates and assign them to `state.player.x` and
-    // `state.player.y`.  Feel free to adjust this mapping to better fit
-    // the gameplay surface.
-      const pos3D = evt.detail.target.object3D.position;
-      // Clamp to the platform radius so the avatar cannot be dragged off
-      let x = pos3D.x;
-      let z = pos3D.z;
-      const dist = Math.hypot(x, z);
-        x *= scale;
-        z *= scale;
-      }
-      // Convert to 2D game coordinates if the original state is present.
-      const { width, height } = canvas;
-      const theta = Math.atan2(-pos.z, pos.x) + Math.PI;
-      const px = (theta / (2 * Math.PI)) * width;
-      const py = (1 - radial) * height;
-      if (state && state.player) {
-        state.player.x = px;
-        state.player.y = py;
-      }
-    });
+    // Draggable cursor marker to reposition the player
+    const PLATFORM_RADIUS = 3;
+    if (cursorMarker) {
+      const updateFromMarker = pos => {
+        let x = pos.x;
+        let z = pos.z;
+        const dist = Math.hypot(x, z);
+        if (dist > PLATFORM_RADIUS) {
+          const scale = PLATFORM_RADIUS / dist;
+          x *= scale;
+          z *= scale;
+        }
+        cursorMarker.object3D.position.set(x, cursorMarker.object3D.position.y, z);
+        const { width, height } = canvas;
+        const theta = Math.atan2(-z, x) + Math.PI;
+        const radial = Math.min(1, Math.hypot(x, z) / PLATFORM_RADIUS);
+        state.player.x = (theta / (2 * Math.PI)) * width;
+        state.player.y = (1 - radial) * height;
+      };
+
+      cursorMarker.addEventListener('dragmove', e => {
+        updateFromMarker(e.detail.position);
+      });
+    }
 
 
     // Main animation loop.  It runs at the browser's animation rate (~60 Hz)
@@ -609,6 +608,17 @@ window.addEventListener('load', () => {
 
       // Update UI panels
       updateUI();
+      if (cursorMarker) {
+        const { width, height } = canvas;
+        const theta = (state.player.x / width) * 2 * Math.PI;
+        const radial = 1 - (state.player.y / height);
+        const r = PLATFORM_RADIUS * radial;
+        cursorMarker.object3D.position.set(
+          r * Math.cos(theta),
+          cursorMarker.object3D.position.y,
+          -r * Math.sin(theta)
+        );
+      }
       requestAnimationFrame(animate);
     }
     animate();

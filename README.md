@@ -7,9 +7,20 @@ three‑dimensional VR environment using modern WebXR technologies.  It is not
 a complete game, but rather a polished starting point for further
 development.
 
+## VR Philosophy
+
+Eternal Momentum VR aims to preserve the feel of the original 2D game while
+placing the player inside a spacious arena.  Instead of running around in VR,
+you stand on a platform and project a laser pointer from your controller
+onto a huge **180° curved screen** that surrounds you.  The on‑screen avatar
+follows this pointer just like a mouse cursor on a monitor.  All familiar UI
+elements appear on the surrounding table so you can play entirely from this
+balcony‑like viewpoint.  A full 3D version may come later, but the current
+focus is making every original mechanic comfortable to use in VR.
+
 ## Features
 
-* **Large game screen** — The 2D game canvas appears on a floating panel in front of you. Point at the screen with your controller to move your character.
+* **Large curved screen** — The 2D game canvas is mapped onto a 180° cylinder around you. Point at the screen with your controller to steer your character.
 * **Waist‑height UI table** — A circular table surrounds the player at
   waist level.  Score, health and aberration core cooldown indicators are
   presented on panels placed on the table so they are easy to glance at
@@ -19,7 +30,8 @@ development.
   triggers together activates the core’s ability and starts its cooldown
   timer.  The sphere is interactive and can be extended with more mechanics
   (e.g. grabbing or swapping cores).
-* **Pointer-based movement** — Aim at the game screen with your controller and click to set your position.
+* **Pointer-based movement** — Raise your hand to project a cursor on the curved screen. Your on-screen avatar follows the pointer automatically.
+* **Cursor marker** — A small draggable sphere on the table lets you reposition your on-screen avatar if pointing is inconvenient.
 * **Directional audio** — The aberration core emits a continuous tone
   (`assets/core_sound.wav`) which gets quieter as you move away or turn
   your head, giving a sense of spatial presence.
