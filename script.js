@@ -469,6 +469,22 @@ window.addEventListener('load', () => {
           updateUI();
         }
       });
+
+      // --- NEW: Quick menu shortcuts using the controller face buttons ---
+      // Right hand: "A" toggles stage select, "B" pauses the game.
+      rightHand.addEventListener('abuttondown', () => {
+        if (stageSelectToggle) stageSelectToggle.emit('click');
+      });
+      rightHand.addEventListener('bbuttondown', () => {
+        if (pauseToggle) pauseToggle.emit('click');
+      });
+      // Left hand: "X" opens the core menu, "Y" opens the ascension grid.
+      leftHand.addEventListener('xbuttondown', () => {
+        if (coreMenuToggle) coreMenuToggle.emit('click');
+      });
+      leftHand.addEventListener('ybuttondown', () => {
+        if (ascensionToggle) ascensionToggle.emit('click');
+      });
     }
 
     // Handle dragging of the player avatar.  On release update the stored
