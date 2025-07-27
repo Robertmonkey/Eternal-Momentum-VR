@@ -245,8 +245,8 @@
     <!-- Large cylindrical screen showing the 2D game canvas
          The canvas wraps 180° around the player so pointing the controller
          feels like using a giant curved monitor. -->
-    <a-cylinder id="gameScreen" radius="4" height="2" theta-length="180"
-                position="0 1.6 0" rotation="0 -90 0"
+    <a-cylinder id="gameScreen" radius="4" height="2" theta-length="180" theta-start="-90"
+                position="0 1.6 0" rotation="0 0 0"
                 material="color: #21213c; emissive: #00ffff; emissiveIntensity: 0.1; side:double"
                 canvas-texture="#gameCanvas" class="interactive"></a-cylinder>
     <a-ring id="screenCursor" radius-inner="0.03" radius-outer="0.05" color="#00ffff" visible="false"></a-ring>

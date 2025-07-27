@@ -85,6 +85,7 @@ the neon look cohesive.
    non‑VR preview.
 3. Aim your controller at the large screen and click to move your character. Click the red aberration core to trigger its cooldown.
 4. If the menus appear far below or above you, recenter your headset. The VR camera rig starts at the world origin so your real head height determines the in‑game eye level.
+5. The 2D game appears on a curved wall covering roughly 180° in front of you. If you do not see it after entering VR, face forward and ensure your browser has entered immersive mode.
 
 ## Integrating the Full Game
 
