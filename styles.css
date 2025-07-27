@@ -1,0 +1,19 @@
+/* Basic stylesheet for Eternal Momentum VR prototype.  Keeps the page
+   background dark and removes default margins.  A‑Frame uses its
+   own internal styles for VR elements. */
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  overflow: hidden;
+  font-family: sans-serif;
+  color: #fff;
+}
+
+/* Hide the mouse cursor when in VR to avoid distraction */
+body.a-enter-vr {
+  cursor: none;
+}
