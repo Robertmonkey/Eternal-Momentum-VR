@@ -102,10 +102,17 @@ window.addEventListener('load', () => {
       platformRadius: 3.5
     };
 
+    let lastStage = state.currentStage;
+    let statusTimeout = null;
+    let gameOverShown = false;
+
     // Cache references to UI elements for quick updates
     const scoreText = document.getElementById('scoreText');
     const healthText = document.getElementById('healthText');
+    const levelText = document.getElementById('levelText');
+    const stageText = document.getElementById('stageText');
     const cooldownText = document.getElementById('cooldownText');
+    const statusText = document.getElementById('statusText');
     const offPowerText = document.getElementById('offPowerText');
     const defPowerText = document.getElementById('defPowerText');
 
@@ -119,6 +126,8 @@ window.addEventListener('load', () => {
       scoreText.setAttribute('value', `Essence: ${Math.floor(essence)}`);
       const health = state.player.health ?? 0;
       healthText.setAttribute('value', `Health: ${Math.floor(health)}`);
+      levelText.setAttribute('value', `Level: ${state.player.level}`);
+      stageText.setAttribute('value', `Stage: ${state.currentStage}`);
       if (offPowerText && defPowerText) {
         const offKey = state.offensiveInventory[0];
         const defKey = state.defensiveInventory[0];
@@ -267,6 +276,19 @@ window.addEventListener('load', () => {
       } else {
         drawGameCanvasFallback();
       }
+
+      if (state.currentStage !== lastStage) {
+        lastStage = state.currentStage;
+        if (statusTimeout) clearTimeout(statusTimeout);
+        statusText.setAttribute('value', `Stage ${state.currentStage}`);
+        statusTimeout = setTimeout(() => statusText.setAttribute('value', ''), 3000);
+      }
+      if (state.gameOver && !gameOverShown) {
+        if (statusTimeout) clearTimeout(statusTimeout);
+        statusText.setAttribute('value', 'GAME OVER');
+        gameOverShown = true;
+      }
+
       // Update UI panels
       updateUI();
       requestAnimationFrame(animate);
