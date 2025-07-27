@@ -104,6 +104,11 @@ window.addEventListener('load', () => {
   const stageText       = document.getElementById('stageText');
   const apText          = document.getElementById('apText');
   const statusText      = document.getElementById('statusText');
+  const offPowerText    = document.getElementById('offPowerText');
+  const offPowerQueueText = document.getElementById('offPowerQueueText');
+  const defPowerText    = document.getElementById('defPowerText');
+  const defPowerQueueText = document.getElementById('defPowerQueueText');
+  const statusEffectsText = document.getElementById('statusEffectsText');
   const vignetteRing    = document.getElementById('vignette');
   const bossPanel       = document.getElementById('bossPanel');
   const bossNameText    = document.getElementById('bossNameText');
@@ -198,6 +203,28 @@ window.addEventListener('load', () => {
     levelText.setAttribute('value', `Level: ${state.player.level}`);
     stageText.setAttribute('value', `Stage: ${state.currentStage}`);
     if (apText) apText.setAttribute('value', `AP: ${state.player.ascensionPoints}`);
+
+    // Display equipped powers and queue
+    if (offPowerText) {
+      const off = state.offensiveInventory[0];
+      offPowerText.setAttribute('value', off ? powers[off].emoji : '');
+    }
+    if (defPowerText) {
+      const def = state.defensiveInventory[0];
+      defPowerText.setAttribute('value', def ? powers[def].emoji : '');
+    }
+    if (offPowerQueueText) {
+      const q = state.offensiveInventory.slice(1).map(p => p ? powers[p].emoji : '').join(' ');
+      offPowerQueueText.setAttribute('value', q);
+    }
+    if (defPowerQueueText) {
+      const q = state.defensiveInventory.slice(1).map(p => p ? powers[p].emoji : '').join(' ');
+      defPowerQueueText.setAttribute('value', q);
+    }
+    if (statusEffectsText) {
+      const icons = state.player.statusEffects.filter(e => Date.now() < e.endTime).map(e => e.emoji).join(' ');
+      statusEffectsText.setAttribute('value', icons);
+    }
     // Vignette effect on low health
     if (vignetteRing && state.player.maxHealth) {
       const ratio = Math.max(0, Math.min(1, health / state.player.maxHealth));
