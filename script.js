@@ -115,6 +115,7 @@ window.addEventListener('load', () => {
     const stageText = document.getElementById('stageText');
     const cooldownText = document.getElementById('cooldownText');
     const statusText = document.getElementById('statusText');
+    const statusEffectsText = document.getElementById('statusEffectsText');
     const offPowerText = document.getElementById('offPowerText');
     const defPowerText = document.getElementById('defPowerText');
     const bossPanel = document.getElementById('bossPanel');
@@ -195,6 +196,11 @@ window.addEventListener('load', () => {
         } else {
           bossPanel.setAttribute('visible', 'false');
         }
+      }
+
+      if (statusEffectsText) {
+        const emojis = state.player.statusEffects.map(e => e.emoji).join(' ');
+        statusEffectsText.setAttribute('value', emojis);
       }
     }
 

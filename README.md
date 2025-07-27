@@ -35,6 +35,8 @@ development.
   remaining hit points so you can track the encounter without leaving VR.
 * **Quick restart button** — A reset button on the table immediately
   restarts the run, mirroring the original game’s "retry" functionality.
+* **Status effect icons** — Active buffs and debuffs appear as emojis on a
+  panel so you can quickly see what affects your character.
 
 ## Running the Prototype
 

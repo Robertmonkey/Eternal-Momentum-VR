@@ -88,11 +88,18 @@
              position="1.6 1.2 -0.3" rotation="0 -30 0">
       <a-text id="offPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
     </a-plane>
-    <a-plane id="defPowerPanel" width="0.3" height="0.3"
-             material="color: #141428; opacity: 0.9"
-             position="1.6 1.2 -0.8" rotation="0 -30 0">
-      <a-text id="defPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
-    </a-plane>
+      <a-plane id="defPowerPanel" width="0.3" height="0.3"
+               material="color: #141428; opacity: 0.9"
+               position="1.6 1.2 -0.8" rotation="0 -30 0">
+        <a-text id="defPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
+      </a-plane>
+
+      <!-- Active status effects are shown on a panel opposite the score. -->
+      <a-plane id="statusEffectsPanel" width="1.2" height="0.3"
+               material="color: #141428; opacity: 0.9"
+               position="-2 1.2 -0.5" rotation="0 30 0">
+        <a-text id="statusEffectsText" value="" align="center" width="1.1" color="#eaf2ff"></a-text>
+      </a-plane>
 
     <!-- Aberration core representation.  A glowing sphere slowly spins and
          emits a continuous tone using positional audio.  When the core’s
