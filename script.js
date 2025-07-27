@@ -16,7 +16,7 @@ import { state, resetGame, savePlayerState } from './modules/state.js';
 import { activateCorePower } from './modules/cores.js';
 import { powers, usePower } from './modules/powers.js';
 import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.js';
-import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex } from './modules/ui.js';
+import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex, showBossInfo } from './modules/ui.js';
 import { STAGE_CONFIG } from './modules/config.js';
 import { AudioManager } from './modules/audio.js';
 import { uvToSpherePos, spherePosToUv } from './modules/utils.js';
@@ -309,6 +309,8 @@ window.addEventListener('load', () => {
   const prevStageBtn       = document.getElementById('prevStageBtn');
   const nextStageBtn       = document.getElementById('nextStageBtn');
   const startStageBtn      = document.getElementById('startStageBtn');
+  const stageMechanicsBtn  = document.getElementById('stageMechanicsBtn');
+  const stageLoreBtn       = document.getElementById('stageLoreBtn');
   const restartStageBtn    = document.getElementById('restartStageBtn');
   const gameOverPanel      = document.getElementById('gameOverPanel');
   const levelSelectMenuBtn = document.getElementById('levelSelectMenuBtn');
@@ -335,6 +337,14 @@ window.addEventListener('load', () => {
     state.currentStage = selectedStage;
     restartCurrentStage();
     stageSelectPanel.setAttribute('visible', 'false');
+  });
+  if (stageMechanicsBtn) stageMechanicsBtn.addEventListener('click', () => {
+    const cfg = STAGE_CONFIG.find(s => s.stage === selectedStage);
+    if (cfg) showBossInfo(cfg.bosses, 'mechanics');
+  });
+  if (stageLoreBtn) stageLoreBtn.addEventListener('click', () => {
+    const cfg = STAGE_CONFIG.find(s => s.stage === selectedStage);
+    if (cfg) showBossInfo(cfg.bosses, 'lore');
   });
 
   // Menu toggles
