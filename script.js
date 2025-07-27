@@ -165,6 +165,8 @@ window.addEventListener('load', () => {
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
     const gameScreen = document.getElementById("gameScreen");
+    const leftHand = document.getElementById("leftHand");
+    const rightHand = document.getElementById("rightHand");
     AudioManager.setup(audioEls, muteToggle);
     document.addEventListener("visibilitychange", () => AudioManager.handleVisibilityChange());
     let selectedStage = state.currentStage;
