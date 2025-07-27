@@ -301,6 +301,7 @@ window.addEventListener('load', () => {
   const muteToggle         = document.getElementById('muteToggle');
   const pauseToggle        = document.getElementById('pauseToggle');
   const pauseText          = document.getElementById('pauseText');
+  const soundIconText      = document.getElementById('soundIconText');
   const resetButton        = document.getElementById('resetButton');
   const stageSelectToggle  = document.getElementById('stageSelectToggle');
   const stageSelectPanel   = document.getElementById('stageSelectPanel');
@@ -425,13 +426,14 @@ window.addEventListener('load', () => {
   if (muteToggle) muteToggle.addEventListener('click', () => {
     AudioManager.toggleMute();
     muteToggle.innerText = AudioManager.userMuted ? 'Unmute' : 'Mute';
+    if (soundIconText) soundIconText.setAttribute('value', AudioManager.userMuted ? '🔇' : '🔊');
   });
   if (musicVolume) musicVolume.addEventListener('input', e => AudioManager.setMusicVolume(parseFloat(e.target.value)));
   if (sfxVolume) sfxVolume.addEventListener('input', e => AudioManager.setSfxVolume(parseFloat(e.target.value)));
 
   if (pauseToggle) pauseToggle.addEventListener('click', () => {
     state.paused = !state.paused;
-    pauseText.setAttribute('value', state.paused ? 'Resume' : 'Pause');
+    pauseText.setAttribute('value', state.paused ? '▶' : '⏸');
     // When unpausing, restart the stage to re‑spawn enemies if necessary
     if (!state.paused) restartCurrentStage();
   });
@@ -472,6 +474,7 @@ window.addEventListener('load', () => {
     if (rightHand) triggerHaptic(rightHand, intensity, duration);
   }
   AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')), muteToggle);
+  if (soundIconText) soundIconText.setAttribute('value', AudioManager.userMuted ? '🔇' : '🔊');
 
   // Attach hover/click feedback to all console buttons
   function attachConsoleButtonFeedback() {
