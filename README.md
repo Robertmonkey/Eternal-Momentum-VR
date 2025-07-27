@@ -64,6 +64,7 @@ This README serves as the primary brief for AI development tools. Your core task
     * `modules/bosses.js` and `modules/powers.js`: Define the required behaviors for enemies and abilities.
     * `modules/state.js` and `modules/talents.js`: Define the necessary data structures and progression systems.
     * `style.css`: Contains the color variables and aesthetic style to be recreated in 3D materials.
+    * _Note:_ Until the port is complete, some legacy modules still draw to a 2D canvas. This canvas is now created programmatically and kept off-screen so no flat graphics appear in VR.
 
 2.  **Build a Native VR Engine:** You have the freedom to write and structure new JavaScript files (`script.js`, new modules, etc.) as needed to build a robust, 3D-native game. You are not merely bridging the old engine; you are building a new one based on its specifications.
     * Create a 3D-aware state management system.

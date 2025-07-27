@@ -15,21 +15,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!--
-    Hidden 2D canvas.  The original Eternal Momentum game renders into this
-    off‑screen canvas.  In this VR port the canvas content is wrapped
-    around the player on a cylinder so you can glance up and see the
-    familiar 2D battlefield in all directions.  Because the canvas is
-    hidden in the DOM, it does not interfere with VR rendering but its
-    contents are still updated every frame by script.js.
-  -->
-  <!--
-    Off‑screen canvas used by the original Eternal Momentum game.  Its ID is
-    "gameCanvas" to satisfy references inside the game code.  The cylinder
-    around the player uses this canvas as a texture to project the 2D
-    battlefield.  Keep the canvas hidden in the DOM.
-  -->
-  <canvas id="gameCanvas" width="2048" height="1024" style="display:none;"></canvas>
   <!-- Canvas used to generate the neon grid texture for the battlefield floor -->
   <canvas id="gridCanvas" width="512" height="512" style="display:none;"></canvas>
 
