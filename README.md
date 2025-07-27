@@ -84,6 +84,7 @@ the neon look cohesive.
    open `index.html` in a WebXR‑capable desktop browser for a
    non‑VR preview.
 3. Aim your controller at the large screen and click to move your character. Click the red aberration core to trigger its cooldown.
+4. If the menus appear far below or above you, recenter your headset. The VR camera rig starts at the world origin so your real head height determines the in‑game eye level.
 
 ## Integrating the Full Game
 
