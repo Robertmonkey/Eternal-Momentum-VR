@@ -38,8 +38,8 @@
   import { state, resetGame, savePlayerState } from './modules/state.js';
   import { activateCorePower } from './modules/cores.js';
   import { usePower, powers } from './modules/powers.js';
-  import { applyAllTalentEffects } from './modules/ascension.js';
-  import { populateAberrationCoreMenu, populateOrreryMenu } from './modules/ui.js';
+import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.js';
+import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex } from './modules/ui.js';
   import { STAGE_CONFIG } from './modules/config.js';
 import { AudioManager } from "./modules/audio.js";
 // Register a component that applies a 2D canvas as a live texture
@@ -504,6 +504,14 @@ window.addEventListener('load', () => {
       });
       leftHand.addEventListener('ybuttondown', () => {
         if (ascensionToggle) ascensionToggle.emit('click');
+      });
+
+      // Thumbstick presses for additional menus
+      leftHand.addEventListener('thumbstickdown', () => {
+        if (codexToggle) codexToggle.emit('click');
+      });
+      rightHand.addEventListener('thumbstickdown', () => {
+        if (orreryToggle) orreryToggle.emit('click');
       });
     }
 
