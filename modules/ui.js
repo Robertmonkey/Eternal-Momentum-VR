@@ -31,6 +31,9 @@ const bossInfoTitle = document.getElementById('bossInfoModalTitle');
 const bossInfoContent = document.getElementById('bossInfoModalContent');
 const closeBossInfoBtn = document.getElementById('closeBossInfoModalBtn');
 const bossInfoPanel = document.getElementById('bossInfoPanel');
+const bossInfoPanelTitle = document.getElementById('bossInfoPanelTitle');
+const bossInfoPanelContent = document.getElementById('bossInfoPanelContent');
+const closeBossInfoBtn3D = document.getElementById('closeBossInfoBtn3D');
 
 const aberrationCoreSocket = document.getElementById('aberration-core-socket');
 const aberrationCoreIcon = document.getElementById('aberration-core-icon');
@@ -319,12 +322,23 @@ export function showBossInfo(bossIds, type) {
 
     bossInfoTitle.innerHTML = title;
     bossInfoContent.innerHTML = content;
+    if (bossInfoPanelTitle) bossInfoPanelTitle.setAttribute('value', title.replace(/<[^>]+>/g, ''));
+    if (bossInfoPanelContent) {
+        const plain = bosses.map(b => type === 'lore' ? b.lore : b.mechanics_desc).join('\n\n');
+        bossInfoPanelContent.setAttribute('value', plain);
+    }
     bossInfoModal.style.display = 'flex';
     if (bossInfoPanel) bossInfoPanel.setAttribute('visible', 'true');
     AudioManager.playSfx('uiModalOpen');
 }
 
 closeBossInfoBtn.addEventListener('click', () => {
+    bossInfoModal.style.display = 'none';
+    if (bossInfoPanel) bossInfoPanel.setAttribute('visible', 'false');
+    AudioManager.playSfx('uiModalClose');
+});
+
+if (closeBossInfoBtn3D) closeBossInfoBtn3D.addEventListener('click', () => {
     bossInfoModal.style.display = 'none';
     if (bossInfoPanel) bossInfoPanel.setAttribute('visible', 'false');
     AudioManager.playSfx('uiModalClose');
