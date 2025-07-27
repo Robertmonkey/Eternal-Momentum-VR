@@ -27,13 +27,16 @@
 // where the script is included with `type="module"`.  Imports of game
 // modules appear at the top level.
   // Import the Eternal Momentum modules.  These imports will be resolved
-  // relative to this file.  The user must copy the original `modules`
-  // directory into `vr_port/game/modules` for these imports to succeed.
-  // Importing at the top level is allowed because this script is loaded as
-  // an ES module in index.html.
-  import { gameTick } from './game/modules/gameLoop.js';
-  import { state } from './game/modules/state.js';
-  import { activateCorePower } from './game/modules/cores.js';
+  // relative to this file.  In this repository the original game source
+  // already lives in the `modules/` directory at the project root, so no
+  // extra copying is required.  The script is loaded as an ES module in
+  // index.html so these imports resolve directly.
+  // Import the core game modules.  The original source lives in the
+  // `modules/` directory at the repository root, so we import from there
+  // directly rather than using the old vr_port path.
+  import { gameTick } from './modules/gameLoop.js';
+  import { state } from './modules/state.js';
+  import { activateCorePower } from './modules/cores.js';
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
   // continuously copies the canvas contents into the material map.
@@ -218,33 +221,11 @@ window.addEventListener('load', () => {
       }
     });
 
-    // Main render loop.  Attempt to call the original game's `gameTick()`
-    // function to update the 2D canvas.  If the original modules are not
-    // present, fall back to drawing a simple radial grid.  The UI
-    // overlays are updated on every frame as well.
-    function loop() {
-      let ticked = false;
-      try {
-        // Run the original game tick.  gameTick() draws into the canvas
-        // referenced by `gameCanvas` and updates the imported `state`.
-        gameTick();
-        ticked = true;
-      } catch (err) {
-        // If gameTick() isn’t defined because the modules are missing or
-        // errored, draw a fallback canvas so the cylinder is not blank.
-        drawGameCanvasFallback();
-      }
-      // Refresh UI every frame
-      updateUI();
-      requestAnimationFrame(loop);
-    }
-    loop();
 
     // Main animation loop.  It runs at the browser's animation rate (~60 Hz)
-    // and updates the canvas and UI.  If the original game modules have
-    // been copied into `vr_port/game/modules`, we call `gameTick()` to
-    // advance the game and redraw the canvas.  Otherwise we fall back to
-    // drawing a simple grid.
+    // and updates the canvas and UI.  If the original game modules are
+    // available we call `gameTick()` to advance the game and redraw the
+    // canvas.  Otherwise we fall back to drawing a simple grid.
     function animate() {
       // Advance the game if possible
       if (typeof gameTick === 'function') {
@@ -263,4 +244,3 @@ window.addEventListener('load', () => {
     }
     animate();
   });
-})();
