@@ -89,6 +89,23 @@ window.addEventListener('load', () => {
     // rather than the old "game2dCanvas" id to ensure the texture updates correctly.
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const gridCanvas = document.getElementById('gridCanvas');
+    if (gridCanvas) {
+      const gctx = gridCanvas.getContext('2d');
+      const size = gridCanvas.width;
+      gctx.clearRect(0, 0, size, size);
+      gctx.strokeStyle = '#00ffff';
+      gctx.lineWidth = 2;
+      const step = size / 8;
+      for (let i = 0; i <= 8; i++) {
+        gctx.beginPath();
+        gctx.moveTo(i * step, 0);
+        gctx.lineTo(i * step, size);
+        gctx.moveTo(0, i * step);
+        gctx.lineTo(size, i * step);
+        gctx.stroke();
+      }
+    }
 
     // Kick off a basic game run so the original modules have state to work with.
     resetGame(false);
@@ -183,7 +200,8 @@ window.addEventListener('load', () => {
     const coreCooldownRing = document.getElementById('coreCooldownRing');
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
-    const arenaFloor = document.getElementById("arenaFloor");
+    // Main battlefield surface the player interacts with
+    const battlefieldPlane = document.getElementById("battlefieldPlane");
     const screenCursor = document.getElementById("screenCursor");
     const playerAvatar = document.getElementById("playerAvatar");
     const enemyContainer = document.getElementById("enemyContainer");
@@ -566,8 +584,8 @@ window.addEventListener('load', () => {
     if (sfxVolume) {
       sfxVolume.addEventListener('input', e => AudioManager.setSfxVolume(parseFloat(e.target.value)));
     }
-    if (arenaFloor) {
-      arenaFloor.addEventListener("raycaster-intersection", e => {
+    if (battlefieldPlane) {
+      battlefieldPlane.addEventListener("raycaster-intersection", e => {
         const hit = e.detail.intersections[0];
         if (hit && hit.uv) {
           gameState.cursorUV = hit.uv;
@@ -578,13 +596,13 @@ window.addEventListener('load', () => {
           }
         }
       });
-      arenaFloor.addEventListener("raycaster-intersection-cleared", e => {
-        if (e.detail.clearedEl === arenaFloor) {
+      battlefieldPlane.addEventListener("raycaster-intersection-cleared", e => {
+        if (e.detail.clearedEl === battlefieldPlane) {
           gameState.cursorUV = null;
           if (screenCursor) screenCursor.setAttribute('visible', 'false');
         }
       });
-      arenaFloor.addEventListener("click", e => {
+      battlefieldPlane.addEventListener("click", e => {
         const uv = e.detail.intersection?.uv || gameState.cursorUV;
         if (uv) {
           state.player.x = uv.x * canvas.width;
@@ -760,13 +778,14 @@ window.addEventListener('load', () => {
       }
 
       // Update 3D arena objects
-      const w = 12;
-      const h = 6;
+      // Battlefield enlarged and lowered below the command deck
+      const w = 240;
+      const h = 120;
       const baseY = -2;
       if (playerAvatar) {
         const px = (state.player.x / canvas.width - 0.5) * w;
         const pz = (0.5 - state.player.y / canvas.height) * h;
-        playerAvatar.object3D.position.set(px, baseY + 0.1, -4 + pz);
+        playerAvatar.object3D.position.set(px, baseY + 0.1, pz);
       }
       if (enemyContainer) {
         const existing = new Set();
@@ -785,7 +804,7 @@ window.addEventListener('load', () => {
           }
           const ex = (e.x / canvas.width - 0.5) * w;
           const ez = (0.5 - e.y / canvas.height) * h;
-          el.object3D.position.set(ex, baseY + 0.2, -4 + ez);
+          el.object3D.position.set(ex, baseY + 0.2, ez);
         });
         enemyContainer.querySelectorAll('[data-eid]').forEach(el => {
           if (!existing.has(parseFloat(el.dataset.eid))) {
@@ -814,7 +833,7 @@ window.addEventListener('load', () => {
           }
           const px = (effect.x / canvas.width - 0.5) * w;
           const pz = (0.5 - effect.y / canvas.height) * h;
-          el.object3D.position.set(px, baseY + 0.15, -4 + pz);
+          el.object3D.position.set(px, baseY + 0.15, pz);
         });
         projectileEls.forEach((el, eff) => {
           if (!active.has(eff)) {

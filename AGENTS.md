@@ -9,7 +9,7 @@ The repository contains an early VR prototype and the complete 2D browser game s
 
 The Eternal‑Momentum‑OLD GAME/ directory houses the definitive 2D game logic. Treat this directory as read‑only and do not modify its contents. Use it only as a source of truth.
 
-The VR prototype uses the A‑Frame WebXR framework. The key entry point for VR logic is the top‑level script.js file.
+The VR prototype uses the A‑Frame WebXR framework. The key entry point for VR logic is the top‑level script.js file. Gameplay is viewed from a floating command deck with a transparent neon grid floor so the battlefield below remains visible and interactive.
 
 Core Directives for AI‑generated code
 Bridge, don’t rewrite – Do not modify files under Eternal‑Momentum‑OLD GAME/. Instead, import the necessary functions and the state object (from modules/state.js, modules/gameLoop.js and other modules) into script.js or other new VR modules. Run the gameTick loop and iterate through the state object each frame to update 3D objects’ positions, rotations and visibility
