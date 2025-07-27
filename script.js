@@ -41,6 +41,7 @@
   import { applyAllTalentEffects } from './modules/ascension.js';
   import { populateAberrationCoreMenu, populateOrreryMenu } from './modules/ui.js';
   import { STAGE_CONFIG } from './modules/config.js';
+import { AudioManager } from "./modules/audio.js";
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
   // continuously copies the canvas contents into the material map.
@@ -124,6 +125,8 @@ window.addEventListener('load', () => {
     const resetButton = document.getElementById('resetButton');
     const stageSelectToggle = document.getElementById('stageSelectToggle');
     const stageSelectPanel = document.getElementById('stageSelectPanel');
+    const pauseToggle = document.getElementById("pauseToggle");
+    const pauseText = document.getElementById("pauseText");
     const stageSelectLabel = document.getElementById('stageSelectLabel');
     const prevStageBtn = document.getElementById('prevStageBtn');
     const nextStageBtn = document.getElementById('nextStageBtn');
@@ -282,6 +285,20 @@ window.addEventListener('load', () => {
         gameOverShown = false;
         statusText.setAttribute('value', '');
         updateUI();
+      });
+    }
+    if (pauseToggle) {
+      pauseToggle.addEventListener("click", () => {
+        state.isPaused = !state.isPaused;
+        if (state.isPaused) {
+          if (pauseText) pauseText.setAttribute("value", "Resume");
+          statusText.setAttribute("value", "PAUSED");
+          AudioManager.fadeOutMusic(500);
+        } else {
+          if (pauseText) pauseText.setAttribute("value", "Pause");
+          statusText.setAttribute("value", "");
+          AudioManager.playMusic();
+        }
       });
     }
 
