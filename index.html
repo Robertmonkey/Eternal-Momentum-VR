@@ -74,6 +74,19 @@
       <a-text id="scoreText" value="Essence: 0" position="0 0.15 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
       <a-text id="healthText" value="Health: 100" position="0 -0.15 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
     </a-plane>
+    <!-- Panels showing the currently equipped offensive and defensive powers.
+         The emojis update each frame and the triggers on the VR controllers
+         activate these powers. -->
+    <a-plane id="offPowerPanel" width="0.3" height="0.3"
+             material="color: #141428; opacity: 0.9"
+             position="1.6 1.2 -0.3" rotation="0 -30 0">
+      <a-text id="offPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
+    </a-plane>
+    <a-plane id="defPowerPanel" width="0.3" height="0.3"
+             material="color: #141428; opacity: 0.9"
+             position="1.6 1.2 -0.8" rotation="0 -30 0">
+      <a-text id="defPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
+    </a-plane>
 
     <!-- Aberration core representation.  A glowing sphere slowly spins and
          emits a continuous tone using positional audio.  When the core’s
