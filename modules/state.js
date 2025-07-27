@@ -139,6 +139,12 @@ export const state = {
   lastArenaSpawn: 0,
   gravityActive: false,
   gravityEnd: 0,
+  // Shared HP and behaviour controller for the Fractal Horror boss.
+  // These are initialised by the boss logic when first encountered but
+  // must be present here so they can be reliably cleared between runs.
+  fractalHorrorSharedHp: null,
+  fractalHorrorSplits: 0,
+  fractalHorrorAi: null,
   bossSpawnCooldownEnd: 0,
   customOrreryBosses: [],
 };
@@ -257,5 +263,8 @@ export function resetGame(isArena = false) {
     currentStage: isArena ? 1 : (state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1),
     // **FIX:** Set an initial cooldown for the first boss spawn of the stage.
     bossSpawnCooldownEnd: Date.now() + 3000,
+    fractalHorrorSharedHp: null,
+    fractalHorrorSplits: 0,
+    fractalHorrorAi: null,
   });
 }
