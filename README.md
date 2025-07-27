@@ -52,6 +52,7 @@ You are a stationary commander at the heart of the sphere. You do not move. You 
         `new_position = current_position + (cursor_position - current_position) * 0.015 * speed_modifier`
     * **The "Feel":** This creates the signature, fluid chase motion. The Nexus will always be trying to catch up to your cursor, giving it a sense of weight and momentum.
 3.  **Activating Abilities:** All abilities originate from the Nexus avatar on the spherical wall. Offensive powers fire towards your cursor's location, while defensive powers activate in an area around the Nexus.
+    * **Trigger Controls:** Pull the **left** controller trigger to use your equipped offensive power, and the **right** trigger for your defensive power. Squeezing **both** triggers together activates your attuned Aberration Core ability.
 
 ---
 ## Directive for AI-Assisted Development
