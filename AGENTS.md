@@ -54,6 +54,10 @@ This section lists the current known issues with the prototype. Your immediate p
     * **Issue:** Testers note the command deck still lacks the promised neon grid floor.
     * **Action:** Add a transparent grid floor beneath the command deck using the gridCanvas texture so players can see space below.
 
+11.  **Button Drift Feedback (July 2025):**
+    * **Issue:** Some testers report the console buttons are unlabeled and appear to jump toward the player when pressed instead of opening their menus.
+    * **Action:** Ensure each button has a clear emoji label, stays anchored to the command deck, and toggles its corresponding holographic panel without moving.
+
 ---
 
 ## Core Directives for AI-Generated Code

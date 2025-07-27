@@ -177,15 +177,19 @@ window.addEventListener('load', () => {
     const headY = cameraEl.object3D.position.y || 1.6;
     if (commandDeck)     commandDeck.object3D.position.y    = headY - 0.5;
     if (commandDeckEnv)  commandDeckEnv.object3D.position.y = headY - 1.6;
+    const panelY = headY;
+    const panelIds = [
+      'stageSelectPanel','gameOverPanel','bossInfoPanel','ascensionGridPanel',
+      'aberrationCorePanel','loreCodexPanel','orreryPanel','soundOptionsPanel'
+    ];
+    panelIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.object3D.position.y = panelY;
+    });
   }
 
   function showPanel(panelEl) {
     if (!panelEl) return;
-    const cam = cameraEl.object3D;
-    const offset = new THREE.Vector3(0, 0, -1.2);
-    offset.applyQuaternion(cam.quaternion);
-    panelEl.object3D.position.copy(cam.position).add(offset);
-    panelEl.object3D.quaternion.copy(cam.quaternion);
     panelEl.setAttribute('visible', 'true');
   }
 
