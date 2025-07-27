@@ -126,6 +126,9 @@ window.addEventListener('load', () => {
       cursorPoint: null
     };
 
+    // Track the previous health value to trigger haptics on damage
+    let lastHealth = state.player.health;
+
     // Current 3D position of the player's avatar on the spherical arena
     let avatarPos = uvToSpherePos(0.5, 0.5);
     const startUv = spherePosToUv(avatarPos);
@@ -836,6 +839,14 @@ window.addEventListener('load', () => {
 
       // Update UI panels
       updateUI();
+      // Trigger haptic feedback when the player's health changes
+      const hp = state.player.health;
+      if (hp < lastHealth) {
+        pulseBoth(0.8, 100);
+      } else if (hp > lastHealth) {
+        pulseBoth(0.4, 60);
+      }
+      lastHealth = hp;
       if (cursorMarker) {
         const uv = spherePosToUv(avatarPos);
         const theta = uv.u * 2 * Math.PI;
