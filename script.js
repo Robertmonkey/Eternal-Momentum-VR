@@ -218,6 +218,28 @@ window.addEventListener('load', () => {
       }
     });
 
+    // Main render loop.  Attempt to call the original game's `gameTick()`
+    // function to update the 2D canvas.  If the original modules are not
+    // present, fall back to drawing a simple radial grid.  The UI
+    // overlays are updated on every frame as well.
+    function loop() {
+      let ticked = false;
+      try {
+        // Run the original game tick.  gameTick() draws into the canvas
+        // referenced by `gameCanvas` and updates the imported `state`.
+        gameTick();
+        ticked = true;
+      } catch (err) {
+        // If gameTick() isn’t defined because the modules are missing or
+        // errored, draw a fallback canvas so the cylinder is not blank.
+        drawGameCanvasFallback();
+      }
+      // Refresh UI every frame
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+    loop();
+
     // Main animation loop.  It runs at the browser's animation rate (~60 Hz)
     // and updates the canvas and UI.  If the original game modules have
     // been copied into `vr_port/game/modules`, we call `gameTick()` to
