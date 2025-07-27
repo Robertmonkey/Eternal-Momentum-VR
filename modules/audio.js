@@ -55,6 +55,13 @@ export const AudioManager = {
         if(this.soundBtn) this.soundBtn.innerText = this.userMuted ? "🔇" : "🔊";
     },
 
+    setMusicVolume(vol) {
+        this.musicVolume = Math.min(1, Math.max(0, vol));
+        if (this.currentMusic) this.currentMusic.volume = this.musicVolume;
+    },
+    setSfxVolume(vol) {
+        this.sfxVolume = Math.min(1, Math.max(0, vol));
+    },
     playSfx(soundId) {
         if (!this.unlocked || this.userMuted) return;
         const originalSfx = this.soundElements[soundId];
