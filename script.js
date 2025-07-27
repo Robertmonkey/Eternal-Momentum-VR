@@ -97,6 +97,8 @@ window.addEventListener('load', () => {
     cursorPoint: null
   };
 
+  restartCurrentStage();
+
   // Cache important elements for quick access.
   const scoreText       = document.getElementById('scoreText');
   const healthText      = document.getElementById('healthText');
@@ -126,6 +128,9 @@ window.addEventListener('load', () => {
   const pickupContainer    = document.getElementById('pickupContainer');
   const leftHand        = document.getElementById('leftHand');
   const rightHand       = document.getElementById('rightHand');
+  const coreModel       = document.getElementById('coreModel');
+  const coreCooldownRing = document.getElementById('coreCooldownRing');
+  const coreCooldownPanel = document.getElementById('coreCooldownPanel');
 
   const projectileMap = new Map();
   const pickupMap = new Map();
@@ -256,6 +261,14 @@ window.addEventListener('load', () => {
         bossPanel.setAttribute('visible', 'false');
       }
     }
+    updateCoreModelVisibility();
+  }
+
+  function updateCoreModelVisibility() {
+    const hasCore = state.player.unlockedAberrationCores.size > 0;
+    if (coreModel) coreModel.setAttribute('visible', hasCore);
+    if (coreCooldownRing) coreCooldownRing.setAttribute('visible', hasCore);
+    if (coreCooldownPanel) coreCooldownPanel.setAttribute('visible', hasCore);
   }
 
   // Event handlers for menu buttons.  These open the respective modals and
