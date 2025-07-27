@@ -113,6 +113,19 @@
       <a-text id="statusText" value="" align="center" width="1.2" color="#eaf2ff"></a-text>
     </a-plane>
 
+    <a-plane id="bossPanel" width="1.4" height="0.3"
+             material="color: #141428; opacity: 0.9"
+             position="0 1.7 -1.5" rotation="0 0 0" visible="false">
+      <a-text id="bossNameText" value="" align="center" width="1.2" position="0 0.1 0.01" color="#ff5555"></a-text>
+      <a-text id="bossHpText" value="" align="center" width="1.2" position="0 -0.12 0.01" color="#eaf2ff"></a-text>
+    </a-plane>
+
+    <a-plane id="resetButton" width="0.6" height="0.2"
+             material="color: #141428; opacity: 0.9"
+             position="2 0.8 -1.2" rotation="0 -30 0" class="interactive">
+      <a-text value="Reset" align="center" width="0.5" color="#eaf2ff"></a-text>
+    </a-plane>
+
     <!-- Cylindrical surface that wraps the 2D game canvas around the player.  A
          custom component defined in script.js (canvas-texture) copies the
          canvas into a texture every frame.  The cylinder is open‑ended so

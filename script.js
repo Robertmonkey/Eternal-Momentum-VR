@@ -115,6 +115,10 @@ window.addEventListener('load', () => {
     const statusText = document.getElementById('statusText');
     const offPowerText = document.getElementById('offPowerText');
     const defPowerText = document.getElementById('defPowerText');
+    const bossPanel = document.getElementById('bossPanel');
+    const bossNameText = document.getElementById('bossNameText');
+    const bossHpText = document.getElementById('bossHpText');
+    const resetButton = document.getElementById('resetButton');
 
     // Helper to update the scoreboard and health bars.  Values are read
     // directly from the imported game state.  You can customise which
@@ -141,6 +145,17 @@ window.addEventListener('load', () => {
         cooldownText.setAttribute('value', `Core cooldown: ${remaining.toFixed(1)}s`);
       } else {
         cooldownText.setAttribute('value', 'Core cooldown: Ready');
+      }
+
+      if (bossPanel && bossNameText && bossHpText) {
+        const boss = state.enemies.find(e => e.boss);
+        if (boss) {
+          bossPanel.setAttribute('visible', 'true');
+          bossNameText.setAttribute('value', boss.name || 'Boss');
+          bossHpText.setAttribute('value', `HP: ${Math.floor(boss.hp)} / ${boss.maxHP}`);
+        } else {
+          bossPanel.setAttribute('visible', 'false');
+        }
       }
     }
 
@@ -210,6 +225,17 @@ window.addEventListener('load', () => {
         }
       }
     });
+
+    if (resetButton) {
+      resetButton.addEventListener('click', () => {
+        resetGame(false);
+        applyAllTalentEffects();
+        gameState.lastCoreUse = -Infinity;
+        gameOverShown = false;
+        statusText.setAttribute('value', '');
+        updateUI();
+      });
+    }
 
     // Trigger equipped powers when the controller triggers are pressed.
     const leftHand = document.getElementById('leftHand');
