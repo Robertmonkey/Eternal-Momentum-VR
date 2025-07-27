@@ -37,9 +37,14 @@
          <a-assets> block as needed. -->
     <a-assets>
       <!-- Intentionally left empty to avoid unwanted sounds. -->
-    <audio id="bgMusic1" class="game-audio" src="assets/bgMusic_01.mp3" preload="auto" loop></audio>
-    <audio id="bgMusic2" class="game-audio" src="assets/bgMusic_02.mp3" preload="auto" loop></audio>
+      <audio id="bgMusic1" class="game-audio" src="assets/bgMusic_01.mp3" preload="auto" loop></audio>
+      <audio id="bgMusic2" class="game-audio" src="assets/bgMusic_02.mp3" preload="auto" loop></audio>
+      <!-- Cosmic background used for the skybox so the scene matches the original game's vibe -->
+      <img id="spaceBackground" src="assets/bg.png">
     </a-assets>
+
+    <!-- Starry skybox to give the arena a cosmic atmosphere -->
+    <a-sky src="#spaceBackground" rotation="0 -90 0"></a-sky>
 
     <!-- Camera rig.  It contains the camera and both controllers.  The rig is positioned
          so that the player's eyes start at 1.6 m above the platform.  Movement
