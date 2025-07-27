@@ -1,322 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <title>Eternal Momentum VR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- A‑Frame core library for building WebXR scenes -->
-  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <!-- Additional helpers for physics, interactions and super‑hands (grabbing with controllers) -->
+  <!-- Load A‑Frame and helpers -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-super-hands-component@5.0.1/dist/aframe-super-hands-component.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-html-shader/dist/aframe-html-shader.min.js"></script>
-  <link rel="stylesheet" href="styles.css">
-  <!-- Include the full UI styles so modal overlays render correctly -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe-super-hands-component@5.0.0/dist/aframe-super-hands-component.min.js"></script>
+  <!-- Our VR logic -->
+  <script src="script.js" type="module"></script>
+  <!-- Bring in the original CSS for colours and fonts -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Canvas used to generate the neon grid texture for the battlefield floor -->
+  <!-- Offscreen canvas for drawing the neon grid floor; hidden from view -->
   <canvas id="gridCanvas" width="512" height="512" style="display:none;"></canvas>
-
-  <!-- Simple home screen overlay inspired by the original layout -->
-  <div id="home-screen" class="visible">
-    <video autoplay muted loop playsinline id="home-video-bg" preload="none">
-      <source src="assets/home.mp4" type="video/mp4">
-    </video>
-    <div id="home-overlay">
-      <h1 id="game-title">ETERNAL MOMENTUM VR</h1>
-      <div id="home-actions">
-        <button id="start-vr-btn" class="home-btn">BEGIN</button>
-      </div>
-    </div>
-  </div>
-
   <a-scene embedded background="color: #000">
-    <!-- Asset management for the scene.  The original VR prototype loaded a looping
-         core sound here, but that audio has been removed at the user’s
-         request.  You can add additional models or textures within this
-         <a-assets> block as needed. -->
+    <!-- Assets for buttons and audio -->
     <a-assets>
-      <!-- Intentionally left empty to avoid unwanted sounds. -->
       <a-mixin id="console-button"
-               geometry="primitive: cylinder; radius:0.3; height:0.1"
-               material="color:#141428; opacity:0.95; transparent:true; emissive:#00ffff; emissiveIntensity:1.0; metalness:0.4; roughness:0.2"
+               geometry="primitive: cylinder; radius:0.12; height:0.06"
+               material="color:#0b1020; opacity:0.95; transparent:true;
+                        emissive:#00ffff; emissiveIntensity:0.7; metalness:0.2; roughness:0.4"
                animation__press="property: position; startEvents: mousedown; dir: alternate; dur: 100; to: 0 -0.02 0"
                animation__release="property: position; startEvents: mouseup; dir: alternate; dur: 100; to: 0 0 0"
                animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.5"></a-mixin>
-      <audio id="bgMusic1" class="game-audio" src="assets/bgMusic_01.mp3" preload="auto" loop></audio>
-      <audio id="bgMusic2" class="game-audio" src="assets/bgMusic_02.mp3" preload="auto" loop></audio>
+      <!-- Basic UI sounds -->
       <audio id="uiHoverSound" class="game-audio" src="assets/uiHoverSound.mp3" preload="auto"></audio>
       <audio id="uiClickSound" class="game-audio" src="assets/uiClickSound.mp3" preload="auto"></audio>
       <audio id="uiModalOpen" class="game-audio" src="assets/uiModalOpen.mp3" preload="auto"></audio>
       <audio id="uiModalClose" class="game-audio" src="assets/uiModalClose.mp3" preload="auto"></audio>
-      <audio id="talentPurchase" class="game-audio" src="assets/talentPurchase.mp3" preload="auto"></audio>
-      <audio id="talentError" class="game-audio" src="assets/talentError.mp3" preload="auto"></audio>
-      <audio id="bossSpawnSound" class="game-audio" src="assets/bossSpawnSound.mp3" preload="auto"></audio>
-      <audio id="bossDefeatSound" class="game-audio" src="assets/bossDefeatSound.mp3" preload="auto"></audio>
-      <!-- Cosmic background used for the skybox so the scene matches the original game's vibe -->
-      <img id="spaceBackground" src="assets/bg.png">
     </a-assets>
-
-    <!-- Starry skybox to give the arena a cosmic atmosphere -->
-    <a-sky src="#spaceBackground" rotation="0 -90 0"></a-sky>
-
-    <!-- Camera rig.  It contains the camera and both controllers.  The rig is positioned
-         at the origin so your real-world head height sets the in-game eye level.
-         Movement controls are disabled because this game uses a stationary platform;
-         players move their on-screen avatar by grabbing and dragging the small marker
-         on the table. -->
+    <!-- Simple skybox -->
+    <a-sky color="#000"></a-sky>
+    <!-- VR rig with camera and controllers -->
     <a-entity id="rig" position="0 0 0">
       <a-camera id="camera" wasd-controls-enabled="false">
-        <!-- Vignette ring fades in as health gets low -->
-        <a-ring id="vignette" radius-inner="0.8" radius-outer="1.3"
-                position="0 0 -0.1"
+        <a-ring id="vignette" radius-inner="0.8" radius-outer="1.3" position="0 0 -0.1"
                 material="color: #000; shader: flat; opacity: 0; transparent: true"
                 visible="false"></a-ring>
       </a-camera>
-      <!-- Left hand controller with laser pointer and interaction components -->
       <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: .interactive" super-hands></a-entity>
-      <!-- Right hand controller -->
       <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: .interactive" super-hands></a-entity>
     </a-entity>
-
-    <!-- Container for UI panels that float around the player -->
+    <!-- Floating command deck containing all UI panels and controls -->
     <a-entity id="commandDeck" position="0 1.2 0">
-
-    <!-- Score and health panel.  Placed slightly forward and to the right of the
-         player so it is easily visible when glancing down at the table.  Two
-         text elements display the current score and health; they are updated
-         dynamically by script.js every frame. -->
-    <a-plane id="scorePanel" width="1.2" height="1.1"
-             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="1.6 1.2 -1.2" rotation="0 -20 0">
-      <!-- Score and health text adopt the original game’s pale font colour. -->
-      <a-text id="scoreText" value="Essence: 0" position="0 0.28 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-      <a-text id="healthText" value="Health: 100" position="0 0.05 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-      <a-text id="levelText" value="Level: 1" position="0 -0.18 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-      <a-text id="stageText" value="Stage: 1" position="0 -0.41 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-      <a-text id="apText" value="AP: 0" position="0 -0.64 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-    </a-plane>
-    <!-- Panels showing the currently equipped offensive and defensive powers.
-         The emojis update each frame and the triggers on the VR controllers
-         activate these powers. -->
-    <a-plane id="offPowerPanel" width="0.3" height="0.3"
-             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="0.8 1.2 -1.6" rotation="0 -10 0">
-      <a-text id="offPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
-      <a-text id="offPowerQueueText" value="" align="center" width="0.3" color="#eaf2ff" position="0 -0.22 0.01"></a-text>
-    </a-plane>
+      <!-- Score & stats panel -->
+      <a-plane id="scorePanel" width="1.2" height="1.1"
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
+        <a-text id="scoreText" value="Essence: 0" position="0 0.28 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+        <a-text id="healthText" value="Health: 100" position="0 0.05 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+        <a-text id="levelText" value="Level: 1" position="0 -0.18 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+        <a-text id="stageText" value="Stage: 1" position="0 -0.41 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+        <a-text id="apText" value="AP: 0" position="0 -0.64 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+      </a-plane>
+      <!-- Offensive power panel -->
+      <a-plane id="offPowerPanel" width="0.3" height="0.3"
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
+        <a-text id="offPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
+        <a-text id="offPowerQueueText" value="" align="center" width="0.3" color="#eaf2ff" position="0 -0.22 0.01"></a-text>
+      </a-plane>
+      <!-- Defensive power panel -->
       <a-plane id="defPowerPanel" width="0.3" height="0.3"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-               position="-0.8 1.2 -1.6" rotation="0 10 0">
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
         <a-text id="defPowerText" value="" align="center" width="0.3" color="#eaf2ff"></a-text>
         <a-text id="defPowerQueueText" value="" align="center" width="0.3" color="#eaf2ff" position="0 -0.22 0.01"></a-text>
       </a-plane>
-
-      <!-- Active status effects are shown on a panel opposite the score. -->
+      <!-- Status effects panel -->
       <a-plane id="statusEffectsPanel" width="1.2" height="0.3"
-               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-               position="-1.6 1.2 -1.2" rotation="0 20 0">
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
         <a-text id="statusEffectsText" value="" align="center" width="1.1" color="#eaf2ff"></a-text>
       </a-plane>
-
-      <!-- Draggable marker showing where the on-screen avatar is positioned -->
+      <!-- Draggable cursor marker (table only) -->
       <a-sphere id="cursorMarker" radius="0.15"
                 material="color: #00aaff; emissive: #00aaff; emissiveIntensity: 0.6"
                 position="0 1 0" class="interactive grabbable draggable"></a-sphere>
-
-    <!-- Aberration core representation.  A glowing sphere slowly spins and
-         emits a continuous tone using positional audio.  When the core’s
-         active power is used, script.js will start a cooldown timer and
-         update the panel below accordingly.  The core itself is interactive
-         and can be grabbed or clicked if additional gameplay mechanics are
-         added later. -->
-    <a-sphere id="coreModel" radius="0.3"
-              material="color: #f000ff; emissive: #f000ff; emissiveIntensity: 0.5"
-              position="-2 1.5 -1" class="interactive">
-      <a-animation attribute="rotation" dur="8000" to="360 360 0" repeat="indefinite" easing="linear"></a-animation>
-      <!-- Sound removed per user request; the core no longer emits audio. -->
-    </a-sphere>
-    <!-- Ring visualising the aberration core cooldown -->
-    <a-ring id="coreCooldownRing" radius-inner="0.32" radius-outer="0.36"
-            position="-2 1.5 -1" material="color:#f000ff; opacity:0.4"
-            rotation="0 0 0" visible="false"></a-ring>
-    <a-plane id="coreCooldownPanel" width="0.6" height="0.3"
-             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="-2 1.0 -1" rotation="0 30 0">
-      <a-text id="cooldownText" value="Core cooldown: Ready" align="center" width="0.5" color="#eaf2ff"></a-text>
-    </a-plane>
-    <a-plane id="statusPanel" width="1.4" height="0.3"
-             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="0 2 -1.5" rotation="0 0 0">
-      <a-text id="statusText" value="" align="center" width="1.2" color="#eaf2ff"></a-text>
-    </a-plane>
-
-    <a-plane id="bossPanel" width="1.4" height="0.5"
-             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="0 1.7 -1.5" rotation="0 0 0" visible="false">
-      <a-text id="bossNameText" value="" align="center" width="1.2" position="0 0.17 0.01" color="#ff5555"></a-text>
-      <a-text id="bossHpText" value="" align="center" width="1.2" position="0 -0.17 0.01" color="#eaf2ff"></a-text>
-    </a-plane>
-
-    <a-entity id="resetButton" mixin="console-button" position="1.4 0.8 -2" rotation="0 -40 0" class="interactive">
-      <a-text value="Reset" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-    <a-entity id="pauseToggle" mixin="console-button" position="1.4 0.95 -2.2" rotation="0 -40 0" class="interactive">
-      <a-text id="pauseText" value="Pause" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-
-    <a-entity id="stageSelectToggle" mixin="console-button" position="1.4 1.05 -2.4" rotation="0 -40 0" class="interactive" geometry="width:0.8">
-      <a-text value="Stage Select" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-
-    <a-entity id="coreMenuToggle" mixin="console-button" position="0.9 1.3 -2.3" rotation="0 -30 0" class="interactive" geometry="width:0.8">
-      <a-text value="Core Menu" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-    <a-entity id="ascensionToggle" mixin="console-button" position="-0.9 1.55 -2.3" rotation="0 30 0" class="interactive" geometry="width:0.8">
-      <a-text value="Ascension" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-    <a-entity id="codexToggle" mixin="console-button" position="-1.4 1.8 -2.2" rotation="0 40 0" class="interactive" geometry="width:0.8">
-      <a-text value="Codex" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-    <a-entity id="orreryToggle" mixin="console-button" position="-1.4 2.05 -2.4" rotation="0 40 0" class="interactive" geometry="width:0.8">
-      <a-text value="Orrery" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-    <a-entity id="soundOptionsToggle" mixin="console-button" position="-1.4 2.3 -2" rotation="0 40 0" class="interactive" geometry="width:0.8">
-      <a-text value="Sound" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
-    </a-entity>
-
-    <a-plane id="stageSelectPanel" width="1.4" height="0.8" visible="false"
+      <!-- Aberration core and cooldown ring -->
+      <a-sphere id="coreModel" radius="0.3"
+                material="color: #f000ff; emissive: #f000ff; emissiveIntensity: 0.5"
+                position="-2 1.5 -1" class="interactive">
+        <a-animation attribute="rotation" dur="8000" to="360 360 0" repeat="indefinite" easing="linear"></a-animation>
+      </a-sphere>
+      <a-ring id="coreCooldownRing" radius-inner="0.32" radius-outer="0.36"
+              position="-2 1.5 -1" material="color:#f000ff; opacity:0.4" rotation="0 0 0" visible="false"></a-ring>
+      <a-plane id="coreCooldownPanel" width="0.6" height="0.3"
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
+               position="-2 1.0 -1">
+        <a-text id="cooldownText" value="Core cooldown: Ready" align="center" width="0.5" color="#eaf2ff"></a-text>
+      </a-plane>
+      <!-- Status message panel -->
+      <a-plane id="statusPanel" width="1.4" height="0.3"
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
+        <a-text id="statusText" value="" align="center" width="1.2" color="#eaf2ff"></a-text>
+      </a-plane>
+      <!-- Boss health bar panel: dark wrapper with coloured fill -->
+      <a-plane id="bossPanel" width="2.0" height="0.35"
+               material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
+               visible="false">
+        <a-text id="bossNameText" value="" align="center" width="2.0" color="#eaf2ff" position="0 0.12 0.01"></a-text>
+        <a-plane id="bossHpBarWrap" width="1.6" height="0.08" position="0 -0.05 0.01"
+                 material="color:#222; opacity:0.7; side: double">
+          <a-plane id="bossHpBarFill" width="1.6" height="0.08" position="-0.8 0 0.001"
+                   material="color:#3498db; opacity:1.0; side: double"></a-plane>
+        </a-plane>
+      </a-plane>
+      <!-- Control buttons around the deck; positions are set dynamically in script -->
+      <a-entity id="resetButton" mixin="console-button" class="interactive">
+        <a-text value="Reset" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="pauseToggle" mixin="console-button" class="interactive">
+        <a-text id="pauseText" value="Pause" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="stageSelectToggle" mixin="console-button" class="interactive">
+        <a-text value="Stage Select" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="coreMenuToggle" mixin="console-button" class="interactive">
+        <a-text value="Core Menu" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="ascensionToggle" mixin="console-button" class="interactive">
+        <a-text value="Ascension" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="codexToggle" mixin="console-button" class="interactive">
+        <a-text value="Codex" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="orreryToggle" mixin="console-button" class="interactive">
+        <a-text value="Orrery" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="soundOptionsToggle" mixin="console-button" class="interactive">
+        <a-text value="Sound" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+    </a-entity> <!-- end commandDeck -->
+    <!-- Stage selection panel -->
+    <a-plane id="stageSelectPanel" width="2.0" height="1.2"
              material="color: #141428; opacity: 0.95; emissive: #00ffff; emissiveIntensity: 0.25"
-             position="0 1.6 -1.5" rotation="0 0 0">
-      <a-text id="stageSelectLabel" value="Stage: 1" align="center" width="1.2"
-              position="0 0.25 0.01" color="#eaf2ff"></a-text>
-      <a-entity id="prevStageBtn" mixin="console-button" position="-0.45 -0.05 0.01" class="interactive" geometry="width:0.4">
+             visible="false">
+      <a-text id="stageSelectLabel" value="Stage: 1" align="center" width="1.5" color="#eaf2ff" position="0 0.3 0.01"></a-text>
+      <a-entity id="prevStageBtn" mixin="console-button" class="interactive" position="-0.6 -0.1 0.02">
         <a-text value="Prev" align="center" width="0.4" color="#eaf2ff" position="0 0 0.06"></a-text>
       </a-entity>
-      <a-entity id="nextStageBtn" mixin="console-button" position="0.45 -0.05 0.01" class="interactive" geometry="width:0.4">
+      <a-entity id="nextStageBtn" mixin="console-button" class="interactive" position="0.6 -0.1 0.02">
         <a-text value="Next" align="center" width="0.4" color="#eaf2ff" position="0 0 0.06"></a-text>
       </a-entity>
-      <a-entity id="startStageBtn" mixin="console-button" position="0 -0.35 0.01" class="interactive" geometry="width:0.8">
+      <a-entity id="startStageBtn" mixin="console-button" class="interactive" position="0 -0.35 0.02">
         <a-text value="Start" align="center" width="0.7" color="#eaf2ff" position="0 0 0.06"></a-text>
       </a-entity>
     </a-plane>
-    </a-entity>
-
-    <!-- Command deck environment -->
-    <a-entity id="commandDeckEnv">
-      <a-ring id="neonGrid" radius-inner="0" radius-outer="3" rotation="-90 0 0" position="0 0.01 0" canvas-texture="#gridCanvas" material="transparent:true; opacity:0.8"></a-ring>
-      <a-torus id="deckRailing" radius="3.05" radius-tubular="0.02" rotation="-90 0 0" position="0 0.25 0" material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.3; transparent:true; opacity:0.4"></a-torus>
-    </a-entity>
-    <!-- Spherical arena that wraps around the player -->
-    <a-sphere id="battleSphere" radius="8" segments-width="32" segments-height="32"
-              material="color:#21213c; emissive:#00ffff; emissiveIntensity:0.05; side:back"
+    <!-- Game over panel -->
+    <a-plane id="gameOverPanel" width="2.0" height="1.0"
+             material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
+             visible="false">
+      <a-text value="TIMELINE COLLAPSED" align="center" width="1.8" color="#e74c3c" position="0 0.3 0.01"></a-text>
+      <a-entity id="restartStageBtn" mixin="console-button" class="interactive" position="-0.7 -0.1 0.02">
+        <a-text value="Restart Stage" align="center" width="0.8" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="ascensionMenuBtn" mixin="console-button" class="interactive" position="0 0.1 0.02">
+        <a-text value="Ascension Conduit" align="center" width="0.9" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="aberrationCoreMenuBtn" mixin="console-button" class="interactive" position="0 -0.1 0.02">
+        <a-text value="Aberration Cores" align="center" width="0.9" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity id="levelSelectMenuBtn" mixin="console-button" class="interactive" position="0.7 -0.1 0.02">
+        <a-text value="Stage Select" align="center" width="0.8" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+    </a-plane>
+    <!-- The spherical battlefield that surrounds the deck -->
+    <a-sphere id="battleSphere" radius="8" segments-height="60" segments-width="60"
+              material="color: #080c18; side: back; opacity: 0.0; transparent: true"
               class="interactive"></a-sphere>
+    <!-- Containers for gameplay objects -->
     <a-entity id="enemyContainer"></a-entity>
     <a-entity id="projectileContainer"></a-entity>
-    <a-sphere id="nexusAvatar" radius="0.25" color="#00ff80" position="0 0 -8" rotation="0 0 0"></a-sphere>
-    <a-ring id="screenCursor" radius-inner="0.03" radius-outer="0.05" color="#00ffff" visible="false"></a-ring>
-    
-    <!-- script.js contains game logic and canvas updates.  Load it as an ES module so it can import the game's modules and call into them. -->
-    <a-plane id="aberrationCorePanel" width="2.2" height="1.3" position="0 1.6 -1.5" material="shader: html; target: #aberrationCoreModal; transparent: true" visible="false" class="interactive"></a-plane>
-    <a-plane id="ascensionGridPanel" width="2.6" height="1.5" position="0 1.6 -1.6" material="shader: html; target: #ascensionGridModal; transparent: true" visible="false" class="interactive"></a-plane>
-    <a-plane id="loreCodexPanel" width="2.6" height="1.5" position="0 1.6 -1.6" material="shader: html; target: #loreCodexModal; transparent: true" visible="false" class="interactive"></a-plane>
-    <a-plane id="bossInfoPanel" width="2.2" height="1.2" position="0 1.6 -1.5" material="shader: html; target: #bossInfoModal; transparent: true" visible="false" class="interactive"></a-plane>
-    <a-plane id="orreryPanel" width="2.6" height="1.5" position="0 1.6 -1.6" material="shader: html; target: #orreryModal; transparent: true" visible="false" class="interactive"></a-plane>
-    <a-plane id="soundOptionsPanel" width="1.6" height="1.2" position="0 1.6 -1.4" material="shader: html; target: #soundOptionsModal; transparent: true" visible="false" class="interactive"></a-plane>
-    <a-plane id="gameOverPanel" width="2" height="1.1" position="0 1.6 -1.5" material="shader: html; target: #gameOverMenu; transparent: true" visible="false" class="interactive"></a-plane>
-  <script type="module" src="script.js"></script>
+    <a-entity id="nexusAvatar">
+      <a-sphere radius="0.3" material="color:#00ff00"></a-sphere>
+    </a-entity>
+    <a-sphere id="screenCursor" radius="0.05" material="color:#ffffff; opacity:0.8" visible="false"></a-sphere>
+    <!-- Neon ring to visualise the command deck perimeter -->
+    <a-torus id="commandDeckEnv" radius="3" radius-tubular="0.02"
+             segments-radial="36" segments-tubular="12"
+             material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.2; transparent:true; opacity:0.6"
+             rotation="90 0 0"></a-torus>
   </a-scene>
-
-  <!-- Aberration core selection modal overlay -->
-  <div id="aberrationCoreModal" class="vr-source">
-    <div id="aberration-core-container">
-      <div id="aberration-core-equipped-display">
-        <span>Equipped:</span>
-        <span id="aberration-core-equipped-name"></span>
-      </div>
-      <div id="aberration-core-list-container"></div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:15px;">
-        <button id="unequipCoreBtn">Unequip</button>
-        <button id="closeAberrationCoreBtn" class="btn-modal-close">Close</button>
-      </div>
-    </div>
-  </div>
-  <div id="ascensionGridModal" class="vr-source">
-    <div id="ascension-grid-container">
-      <div class="ascension-header">
-        <h1>Ascension Conduit</h1>
-        <div class="ap-display-header"><span>AP:</span> <span id="ap-total-asc-grid">0</span></div>
-      </div>
-      <div class="ascension-content"></div>
-      <div class="ascension-footer">
-        <button id="closeAscensionGridBtn" class="btn-modal-close">Close</button>
-      </div>
-    </div>
-  </div>
-  <div id="loreCodexModal" class="vr-source">
-    <div id="lore-codex-container">
-      <h1 style="margin-top:0;margin-bottom:10px;color:var(--secondary-glow);">Lore Codex</h1>
-      <div id="lore-codex-list"></div>
-      <div style="text-align:right;margin-top:15px;">
-        <button id="closeLoreCodexBtn" class="btn-modal-close">Close</button>
-      </div>
-    </div>
-  </div>
-  <div id="bossInfoModal" class="vr-source">
-    <div id="bossInfoModalBox">
-      <div id="bossInfoModalTitle"></div>
-      <div id="bossInfoModalContent"></div>
-      <div id="bossInfoModalActions"><button id="closeBossInfoModalBtn" class="btn-modal-close">Close</button></div>
-    </div>
-  </div>
-  <div id="orreryModal" class="vr-source">
-    <div id="orrery-modal-content">
-      <h1 style="margin-top:0;margin-bottom:10px;color:var(--secondary-glow);">Weaver's Orrery</h1>
-      <div id="orrery-main-content">
-        <div id="orrery-boss-list-container"></div>
-        <div id="orrery-selection-container">
-          <h3>Selected</h3>
-          <div id="orrery-selection-display"></div>
-          <div id="orrery-cost-display">Cost: <span id="orrery-current-cost">0</span>/<span id="orrery-points-total">0</span></div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;">
-        <button id="orrery-reset-btn">Reset</button>
-        <button id="closeOrreryBtn" class="btn-modal-close">Close</button>
-        <button id="orrery-start-btn" class="btn-modal-close disabled">Start</button>
-      </div>
-    </div>
-  </div>
-  <div id="soundOptionsModal" class="vr-source">
-    <div id="sound-options-container">
-      <h1>Sound Settings</h1>
-      <label>Music <input type="range" id="musicVolume" min="0" max="1" step="0.01"></label>
-      <label>SFX <input type="range" id="sfxVolume" min="0" max="1" step="0.01"></label>
-      <button id="muteToggle">Mute</button>
-      <button id="closeSoundOptionsBtn" class="btn-modal-close">Close</button>
-    </div>
-  </div>
-  <div id="gameOverMenu" class="vr-source">
-    <h1>TIMELINE COLLAPSED</h1>
-    <div id="gameOverActions">
-      <button id="restartStageBtn">Restart Stage</button>
-      <button id="ascensionMenuBtn">Ascension Conduit</button>
-      <button id="aberrationCoreMenuBtn">Aberration Cores</button>
-      <button id="levelSelectMenuBtn">Stage Select</button>
-    </div>
-  </div>
-  <div id="bossBanner"></div>
-  <div id="unlock-notification"></div>
-  <div id="custom-confirm" style="display:none;">
-    <div id="custom-confirm-box">
-      <div id="custom-confirm-title"></div>
-      <div id="custom-confirm-text"></div>
-      <div id="custom-confirm-actions">
-        <button id="confirm-yes">Yes</button>
-        <button id="confirm-no">No</button>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
