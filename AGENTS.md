@@ -40,7 +40,11 @@ This section lists the current known issues with the prototype. Your immediate p
 
 7.  **UI Aesthetic Mismatch:**
     * **Issue:** All visible panels and buttons do not resemble the original game's UI. The blue cylinders are oversized, unlabeled, and clash with the intended design.
-    * **Required Fix:** Replace temporary geometry with properly sized, glowing buttons and panels that match the style defined in `style.css` and game screenshots.
+   * **Required Fix:** Replace temporary geometry with properly sized, glowing buttons and panels that match the style defined in `style.css` and game screenshots.
+
+8.  **Ongoing Beta Feedback (July 27, 2025):**
+   * **Issue:** A tester reports that despite recent commits, the UI panels remain stacked and gameplay still fails to start correctly in VR. They are skeptical that previous fixes had any effect.
+   * **Action:** Re-examine the UI layout logic and stage initialization code. Ensure that panels are positioned around the command deck on load and that a valid stage launches automatically when entering VR.
 
 ---
 

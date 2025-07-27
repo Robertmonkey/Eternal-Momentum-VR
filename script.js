@@ -97,7 +97,8 @@ window.addEventListener('load', () => {
     cursorPoint: null
   };
 
-  restartCurrentStage();
+  // Start the initial stage after the scene has stabilised
+  setTimeout(restartCurrentStage, 500);
 
   // Cache important elements for quick access.
   const scoreText       = document.getElementById('scoreText');
@@ -486,18 +487,17 @@ window.addEventListener('load', () => {
   attachConsoleButtonFeedback();
 
   // Align the command deck initially and whenever entering/exiting VR.
-  alignCommandDeck();
-  arrangeUiPanels();
+  const applyLayout = () => { alignCommandDeck(); arrangeUiPanels(); };
+  applyLayout();
+  window.addEventListener('resize', applyLayout);
   if (sceneEl) {
+    if (sceneEl.hasLoaded) applyLayout();
+    else sceneEl.addEventListener('loaded', applyLayout, { once: true });
     sceneEl.addEventListener('enter-vr', () => {
-      alignCommandDeck();
-      arrangeUiPanels();
+      applyLayout();
       restartCurrentStage();
     });
-    sceneEl.addEventListener('exit-vr', () => {
-      alignCommandDeck();
-      arrangeUiPanels();
-    });
+    sceneEl.addEventListener('exit-vr', applyLayout);
   }
 
   // Handle raycaster hits on the battle sphere.  The cursor is projected onto
