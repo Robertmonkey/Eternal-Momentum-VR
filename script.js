@@ -39,6 +39,7 @@
   import { activateCorePower } from './modules/cores.js';
   import { usePower, powers } from './modules/powers.js';
   import { applyAllTalentEffects } from './modules/ascension.js';
+  import { STAGE_CONFIG } from './modules/config.js';
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
   // continuously copies the canvas contents into the material map.
@@ -119,6 +120,21 @@ window.addEventListener('load', () => {
     const bossNameText = document.getElementById('bossNameText');
     const bossHpText = document.getElementById('bossHpText');
     const resetButton = document.getElementById('resetButton');
+    const stageSelectToggle = document.getElementById('stageSelectToggle');
+    const stageSelectPanel = document.getElementById('stageSelectPanel');
+    const stageSelectLabel = document.getElementById('stageSelectLabel');
+    const prevStageBtn = document.getElementById('prevStageBtn');
+    const nextStageBtn = document.getElementById('nextStageBtn');
+    const startStageBtn = document.getElementById('startStageBtn');
+
+    const maxStage = STAGE_CONFIG.length;
+    let selectedStage = state.currentStage;
+
+    function updateStageSelectDisplay() {
+      if (stageSelectLabel) {
+        stageSelectLabel.setAttribute('value', `Stage: ${selectedStage}`);
+      }
+    }
 
     // Helper to update the scoreboard and health bars.  Values are read
     // directly from the imported game state.  You can customise which
@@ -232,6 +248,42 @@ window.addEventListener('load', () => {
         applyAllTalentEffects();
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
+        statusText.setAttribute('value', '');
+        updateUI();
+      });
+    }
+
+    if (stageSelectToggle && stageSelectPanel) {
+      stageSelectToggle.addEventListener('click', () => {
+        if (stageSelectPanel.getAttribute('visible') === true || stageSelectPanel.getAttribute('visible') === 'true') {
+          stageSelectPanel.setAttribute('visible', 'false');
+        } else {
+          selectedStage = state.currentStage;
+          updateStageSelectDisplay();
+          stageSelectPanel.setAttribute('visible', 'true');
+        }
+      });
+    }
+    if (prevStageBtn) {
+      prevStageBtn.addEventListener('click', () => {
+        selectedStage = Math.max(1, selectedStage - 1);
+        updateStageSelectDisplay();
+      });
+    }
+    if (nextStageBtn) {
+      nextStageBtn.addEventListener('click', () => {
+        selectedStage = Math.min(maxStage, selectedStage + 1);
+        updateStageSelectDisplay();
+      });
+    }
+    if (startStageBtn) {
+      startStageBtn.addEventListener('click', () => {
+        state.currentStage = selectedStage;
+        resetGame(false);
+        applyAllTalentEffects();
+        gameState.lastCoreUse = -Infinity;
+        gameOverShown = false;
+        stageSelectPanel.setAttribute('visible', 'false');
         statusText.setAttribute('value', '');
         updateUI();
       });
