@@ -118,7 +118,9 @@ window.addEventListener('load', () => {
     const statusText = document.getElementById('statusText');
     const statusEffectsText = document.getElementById('statusEffectsText');
     const offPowerText = document.getElementById('offPowerText');
+    const offPowerQueueText = document.getElementById('offPowerQueueText');
     const defPowerText = document.getElementById('defPowerText');
+    const defPowerQueueText = document.getElementById('defPowerQueueText');
     const bossPanel = document.getElementById('bossPanel');
     const bossNameText = document.getElementById('bossNameText');
     const bossHpText = document.getElementById('bossHpText');
@@ -183,6 +185,12 @@ window.addEventListener('load', () => {
         const defKey = state.defensiveInventory[0];
         offPowerText.setAttribute('value', offKey ? powers[offKey].emoji : '');
         defPowerText.setAttribute('value', defKey ? powers[defKey].emoji : '');
+      }
+      if (offPowerQueueText && defPowerQueueText) {
+        const offNext = state.offensiveInventory.slice(1).filter(Boolean).map(k => powers[k].emoji).join(' ');
+        const defNext = state.defensiveInventory.slice(1).filter(Boolean).map(k => powers[k].emoji).join(' ');
+        offPowerQueueText.setAttribute('value', offNext);
+        defPowerQueueText.setAttribute('value', defNext);
       }
       const now = performance.now();
       const elapsed = (now - gameState.lastCoreUse) / 1000;
@@ -445,6 +453,21 @@ window.addEventListener('load', () => {
       rightHand.addEventListener('triggerdown', () => {
         const key = state.defensiveInventory[0];
         if (key) usePower(key);
+      });
+      // Cycle powers with the grip buttons
+      leftHand.addEventListener('gripdown', () => {
+        if (state.offensiveInventory.filter(Boolean).length > 1) {
+          state.offensiveInventory.push(state.offensiveInventory.shift());
+          AudioManager.playSfx('uiHoverSound');
+          updateUI();
+        }
+      });
+      rightHand.addEventListener('gripdown', () => {
+        if (state.defensiveInventory.filter(Boolean).length > 1) {
+          state.defensiveInventory.push(state.defensiveInventory.shift());
+          AudioManager.playSfx('uiHoverSound');
+          updateUI();
+        }
       });
     }
 

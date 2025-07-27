@@ -37,6 +37,9 @@ development.
   restarts the run, mirroring the original game’s "retry" functionality.
 * **Status effect icons** — Active buffs and debuffs appear as emojis on a
   panel so you can quickly see what affects your character.
+* **Power queue cycling** — Use the grip buttons on your VR controllers to
+  rotate through your offensive and defensive power queues. Upcoming powers are
+  shown beneath the main icons so you always know what will trigger next.
 
 ## Running the Prototype
 
