@@ -274,11 +274,10 @@ window.addEventListener('load', () => {
     }
     // Boss health bar: compute ratio from boss HP values in game state
     if (bossPanel && bossHpBarFill) {
-      // Determine the active boss.  In the current implementation the
-      // boss is stored in state.bosses array for the current stage.  If
-      // multiple bosses exist, use the first.  Fallback to hidden bar
-      // when no boss is alive.
-      const activeBoss = (state.enemies || []).find(e => e.isBoss);
+      // Determine the active boss.  Boss enemies are stored in
+      // state.enemies with a boolean `boss` flag.  Use the first alive
+      // boss for the health bar and hide the panel when none remain.
+      const activeBoss = (state.enemies || []).find(e => e.boss);
       if (activeBoss && activeBoss.maxHP) {
         bossPanel.setAttribute('visible', 'true');
         bossNameText.setAttribute('value', activeBoss.name);
