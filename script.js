@@ -171,14 +171,24 @@ window.addEventListener('load', () => {
       const z   = -Math.cos(rad) * p.r;
       p.el.setAttribute('position', `${x} ${p.y} ${z}`);
       p.el.setAttribute('rotation', `0 ${p.angle} 0`);
+      // Ensure panel always faces the player's camera
+      if (p.el.object3D && cameraEl && cameraEl.object3D) {
+        p.el.object3D.lookAt(cameraEl.object3D.position);
+      }
     });
   }
 
   // Align the command deck vertically relative to the player's head height.
   function alignCommandDeck() {
     const headY = cameraEl.object3D.position.y || 1.6;
-    if (commandDeck)     commandDeck.object3D.position.y    = headY - 0.5;
-    if (commandDeckEnv)  commandDeckEnv.object3D.position.y = headY - 1.6;
+    if (commandDeck) {
+      commandDeck.object3D.position.y = headY - 0.5;
+      commandDeck.object3D.rotation.y = cameraEl.object3D.rotation.y || 0;
+    }
+    if (commandDeckEnv) {
+      commandDeckEnv.object3D.position.y = headY - 1.6;
+      commandDeckEnv.object3D.rotation.y = cameraEl.object3D.rotation.y || 0;
+    }
     const panelY = headY;
     const panelIds = [
       'stageSelectPanel','gameOverPanel','bossInfoPanel','ascensionGridPanel',
