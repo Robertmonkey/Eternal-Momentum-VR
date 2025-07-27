@@ -76,7 +76,9 @@
   });
 // Once the DOM is fully loaded, set up the game state and event listeners
 window.addEventListener('load', () => {
-    const canvas = document.getElementById('game2dCanvas');
+    // The hidden 2D canvas has the id "gameCanvas" in index.html.  Grab it here
+    // rather than the old "game2dCanvas" id to ensure the texture updates correctly.
+    const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
     // Initialise our own meta state for VR‑specific elements.  The actual
@@ -124,7 +126,8 @@ window.addEventListener('load', () => {
       const { width, height } = canvas;
       ctx.clearRect(0, 0, width, height);
       // Draw dark background
-      ctx.fillStyle = '#111';
+      // Match the dark background from the original Eternal Momentum UI
+      ctx.fillStyle = '#1e1e2f';
       ctx.fillRect(0, 0, width, height);
       ctx.save();
       // Draw radial grid to hint at orientation

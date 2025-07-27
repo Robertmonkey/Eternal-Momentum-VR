@@ -29,9 +29,12 @@
   <canvas id="gameCanvas" width="2048" height="1024" style="display:none;"></canvas>
 
   <a-scene embedded background="color: #000">
+    <!-- Asset management for the scene.  The original VR prototype loaded a looping
+         core sound here, but that audio has been removed at the user’s
+         request.  You can add additional models or textures within this
+         <a-assets> block as needed. -->
     <a-assets>
-      <!-- Directional audio for the aberration core.  Additional assets can be placed in the assets directory. -->
-      <audio id="coreSound" src="assets/core_sound.wav"></audio>
+      <!-- Intentionally left empty to avoid unwanted sounds. -->
     </a-assets>
 
     <!-- Camera rig.  It contains the camera and both controllers.  The rig is positioned
@@ -49,20 +52,27 @@
     <!-- Circular platform on which the player stands.  The platform is slightly
          raised above ground and large enough that the UI table sits outside
          its edge. -->
-    <a-cylinder id="platform" radius="3.5" height="0.2" color="#222" position="0 0 0"></a-cylinder>
+    <!-- Platform uses a dark color inspired by the original game’s UI. -->
+    <a-cylinder id="platform" radius="3.5" height="0.2" color="#1e1e2f" position="0 0 0"></a-cylinder>
 
     <!-- Waist‑high table encircling the player.  This is where status panels,
          cooldown timers and other UI widgets live.  A ring is used instead of
          multiple boxes to create a continuous table surface without seams. -->
-    <a-ring id="uiTable" radius-inner="3.4" radius-outer="3.6" theta-length="360" rotation="-90 0 0" position="0 1 0" color="#333"></a-ring>
+    <!-- Waist‑high table encircling the player.  Use a semi‑transparent dark
+         colour to match the original UI background. -->
+    <a-ring id="uiTable" radius-inner="3.4" radius-outer="3.6" theta-length="360"
+            rotation="-90 0 0" position="0 1 0"
+            material="color: #141428; opacity: 0.85"></a-ring>
 
     <!-- Score and health panel.  Placed slightly forward and to the right of the
          player so it is easily visible when glancing down at the table.  Two
          text elements display the current score and health; they are updated
          dynamically by script.js every frame. -->
-    <a-plane id="scorePanel" width="1.2" height="0.6" color="#111" position="2 1.2 -0.5" rotation="0 -30 0">
-      <a-text id="scoreText" value="Score: 0" position="0 0.15 0.01" align="center" width="1.0" color="#fff"></a-text>
-      <a-text id="healthText" value="Health: 100" position="0 -0.15 0.01" align="center" width="1.0" color="#fff"></a-text>
+    <a-plane id="scorePanel" width="1.2" height="0.6"
+             material="color: #141428; opacity: 0.9" position="2 1.2 -0.5" rotation="0 -30 0">
+      <!-- Score and health text adopt the original game’s pale font colour. -->
+      <a-text id="scoreText" value="Essence: 0" position="0 0.15 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+      <a-text id="healthText" value="Health: 100" position="0 -0.15 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
     </a-plane>
 
     <!-- Aberration core representation.  A glowing sphere slowly spins and
@@ -71,26 +81,32 @@
          update the panel below accordingly.  The core itself is interactive
          and can be grabbed or clicked if additional gameplay mechanics are
          added later. -->
-    <a-sphere id="coreModel" radius="0.3" color="#d62728" position="-2 1.5 -1" class="interactive">
+    <a-sphere id="coreModel" radius="0.3"
+              material="color: #f000ff; emissive: #f000ff; emissiveIntensity: 0.5"
+              position="-2 1.5 -1" class="interactive">
       <a-animation attribute="rotation" dur="8000" to="360 360 0" repeat="indefinite" easing="linear"></a-animation>
-      <a-sound src="#coreSound" autoplay="true" loop="true" positional="true" volume="0.5"></a-sound>
+      <!-- Sound removed per user request; the core no longer emits audio. -->
     </a-sphere>
-    <a-plane id="coreCooldownPanel" width="0.6" height="0.3" color="#111" position="-2 1.0 -1" rotation="0 30 0">
-      <a-text id="cooldownText" value="Core cooldown: Ready" align="center" width="0.5" color="#fff"></a-text>
+    <a-plane id="coreCooldownPanel" width="0.6" height="0.3"
+             material="color: #141428; opacity: 0.9"
+             position="-2 1.0 -1" rotation="0 30 0">
+      <a-text id="cooldownText" value="Core cooldown: Ready" align="center" width="0.5" color="#eaf2ff"></a-text>
     </a-plane>
 
     <!-- Cylindrical surface that wraps the 2D game canvas around the player.  A
          custom component defined in script.js (canvas-texture) copies the
          canvas into a texture every frame.  The cylinder is open‑ended so
          that you can see the platform and table without obstruction. -->
-    <a-entity id="gameCylinder" geometry="primitive: cylinder; radius: 6; height: 2.5; openEnded: true" position="0 1.6 0"
-              material="color: #555" canvas-texture="#gameCanvas"></a-entity>
+    <a-entity id="gameCylinder" geometry="primitive: cylinder; radius: 6; height: 2.5; openEnded: true"
+              position="0 1.6 0"
+              material="color: #21213c"
+              canvas-texture="#gameCanvas"></a-entity>
 
     <!-- Draggable avatar that represents the player’s position on the 2D canvas.
          The super‑hands component adds behaviours such as grabbable and
          draggable.  When the avatar is released, script.js updates the
          underlying game state and redraws the 2D canvas accordingly. -->
-    <a-box id="playerAvatar" width="0.5" height="0.5" depth="0.5" color="#00aaff" position="0 1.0 -2"
+    <a-box id="playerAvatar" width="0.5" height="0.5" depth="0.5" color="#3498db" position="0 1.0 -2"
            class="interactive grabbable hoverable stretchable draggable">
       <a-text value="You" align="center" color="#fff" position="0 0.4 0"></a-text>
     </a-box>
