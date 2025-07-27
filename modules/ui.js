@@ -328,10 +328,41 @@ closeBossInfoBtn.addEventListener('click', () => {
 });
 
 
-export function showBossBanner(boss){ 
-    bossBannerEl.innerText="🚨 "+boss.name+" 🚨"; 
-    bossBannerEl.style.opacity=1; 
-    setTimeout(()=>bossBannerEl.style.opacity=0,2500); 
+export function showBossBanner(boss){
+    // If a traditional DOM banner exists (non-VR mode) update it.
+    if (bossBannerEl) {
+        bossBannerEl.innerText = "🚨 " + boss.name + " 🚨";
+        bossBannerEl.style.opacity = 1;
+        setTimeout(() => bossBannerEl.style.opacity = 0, 2500);
+    }
+
+    // Additionally create a 3D banner in the VR scene so headset users
+    // receive the same notification.  This attaches a temporary <a-text>
+    // element near the camera that fades out after a short delay.
+    const scene = document.querySelector('a-scene');
+    if (!scene) return;
+
+    // Remove any existing banner to avoid stacking multiple texts.
+    const oldBanner = scene.querySelector('#vrBossBanner');
+    if (oldBanner) oldBanner.remove();
+
+    const banner = document.createElement('a-entity');
+    banner.setAttribute('id', 'vrBossBanner');
+    banner.setAttribute('position', '0 2.4 -1.5');
+
+    const text = document.createElement('a-text');
+    text.setAttribute('value', `🚨 ${boss.name} 🚨`);
+    text.setAttribute('color', '#f1c40f');
+    text.setAttribute('align', 'center');
+    text.setAttribute('width', '4');
+    text.setAttribute('opacity', '1');
+    text.setAttribute('shader', 'msdf');
+    text.setAttribute('animation__fade', 'property: opacity; to: 0; dur: 2500; easing: linear');
+
+    banner.appendChild(text);
+    scene.appendChild(banner);
+
+    setTimeout(() => banner.remove(), 2500);
 }
 
 export function showUnlockNotification(text, subtext = '') {
