@@ -30,6 +30,19 @@
   -->
   <canvas id="gameCanvas" width="2048" height="1024" style="display:none;"></canvas>
 
+  <!-- Simple home screen overlay inspired by the original layout -->
+  <div id="home-screen" class="visible">
+    <video autoplay muted loop playsinline id="home-video-bg" preload="none">
+      <source src="assets/home.mp4" type="video/mp4">
+    </video>
+    <div id="home-overlay">
+      <h1 id="game-title">ETERNAL MOMENTUM VR</h1>
+      <div id="home-actions">
+        <button id="start-vr-btn" class="home-btn">BEGIN</button>
+      </div>
+    </div>
+  </div>
+
   <a-scene embedded background="color: #000">
     <!-- Asset management for the scene.  The original VR prototype loaded a looping
          core sound here, but that audio has been removed at the user’s

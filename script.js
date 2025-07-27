@@ -158,6 +158,8 @@ window.addEventListener('load', () => {
     const bossInfoModal = document.getElementById("bossInfoModal");
     const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");
     const playerAvatar = document.getElementById('playerAvatar');
+    const homeScreen = document.getElementById('home-screen');
+    const startVrBtn = document.getElementById('start-vr-btn');
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
     AudioManager.setup(audioEls, muteToggle);
@@ -358,6 +360,12 @@ window.addEventListener('load', () => {
           gameState.playerPos.z = -2;
         }
         updateUI();
+      });
+    }
+
+    if (startVrBtn && homeScreen) {
+      startVrBtn.addEventListener('click', () => {
+        homeScreen.style.display = 'none';
       });
     }
 
@@ -588,7 +596,9 @@ window.addEventListener('load', () => {
       // Advance the game if possible
       if (typeof gameTick === 'function') {
         try {
-          gameTick();
+          // Pass the player's current coordinates as both the cursor
+          // and player position so the game logic remains stable.
+          gameTick(state.player.x, state.player.y);
         } catch (e) {
           console.warn('gameTick threw an error', e);
           drawGameCanvasFallback();
