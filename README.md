@@ -31,6 +31,10 @@ development.
 * **Directional audio** — The aberration core emits a continuous tone
   (`assets/core_sound.wav`) which gets quieter as you move away or turn
   your head, giving a sense of spatial presence.
+* **Boss health display** — When a boss spawns, a panel shows its name and
+  remaining hit points so you can track the encounter without leaving VR.
+* **Quick restart button** — A reset button on the table immediately
+  restarts the run, mirroring the original game’s "retry" functionality.
 
 ## Running the Prototype
 
@@ -96,5 +100,4 @@ complete VR version:
   will be necessary.
 
 Feel free to build upon this foundation to create a fully fledged VR
-experience for Eternal Momentum.  Contributions and pull requests are
-welcome!
+experience for Eternal Momentum.  Contributions and pull requests are welcome!
