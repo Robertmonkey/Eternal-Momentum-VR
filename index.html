@@ -69,10 +69,11 @@
     <a-sky src="#spaceBackground" rotation="0 -90 0"></a-sky>
 
     <!-- Camera rig.  It contains the camera and both controllers.  The rig is positioned
-         so that the player's eyes start at 1.6 m above the platform.  Movement
-        controls are disabled because this game uses a stationary platform; users
-         move their on-screen avatar by grabbing and dragging the small marker on the table. -->
-    <a-entity id="rig" position="0 1.6 0">
+         at the origin so your real-world head height sets the in-game eye level.
+         Movement controls are disabled because this game uses a stationary platform;
+         players move their on-screen avatar by grabbing and dragging the small marker
+         on the table. -->
+    <a-entity id="rig" position="0 0 0">
       <a-camera id="camera" wasd-controls-enabled="false">
         <!-- Vignette ring fades in as health gets low -->
         <a-ring id="vignette" radius-inner="0.8" radius-outer="1.3"
