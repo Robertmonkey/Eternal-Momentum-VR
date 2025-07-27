@@ -187,6 +187,7 @@ window.addEventListener('load', () => {
     const screenCursor = document.getElementById("screenCursor");
     const leftHand = document.getElementById("leftHand");
     const rightHand = document.getElementById("rightHand");
+    const vignetteRing = document.getElementById("vignette");
     function triggerHaptic(el, intensity = 0.5, duration = 50) {
       const controller = el?.components["laser-controls"]?.controller ||
                         el?.components["tracked-controls"]?.controller;
@@ -222,6 +223,12 @@ window.addEventListener('load', () => {
       scoreText.setAttribute('value', `Essence: ${Math.floor(essence)}`);
       const health = state.player.health ?? 0;
       healthText.setAttribute('value', `Health: ${Math.floor(health)}`);
+      if (vignetteRing && state.player.maxHealth) {
+        const ratio = Math.max(0, Math.min(1, health / state.player.maxHealth));
+        const opacity = Math.min(0.6, (1 - ratio) * (1 - ratio) * 0.8);
+        vignetteRing.setAttribute('visible', opacity > 0.01);
+        vignetteRing.setAttribute('material', 'opacity', opacity);
+      }
       levelText.setAttribute('value', `Level: ${state.player.level}`);
       stageText.setAttribute('value', `Stage: ${state.currentStage}`);
       if (apText) {
