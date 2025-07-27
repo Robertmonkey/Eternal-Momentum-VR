@@ -44,6 +44,7 @@ import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex } fro
   import { STAGE_CONFIG } from './modules/config.js';
 import { AudioManager } from "./modules/audio.js";
 import { uvToSpherePos, spherePosToUv } from './modules/utils.js';
+import { moveTowards } from './modules/movement3d.js';
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
   // continuously copies the canvas contents into the material map.
@@ -775,18 +776,9 @@ window.addEventListener('load', () => {
       // Advance the game if possible
       if (gameState.cursorPoint) {
         const target = gameState.cursorPoint.clone().normalize().multiplyScalar(SPHERE_RADIUS);
-        const direction = target.clone().sub(avatarPos);
-        const dist = direction.length();
-        if (dist > 0.0001) {
-          direction.normalize();
-          const speedMod = state.player.speed || 1;
-          const velocity = direction.multiplyScalar(dist * 0.015 * speedMod);
-          avatarPos.add(velocity);
-          avatarPos.normalize().multiplyScalar(SPHERE_RADIUS);
-          const uv = spherePosToUv(avatarPos);
-          state.player.x = uv.u * canvas.width;
-          state.player.y = uv.v * canvas.height;
-        }
+        const uv = moveTowards(avatarPos, target, state.player.speed || 1, SPHERE_RADIUS);
+        state.player.x = uv.u * canvas.width;
+        state.player.y = uv.v * canvas.height;
       }
       if (typeof gameTick === 'function') {
         try {
