@@ -242,13 +242,10 @@
         <a-text value="Start" align="center" width="0.7" color="#eaf2ff"></a-text>
       </a-plane>
     </a-plane>
-    <!-- Large cylindrical screen showing the 2D game canvas
-         The canvas wraps 180° around the player so pointing the controller
-         feels like using a giant curved monitor. -->
-    <a-cylinder id="gameScreen" radius="4" height="2" theta-length="180" theta-start="-90"
-                position="0 1.6 0" rotation="0 0 0"
-                material="color: #21213c; emissive: #00ffff; emissiveIntensity: 0.1; side:double"
-                canvas-texture="#gameCanvas" class="interactive"></a-cylinder>
+    <!-- 3D arena where the game action unfolds. The floor is a large plane below the command deck. Simple placeholders for the player avatar and enemies are added here and positioned each frame by script.js. -->
+    <a-plane id="arenaFloor" width="12" height="6" rotation="-90 0 0" position="0 -2 -4" material="color:#21213c; emissive:#00ffff; emissiveIntensity:0.1" class="interactive"></a-plane>
+    <a-entity id="enemyContainer"></a-entity>
+    <a-sphere id="playerAvatar" radius="0.25" color="#00ff80" position="0 -1.9 -4"></a-sphere>
     <a-ring id="screenCursor" radius-inner="0.03" radius-outer="0.05" color="#00ffff" visible="false"></a-ring>
     
     <!-- script.js contains game logic and canvas updates.  Load it as an ES module so it can import the game's modules and call into them. -->
