@@ -1,131 +1,54 @@
-# Eternal Momentum VR Prototype
+# Eternal Momentum VR — Conceptual Prototype
 
-This repository contains a **proof‑of‑concept** virtual‑reality port of the
-**Eternal Momentum** game.  The goal of this prototype is to demonstrate how
-the 2D canvas‑based gameplay of Eternal Momentum can be transported into a
-three‑dimensional VR environment using modern WebXR technologies.  It is not
-a complete game, but rather a polished starting point for further
-development.
+**Eternal Momentum VR** is not a one‑to‑one 3D remake of the original browser game.  Instead it places you inside a virtual control room where you can play the **2D game unchanged** on a huge curved display while reaching out to interact with familiar menus on a wraparound desk.  The intent is to preserve the deep mechanics and interface of the original while enhancing it with spatial awareness, tactile controls and 3D flourishes.
 
-## VR Philosophy
+## Vision
 
-Eternal Momentum VR aims to preserve the feel of the original 2D game while
-placing the player inside a spacious arena.  Instead of running around in VR,
-you stand on a platform and project a laser pointer from your controller
-onto a huge **180° curved screen** that surrounds you.  The on‑screen avatar
-follows this pointer just like a mouse cursor on a monitor.  All familiar UI
-elements appear on the surrounding table so you can play entirely from this
-balcony‑like viewpoint.  A full 3D version may come later, but the current
-focus is making every original mechanic comfortable to use in VR.
+Imagine standing at a sleek, waist‑high desk that arcs around you.  In front of you stretches a massive “window” into the Eternal Momentum battlefield: the game’s 2D canvas is rendered at high resolution and wrapped onto a curved screen so you can take in the action by turning your head.  You use your Meta Quest controllers as a laser pointer/hand to drag the cursor across this screen, click on abilities and move your conduit just as you would with a mouse in the desktop version.
 
-## Features
+Around the desk sit fixed panels representing every major menu and status element from the original game.  There’s a **core menu** to equip and activate aberration cores, an **ascension conduit** to spend AP on talents, a **stage selector** for choosing your next challenge, a **lore codex** screen, a **weaver’s orrery** for weaving talents, sound and pause controls and more.  These panels are built from simple 3D planes with text and buttons; they light up and animate when you look at them or tap them with your controller.  Because they are part of the desk, they always stay in a consistent place in your peripheral vision.
 
-* **Large curved screen** — The 2D game canvas is mapped onto a 180° cylinder around you. Point at the screen with your controller to steer your character.
-* **Waist‑height UI table** — A circular table surrounds the player at
-  waist level.  Score, health and aberration core cooldown indicators are
-  presented on panels placed on the table so they are easy to glance at
-  without breaking immersion.
-* **Aberration core** — A spinning sphere floats above the table and plays
-  positional audio.  Clicking the sphere or squeezing both controller
-  triggers together activates the core’s ability and starts its cooldown
-  timer.  The sphere is interactive and can be extended with more mechanics
-  (e.g. grabbing or swapping cores).
-* **Pointer-based movement** — Raise your hand to project a cursor on the curved screen. Your on-screen avatar follows the pointer automatically.
-* **Directional audio** — The aberration core emits a continuous tone
-  (`assets/core_sound.wav`) which gets quieter as you move away or turn
-  your head, giving a sense of spatial presence.
-* **Boss health display** — When a boss spawns, a panel shows its name and
-  remaining hit points so you can track the encounter without leaving VR.
-* **Quick restart button** — A reset button on the table immediately
-  restarts the run, mirroring the original game’s "retry" functionality.
-* **Status effect icons** — Active buffs and debuffs appear as emojis on a
-  panel so you can quickly see what affects your character.
-* **Power queue cycling** — Use the grip buttons on your VR controllers to
-  rotate through your offensive and defensive power queues. Upcoming powers are
-  shown beneath the main icons so you always know what will trigger next.
-* **Controller shortcuts** — Face buttons open common menus (A: stage select,
-  B: pause, X: core menu, Y: ascension grid). Press the left thumbstick for the
-  lore codex and the right thumbstick for the orrery menu.
+Beyond the screen, certain objects – bosses, enemies, power‑ups and even your conduit – can “pop off” the 2D plane as 3D models.  When a boss charges an attack, a holographic 3D representation rises up from the battlefield; when you collect a power‑up, a glowing orb hovers briefly above the screen before settling back down.  This hybrid approach keeps the core gameplay intact while adding depth and spectacle to the experience.
 
-## Visual Style
+## How it Works
 
-The VR prototype mirrors the original game's synth‑wave aesthetic. Deep blues
-and star‑filled backdrops contrast with bright cyan and magenta highlights.
-Core colours are defined in `style.css` using custom properties:
+* **2D game canvas** — The original game’s rendering loop still draws onto a hidden `<canvas>` element exactly as it does in the web version.  A custom A‑Frame component copies that canvas onto the inside of a curved screen geometry in VR.  Dragging the in‑scene cursor updates `state.player.x`/`y` so the game logic receives the same mouse coordinates it expects.
 
-```css
-:root {
-  --primary-glow: #00ffff;
-  --secondary-glow: #f000ff;
-  --dark-bg: #1e1e2f;
-  --ui-bg: rgba(20, 20, 40, 0.85);
-}
-```
+* **VR controller as mouse** — The Meta Quest controllers are configured with laser pointers and grabbing hands.  When you point at the main screen you see a cursor; pulling the trigger simulates a click.  Grabbing the in‑scene marker and moving it across the desk translates into mouse movement on the 2D canvas.  This allows the existing JavaScript modules (e.g. `gameTick`, `activateCorePower`) to run unmodified.
 
-Panels and text elements use these variables so the glowing accents match the
-2D interface. The VR arena places you above a cosmic horizon using
-`assets/bg.png` for the skybox. When creating new VR elements, reuse
-`--primary-glow` and `--secondary-glow` for emissive colours and text to keep
-the neon look cohesive.
+* **Desk panels for menus** — UI elements like the ascension grid, aberration core list, stage menu and codex are re‑created as A‑Frame planes positioned around the desk.  Each has interactive buttons that call into the original modules (e.g. `populateAberrationCoreMenu`, `renderAscensionGrid`) when tapped.  Panels can be shown or hidden by toggles on the desk or via controller buttons.
 
-## Running the Prototype
+* **3D embellishments** — Models for bosses, enemies, power‑ups and the player conduit can be imported (GLTF/GLB) and positioned just in front of the curved screen to give the illusion that they’re emerging from the 2D world.  When the game logic spawns an entity or triggers an effect, a corresponding 3D object is instantiated and animated in sync.
 
-1. Install a recent version of the [Meta Quest 3](https://www.meta.com/)
-   browser or any WebXR‑capable browser on your VR headset or desktop.
-2. Serve the contents of this repository using a simple HTTP server
-   (browsers often block local file access for security reasons).  From
-   within the repository root, run for example:
+## Getting Started
+
+1. **Serve the VR folder** — Use a simple HTTP server to serve the contents of `vr_port`.  For example, from the repository root run:
 
    ```bash
-   npx http-server .
+   npx http-server vr_port
    ```
 
-   Then open the reported URL in your VR browser.  Alternatively you can
-   open `index.html` in a WebXR‑capable desktop browser for a
-   non‑VR preview.
-3. Aim your controller at the large screen and click to move your character. Click the red aberration core to trigger its cooldown.
-4. If the menus appear far below or above you, recenter your headset. The VR camera rig starts at the world origin so your real head height determines the in‑game eye level.
-5. The 2D game appears on a curved wall covering roughly 180° in front of you. If you do not see it after entering VR, face forward and ensure your browser has entered immersive mode.
+   Then open the reported URL on a WebXR‑capable browser inside your Meta Quest or on a desktop for testing.
 
-## Integrating the Full Game
+2. **Copy the original game** — Place the original Eternal Momentum JavaScript modules and assets into `vr_port/game` so the VR prototype can import them.  The VR `script.js` expects files like `modules/gameLoop.js`, `modules/state.js`, `modules/cores.js`, etc.  No modifications to these modules are needed; they will render onto the canvas and update the game state as usual.
 
-This prototype does **not** include the full Eternal Momentum codebase
-(`modules/bosses.js`, `modules/gameLoop.js`, etc.).  To turn this into a
-complete VR version:
+3. **Run and test** — When you load `index.html` in VR you should see a curved screen displaying the 2D game and a series of panels on the desk.  Use your controllers to move the cursor on the screen, click on powers and open panels.  Most original features (ascension, cores, stage select, lore, orrery) are accessible via their corresponding panels.
 
-1. **Ensure the game modules are present** — The core JavaScript modules
-   from Eternal Momentum are included in this repository under the
-   `modules/` directory.  `script.js` imports them directly so no extra
-   copying is required.
+4. **Add models and effects** — To get the “pop‑off‑the‑screen” effect, place 3D models in `vr_port/assets` and spawn them from `script.js` when the game logic dictates.  For example, import `boss.glb` with `<a-gltf-model src="assets/boss.glb">` and position it slightly in front of the screen when a boss spawns.
 
-2. **Ensure the canvas ID matches** — The hidden canvas element in
-   `index.html` has the id `gameCanvas`, which matches what
-   `gameLoop.js` expects.  You do not need to rename anything; simply
-   make sure the original game’s rendering code draws onto this canvas.
+## Implementation Notes
 
-3. **Cursor coordinates** — The VR controller ray updates `state.player.x` and `state.player.y` based on where it intersects the game screen.
+* The VR code is written with [A‑Frame](https://aframe.io/) and loads as an ES module.  See `script.js` for the component definitions and event handlers.
+* UI panels use A‑Frame primitives (`a-plane`, `a-text`, `a-box`) and are laid out in a circle around the player at waist height.  Feel free to adjust their positions and scales in `index.html`.
+* The existing audio system can be reused.  Place ambient music or core sounds in `assets/` and reference them with `<audio>` and `<a-sound>` elements.  To avoid continuous droning, only play sounds in response to game events.
 
-4. **Extend the UI** — Add additional panels to the table for displaying
-   talents, ascension grids, stage selection, etc.  These can be built
-   from `a-plane` elements with `a-text` children.  Use A‑Frame’s
-   interaction components to make them clickable and bind their actions
-   to functions imported from the game’s modules.
+## Future Work
 
-5. **Replace placeholder assets** — Swap the simple sphere representing
-   the aberration core with a proper 3D model (GLTF/GLB) that matches
-   your art style.  Place the file in `assets/` and reference it via
-   `<a-gltf-model src="assets/yourModel.glb">`.
+This README outlines the intended VR experience and supersedes earlier prototypes that attempted to wrap the entire battlefield on a cylinder.  To realise the full vision you will need to:
 
-## Known Limitations
+* Build out each menu panel in 3D with appropriate buttons and integrate them with the original modules.
+* Import or model 3D versions of in‑game entities and synchronise them with the 2D game state.
+* Polish the visual design, animations and haptics to match Eternal Momentum’s neon‑sci‑fi aesthetic.
+* Optimise performance on target hardware once all features are present.
 
-* The original Eternal Momentum is a complex 2D browser game.  Porting
-  every mechanic to VR will require thoughtful redesign of interfaces and
-  controls.  This prototype focuses on establishing the spatial UI and
-  demonstrating how the 2D surface can wrap around the player.
-* Performance may vary depending on the target hardware.  Meta Quest 3
-  should handle the simple geometry and textures used here, but once the
-  full game logic and assets are integrated profiling and optimisation
-  will be necessary.
-
-Feel free to build upon this foundation to create a fully fledged VR
-experience for Eternal Momentum.  Contributions and pull requests are welcome!
+Contributions, feedback and pull requests are welcome as this project evolves toward a complete VR edition of Eternal Momentum.
