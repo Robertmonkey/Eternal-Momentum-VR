@@ -187,6 +187,8 @@ window.addEventListener('load', () => {
     const screenCursor = document.getElementById("screenCursor");
     const playerAvatar = document.getElementById("playerAvatar");
     const enemyContainer = document.getElementById("enemyContainer");
+    const projectileContainer = document.getElementById("projectileContainer");
+    const projectileEls = new Map();
     const leftHand = document.getElementById("leftHand");
     const rightHand = document.getElementById("rightHand");
     const vignetteRing = document.getElementById("vignette");
@@ -788,6 +790,36 @@ window.addEventListener('load', () => {
         enemyContainer.querySelectorAll('[data-eid]').forEach(el => {
           if (!existing.has(parseFloat(el.dataset.eid))) {
             el.remove();
+          }
+        });
+      }
+
+      if (projectileContainer) {
+        const active = new Set();
+        const projTypes = ['nova_bullet','ricochet_projectile','seeking_shrapnel','helix_bolt','player_fragment'];
+        state.effects.forEach(effect => {
+          if (!projTypes.includes(effect.type)) return;
+          let el = projectileEls.get(effect);
+          active.add(effect);
+          if (!el) {
+            el = document.createElement('a-sphere');
+            el.setAttribute('radius', 0.05);
+            el.setAttribute('segments-height', 6);
+            el.setAttribute('segments-width', 6);
+            el.setAttribute('color', effect.color || '#ffd400');
+            projectileContainer.appendChild(el);
+            projectileEls.set(effect, el);
+          } else if (effect.color) {
+            el.setAttribute('color', effect.color);
+          }
+          const px = (effect.x / canvas.width - 0.5) * w;
+          const pz = (0.5 - effect.y / canvas.height) * h;
+          el.object3D.position.set(px, baseY + 0.15, -4 + pz);
+        });
+        projectileEls.forEach((el, eff) => {
+          if (!active.has(eff)) {
+            el.remove();
+            projectileEls.delete(eff);
           }
         });
       }
