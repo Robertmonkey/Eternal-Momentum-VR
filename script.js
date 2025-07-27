@@ -315,6 +315,18 @@ window.addEventListener('load', () => {
       if (rightHand) triggerHaptic(rightHand, intensity, duration);
     }
     AudioManager.setup(audioEls, muteToggle);
+
+    function attachConsoleButtonFeedback() {
+      const btns = document.querySelectorAll('[mixin="console-button"]');
+      btns.forEach(btn => {
+        btn.addEventListener('mouseenter', () => AudioManager.playSfx('uiHoverSound'));
+        btn.addEventListener('click', () => {
+          AudioManager.playSfx('uiClickSound');
+          pulseBoth(0.6, 40);
+        });
+      });
+    }
+    attachConsoleButtonFeedback();
     document.addEventListener("visibilitychange", () => AudioManager.handleVisibilityChange());
     let selectedStage = state.currentStage;
 
