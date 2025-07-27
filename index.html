@@ -160,11 +160,11 @@
       <a-text id="statusText" value="" align="center" width="1.2" color="#eaf2ff"></a-text>
     </a-plane>
 
-    <a-plane id="bossPanel" width="1.4" height="0.3"
+    <a-plane id="bossPanel" width="1.4" height="0.5"
              material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25"
              position="0 1.7 -1.5" rotation="0 0 0" visible="false">
-      <a-text id="bossNameText" value="" align="center" width="1.2" position="0 0.1 0.01" color="#ff5555"></a-text>
-      <a-text id="bossHpText" value="" align="center" width="1.2" position="0 -0.12 0.01" color="#eaf2ff"></a-text>
+      <a-text id="bossNameText" value="" align="center" width="1.2" position="0 0.17 0.01" color="#ff5555"></a-text>
+      <a-text id="bossHpText" value="" align="center" width="1.2" position="0 -0.17 0.01" color="#eaf2ff"></a-text>
     </a-plane>
 
     <a-plane id="resetButton" width="0.6" height="0.2"
@@ -247,6 +247,7 @@
     <a-plane id="bossInfoPanel" width="2.2" height="1.2" position="0 1.6 -1.5" material="shader: html; target: #bossInfoModal; transparent: true" visible="false" class="interactive"></a-plane>
     <a-plane id="orreryPanel" width="2.6" height="1.5" position="0 1.6 -1.6" material="shader: html; target: #orreryModal; transparent: true" visible="false" class="interactive"></a-plane>
     <a-plane id="soundOptionsPanel" width="1.6" height="1.2" position="0 1.6 -1.4" material="shader: html; target: #soundOptionsModal; transparent: true" visible="false" class="interactive"></a-plane>
+    <a-plane id="gameOverPanel" width="2" height="1.1" position="0 1.6 -1.5" material="shader: html; target: #gameOverMenu; transparent: true" visible="false" class="interactive"></a-plane>
   <script type="module" src="script.js"></script>
   </a-scene>
 
@@ -317,6 +318,15 @@
       <label>SFX <input type="range" id="sfxVolume" min="0" max="1" step="0.01"></label>
       <button id="muteToggle">Mute</button>
       <button id="closeSoundOptionsBtn" class="btn-modal-close">Close</button>
+    </div>
+  </div>
+  <div id="gameOverMenu" class="vr-source">
+    <h1>TIMELINE COLLAPSED</h1>
+    <div id="gameOverActions">
+      <button id="restartStageBtn">Restart Stage</button>
+      <button id="ascensionMenuBtn">Ascension Conduit</button>
+      <button id="aberrationCoreMenuBtn">Aberration Cores</button>
+      <button id="levelSelectMenuBtn">Stage Select</button>
     </div>
   </div>
   <div id="bossBanner"></div>
