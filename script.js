@@ -116,8 +116,15 @@ window.addEventListener('load', () => {
     // We only track cooldowns for the core interaction and current cursor position.
     const gameState = {
       lastCoreUse: -Infinity,
-      cursorUV: null
+      cursorUV: null,
+      cursorPoint: null
     };
+
+    // Current 3D position of the player's avatar on the spherical arena
+    let avatarPos = uvToSpherePos(0.5, 0.5);
+    const startUv = spherePosToUv(avatarPos);
+    state.player.x = startUv.u * canvas.width;
+    state.player.y = startUv.v * canvas.height;
 
     const CORE_COOLDOWNS = {
       juggernaut: 8000,
@@ -390,6 +397,10 @@ window.addEventListener('load', () => {
         applyAllTalentEffects();
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
+        avatarPos = uvToSpherePos(0.5, 0.5);
+        const uv0 = spherePosToUv(avatarPos);
+        state.player.x = uv0.u * canvas.width;
+        state.player.y = uv0.v * canvas.height;
         statusText.setAttribute('value', '');
         updateUI();
       });
@@ -439,6 +450,10 @@ window.addEventListener('load', () => {
         applyAllTalentEffects();
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
+        avatarPos = uvToSpherePos(0.5, 0.5);
+        const uv0 = spherePosToUv(avatarPos);
+        state.player.x = uv0.u * canvas.width;
+        state.player.y = uv0.v * canvas.height;
         stageSelectPanel.setAttribute('visible', 'false');
         statusText.setAttribute('value', '');
         updateUI();
@@ -452,6 +467,10 @@ window.addEventListener('load', () => {
       gameOverShown = false;
       if (gameOverPanel) gameOverPanel.setAttribute('visible', 'false');
       statusText.setAttribute('value', '');
+      avatarPos = uvToSpherePos(0.5, 0.5);
+      const uv0 = spherePosToUv(avatarPos);
+      state.player.x = uv0.u * canvas.width;
+      state.player.y = uv0.v * canvas.height;
       updateUI();
     }
 
@@ -495,6 +514,10 @@ window.addEventListener('load', () => {
       state.currentStage = 999;
       gameState.lastCoreUse = -Infinity;
       gameOverShown = false;
+      avatarPos = uvToSpherePos(0.5, 0.5);
+      const uv0 = spherePosToUv(avatarPos);
+      state.player.x = uv0.u * canvas.width;
+      state.player.y = uv0.v * canvas.height;
       orreryModal.style.display = 'none';
       statusText.setAttribute('value', '');
       updateUI();
@@ -589,6 +612,7 @@ window.addEventListener('load', () => {
         const hit = e.detail.intersections[0];
         if (hit && hit.uv) {
           gameState.cursorUV = hit.uv;
+          gameState.cursorPoint = hit.point.clone();
           if (screenCursor) {
             screenCursor.object3D.position.copy(hit.point);
             screenCursor.object3D.lookAt(camera.object3D.position);
@@ -599,14 +623,18 @@ window.addEventListener('load', () => {
       battleSphere.addEventListener("raycaster-intersection-cleared", e => {
         if (e.detail.clearedEl === battleSphere) {
           gameState.cursorUV = null;
+          gameState.cursorPoint = null;
           if (screenCursor) screenCursor.setAttribute('visible', 'false');
         }
       });
       battleSphere.addEventListener("click", e => {
         const uv = e.detail.intersection?.uv || gameState.cursorUV;
-        if (uv) {
-          state.player.x = uv.x * canvas.width;
-          state.player.y = uv.y * canvas.height;
+        const pt = e.detail.intersection?.point || gameState.cursorPoint;
+        if (uv && pt) {
+          avatarPos.copy(pt).normalize().multiplyScalar(SPHERE_RADIUS);
+          const conv = spherePosToUv(avatarPos);
+          state.player.x = conv.u * canvas.width;
+          state.player.y = conv.v * canvas.height;
         }
       });
     }
@@ -702,6 +730,11 @@ window.addEventListener('load', () => {
     const PLATFORM_RADIUS = 3;
     const SPHERE_RADIUS = 8;
 
+    // Helper functions to convert between UV coordinates and positions on the
+    // spherical battlefield.  `uvToSpherePos` converts a (u,v) pair on the
+    // canvas to a 3D point on the inner surface of the battle sphere.
+    // `spherePosToUv` performs the inverse operation.
+
     function uvToSpherePos(u, v, radius = SPHERE_RADIUS) {
       const theta = u * 2 * Math.PI;
       const phi = v * Math.PI;
@@ -709,6 +742,16 @@ window.addEventListener('load', () => {
       const y = radius * Math.cos(phi);
       const z = radius * Math.sin(phi) * Math.sin(theta);
       return new THREE.Vector3(x, y, z);
+    }
+
+    function spherePosToUv(vec, radius = SPHERE_RADIUS) {
+      const r = vec.length();
+      if (r === 0) return { u: 0, v: 0 };
+      const theta = Math.atan2(vec.z, vec.x); // -PI..PI
+      const phi = Math.acos(vec.y / r);       // 0..PI
+      const u = (theta + Math.PI) / (2 * Math.PI);
+      const v = phi / Math.PI;
+      return { u, v };
     }
     if (cursorMarker) {
       const updateFromMarker = pos => {
@@ -726,6 +769,7 @@ window.addEventListener('load', () => {
         const radial = Math.min(1, Math.hypot(x, z) / PLATFORM_RADIUS);
         state.player.x = (theta / (2 * Math.PI)) * width;
         state.player.y = radial * height;
+        avatarPos = uvToSpherePos(state.player.x / width, state.player.y / height);
       };
 
       cursorMarker.addEventListener('dragmove', e => {
@@ -740,9 +784,20 @@ window.addEventListener('load', () => {
     // canvas.  Otherwise we fall back to drawing a simple grid.
     function animate() {
       // Advance the game if possible
-      if (gameState.cursorUV) {
-        state.player.x = gameState.cursorUV.x * canvas.width;
-        state.player.y = gameState.cursorUV.y * canvas.height;
+      if (gameState.cursorPoint) {
+        const target = gameState.cursorPoint.clone().normalize().multiplyScalar(SPHERE_RADIUS);
+        const direction = target.clone().sub(avatarPos);
+        const dist = direction.length();
+        if (dist > 0.0001) {
+          direction.normalize();
+          const speedMod = state.player.speed || 1;
+          const velocity = direction.multiplyScalar(dist * 0.015 * speedMod);
+          avatarPos.add(velocity);
+          avatarPos.normalize().multiplyScalar(SPHERE_RADIUS);
+          const uv = spherePosToUv(avatarPos);
+          state.player.x = uv.u * canvas.width;
+          state.player.y = uv.v * canvas.height;
+        }
       }
       if (typeof gameTick === 'function') {
         try {
@@ -776,10 +831,9 @@ window.addEventListener('load', () => {
       // Update UI panels
       updateUI();
       if (cursorMarker) {
-        const { width, height } = canvas;
-        const theta = (state.player.x / width) * 2 * Math.PI;
-        const radial = state.player.y / height;
-        const r = PLATFORM_RADIUS * radial;
+        const uv = spherePosToUv(avatarPos);
+        const theta = uv.u * 2 * Math.PI;
+        const r = PLATFORM_RADIUS * uv.v;
         cursorMarker.object3D.position.set(
           r * Math.cos(theta),
           cursorMarker.object3D.position.y,
@@ -789,10 +843,7 @@ window.addEventListener('load', () => {
 
       // Update 3D arena objects on spherical surface
       if (playerAvatar) {
-        const u = state.player.x / canvas.width;
-        const v = state.player.y / canvas.height;
-        const pos = uvToSpherePos(u, v);
-        playerAvatar.object3D.position.copy(pos);
+        playerAvatar.object3D.position.copy(avatarPos);
         playerAvatar.object3D.lookAt(0, 0, 0);
       }
       if (enemyContainer) {
