@@ -118,8 +118,12 @@ window.addEventListener('load', () => {
   const nexusAvatar     = document.getElementById('nexusAvatar');
   const enemyContainer  = document.getElementById('enemyContainer');
   const projectileContainer = document.getElementById('projectileContainer');
+  const pickupContainer    = document.getElementById('pickupContainer');
   const leftHand        = document.getElementById('leftHand');
   const rightHand       = document.getElementById('rightHand');
+
+  const projectileMap = new Map();
+  const pickupMap = new Map();
 
   const SPHERE_RADIUS   = 8;
 
@@ -532,11 +536,11 @@ window.addEventListener('load', () => {
     }
     // Update projectiles on sphere
     if (projectileContainer) {
-      const active = new Map();
+      const active = new Set();
       (state.effects || []).forEach(effect => {
         const types = ['nova_bullet','ricochet_projectile','seeking_shrapnel','helix_bolt','player_fragment'];
         if (!types.includes(effect.type)) return;
-        let el = active.get(effect);
+        let el = projectileMap.get(effect);
         const pos = uvToSpherePos(effect.x / canvas.width, effect.y / canvas.height, SPHERE_RADIUS);
         if (!el) {
           el = document.createElement('a-sphere');
@@ -545,9 +549,44 @@ window.addEventListener('load', () => {
           el.setAttribute('segments-width', 6);
           el.setAttribute('color', effect.color || '#ffd400');
           projectileContainer.appendChild(el);
-          active.set(effect, el);
+          projectileMap.set(effect, el);
         }
         el.object3D.position.copy(pos);
+        active.add(effect);
+      });
+      // Remove projectiles no longer present
+      projectileMap.forEach((el, obj) => {
+        if (!active.has(obj)) {
+          el.remove();
+          projectileMap.delete(obj);
+        }
+      });
+    }
+    // Update pickups on sphere
+    if (pickupContainer) {
+      const active = new Set();
+      (state.pickups || []).forEach(p => {
+        let el = pickupMap.get(p);
+        const pos = uvToSpherePos(p.x / canvas.width, p.y / canvas.height, SPHERE_RADIUS);
+        if (!el) {
+          el = document.createElement('a-sphere');
+          const color = p.type === 'score' ? '#f1c40f' : (p.type === 'rune_of_fate' ? '#f1c40f' : '#2ecc71');
+          el.setAttribute('radius', Math.max(0.05, p.r / 50));
+          el.setAttribute('color', color);
+          el.setAttribute('segments-height', 6);
+          el.setAttribute('segments-width', 6);
+          pickupContainer.appendChild(el);
+          pickupMap.set(p, el);
+        }
+        el.object3D.position.copy(pos);
+        el.object3D.lookAt(new THREE.Vector3(0,0,0));
+        active.add(p);
+      });
+      pickupMap.forEach((el, obj) => {
+        if (!active.has(obj)) {
+          el.remove();
+          pickupMap.delete(obj);
+        }
       });
     }
     updateUI();
