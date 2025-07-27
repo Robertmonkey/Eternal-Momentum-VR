@@ -50,6 +50,10 @@ This section lists the current known issues with the prototype. Your immediate p
    * **Issue:** Testers want the command cluster and boss health bar from the original game recreated as floating panels. Menu buttons should be physical, emoji-labeled controls that open their respective holographic panels.
    * **Action:** Style the VR panels and buttons to match the 2D UI aesthetic, showing power-up slots, the Aberration Core, and boss health bars with the same look and feel.
 
+10.  **Missing Grid Floor (July 2025):**
+    * **Issue:** Testers note the command deck still lacks the promised neon grid floor.
+    * **Action:** Add a transparent grid floor beneath the command deck using the gridCanvas texture so players can see space below.
+
 ---
 
 ## Core Directives for AI-Generated Code
