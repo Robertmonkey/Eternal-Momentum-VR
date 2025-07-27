@@ -231,6 +231,34 @@ window.addEventListener('load', () => {
     const leftHand = document.getElementById("leftHand");
     const rightHand = document.getElementById("rightHand");
     const vignetteRing = document.getElementById("vignette");
+
+    // Arrange UI panels around the command deck so they don't overlap
+    function arrangeUiPanels() {
+      const panels = [
+        {el: scorePanel, angle:-20, r:1.6, y:1.2},
+        {el: offPowerPanel, angle:-50, r:1.6, y:1.2},
+        {el: defPowerPanel, angle:50, r:1.6, y:1.2},
+        {el: statusEffectsPanel, angle:20, r:1.6, y:1.2},
+        {el: resetButton, angle:-40, r:2.0, y:0.8},
+        {el: pauseToggle, angle:-40, r:2.0, y:0.95},
+        {el: stageSelectToggle, angle:-40, r:2.0, y:1.05},
+        {el: coreMenuToggle, angle:-30, r:2.3, y:1.3},
+        {el: ascensionToggle, angle:30, r:2.3, y:1.55},
+        {el: codexToggle, angle:40, r:2.2, y:1.8},
+        {el: orreryToggle, angle:40, r:2.4, y:2.05},
+        {el: soundOptionsToggle, angle:40, r:2.0, y:2.3}
+      ];
+      panels.forEach(p => {
+        if (!p.el) return;
+        const rad = THREE.MathUtils.degToRad(p.angle);
+        const x = Math.sin(rad) * p.r;
+        const z = -Math.cos(rad) * p.r;
+        p.el.setAttribute('position', `${x} ${p.y} ${z}`);
+        p.el.setAttribute('rotation', `0 ${p.angle} 0`);
+      });
+    }
+    arrangeUiPanels();
+
     function triggerHaptic(el, intensity = 0.5, duration = 50) {
       const controller = el?.components["laser-controls"]?.controller ||
                         el?.components["tracked-controls"]?.controller;
@@ -438,10 +466,12 @@ window.addEventListener('load', () => {
       stageSelectToggle.addEventListener('click', () => {
         if (stageSelectPanel.getAttribute('visible') === 'true') {
           stageSelectPanel.setAttribute('visible', 'false');
+          AudioManager.playSfx('uiModalClose');
         } else {
           selectedStage = state.currentStage;
           updateStageSelectDisplay();
           stageSelectPanel.setAttribute('visible', 'true');
+          AudioManager.playSfx('uiModalOpen');
         }
       });
     }
@@ -550,12 +580,14 @@ window.addEventListener('load', () => {
         populateAberrationCoreMenu(equipCore);
         aberrationCoreModal.style.display = 'flex';
         aberrationCorePanel.setAttribute('visible', 'true');
+        AudioManager.playSfx('uiModalOpen');
       });
     }
     if (closeAberrationCoreBtn) {
       closeAberrationCoreBtn.addEventListener('click', () => {
         aberrationCorePanel.setAttribute('visible', 'false');
         aberrationCoreModal.style.display = 'none';
+        AudioManager.playSfx('uiModalClose');
       });
     }
     if (unequipCoreBtn) {
@@ -563,6 +595,7 @@ window.addEventListener('load', () => {
         equipCore(null);
         aberrationCorePanel.setAttribute('visible', 'false');
         aberrationCoreModal.style.display = 'none';
+        AudioManager.playSfx('uiModalClose');
       });
     }
     if (ascensionToggle && ascensionGridPanel) {
@@ -571,12 +604,14 @@ window.addEventListener('load', () => {
         renderAscensionGrid();
         ascensionGridModal.style.display = 'block';
         ascensionGridPanel.setAttribute('visible', 'true');
+        AudioManager.playSfx('uiModalOpen');
       });
     }
     if (closeAscensionGridBtn) {
       closeAscensionGridBtn.addEventListener('click', () => {
         ascensionGridPanel.setAttribute('visible', 'false');
         ascensionGridModal.style.display = 'none';
+        AudioManager.playSfx('uiModalClose');
       });
     }
     if (codexToggle && loreCodexPanel) {
@@ -584,12 +619,14 @@ window.addEventListener('load', () => {
         populateLoreCodex();
         loreCodexModal.style.display = 'block';
         loreCodexPanel.setAttribute('visible', 'true');
+        AudioManager.playSfx('uiModalOpen');
       });
     }
     if (closeLoreCodexBtn) {
       closeLoreCodexBtn.addEventListener('click', () => {
         loreCodexPanel.setAttribute('visible', 'false');
         loreCodexModal.style.display = 'none';
+        AudioManager.playSfx('uiModalClose');
       });
     }
     if (orreryToggle && orreryPanel) {
@@ -597,12 +634,14 @@ window.addEventListener('load', () => {
         populateOrreryMenu(startOrreryEncounter);
         orreryModal.style.display = 'block';
         orreryPanel.setAttribute('visible', 'true');
+        AudioManager.playSfx('uiModalOpen');
       });
     }
     if (closeOrreryBtn) {
       closeOrreryBtn.addEventListener('click', () => {
         orreryPanel.setAttribute('visible', 'false');
         orreryModal.style.display = 'none';
+        AudioManager.playSfx('uiModalClose');
       });
     }
     if (soundOptionsToggle && soundOptionsPanel) {
@@ -612,12 +651,14 @@ window.addEventListener('load', () => {
         muteToggle.innerText = AudioManager.userMuted ? 'Unmute' : 'Mute';
         soundOptionsModal.style.display = 'block';
         soundOptionsPanel.setAttribute('visible', 'true');
+        AudioManager.playSfx('uiModalOpen');
       });
     }
     if (closeSoundOptionsBtn) {
       closeSoundOptionsBtn.addEventListener('click', () => {
         soundOptionsPanel.setAttribute('visible', 'false');
         soundOptionsModal.style.display = 'none';
+        AudioManager.playSfx('uiModalClose');
       });
     }
     if (muteToggle) {

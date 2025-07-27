@@ -39,10 +39,11 @@
     <a-assets>
       <!-- Intentionally left empty to avoid unwanted sounds. -->
       <a-mixin id="console-button"
-               geometry="primitive: cylinder; radius:0.3; height:0.1"
-               material="color:#141428; opacity:0.95; emissive:#00ffff; emissiveIntensity:0.6"
+               geometry="primitive: cylinder; radius:0.28; height:0.12"
+               material="color:#141428; opacity:0.95; transparent:true; emissive:#00ffff; emissiveIntensity:0.8; metalness:0.2; roughness:0.4"
                animation__press="property: scale; startEvents: mousedown; dir: alternate; dur: 100; to: 0.9 0.9 0.9"
-               animation__release="property: scale; startEvents: mouseup; dir: alternate; dur: 100; to: 1 1 1"></a-mixin>
+               animation__release="property: scale; startEvents: mouseup; dir: alternate; dur: 100; to: 1 1 1"
+               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.2"></a-mixin>
       <audio id="bgMusic1" class="game-audio" src="assets/bgMusic_01.mp3" preload="auto" loop></audio>
       <audio id="bgMusic2" class="game-audio" src="assets/bgMusic_02.mp3" preload="auto" loop></audio>
       <audio id="uiHoverSound" class="game-audio" src="assets/uiHoverSound.mp3" preload="auto"></audio>
@@ -80,7 +81,7 @@
     </a-entity>
 
     <!-- Container for UI panels that float around the player -->
-    <a-entity id="commandDeck">
+    <a-entity id="commandDeck" position="0 1.2 0">
 
     <!-- Score and health panel.  Placed slightly forward and to the right of the
          player so it is easily visible when glancing down at the table.  Two
