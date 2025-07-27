@@ -46,6 +46,10 @@
     </a-entity>
     <!-- Floating command deck containing all UI panels and controls -->
     <a-entity id="commandDeck" position="0 1.2 0">
+      <!-- Neon grid floor -->
+      <a-circle id="deckFloor" radius="3" rotation="-90 0 0"
+                material="transparent:true; opacity:0.6; side:double"
+                canvas-texture="#gridCanvas"></a-circle>
       <!-- Score & stats panel -->
       <a-plane id="scorePanel" width="1.2" height="1.1"
                material="color: #141428; opacity: 0.9; emissive: #00ffff; emissiveIntensity: 0.25">
