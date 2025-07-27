@@ -130,6 +130,8 @@ window.addEventListener('load', () => {
 
     // Track the previous health value to trigger haptics on damage
     let lastHealth = state.player.health;
+    const PLATFORM_RADIUS = 3;
+    const SPHERE_RADIUS = 8;
 
     // Current 3D position of the player's avatar on the spherical arena
     let avatarPos = uvToSpherePos(0.5, 0.5, SPHERE_RADIUS);
@@ -170,6 +172,12 @@ window.addEventListener('load', () => {
     const offPowerQueueText = document.getElementById('offPowerQueueText');
     const defPowerText = document.getElementById('defPowerText');
     const defPowerQueueText = document.getElementById('defPowerQueueText');
+    const scorePanel = document.getElementById("scorePanel");
+    const offPowerPanel = document.getElementById("offPowerPanel");
+    const defPowerPanel = document.getElementById("defPowerPanel");
+    const statusEffectsPanel = document.getElementById("statusEffectsPanel");
+    const coreCooldownPanel = document.getElementById("coreCooldownPanel");
+    const coreModel = document.getElementById("coreModel");
     const bossPanel = document.getElementById('bossPanel');
     const bossNameText = document.getElementById('bossNameText');
     const bossHpText = document.getElementById('bossHpText');
@@ -436,7 +444,6 @@ window.addEventListener('load', () => {
     // `activateCorePower()` function which triggers the currently equipped
     // core’s active ability.  The original game expects mouse coordinates
     // but our VR environment does not use a cursor, so we pass 0,0.
-    const coreModel = document.getElementById('coreModel');
     coreModel.addEventListener('click', () => {
       const coreId = state.player.equippedAberrationCore;
       let remaining = 0;
@@ -818,10 +825,6 @@ window.addEventListener('load', () => {
         if (orreryToggle) orreryToggle.emit('click');
       });
     }
-
-    // Draggable cursor marker to reposition the player on the command deck
-    const PLATFORM_RADIUS = 3;
-    const SPHERE_RADIUS = 8;
 
     // Helper functions convert between UV coordinates and 3D positions on the
     // spherical battlefield.  Implementations live in modules/utils.js.
