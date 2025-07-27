@@ -188,6 +188,23 @@ window.addEventListener('load', () => {
     });
   }
 
+  // Capture a DOM modal and apply it as a texture on a VR panel.
+  async function applyModalTexture(panelEl, modalEl, canvasId) {
+    if (!panelEl || !modalEl || typeof html2canvas === 'undefined') return;
+    const prev = modalEl.style.display;
+    modalEl.style.display = 'block';
+    let canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = canvasId;
+      document.body.appendChild(canvas);
+    }
+    await html2canvas(modalEl, { backgroundColor: null, canvas });
+    modalEl.style.display = prev;
+    panelEl.setAttribute('canvas-texture', `#${canvasId}`);
+    panelEl.setAttribute('material', 'transparent:true');
+  }
+
   function showPanel(panelEl) {
     if (!panelEl) return;
     panelEl.setAttribute('visible', 'true');
@@ -395,7 +412,7 @@ window.addEventListener('load', () => {
   });
 
   // Menu toggles
-  if (coreMenuToggle) coreMenuToggle.addEventListener('click', () => {
+  if (coreMenuToggle) coreMenuToggle.addEventListener('click', async () => {
     populateAberrationCoreMenu(coreId => {
       state.player.equippedAberrationCore = coreId;
       savePlayerState();
@@ -403,6 +420,9 @@ window.addEventListener('load', () => {
       populateAberrationCoreMenu(() => {});
       updateUI();
     });
+    await applyModalTexture(aberrationCorePanel,
+      document.getElementById('aberrationCoreModal'),
+      'aberrationCoreCanvas');
     showPanel(aberrationCorePanel);
     AudioManager.playSfx('uiModalOpen');
   });
@@ -419,8 +439,11 @@ window.addEventListener('load', () => {
     AudioManager.playSfx('uiModalClose');
     updateUI();
   });
-  if (ascensionToggle) ascensionToggle.addEventListener('click', () => {
+  if (ascensionToggle) ascensionToggle.addEventListener('click', async () => {
     renderAscensionGrid();
+    await applyModalTexture(ascensionGridPanel,
+      document.getElementById('ascensionGridModal'),
+      'ascensionGridCanvas');
     showPanel(ascensionGridPanel);
     AudioManager.playSfx('uiModalOpen');
   });
@@ -428,8 +451,11 @@ window.addEventListener('load', () => {
     ascensionGridPanel.setAttribute('visible', 'false');
     AudioManager.playSfx('uiModalClose');
   });
-  if (codexToggle) codexToggle.addEventListener('click', () => {
+  if (codexToggle) codexToggle.addEventListener('click', async () => {
     populateLoreCodex();
+    await applyModalTexture(loreCodexPanel,
+      document.getElementById('loreCodexModal'),
+      'loreCodexCanvas');
     showPanel(loreCodexPanel);
     AudioManager.playSfx('uiModalOpen');
   });
@@ -437,7 +463,7 @@ window.addEventListener('load', () => {
     loreCodexPanel.setAttribute('visible', 'false');
     AudioManager.playSfx('uiModalClose');
   });
-  if (orreryToggle) orreryToggle.addEventListener('click', () => {
+  if (orreryToggle) orreryToggle.addEventListener('click', async () => {
     populateOrreryMenu(bossList => {
       // Custom orrery encounter logic: reset and spawn selected bosses
       resetGame(true);
@@ -450,6 +476,9 @@ window.addEventListener('load', () => {
       state.player.y = uv0.v * canvas.height;
       updateUI();
     });
+    await applyModalTexture(orreryPanel,
+      document.getElementById('orreryModal'),
+      'orreryCanvas');
     showPanel(orreryPanel);
     AudioManager.playSfx('uiModalOpen');
   });
@@ -457,10 +486,13 @@ window.addEventListener('load', () => {
     orreryPanel.setAttribute('visible', 'false');
     AudioManager.playSfx('uiModalClose');
   });
-  if (soundOptionsToggle) soundOptionsToggle.addEventListener('click', () => {
+  if (soundOptionsToggle) soundOptionsToggle.addEventListener('click', async () => {
     musicVolume.value = AudioManager.musicVolume;
     sfxVolume.value   = AudioManager.sfxVolume;
     muteToggle.innerText = AudioManager.userMuted ? 'Unmute' : 'Mute';
+    await applyModalTexture(soundOptionsPanel,
+      document.getElementById('soundOptionsModal'),
+      'soundOptionsCanvas');
     showPanel(soundOptionsPanel);
     AudioManager.playSfx('uiModalOpen');
   });
