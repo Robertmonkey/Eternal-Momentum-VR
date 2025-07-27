@@ -281,7 +281,13 @@ window.addEventListener('load', () => {
 
     if (sceneEl) {
       const reposition = () => { alignCommandDeck(); arrangeUiPanels(); };
-      sceneEl.addEventListener('enter-vr', reposition);
+      sceneEl.addEventListener('enter-vr', () => {
+        reposition();
+        if (homeScreen && homeScreen.style.display !== 'none') {
+          homeScreen.style.display = 'none';
+          restartCurrentStage();
+        }
+      });
       sceneEl.addEventListener('exit-vr', reposition);
     }
 
@@ -582,6 +588,7 @@ window.addEventListener('load', () => {
       startVrBtn.addEventListener('click', () => {
         AudioManager.unlockAudio();
         homeScreen.style.display = 'none';
+        if (sceneEl && sceneEl.enterVR) sceneEl.enterVR();
         restartCurrentStage();
       });
     }
