@@ -19,10 +19,10 @@ development.
   presented on panels placed on the table so they are easy to glance at
   without breaking immersion.
 * **Aberration core** — A spinning sphere floats above the table and plays
-  positional audio.  Clicking the sphere triggers an example “active
-  ability” which starts a cooldown timer and awards points.  The sphere is
-  interactive and can be extended with more mechanics (e.g. grabbing or
-  swapping cores).
+  positional audio.  Clicking the sphere or squeezing both controller
+  triggers together activates the core’s ability and starts its cooldown
+  timer.  The sphere is interactive and can be extended with more mechanics
+  (e.g. grabbing or swapping cores).
 * **Drag‑to‑move avatar** — Your in‑game avatar is represented by a blue
   box on the platform.  Grab it with your VR controller and move it around
   the platform; its position is projected back onto the 2D canvas.  In
