@@ -222,3 +222,43 @@ export function drawFog(ctx, color, alpha) {
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.restore();
 }
+
+// ---------------------------------------------------------------------------
+// 3D Coordinate Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Convert a 2D UV coordinate from the canvas to a 3D point on the inner
+ * surface of the gameplay sphere.  The returned vector uses the global
+ * THREE namespace provided by A-Frame.
+ *
+ * @param {number} u - Horizontal coordinate in the range [0,1].
+ * @param {number} v - Vertical coordinate in the range [0,1].
+ * @param {number} [radius=1] - Sphere radius. Defaults to 1 for normalised
+ *   output.  Multiply the resulting vector by your desired radius.
+ */
+export function uvToSpherePos(u, v, radius = 1) {
+  const theta = u * 2 * Math.PI;
+  const phi = v * Math.PI;
+  const x = radius * Math.sin(phi) * Math.cos(theta);
+  const y = radius * Math.cos(phi);
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  return new THREE.Vector3(x, y, z);
+}
+
+/**
+ * Convert a position on the gameplay sphere back to UV coordinates.
+ *
+ * @param {THREE.Vector3} vec - Vector on the sphere's surface.
+ * @param {number} [radius=1] - Radius that was used for the sphere.
+ * @returns {{u:number,v:number}}
+ */
+export function spherePosToUv(vec, radius = 1) {
+  const r = vec.length();
+  if (r === 0) return { u: 0, v: 0 };
+  const theta = Math.atan2(vec.z, vec.x); // -PI..PI
+  const phi = Math.acos(vec.y / r);       // 0..PI
+  const u = (theta + Math.PI) / (2 * Math.PI);
+  const v = phi / Math.PI;
+  return { u, v };
+}
