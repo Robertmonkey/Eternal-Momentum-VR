@@ -346,8 +346,12 @@ export function gameTick(mx, my) {
         stopAllLoopingSounds();
         const gameOverMenu = document.getElementById('gameOverMenu');
         const aberrationBtn = document.getElementById('aberrationCoreMenuBtn');
-        aberrationBtn.style.display = state.player.level >= 10 ? 'block' : 'none';
-        if (gameOverMenu.style.display !== 'flex') gameOverMenu.style.display = 'flex';
+        if (aberrationBtn) {
+            aberrationBtn.style.display = state.player.level >= 10 ? 'block' : 'none';
+        }
+        if (gameOverMenu && gameOverMenu.style.display !== 'flex') {
+            gameOverMenu.style.display = 'flex';
+        }
         return false;
     }
 

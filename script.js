@@ -159,6 +159,11 @@ window.addEventListener('load', () => {
     const orreryPanel = document.getElementById("orreryPanel");
     const soundOptionsPanel = document.getElementById("soundOptionsPanel");
     const muteToggle = document.getElementById("muteToggle");
+    const gameOverPanel = document.getElementById("gameOverPanel");
+    const restartStageBtn = document.getElementById("restartStageBtn");
+    const levelSelectMenuBtn = document.getElementById("levelSelectMenuBtn");
+    const ascensionMenuBtn = document.getElementById("ascensionMenuBtn");
+    const aberrationCoreMenuBtn = document.getElementById("aberrationCoreMenuBtn");
     const bossInfoModal = document.getElementById("bossInfoModal");
     const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");    const homeScreen = document.getElementById('home-screen');
     const startVrBtn = document.getElementById('start-vr-btn');
@@ -230,11 +235,13 @@ window.addEventListener('load', () => {
       }
 
       if (bossPanel && bossNameText && bossHpText) {
-        const boss = state.enemies.find(e => e.boss);
-        if (boss) {
+        const bosses = state.enemies.filter(e => e.boss);
+        if (bosses.length > 0) {
           bossPanel.setAttribute('visible', 'true');
-          bossNameText.setAttribute('value', boss.name || 'Boss');
-          bossHpText.setAttribute('value', `HP: ${Math.floor(boss.hp)} / ${boss.maxHP}`);
+          const names = bosses.map(b => b.name || 'Boss').join('\n');
+          const hpLines = bosses.map(b => `HP: ${Math.floor(b.hp)} / ${b.maxHP}`).join('\n');
+          bossNameText.setAttribute('value', names);
+          bossHpText.setAttribute('value', hpLines);
         } else {
           bossPanel.setAttribute('visible', 'false');
         }
@@ -369,6 +376,43 @@ window.addEventListener('load', () => {
         stageSelectPanel.setAttribute('visible', 'false');
         statusText.setAttribute('value', '');
         updateUI();
+      });
+    }
+
+    function restartCurrentStage() {
+      resetGame(false);
+      applyAllTalentEffects();
+      gameState.lastCoreUse = -Infinity;
+      gameOverShown = false;
+      if (gameOverPanel) gameOverPanel.setAttribute('visible', 'false');
+      statusText.setAttribute('value', '');
+      updateUI();
+    }
+
+    if (restartStageBtn) {
+      restartStageBtn.addEventListener('click', () => {
+        restartCurrentStage();
+      });
+    }
+
+    if (levelSelectMenuBtn && stageSelectToggle) {
+      levelSelectMenuBtn.addEventListener('click', () => {
+        if (gameOverPanel) gameOverPanel.setAttribute('visible', 'false');
+        stageSelectToggle.emit('click');
+      });
+    }
+
+    if (ascensionMenuBtn && ascensionToggle) {
+      ascensionMenuBtn.addEventListener('click', () => {
+        if (gameOverPanel) gameOverPanel.setAttribute('visible', 'false');
+        ascensionToggle.emit('click');
+      });
+    }
+
+    if (aberrationCoreMenuBtn && coreMenuToggle) {
+      aberrationCoreMenuBtn.addEventListener('click', () => {
+        if (gameOverPanel) gameOverPanel.setAttribute('visible', 'false');
+        coreMenuToggle.emit('click');
       });
     }
 
@@ -642,7 +686,11 @@ window.addEventListener('load', () => {
       if (state.gameOver && !gameOverShown) {
         if (statusTimeout) clearTimeout(statusTimeout);
         statusText.setAttribute('value', 'GAME OVER');
+        if (gameOverPanel) gameOverPanel.setAttribute('visible', 'true');
         gameOverShown = true;
+      } else if (!state.gameOver && gameOverShown) {
+        if (gameOverPanel) gameOverPanel.setAttribute('visible', 'false');
+        gameOverShown = false;
       }
 
       // Update UI panels
