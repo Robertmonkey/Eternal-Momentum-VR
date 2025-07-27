@@ -39,7 +39,7 @@
   import { activateCorePower } from './modules/cores.js';
   import { usePower, powers } from './modules/powers.js';
   import { applyAllTalentEffects } from './modules/ascension.js';
-  import { populateAberrationCoreMenu } from './modules/ui.js';
+  import { populateAberrationCoreMenu, populateOrreryMenu } from './modules/ui.js';
   import { STAGE_CONFIG } from './modules/config.js';
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
@@ -140,6 +140,9 @@ window.addEventListener('load', () => {
     const codexToggle = document.getElementById("codexToggle");
     const loreCodexModal = document.getElementById("loreCodexModal");
     const closeLoreCodexBtn = document.getElementById("closeLoreCodexBtn");
+    const orreryToggle = document.getElementById("orreryToggle");
+    const orreryModal = document.getElementById("orreryModal");
+    const closeOrreryBtn = document.getElementById("closeOrreryBtn");
     const soundOptionsToggle = document.getElementById("soundOptionsToggle");
     const soundOptionsModal = document.getElementById("soundOptionsModal");
     const closeSoundOptionsBtn = document.getElementById("closeSoundOptionsBtn");
@@ -318,6 +321,17 @@ window.addEventListener('load', () => {
       });
     }
 
+    function startOrreryEncounter(bossList) {
+      resetGame(true);
+      state.customOrreryBosses = bossList;
+      state.currentStage = 999;
+      gameState.lastCoreUse = -Infinity;
+      gameOverShown = false;
+      orreryModal.style.display = 'none';
+      statusText.setAttribute('value', '');
+      updateUI();
+    }
+
     function equipCore(coreId) {
       state.player.equippedAberrationCore = coreId;
       savePlayerState();
@@ -359,6 +373,17 @@ window.addEventListener('load', () => {
         codexToggle.addEventListener("click", () => {
           populateLoreCodex();
           loreCodexModal.style.display = "flex";
+        });
+      }
+      if (orreryToggle && orreryModal) {
+        orreryToggle.addEventListener("click", () => {
+          populateOrreryMenu(startOrreryEncounter);
+          orreryModal.style.display = "flex";
+        });
+      }
+      if (closeOrreryBtn) {
+        closeOrreryBtn.addEventListener("click", () => {
+          orreryModal.style.display = "none";
         });
       }
       if (closeLoreCodexBtn) {
