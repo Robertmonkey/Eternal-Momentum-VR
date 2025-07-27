@@ -31,7 +31,6 @@ focus is making every original mechanic comfortable to use in VR.
   timer.  The sphere is interactive and can be extended with more mechanics
   (e.g. grabbing or swapping cores).
 * **Pointer-based movement** — Raise your hand to project a cursor on the curved screen. Your on-screen avatar follows the pointer automatically.
-* **Cursor marker** — A small draggable sphere on the table lets you reposition your on-screen avatar if pointing is inconvenient.
 * **Directional audio** — The aberration core emits a continuous tone
   (`assets/core_sound.wav`) which gets quieter as you move away or turn
   your head, giving a sense of spatial presence.
