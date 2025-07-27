@@ -34,6 +34,10 @@ This section lists the current known issues with the prototype. Your immediate p
     * **Issue:** Upon entering VR, all UI elements and command deck pieces appear high above the player's head with scattered blue cylinders. The Aberration Core sphere is visible before any cores are unlocked, the player cannot move across the battlefield, and the stage never begins.
     * **Required Fix:** Anchor the command deck and UI relative to the player's camera so they sit at waist level, hide the Aberration Core model until a core is unlocked, automatically start a valid stage when VR begins, and ensure the battle sphere registers pointer input for movement.
 
+6.  **Gameplay Stability Concerns:**
+    * **Issue:** Recent feedback reports that the game is still largely unplayable without specific details.
+    * **Required Fix:** Continue addressing bugs and ensure the default VR entry always launches a playable stage with functional controls.
+
 ---
 
 ## Core Directives for AI-Generated Code
@@ -57,9 +61,9 @@ The implementation must follow this specific spatial model:
 -   **Assets:** Use existing audio from `/assets/`. Create new 3D models based on the original 2D sprites.
 
 ### 5. Development Task Checklist
--   [ ] **Environment:** Implement the central Command Deck and outer gameplay sphere.
--   [ ] **Controls:** Implement spherical raycasting for the cursor.
--   [ ] **Avatar & Movement:** Re-implement the "Momentum" movement system natively in 3D.
+-   [x] **Environment:** Implement the central Command Deck and outer gameplay sphere.
+-   [x] **Controls:** Implement spherical raycasting for the cursor.
+-   [x] **Avatar & Movement:** Re-implement the "Momentum" movement system natively in 3D.
 -   [ ] **Enemies & AI:** Begin porting the AI and attack patterns of enemies from `modules/bosses.js` into new, 3D-aware components.
--   [ ] **UI:** Build the floating UI panels, physical buttons, and holographic status displays.
+-   [x] **UI:** Build the floating UI panels, physical buttons, and holographic status displays.
 -   [ ] **Systems:** Port the core game systems like health, power-ups, and leveling into the new 3D architecture.

@@ -285,8 +285,11 @@ window.addEventListener('load', () => {
         reposition();
         if (homeScreen && homeScreen.style.display !== 'none') {
           homeScreen.style.display = 'none';
-          restartCurrentStage();
         }
+        // Always restart the current stage when entering VR to
+        // guarantee a playable state even when the user re-enters
+        // VR from a paused session.
+        restartCurrentStage();
       });
       sceneEl.addEventListener('exit-vr', reposition);
     }
