@@ -98,9 +98,22 @@ window.addEventListener('load', () => {
     // The actual game logic lives in the imported `state` object.
     // We only track cooldowns for the core interaction and current cursor position.
     const gameState = {
-      coreCooldown: 10,
       lastCoreUse: -Infinity,
       cursorUV: null
+    };
+
+    const CORE_COOLDOWNS = {
+      juggernaut: 8000,
+      syphon: 5000,
+      mirror_mirage: 12000,
+      looper: 10000,
+      gravity: 6000,
+      architect: 15000,
+      annihilator: 25000,
+      puppeteer: 8000,
+      helix_weaver: 5000,
+      epoch_ender: 120000,
+      splitter: 500
     };
     let lastStage = state.currentStage;
     let statusTimeout = null;
@@ -167,6 +180,7 @@ window.addEventListener('load', () => {
     const bossInfoModal = document.getElementById("bossInfoModal");
     const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");    const homeScreen = document.getElementById('home-screen');
     const startVrBtn = document.getElementById('start-vr-btn');
+    const coreCooldownRing = document.getElementById('coreCooldownRing');
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
     const gameScreen = document.getElementById("gameScreen");
@@ -225,13 +239,32 @@ window.addEventListener('load', () => {
         offPowerQueueText.setAttribute('value', offNext);
         defPowerQueueText.setAttribute('value', defNext);
       }
-      const now = performance.now();
-      const elapsed = (now - gameState.lastCoreUse) / 1000;
-      const remaining = gameState.coreCooldown - elapsed;
-      if (remaining > 0) {
-        cooldownText.setAttribute('value', `Core cooldown: ${remaining.toFixed(1)}s`);
+      const nowMs = Date.now();
+      const coreId = state.player.equippedAberrationCore;
+      let remainingMs = 0;
+      let durationMs = 0;
+      if (coreId) {
+        const coreState = state.player.talent_states.core_states[coreId];
+        durationMs = CORE_COOLDOWNS[coreId] || 0;
+        if (coreState && coreState.cooldownUntil) {
+          remainingMs = coreState.cooldownUntil - nowMs;
+          if (remainingMs < 0) remainingMs = 0;
+        }
+      }
+      if (remainingMs > 0) {
+        cooldownText.setAttribute('value', `Core cooldown: ${(remainingMs / 1000).toFixed(1)}s`);
       } else {
         cooldownText.setAttribute('value', 'Core cooldown: Ready');
+      }
+      if (coreCooldownRing) {
+        if (durationMs > 0 && remainingMs > 0) {
+          const progress = 1 - remainingMs / durationMs;
+          coreCooldownRing.setAttribute('theta-length', progress * 360);
+          coreCooldownRing.setAttribute('visible', 'true');
+        } else {
+          coreCooldownRing.setAttribute('visible', 'false');
+          coreCooldownRing.setAttribute('theta-length', 0);
+        }
       }
 
       if (bossPanel && bossNameText && bossHpText) {
@@ -301,10 +334,14 @@ window.addEventListener('load', () => {
     // but our VR environment does not use a cursor, so we pass 0,0.
     const coreModel = document.getElementById('coreModel');
     coreModel.addEventListener('click', () => {
-      const now = performance.now();
-      const elapsed = (now - gameState.lastCoreUse) / 1000;
-      if (elapsed >= gameState.coreCooldown) {
-        gameState.lastCoreUse = now;
+      const coreId = state.player.equippedAberrationCore;
+      let remaining = 0;
+      if (coreId) {
+        const cs = state.player.talent_states.core_states[coreId];
+        if (cs && cs.cooldownUntil) remaining = cs.cooldownUntil - Date.now();
+      }
+      if (remaining <= 0) {
+        gameState.lastCoreUse = Date.now();
         // Trigger the core’s active ability.  Passing dummy coordinates and
         // an empty gameHelpers object is sufficient for many cores to
         // perform their behaviour.  If additional helpers are required you
@@ -551,10 +588,14 @@ window.addEventListener('load', () => {
 
       function tryActivateCore() {
         if (!leftTriggerDown || !rightTriggerDown || coreTriggerTimeout) return;
-        const now = performance.now();
-        const elapsed = (now - gameState.lastCoreUse) / 1000;
-        if (elapsed >= gameState.coreCooldown) {
-          gameState.lastCoreUse = now;
+        const coreId = state.player.equippedAberrationCore;
+        let remaining = 0;
+        if (coreId) {
+          const cs = state.player.talent_states.core_states[coreId];
+          if (cs && cs.cooldownUntil) remaining = cs.cooldownUntil - Date.now();
+        }
+        if (remaining <= 0) {
+          gameState.lastCoreUse = Date.now();
           try {
             activateCorePower(0, 0, {});
           } catch (e) {
