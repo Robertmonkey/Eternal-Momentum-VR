@@ -183,8 +183,10 @@ window.addEventListener('load', () => {
     const coreCooldownRing = document.getElementById('coreCooldownRing');
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
-    const gameScreen = document.getElementById("gameScreen");
+    const arenaFloor = document.getElementById("arenaFloor");
     const screenCursor = document.getElementById("screenCursor");
+    const playerAvatar = document.getElementById("playerAvatar");
+    const enemyContainer = document.getElementById("enemyContainer");
     const leftHand = document.getElementById("leftHand");
     const rightHand = document.getElementById("rightHand");
     const vignetteRing = document.getElementById("vignette");
@@ -562,8 +564,8 @@ window.addEventListener('load', () => {
     if (sfxVolume) {
       sfxVolume.addEventListener('input', e => AudioManager.setSfxVolume(parseFloat(e.target.value)));
     }
-    if (gameScreen) {
-      gameScreen.addEventListener("raycaster-intersection", e => {
+    if (arenaFloor) {
+      arenaFloor.addEventListener("raycaster-intersection", e => {
         const hit = e.detail.intersections[0];
         if (hit && hit.uv) {
           gameState.cursorUV = hit.uv;
@@ -574,13 +576,13 @@ window.addEventListener('load', () => {
           }
         }
       });
-      gameScreen.addEventListener("raycaster-intersection-cleared", e => {
-        if (e.detail.clearedEl === gameScreen) {
+      arenaFloor.addEventListener("raycaster-intersection-cleared", e => {
+        if (e.detail.clearedEl === arenaFloor) {
           gameState.cursorUV = null;
           if (screenCursor) screenCursor.setAttribute('visible', 'false');
         }
       });
-      gameScreen.addEventListener("click", e => {
+      arenaFloor.addEventListener("click", e => {
         const uv = e.detail.intersection?.uv || gameState.cursorUV;
         if (uv) {
           state.player.x = uv.x * canvas.width;
@@ -753,6 +755,41 @@ window.addEventListener('load', () => {
           cursorMarker.object3D.position.y,
           -r * Math.sin(theta)
         );
+      }
+
+      // Update 3D arena objects
+      const w = 12;
+      const h = 6;
+      const baseY = -2;
+      if (playerAvatar) {
+        const px = (state.player.x / canvas.width - 0.5) * w;
+        const pz = (0.5 - state.player.y / canvas.height) * h;
+        playerAvatar.object3D.position.set(px, baseY + 0.1, -4 + pz);
+      }
+      if (enemyContainer) {
+        const existing = new Set();
+        state.enemies.forEach(e => {
+          const id = e.instanceId;
+          existing.add(id);
+          let el = enemyContainer.querySelector(`[data-eid="${id}"]`);
+          if (!el) {
+            el = document.createElement('a-box');
+            el.setAttribute('depth', 0.4);
+            el.setAttribute('height', 0.4);
+            el.setAttribute('width', 0.4);
+            el.setAttribute('color', '#ff4040');
+            el.dataset.eid = id;
+            enemyContainer.appendChild(el);
+          }
+          const ex = (e.x / canvas.width - 0.5) * w;
+          const ez = (0.5 - e.y / canvas.height) * h;
+          el.object3D.position.set(ex, baseY + 0.2, -4 + ez);
+        });
+        enemyContainer.querySelectorAll('[data-eid]').forEach(el => {
+          if (!existing.has(parseFloat(el.dataset.eid))) {
+            el.remove();
+          }
+        });
       }
       requestAnimationFrame(animate);
     }
