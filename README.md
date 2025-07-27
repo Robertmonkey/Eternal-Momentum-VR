@@ -2,64 +2,80 @@
 
 ## Project Vision & Directive
 
-This project is to transform the 2D browser game, **Eternal Momentum**, into a fully immersive, first-person 3D virtual reality experience for the Meta Quest 3. The current repository contains an early prototype and the complete, functional source code of the original 2D game. The primary directive for all future development is to evolve the prototype into the vision detailed below, using the original game's logic as the foundational engine.
+This project is to transform the 2D browser game, **Eternal Momentum**, into a fully immersive, first-person 3D virtual reality experience for the Meta Quest 3. This repository contains the complete source code of the original 2D game, which will serve as the **blueprint** for a new, native 3D VR implementation.
 
-The core fantasy is that the player **is the Conduit**, standing directly on the battlefield. A luminous neon grid floor hovers above the action, letting the player see the combat space below and project a cursor through the grid to command movement.
+The core fantasy is that the player **is the Conduit**, floating at the very center of a massive, spherical reality. From a central command deck, they have a complete 360-degree view of the battlefield as it wraps around them in every direction.
 
 ---
 ## The Core Experience: Inside the Conduit
 
-### 1. The Battlefield (Player Environment)
+### 1. The Command Deck (Player Environment)
 
-The Conduit now fights on the ground. The immediate surroundings are still futuristic, but the bulky command deck is gone. Instead the player stands atop the neon grid floor, with UI panels floating nearby styled in the familiar dark and glow aesthetic defined in `style.css`.
+The player is positioned on a circular, floating **Command Deck** at the absolute center of the universe. This deck is your stationary anchor point from which you command the battle.
 
-* **Ground-Level View:** The player's perspective is on the same plane as the action. The cursor from the VR controller projects through the grid to set movement targets just like the 2D game.
-* **Floating Console Panels:** Status readouts and buttons remain, hovering around the player for quick access. They still glow and depress when interacted with.
-
----
-### 2. The 3D Gameplay Arena (The Timeline Projection)
-
-The battlefield now spans a much larger area. A transparent neon grid plane floats just above it, serving as the player's ground. The VR pointer passes through this grid so clicks register on the battlefield plane underneath.
-
-* **Full 3D Conversion:** All gameplay elements—the player's avatar (the Nexus), enemies, bosses (Aberrations), and projectiles—must be rendered as 3D objects.
-* **State-Driven Rendering:** The positions, animations, and behaviors of these 3D objects will be directly driven by the original game's state object (`state` from `modules/state.js`). The `gameTick` function will read the `x`, `y` coordinates from the 2D logic and translate them into `x`, `y`, `z` positions in the 3D A-Frame scene.
-* **Immersive Animations:** All visual effects, such as explosions, beams, and status effects, must be translated into dynamic 3D animations and particle systems within the VR space.
+* **360° Omniscience:** From your central vantage point, you can see every part of the battlefield. Action can happen above, below, in front, and behind you, eliminating blind spots and creating a true sense of tactical oversight.
+* **Transparent Neon-Grid Floor:** The floor of your command deck is a transparent, luminous grid, styled to match the game's aesthetic. This allows you to look directly down and see the combat unfolding beneath your feet, ensuring you never lose track of the action.
+* **Floating Console:** Your UI is a series of floating holographic panels and physical controls that hover at waist-height around you, ensuring your view of the battle is never obstructed.
 
 ---
-### 3. The UI Console (Tactile Interaction)
+### 2. The 3D Gameplay Arena (The Spherical Timeline)
 
-The UI is a combination of embedded screens, physical controls, and holographic displays.
+The battlefield is the entire inner surface of a **massive, hollow sphere** that surrounds your Command Deck.
 
-* **Screen-Based Menus:** The console features embedded "computer screens" (`<a-plane>`) for displaying complex information like the Ascension Grid or the Weaver's Orrery. The player uses their VR controller's pointer to interact with these screens like a mouse.
-* **Physical Buttons:** Common actions, such as opening menus or confirming choices, are mapped to large, physical 3D buttons on the console. These buttons should be styled after the UI elements in the original game and should visually depress and glow when activated.
-* **Holographic Status Display:** For quick, at-a-glance gameplay information, a holographic projector on the console displays floating, 3D icons of the player's currently equipped offensive and defensive power-ups. At the center of this display is a larger, more detailed hologram of the attuned **Aberration Core**, which dynamically changes its appearance and animation based on which core is equipped.
+* **Native 3D Gameplay:** All gameplay elements—the player's avatar (the Nexus), enemies, bosses (Aberrations), and projectiles—are native 3D objects with 3D behaviors, physics, and animations.
+* **Spherical Battlefield:** All entities move and fight along the curved, inner wall of the sphere, creating a unique and dynamic combat environment.
+* **Faithful Replication:** The behaviors, attack patterns, and core mechanics of all enemies and player abilities will be meticulously re-implemented in 3D to match the design of the original 2D game.
+
+---
+### 3. The UI (Tactile & Holographic Interaction)
+
+Your interface is an array of floating panels and interactive elements within arm's reach.
+
+* **Holographic Menus:** Complex menus like the Ascension Grid and the Weaver's Orrery appear as large, interactive holographic panels that you can manipulate with your controller's pointer.
+* **Physical Buttons:** Common actions are mapped to large, physical 3D buttons on the floating panels, which visually depress and glow when activated.
+* **Holographic Status Display:** For at-a-glance information, a holographic projector displays floating, 3D icons of your equipped powers. At its center is a larger, detailed hologram of your attuned **Aberration Core**, which dynamically changes its appearance based on which core is equipped.
+
+---
+## Core Gameplay Loop & VR Control Scheme
+
+The unique feel of the original game is preserved through a specific, indirect control scheme, re-implemented for 3D space.
+
+#### The Player's Role: The Commander
+
+You are a stationary commander at the heart of the sphere. You do not move. You command your avatar remotely, using your VR controllers as targeting instruments.
+
+#### The Control Scheme: Guiding the Nexus
+
+1.  **Targeting on the Sphere:** Your hand controller projects a **cursor** onto the **inner surface of the gameplay sphere**. This is the target point for all movement and offensive abilities.
+2.  **Movement via Attraction (The "Momentum" Mechanic):** The Nexus avatar is **not** directly controlled. It is constantly *attracted* towards your cursor's position, moving fluidly along the sphere's curved surface.
+    * **How it Works:** This mechanic must be re-implemented natively in 3D, replicating the feel of the original 2D formula:
+        `new_position = current_position + (cursor_position - current_position) * 0.015 * speed_modifier`
+    * **The "Feel":** This creates the signature, fluid chase motion. The Nexus will always be trying to catch up to your cursor, giving it a sense of weight and momentum.
+3.  **Activating Abilities:** All abilities originate from the Nexus avatar on the spherical wall. Offensive powers fire towards your cursor's location, while defensive powers activate in an area around the Nexus.
 
 ---
 ## Directive for AI-Assisted Development
 
-This README serves as the primary brief for AI development tools (e.g., ChatGPT Codex). Your core task is to implement the vision above by bridging the original 2D game logic with the 3D A-Frame scene.
+This README serves as the primary brief for AI development tools. Your core task is to **port and re-implement** the 2D game's logic and mechanics into a native 3D VR architecture that realizes the vision above.
 
 ### Your Workflow:
 
-1.  **Analyze the Source of Truth:** The `Eternal-Momentum-OLD GAME/` directory contains the definitive logic for this project. Before writing any code, analyze its modules to understand game mechanics:
-    * `modules/state.js`: Defines the structure of the entire game state. All 3D rendering will be a visualization of this object.
-    * `modules/gameLoop.js`: Contains the core `gameTick` function that updates the state.
-    * `modules/bosses.js`: Details the unique AI, attacks, and phases for every Aberration.
-    * `modules/powers.js`, `modules/cores.js`, `modules/talents.js`: Define all player abilities and progression systems.
-    * `style.css`: Contains the color variables (`--primary-glow`, `--secondary-glow`, etc.) and general aesthetic that the 3D environment **must** adhere to.
+1.  **Analyze the Blueprint:** The `Eternal-Momentum-OLD GAME/` directory is your **blueprint and design document**. You must analyze its modules to perfectly understand and replicate the game's mechanics, rules, and aesthetic.
+    * `modules/bosses.js` and `modules/powers.js`: Define the required behaviors for enemies and abilities.
+    * `modules/state.js` and `modules/talents.js`: Define the necessary data structures and progression systems.
+    * `style.css`: Contains the color variables and aesthetic style to be recreated in 3D materials.
 
-2.  **Bridge, Don't Rewrite:** Do not modify the original game logic files. The VR `script.js` is the **bridge**. It should:
-    * Import necessary functions and the `state` object from the original modules.
-    * Run the `gameTick` in its animation loop.
-    * Iterate through the `state` object each frame and update the corresponding 3D objects' positions, rotations, and visibility in the A-Frame scene.
-    * Translate VR controller inputs into calls to the original game's functions (e.g., `usePower()`, `activateCorePower()`).
+2.  **Build a Native VR Engine:** You have the freedom to write and structure new JavaScript files (`script.js`, new modules, etc.) as needed to build a robust, 3D-native game. You are not merely bridging the old engine; you are building a new one based on its specifications.
+    * Create a 3D-aware state management system.
+    * Implement 3D vector math for movement and physics.
+    * Write new functions for handling 3D collisions and effects.
 
 3.  **Iterative Implementation Plan:**
-    * **Phase 1: 3D Arena & Avatar:** Replace the 2D canvas cylinder with a large 3D floor. Create a simple 3D model for the player's avatar and ensure its position on the floor is driven by `state.player.x` and `state.player.y`.
-    * **Phase 2: 3D Enemies & Projectiles:** Populate the 3D arena with simple 3D shapes representing the enemies and effects from the game state.
-    * **Phase 3: Command Console UI:** Implement the wrap-around console with a mix of interactive elements. Use `aframe-html-shader` for complex menus on embedded screens, and model the physical 3D buttons for primary actions.
-    * **Phase 4: Holographic Displays:** Create the central holographic display. Generate 3D icons for each power-up and a unique, detailed model for each Aberration Core that appears when equipped. Ensure these holograms update in real-time.
-    * **Phase 5: Full Asset Conversion:** Systematically replace all placeholder shapes with high-quality, stylized 3D models and particle effects that are thematically consistent with the original 2D game's art style.
+    * **Phase 1: Spherical World & Avatar:** Implement the central Command Deck, transparent grid floor, and outer gameplay sphere. Re-implement the "Momentum" movement system natively in 3D, allowing the avatar to follow a cursor along the sphere's inner surface.
+    * **Phase 2: Port Core Mechanics:** Begin porting the logic for basic enemies, projectiles, and power-ups from the original modules into new, 3D-aware functions.
+    * **Phase 3: Floating UI & Controls:** Implement the floating UI panels with physical buttons and the holographic status displays.
+    * **Phase 4: Port Complex Systems:** Re-implement the more complex systems, such as the Ascension Grid logic and the unique behaviors of the first few Aberration Cores and Bosses.
+    * **Phase 5: Full Asset Conversion:** Systematically replace all placeholder geometry with high-quality, stylized 3D models and particle effects that are thematically consistent with the original 2D game's art.
 
 ---
 ## Development & Testing Workflow
