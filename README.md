@@ -4,22 +4,22 @@
 
 This project is to transform the 2D browser game, **Eternal Momentum**, into a fully immersive, first-person 3D virtual reality experience for the Meta Quest 3. The current repository contains an early prototype and the complete, functional source code of the original 2D game. The primary directive for all future development is to evolve the prototype into the vision detailed below, using the original game's logic as the foundational engine.
 
-The core fantasy is that the player **is the Conduit**, physically situated within a high-tech command center. From a balcony-like platform, they look down upon a vast, 3D battlefield where the game's events unfold.
+The core fantasy is that the player **is the Conduit**, standing directly on the battlefield. A luminous neon grid floor hovers above the action, letting the player see the combat space below and project a cursor through the grid to command movement.
 
 ---
 ## The Core Experience: Inside the Conduit
 
-### 1. The Command Deck (Player Environment)
+### 1. The Battlefield (Player Environment)
 
-The player does not stand on a simple platform; they are inside the Conduit's command deck. This is a sleek, futuristic environment that must be styled to match the aesthetic of the original game (dark backgrounds, neon glows, and the color palette defined in `style.css`).
+The Conduit now fights on the ground. The immediate surroundings are still futuristic, but the bulky command deck is gone. Instead the player stands atop the neon grid floor, with UI panels floating nearby styled in the familiar dark and glow aesthetic defined in `style.css`.
 
-* **Balcony View:** The player stands on a raised platform, giving them a commanding, top-down tactical view of the massive 3D game screen below. This creates a powerful sense of scale and strategic oversight.
-* **Wrap-Around Console:** In front of the player is a wrap-around desk or console. This console is a hybrid of screens and tactile controls, featuring **physical, 3D buttons** that glow and provide satisfying feedback when pressed.
+* **Ground-Level View:** The player's perspective is on the same plane as the action. The cursor from the VR controller projects through the grid to set movement targets just like the 2D game.
+* **Floating Console Panels:** Status readouts and buttons remain, hovering around the player for quick access. They still glow and depress when interacted with.
 
 ---
 ### 2. The 3D Gameplay Arena (The Timeline Projection)
 
-The current prototype's method of projecting the 2D canvas onto a cylinder is to be **completely replaced**. The gameplay will take place in a fully realized 3D space below the player's command deck.
+The battlefield now spans a much larger area. A transparent neon grid plane floats just above it, serving as the player's ground. The VR pointer passes through this grid so clicks register on the battlefield plane underneath.
 
 * **Full 3D Conversion:** All gameplay elements—the player's avatar (the Nexus), enemies, bosses (Aberrations), and projectiles—must be rendered as 3D objects.
 * **State-Driven Rendering:** The positions, animations, and behaviors of these 3D objects will be directly driven by the original game's state object (`state` from `modules/state.js`). The `gameTick` function will read the `x`, `y` coordinates from the 2D logic and translate them into `x`, `y`, `z` positions in the 3D A-Frame scene.
