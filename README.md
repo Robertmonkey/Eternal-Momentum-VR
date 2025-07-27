@@ -9,11 +9,7 @@ development.
 
 ## Features
 
-* **360° battlefield** — A hidden `<canvas>` element renders a simplified
-  approximation of the original 2D game.  The contents of this canvas are
-  wrapped around the player on the inner surface of a cylinder using a
-  custom `canvas‑texture` component.  As you turn your head you can see
-  different parts of the canvas.
+* **Large game screen** — The 2D game canvas appears on a floating panel in front of you. Point at the screen with your controller to move your character.
 * **Waist‑height UI table** — A circular table surrounds the player at
   waist level.  Score, health and aberration core cooldown indicators are
   presented on panels placed on the table so they are easy to glance at
@@ -23,11 +19,7 @@ development.
   triggers together activates the core’s ability and starts its cooldown
   timer.  The sphere is interactive and can be extended with more mechanics
   (e.g. grabbing or swapping cores).
-* **Drag‑to‑move avatar** — Your in‑game avatar is represented by a blue
-  box on the platform.  Grab it with your VR controller and move it around
-  the platform; its position is projected back onto the 2D canvas.  In
-  this prototype moving the avatar gives you points and clamps the
-  movement to the platform boundary.
+* **Pointer-based movement** — Aim at the game screen with your controller and click to set your position.
 * **Directional audio** — The aberration core emits a continuous tone
   (`assets/core_sound.wav`) which gets quieter as you move away or turn
   your head, giving a sense of spatial presence.
@@ -79,9 +71,7 @@ and text to keep the look cohesive.
    Then open the reported URL in your VR browser.  Alternatively you can
    open `index.html` in a WebXR‑capable desktop browser for a
    non‑VR preview.
-3. Use your controllers to grab the blue avatar box and move it around.
-   Click the red aberration core to trigger its cooldown and see the UI
-   update.  Turn your head to observe the battlefield wrapped around you.
+3. Aim your controller at the large screen and click to move your character. Click the red aberration core to trigger its cooldown.
 
 ## Integrating the Full Game
 
@@ -99,11 +89,7 @@ complete VR version:
    `gameLoop.js` expects.  You do not need to rename anything; simply
    make sure the original game’s rendering code draws onto this canvas.
 
-3. **Synchronise the avatar** — When the blue avatar box is moved in
-   VR, `script.js` converts its 3D position back into 2D coordinates and
-   assigns them to `state.player.x` and `state.player.y`.  If you
-   customise the canvas projection (e.g. wrapping it differently), you
-   may need to adjust the conversion logic in `script.js`.
+3. **Cursor coordinates** — The VR controller ray updates `state.player.x` and `state.player.y` based on where it intersects the game screen.
 
 4. **Extend the UI** — Add additional panels to the table for displaying
    talents, ascension grids, stage selection, etc.  These can be built
