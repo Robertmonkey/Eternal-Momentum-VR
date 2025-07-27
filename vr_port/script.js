@@ -35,14 +35,14 @@
   // Import the core game modules.  The original source lives in the
   // `modules/` directory at the repository root, so we import from there
   // directly rather than using the old vr_port path.
-  import { gameTick, spawnBossesForStage } from './modules/gameLoop.js';
-  import { state, resetGame, savePlayerState } from './modules/state.js';
-  import { activateCorePower } from './modules/cores.js';
-  import { usePower, powers } from './modules/powers.js';
-import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.js';
-import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex } from './modules/ui.js';
-  import { STAGE_CONFIG } from './modules/config.js';
-import { AudioManager } from "./modules/audio.js";
+  import { gameTick, spawnBossesForStage } from '../modules/gameLoop.js';
+  import { state, resetGame, savePlayerState } from '../modules/state.js';
+  import { activateCorePower } from '../modules/cores.js';
+  import { usePower, powers } from '../modules/powers.js';
+import { applyAllTalentEffects, renderAscensionGrid } from '../modules/ascension.js';
+import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex } from '../modules/ui.js';
+  import { STAGE_CONFIG } from '../modules/config.js';
+import { AudioManager } from "../modules/audio.js";
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
   // continuously copies the canvas contents into the material map.
@@ -118,6 +118,12 @@ window.addEventListener('load', () => {
     let lastStage = state.currentStage;
     let statusTimeout = null;
     let gameOverShown = false;
+
+    // Container for temporary boss models that "pop" out of the screen
+    const sceneEl = document.querySelector('a-scene');
+    const bossModelContainer = document.createElement('a-entity');
+    sceneEl.appendChild(bossModelContainer);
+    const displayedBossIds = new Set();
 
     // Cache references to UI elements for quick updates
     const scoreText = document.getElementById('scoreText');
@@ -211,6 +217,30 @@ window.addEventListener('load', () => {
       if (stageSelectLabel) {
         stageSelectLabel.setAttribute('value', `Stage: ${selectedStage}`);
       }
+    }
+
+    function updateBossModels() {
+      const bosses = state.enemies.filter(e => e.boss);
+      // Remove models for defeated bosses
+      displayedBossIds.forEach(id => {
+        if (!bosses.some(b => b.instanceId === id)) {
+          const old = bossModelContainer.querySelector(`[data-boss-id="${id}"]`);
+          if (old) old.remove();
+          displayedBossIds.delete(id);
+        }
+      });
+      // Add models for new bosses
+      bosses.forEach(boss => {
+        if (!displayedBossIds.has(boss.instanceId)) {
+          const model = document.createElement('a-sphere');
+          model.setAttribute('radius', 0.4);
+          model.setAttribute('color', '#ff5555');
+          model.setAttribute('position', '0 2 -1');
+          model.dataset.bossId = boss.instanceId;
+          bossModelContainer.appendChild(model);
+          displayedBossIds.add(boss.instanceId);
+        }
+      });
     }
 
     // Helper to update the scoreboard and health bars.  Values are read
@@ -741,8 +771,9 @@ window.addEventListener('load', () => {
         gameOverShown = false;
       }
 
-      // Update UI panels
+      // Update UI panels and 3D boss representations
       updateUI();
+      updateBossModels();
       if (cursorMarker) {
         const { width, height } = canvas;
         const theta = (state.player.x / width) * 2 * Math.PI;

@@ -17,16 +17,16 @@
 <body>
   <!--
     Hidden 2D canvas.  The original Eternal Momentum game renders into this
-    off‑screen canvas.  In this VR port the canvas content is wrapped
-    around the player on a cylinder so you can glance up and see the
-    familiar 2D battlefield in all directions.  Because the canvas is
+    off‑screen canvas.  In this VR port the canvas content is projected on
+    a large curved display in front of you so it feels like playing on a
+    massive monitor.  Because the canvas is
     hidden in the DOM, it does not interfere with VR rendering but its
     contents are still updated every frame by script.js.
   -->
   <!--
     Off‑screen canvas used by the original Eternal Momentum game.  Its ID is
-    "gameCanvas" to satisfy references inside the game code.  The cylinder
-    around the player uses this canvas as a texture to project the 2D
+    "gameCanvas" to satisfy references inside the game code.  The curved
+    screen entity uses this canvas as a texture to display the familiar 2D
     battlefield.  Keep the canvas hidden in the DOM.
   -->
   <canvas id="gameCanvas" width="2048" height="1024" style="display:none;"></canvas>
@@ -34,7 +34,7 @@
   <!-- Simple home screen overlay inspired by the original layout -->
   <div id="home-screen" class="visible">
     <video autoplay muted loop playsinline id="home-video-bg" preload="none">
-      <source src="assets/home.mp4" type="video/mp4">
+      <source src="../assets/home.mp4" type="video/mp4">
     </video>
     <div id="home-overlay">
       <h1 id="game-title">ETERNAL MOMENTUM VR</h1>
@@ -51,18 +51,18 @@
          <a-assets> block as needed. -->
     <a-assets>
       <!-- Intentionally left empty to avoid unwanted sounds. -->
-      <audio id="bgMusic1" class="game-audio" src="assets/bgMusic_01.mp3" preload="auto" loop></audio>
-      <audio id="bgMusic2" class="game-audio" src="assets/bgMusic_02.mp3" preload="auto" loop></audio>
-      <audio id="uiHoverSound" class="game-audio" src="assets/uiHoverSound.mp3" preload="auto"></audio>
-      <audio id="uiClickSound" class="game-audio" src="assets/uiClickSound.mp3" preload="auto"></audio>
-      <audio id="uiModalOpen" class="game-audio" src="assets/uiModalOpen.mp3" preload="auto"></audio>
-      <audio id="uiModalClose" class="game-audio" src="assets/uiModalClose.mp3" preload="auto"></audio>
-      <audio id="talentPurchase" class="game-audio" src="assets/talentPurchase.mp3" preload="auto"></audio>
-      <audio id="talentError" class="game-audio" src="assets/talentError.mp3" preload="auto"></audio>
-      <audio id="bossSpawnSound" class="game-audio" src="assets/bossSpawnSound.mp3" preload="auto"></audio>
-      <audio id="bossDefeatSound" class="game-audio" src="assets/bossDefeatSound.mp3" preload="auto"></audio>
+      <audio id="bgMusic1" class="game-audio" src="../assets/bgMusic_01.mp3" preload="auto" loop></audio>
+      <audio id="bgMusic2" class="game-audio" src="../assets/bgMusic_02.mp3" preload="auto" loop></audio>
+      <audio id="uiHoverSound" class="game-audio" src="../assets/uiHoverSound.mp3" preload="auto"></audio>
+      <audio id="uiClickSound" class="game-audio" src="../assets/uiClickSound.mp3" preload="auto"></audio>
+      <audio id="uiModalOpen" class="game-audio" src="../assets/uiModalOpen.mp3" preload="auto"></audio>
+      <audio id="uiModalClose" class="game-audio" src="../assets/uiModalClose.mp3" preload="auto"></audio>
+      <audio id="talentPurchase" class="game-audio" src="../assets/talentPurchase.mp3" preload="auto"></audio>
+      <audio id="talentError" class="game-audio" src="../assets/talentError.mp3" preload="auto"></audio>
+      <audio id="bossSpawnSound" class="game-audio" src="../assets/bossSpawnSound.mp3" preload="auto"></audio>
+      <audio id="bossDefeatSound" class="game-audio" src="../assets/bossDefeatSound.mp3" preload="auto"></audio>
       <!-- Cosmic background used for the skybox so the scene matches the original game's vibe -->
-      <img id="spaceBackground" src="assets/bg.png">
+      <img id="spaceBackground" src="../assets/bg.png">
     </a-assets>
 
     <!-- Starry skybox to give the arena a cosmic atmosphere -->
@@ -242,9 +242,9 @@
         <a-text value="Start" align="center" width="0.7" color="#eaf2ff"></a-text>
       </a-plane>
     </a-plane>
-    <!-- Large cylindrical screen showing the 2D game canvas
-         The canvas wraps 180° around the player so pointing the controller
-         feels like using a giant curved monitor. -->
+    <!-- Large curved screen showing the 2D game canvas
+         The canvas arcs 180° around the player so pointing the controller
+         feels like using a massive immersive monitor. -->
     <a-cylinder id="gameScreen" radius="4" height="2" theta-length="180" theta-start="-90"
                 position="0 1.6 0" rotation="0 0 0"
                 material="color: #21213c; emissive: #00ffff; emissiveIntensity: 0.1; side:double"
