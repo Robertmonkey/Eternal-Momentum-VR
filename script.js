@@ -218,6 +218,9 @@ window.addEventListener('load', () => {
     const bossInfoModal = document.getElementById("bossInfoModal");
     const closeBossInfoModalBtn = document.getElementById("closeBossInfoModalBtn");    const homeScreen = document.getElementById('home-screen');
     const startVrBtn = document.getElementById('start-vr-btn');
+    const commandDeck = document.getElementById('commandDeck');
+    const commandDeckEnv = document.getElementById('commandDeckEnv');
+    const camera = document.getElementById('camera');
     const coreCooldownRing = document.getElementById('coreCooldownRing');
     const maxStage = STAGE_CONFIG.length;
     const audioEls = Array.from(document.querySelectorAll(".game-audio"));
@@ -260,9 +263,18 @@ window.addEventListener('load', () => {
     }
     arrangeUiPanels();
 
+    function alignCommandDeck() {
+      if (!camera) return;
+      const headY = camera.object3D.position.y || 1.6;
+      if (commandDeck) commandDeck.object3D.position.y = headY - 0.5;
+      if (commandDeckEnv) commandDeckEnv.object3D.position.y = headY - 1.6;
+    }
+    alignCommandDeck();
+
     if (sceneEl) {
-      sceneEl.addEventListener('enter-vr', arrangeUiPanels);
-      sceneEl.addEventListener('exit-vr', arrangeUiPanels);
+      const reposition = () => { alignCommandDeck(); arrangeUiPanels(); };
+      sceneEl.addEventListener('enter-vr', reposition);
+      sceneEl.addEventListener('exit-vr', reposition);
     }
 
     // Hide the aberration core model when no cores are unlocked
@@ -563,6 +575,7 @@ window.addEventListener('load', () => {
       startVrBtn.addEventListener('click', () => {
         AudioManager.unlockAudio();
         homeScreen.style.display = 'none';
+        restartCurrentStage();
       });
     }
 

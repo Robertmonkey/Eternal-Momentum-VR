@@ -30,6 +30,10 @@ This section lists the current known issues with the prototype. Your immediate p
     * **Issue:** Clicking the menu buttons (e.g., "Ascension," "Cores") does not open the corresponding menus.
     * **Required Fix:** Implement the functionality so that clicking a menu button opens the correct UI panel from the original `index.html` as a large, interactive holographic screen in front of the player.
 
+5.  **Broken VR Layout and Gameplay:**
+    * **Issue:** Upon entering VR, all UI elements and command deck pieces appear high above the player's head with scattered blue cylinders. The Aberration Core sphere is visible before any cores are unlocked, the player cannot move across the battlefield, and the stage never begins.
+    * **Required Fix:** Anchor the command deck and UI relative to the player's camera so they sit at waist level, hide the Aberration Core model until a core is unlocked, automatically start a valid stage when VR begins, and ensure the battle sphere registers pointer input for movement.
+
 ---
 
 ## Core Directives for AI-Generated Code
