@@ -27,8 +27,9 @@
     0% { transform: translateX(-150%) skewX(-30deg); }
     100% { transform: translateX(350%) skewX(-30deg); }
 }
-html, body { 
-  margin:0; padding:0; overflow:hidden; background:var(--dark-bg);
+html, body {
+  margin:0; padding:0; overflow:hidden;
+  background: var(--dark-bg) url('./assets/bg.png') center/cover fixed;
   font-family: 'Segoe UI', 'Roboto', sans-serif;
   -webkit-user-select: none; user-select: none;
   cursor: var(--cursor-default);

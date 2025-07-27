@@ -44,6 +44,26 @@ development.
   B: pause, X: core menu, Y: ascension grid). Press the left thumbstick for the
   lore codex and the right thumbstick for the orrery menu.
 
+## Visual Style
+
+The VR prototype inherits the neon aesthetic of the main game. Core colors are
+defined in `style.css` using custom properties:
+
+```css
+:root {
+  --primary-glow: #00ffff;
+  --secondary-glow: #f000ff;
+  --dark-bg: #1e1e2f;
+  --ui-bg: rgba(20, 20, 40, 0.85);
+}
+```
+
+Panels and text elements use these variables so that the cyan highlights and
+magenta accents match the 2D interface. The VR scene also includes a starry sky
+(`assets/bg.png`) to give the arena a cosmic backdrop. When creating new VR
+elements, reuse `--primary-glow` and `--secondary-glow` for emissive materials
+and text to keep the look cohesive.
+
 ## Running the Prototype
 
 1. Install a recent version of the [Meta Quest 3](https://www.meta.com/)
