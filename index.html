@@ -47,7 +47,7 @@
       </a-camera>
       <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: .interactive" super-hands></a-entity>
       <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: .interactive" super-hands></a-entity>
-    </a-entity>
+
     <!-- Floating command deck containing all UI panels and controls -->
     <a-entity id="commandDeck" position="0 1.2 0">
       <!-- Neon grid floor -->
@@ -237,6 +237,7 @@
              segments-radial="36" segments-tubular="12"
              material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.2; transparent:true; opacity:0.6"
              rotation="90 0 0"></a-torus>
+    </a-entity>
   </a-scene>
   <!-- VR modals and overlays ported from the original interface -->
   <div id="ascensionGridModal" style="display:none;" class="modal flex-center">
