@@ -46,6 +46,10 @@ This section lists the current known issues with the prototype. Your immediate p
    * **Issue:** A tester reports that despite recent commits, the UI panels remain stacked and gameplay still fails to start correctly in VR. They are skeptical that previous fixes had any effect.
    * **Action:** Re-examine the UI layout logic and stage initialization code. Ensure that panels are positioned around the command deck on load and that a valid stage launches automatically when entering VR.
 
+9.  **UI Panel Redesign Request (July 2025):**
+   * **Issue:** Testers want the command cluster and boss health bar from the original game recreated as floating panels. Menu buttons should be physical, emoji-labeled controls that open their respective holographic panels.
+   * **Action:** Style the VR panels and buttons to match the 2D UI aesthetic, showing power-up slots, the Aberration Core, and boss health bars with the same look and feel.
+
 ---
 
 ## Core Directives for AI-Generated Code
