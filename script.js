@@ -231,6 +231,7 @@ window.addEventListener('load', () => {
     const leftHand = document.getElementById("leftHand");
     const rightHand = document.getElementById("rightHand");
     const vignetteRing = document.getElementById("vignette");
+    const sceneEl = document.querySelector('a-scene');
 
     // Arrange UI panels around the command deck so they don't overlap
     function arrangeUiPanels() {
@@ -258,6 +259,19 @@ window.addEventListener('load', () => {
       });
     }
     arrangeUiPanels();
+
+    if (sceneEl) {
+      sceneEl.addEventListener('enter-vr', arrangeUiPanels);
+      sceneEl.addEventListener('exit-vr', arrangeUiPanels);
+    }
+
+    // Hide the aberration core model when no cores are unlocked
+    if (coreModel && state.player.unlockedAberrationCores.size === 0 &&
+        !state.player.equippedAberrationCore) {
+      coreModel.setAttribute('visible', 'false');
+      if (coreCooldownRing) coreCooldownRing.setAttribute('visible', 'false');
+      if (coreCooldownPanel) coreCooldownPanel.setAttribute('visible', 'false');
+    }
 
     function triggerHaptic(el, intensity = 0.5, duration = 50) {
       const controller = el?.components["laser-controls"]?.controller ||
