@@ -43,6 +43,7 @@ import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.
 import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex } from './modules/ui.js';
   import { STAGE_CONFIG } from './modules/config.js';
 import { AudioManager } from "./modules/audio.js";
+import { uvToSpherePos, spherePosToUv } from './modules/utils.js';
 // Register a component that applies a 2D canvas as a live texture
   // on an entity.  When attached to the cylinder in index.html it
   // continuously copies the canvas contents into the material map.
@@ -130,7 +131,7 @@ window.addEventListener('load', () => {
     let lastHealth = state.player.health;
 
     // Current 3D position of the player's avatar on the spherical arena
-    let avatarPos = uvToSpherePos(0.5, 0.5);
+    let avatarPos = uvToSpherePos(0.5, 0.5, SPHERE_RADIUS);
     const startUv = spherePosToUv(avatarPos);
     state.player.x = startUv.u * canvas.width;
     state.player.y = startUv.v * canvas.height;
@@ -406,7 +407,7 @@ window.addEventListener('load', () => {
         applyAllTalentEffects();
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
-        avatarPos = uvToSpherePos(0.5, 0.5);
+        avatarPos = uvToSpherePos(0.5, 0.5, SPHERE_RADIUS);
         const uv0 = spherePosToUv(avatarPos);
         state.player.x = uv0.u * canvas.width;
         state.player.y = uv0.v * canvas.height;
@@ -459,7 +460,7 @@ window.addEventListener('load', () => {
         applyAllTalentEffects();
         gameState.lastCoreUse = -Infinity;
         gameOverShown = false;
-        avatarPos = uvToSpherePos(0.5, 0.5);
+        avatarPos = uvToSpherePos(0.5, 0.5, SPHERE_RADIUS);
         const uv0 = spherePosToUv(avatarPos);
         state.player.x = uv0.u * canvas.width;
         state.player.y = uv0.v * canvas.height;
@@ -476,7 +477,7 @@ window.addEventListener('load', () => {
       gameOverShown = false;
       if (gameOverPanel) gameOverPanel.setAttribute('visible', 'false');
       statusText.setAttribute('value', '');
-      avatarPos = uvToSpherePos(0.5, 0.5);
+      avatarPos = uvToSpherePos(0.5, 0.5, SPHERE_RADIUS);
       const uv0 = spherePosToUv(avatarPos);
       state.player.x = uv0.u * canvas.width;
       state.player.y = uv0.v * canvas.height;
@@ -523,7 +524,7 @@ window.addEventListener('load', () => {
       state.currentStage = 999;
       gameState.lastCoreUse = -Infinity;
       gameOverShown = false;
-      avatarPos = uvToSpherePos(0.5, 0.5);
+      avatarPos = uvToSpherePos(0.5, 0.5, SPHERE_RADIUS);
       const uv0 = spherePosToUv(avatarPos);
       state.player.x = uv0.u * canvas.width;
       state.player.y = uv0.v * canvas.height;
@@ -739,29 +740,8 @@ window.addEventListener('load', () => {
     const PLATFORM_RADIUS = 3;
     const SPHERE_RADIUS = 8;
 
-    // Helper functions to convert between UV coordinates and positions on the
-    // spherical battlefield.  `uvToSpherePos` converts a (u,v) pair on the
-    // canvas to a 3D point on the inner surface of the battle sphere.
-    // `spherePosToUv` performs the inverse operation.
-
-    function uvToSpherePos(u, v, radius = SPHERE_RADIUS) {
-      const theta = u * 2 * Math.PI;
-      const phi = v * Math.PI;
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const y = radius * Math.cos(phi);
-      const z = radius * Math.sin(phi) * Math.sin(theta);
-      return new THREE.Vector3(x, y, z);
-    }
-
-    function spherePosToUv(vec, radius = SPHERE_RADIUS) {
-      const r = vec.length();
-      if (r === 0) return { u: 0, v: 0 };
-      const theta = Math.atan2(vec.z, vec.x); // -PI..PI
-      const phi = Math.acos(vec.y / r);       // 0..PI
-      const u = (theta + Math.PI) / (2 * Math.PI);
-      const v = phi / Math.PI;
-      return { u, v };
-    }
+    // Helper functions convert between UV coordinates and 3D positions on the
+    // spherical battlefield.  Implementations live in modules/utils.js.
     if (cursorMarker) {
       const updateFromMarker = pos => {
         let x = pos.x;
@@ -778,7 +758,7 @@ window.addEventListener('load', () => {
         const radial = Math.min(1, Math.hypot(x, z) / PLATFORM_RADIUS);
         state.player.x = (theta / (2 * Math.PI)) * width;
         state.player.y = radial * height;
-        avatarPos = uvToSpherePos(state.player.x / width, state.player.y / height);
+        avatarPos = uvToSpherePos(state.player.x / width, state.player.y / height, SPHERE_RADIUS);
       };
 
       cursorMarker.addEventListener('dragmove', e => {
@@ -878,7 +858,7 @@ window.addEventListener('load', () => {
             el.dataset.eid = id;
             enemyContainer.appendChild(el);
           }
-          const pos = uvToSpherePos(e.x / canvas.width, e.y / canvas.height);
+          const pos = uvToSpherePos(e.x / canvas.width, e.y / canvas.height, SPHERE_RADIUS);
           el.object3D.position.copy(pos);
           el.object3D.lookAt(0, 0, 0);
         });
@@ -907,7 +887,7 @@ window.addEventListener('load', () => {
           } else if (effect.color) {
             el.setAttribute('color', effect.color);
           }
-          const pos = uvToSpherePos(effect.x / canvas.width, effect.y / canvas.height);
+          const pos = uvToSpherePos(effect.x / canvas.width, effect.y / canvas.height, SPHERE_RADIUS);
           el.object3D.position.copy(pos);
         });
         projectileEls.forEach((el, eff) => {
