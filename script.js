@@ -14,7 +14,7 @@
 import { gameTick, spawnBossesForStage } from './modules/gameLoop.js';
 import { state, resetGame, savePlayerState } from './modules/state.js';
 import { activateCorePower } from './modules/cores.js';
-import { powers } from './modules/powers.js';
+import { powers, usePower } from './modules/powers.js';
 import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.js';
 import { populateAberrationCoreMenu, populateOrreryMenu, populateLoreCodex } from './modules/ui.js';
 import { STAGE_CONFIG } from './modules/config.js';
@@ -488,6 +488,51 @@ window.addEventListener('load', () => {
     });
   }
   attachConsoleButtonFeedback();
+
+  // --------------------------------------------------------------
+  // VR Controller Input for Powers and Core Abilities
+  // --------------------------------------------------------------
+  let leftTriggerDown = false;
+  let rightTriggerDown = false;
+  const TRIGGER_DELAY = 120;
+
+  function getCursorCoords() {
+    const uv = gameState.cursorUV || spherePosToUv(avatarPos);
+    return { mx: uv.u * canvas.width, my: uv.v * canvas.height };
+  }
+
+  function tryActivateCore() {
+    if (leftTriggerDown && rightTriggerDown) {
+      const { mx, my } = getCursorCoords();
+      try { activateCorePower(mx, my, window.gameHelpers); } catch (err) { console.error(err); }
+      pulseBoth(0.8, 60);
+      leftTriggerDown = false; rightTriggerDown = false;
+      return true;
+    }
+    return false;
+  }
+
+  function schedulePowerCheck(isLeft) {
+    const start = Date.now();
+    setTimeout(() => {
+      if (isLeft ? leftTriggerDown && !rightTriggerDown : rightTriggerDown && !leftTriggerDown) {
+        if (!tryActivateCore()) {
+          const { mx, my } = getCursorCoords();
+          const key = isLeft ? state.offensiveInventory[0] : state.defensiveInventory[0];
+          if (key) { usePower(key); pulseBoth(0.5, 40); }
+        }
+      }
+    }, TRIGGER_DELAY);
+  }
+
+  if (leftHand) {
+    leftHand.addEventListener('triggerdown', () => { leftTriggerDown = true; schedulePowerCheck(true); });
+    leftHand.addEventListener('triggerup',   () => { leftTriggerDown = false; });
+  }
+  if (rightHand) {
+    rightHand.addEventListener('triggerdown', () => { rightTriggerDown = true; schedulePowerCheck(false); });
+    rightHand.addEventListener('triggerup',   () => { rightTriggerDown = false; });
+  }
 
   // Align the command deck initially and whenever entering/exiting VR.
   const applyLayout = () => { alignCommandDeck(); arrangeUiPanels(); };
