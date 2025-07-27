@@ -68,11 +68,13 @@
          player so it is easily visible when glancing down at the table.  Two
          text elements display the current score and health; they are updated
          dynamically by script.js every frame. -->
-    <a-plane id="scorePanel" width="1.2" height="0.6"
+    <a-plane id="scorePanel" width="1.2" height="0.9"
              material="color: #141428; opacity: 0.9" position="2 1.2 -0.5" rotation="0 -30 0">
       <!-- Score and health text adopt the original game’s pale font colour. -->
-      <a-text id="scoreText" value="Essence: 0" position="0 0.15 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
-      <a-text id="healthText" value="Health: 100" position="0 -0.15 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+      <a-text id="scoreText" value="Essence: 0" position="0 0.28 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+      <a-text id="healthText" value="Health: 100" position="0 0.05 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+      <a-text id="levelText" value="Level: 1" position="0 -0.18 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
+      <a-text id="stageText" value="Stage: 1" position="0 -0.41 0.01" align="center" width="1.0" color="#eaf2ff"></a-text>
     </a-plane>
     <!-- Panels showing the currently equipped offensive and defensive powers.
          The emojis update each frame and the triggers on the VR controllers
@@ -104,6 +106,11 @@
              material="color: #141428; opacity: 0.9"
              position="-2 1.0 -1" rotation="0 30 0">
       <a-text id="cooldownText" value="Core cooldown: Ready" align="center" width="0.5" color="#eaf2ff"></a-text>
+    </a-plane>
+    <a-plane id="statusPanel" width="1.4" height="0.3"
+             material="color: #141428; opacity: 0.9"
+             position="0 2 -1.5" rotation="0 0 0">
+      <a-text id="statusText" value="" align="center" width="1.2" color="#eaf2ff"></a-text>
     </a-plane>
 
     <!-- Cylindrical surface that wraps the 2D game canvas around the player.  A
