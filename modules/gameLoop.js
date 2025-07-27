@@ -107,6 +107,7 @@ function levelUp() {
 
     state.player.ascensionPoints += 1;
     utils.spawnParticles(state.particles, state.player.x, state.player.y, '#00ffff', 80, 6, 50, 5);
+    showUnlockNotification(`Level ${state.player.level}`, 'Level Up!');
     if (state.player.level === 10 && state.player.unlockedAberrationCores.size === 0) {
         showUnlockNotification("SYSTEM ONLINE", "Aberration Core Socket Unlocked");
     }

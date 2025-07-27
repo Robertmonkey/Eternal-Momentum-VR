@@ -370,11 +370,39 @@ export function showUnlockNotification(text, subtext = '') {
     if (subtext) {
         content = `<span class="unlock-title">${subtext}</span>` + content;
     }
-    notificationBanner.innerHTML = content;
-    notificationBanner.classList.add('show');
-    setTimeout(() => {
-        notificationBanner.classList.remove('show');
-    }, 3500);
+    if (notificationBanner) {
+        notificationBanner.innerHTML = content;
+        notificationBanner.classList.add('show');
+        setTimeout(() => {
+            notificationBanner.classList.remove('show');
+        }, 3500);
+    }
+
+    // --- VR Banner ---
+    const scene = document.querySelector('a-scene');
+    if (scene) {
+        const oldBanner = scene.querySelector('#vrUnlockBanner');
+        if (oldBanner) oldBanner.remove();
+
+        const banner = document.createElement('a-entity');
+        banner.setAttribute('id', 'vrUnlockBanner');
+        banner.setAttribute('position', '0 2.2 -1.5');
+
+        const textEl = document.createElement('a-text');
+        const lines = subtext ? `${subtext}\n${text}` : text;
+        textEl.setAttribute('value', lines);
+        textEl.setAttribute('color', '#00ffff');
+        textEl.setAttribute('align', 'center');
+        textEl.setAttribute('width', '4');
+        textEl.setAttribute('opacity', '1');
+        textEl.setAttribute('shader', 'msdf');
+        textEl.setAttribute('animation__fade', 'property: opacity; to: 0; dur: 3500; easing: linear');
+
+        banner.appendChild(textEl);
+        scene.appendChild(banner);
+
+        setTimeout(() => banner.remove(), 3500);
+    }
 }
 
 export function populateLevelSelect(startSpecificLevel) {
