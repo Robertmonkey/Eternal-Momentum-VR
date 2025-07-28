@@ -488,8 +488,8 @@ export function showCustomConfirm(title, text, onConfirm) {
 
     const close = () => {
         customConfirm.style.display = 'none';
-        confirmYesBtn.removeEventListener('click', handleYes);
-        confirmNoBtn.removeEventListener('click', handleNo);
+        if (confirmYesBtn) confirmYesBtn.removeEventListener('click', handleYes);
+        if (confirmNoBtn) confirmNoBtn.removeEventListener('click', handleNo);
     }
 
     const handleYes = () => {
@@ -501,8 +501,8 @@ export function showCustomConfirm(title, text, onConfirm) {
         close();
     }
 
-    confirmYesBtn.addEventListener('click', handleYes);
-    confirmNoBtn.addEventListener('click', handleNo);
+    if (confirmYesBtn) confirmYesBtn.addEventListener('click', handleYes);
+    if (confirmNoBtn) confirmNoBtn.addEventListener('click', handleNo);
 
     customConfirm.style.display = 'flex';
 }
