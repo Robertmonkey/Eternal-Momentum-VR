@@ -129,10 +129,11 @@ window.addEventListener('load', () => {
 
     // Functional console buttons
     const buttons = {
-      ascension:{angle:-40, r:1.2, y:0.30, emoji:'🜂', modal:'#ascensionGridModal', canvas:'#ascensionGridCanvas'},
-      cores:    {angle:-10, r:1.25,y:0.25, emoji:'⭐', modal:'#aberrationCoreModal', canvas:'#aberrationCanvas'},
-      orrery:   {angle: 20, r:1.25,y:0.20, emoji:'🪐', modal:'#orreryModal',         canvas:'#orreryCanvas'},
-      resume:   {angle: 50, r:1.3, y:0.15, emoji:'▶',  action:()=>vrState.isGameRunning=true}
+      ascension:{angle:-40, r:1.2,  y:0.30, emoji:'🜂', modal:'#ascensionGridModal',  canvas:'#ascensionGridCanvas'},
+      cores:    {angle:-10, r:1.25, y:0.25, emoji:'⭐', modal:'#aberrationCoreModal', canvas:'#aberrationCanvas'},
+      orrery:   {angle: 20, r:1.25, y:0.20, emoji:'🪐', modal:'#orreryModal',         canvas:'#orreryCanvas'},
+      resume:   {angle: 50, r:1.30, y:0.15, emoji:'▶',  action:()=>vrState.isGameRunning=true},
+      sound:    {angle: 80, r:1.30, y:0.10, emoji:'🔊', action:()=>AudioManager.toggleMute()}
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
@@ -142,7 +143,8 @@ window.addEventListener('load', () => {
       const ang=THREE.MathUtils.degToRad(cfg.angle);
       btn.object3D.position.set(Math.sin(ang)*cfg.r,cfg.y,-Math.cos(ang)*cfg.r);
       btn.object3D.lookAt(new THREE.Vector3(0,cfg.y,0));
-      btn.innerHTML=`<a-text value="${cfg.emoji}" align="center" width="1" color="#eaf2ff" position="0 0.01 0.06"></a-text>`;
+      const idAttr = id==='sound' ? 'id="soundOptionsToggle"' : '';
+      btn.innerHTML=`<a-text ${idAttr} value="${cfg.emoji}" align="center" width="1" color="#eaf2ff" position="0 0.01 0.06"></a-text>`;
       btn.addEventListener('mouseenter',()=>AudioManager.playSfx('uiHoverSound'));
       btn.addEventListener('click',async ()=>{
         AudioManager.playSfx('uiClickSound');
@@ -202,9 +204,8 @@ window.addEventListener('load', () => {
   // ---------------------------------------------------------------------------
   function animate(){
     requestAnimationFrame(animate);
-    if(!vrState.isGameRunning||state.isPaused) return;
-
     anchorCommandDeck();
+    if(!vrState.isGameRunning||state.isPaused) return;
 
     // Map VR cursor to legacy (u,v) for gameLoop
     const cursorUv = vrState.cursorPoint.length()

@@ -61,3 +61,13 @@ Adherence to these constraints is crucial for a successful implementation.
     |-- main.js       ← entry point
     |-- modules/      ← state.js, gameLoop.js, powers.js, cores.js, ascension.js, ui.js, utils.js…
     |-- assets/       ← png / mp3 / mp4 used by both versions
+
+## TODO
+- Build proper 3D models and textures for all console buttons.
+- Implement remaining UI panels as holographic canvases.
+- Expand entity spawner to cover projectiles and decoys.
+
+## NEED
+- 3D art assets for enemies, pickups, and projectiles.
+- Additional sound effects and background music loops.
+- VR performance profiling on target hardware.
