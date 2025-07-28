@@ -70,8 +70,8 @@ Adherence to these constraints is crucial for a successful implementation.
 - Create interactive tutorial stage with holographic guides.
 - Implement online leaderboard for stage scores.
 - Build stage selection console for replaying cleared stages.
-- Add VR HUD panels for health, shield and boss bars.
 - Implement pathfinding system for enemies on the spherical battlefield.
+- Implement VR ability-slot HUD with emoji icons.
 
 ## NEED
  - Primitive shapes and emoji textures for enemies (pickups and projectiles complete).

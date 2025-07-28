@@ -35,6 +35,13 @@ const bossInfoPanelTitle = document.getElementById('bossInfoPanelTitle');
 const bossInfoPanelContent = document.getElementById('bossInfoPanelContent');
 const closeBossInfoBtn3D = document.getElementById('closeBossInfoBtn3D');
 
+// VR HUD elements
+const vrHealthFill = document.getElementById('vrHealthFill');
+const vrHealthText = document.getElementById('vrHealthText');
+const vrShieldFill = document.getElementById('vrShieldFill');
+const vrBossFill = document.getElementById('vrBossFill');
+const vrBossName = document.getElementById('vrBossName');
+
 const aberrationCoreSocket = document.getElementById('aberration-core-socket');
 const aberrationCoreIcon = document.getElementById('aberration-core-icon');
 const aberrationCoreListContainer = document.getElementById('aberration-core-list-container');
@@ -199,15 +206,19 @@ export function updateUI() {
     healthBarValue.classList.toggle('health-high', healthPct > 0.6);
     healthBarValue.classList.toggle('health-medium', healthPct <= 0.6 && healthPct > 0.3);
     healthBarValue.classList.toggle('health-low', healthPct <= 0.3);
-    
+    if(vrHealthFill){ vrHealthFill.object3D.scale.x = healthPct; }
+    if(vrHealthText){ vrHealthText.setAttribute('value', `${Math.max(0, Math.round(state.player.health))}/${Math.round(state.player.maxHealth)}`); }
+
     const shieldEffect = state.player.statusEffects.find(e => e.name === 'Shield' || e.name === 'Contingency Protocol');
     if (shieldEffect) {
         const now = Date.now();
         const remaining = shieldEffect.endTime - now;
         const duration = shieldEffect.endTime - shieldEffect.startTime;
         shieldBar.style.width = `${Math.max(0, remaining) / duration * 100}%`;
+        if(vrShieldFill){ vrShieldFill.object3D.scale.x = Math.max(0, remaining) / duration; vrShieldFill.setAttribute('visible', true); }
     } else {
         shieldBar.style.width = '0%';
+        if(vrShieldFill){ vrShieldFill.object3D.scale.x = 0; vrShieldFill.setAttribute('visible', false); }
     }
     
     const offP = state.offensiveInventory[0];
@@ -293,6 +304,18 @@ export function updateUI() {
         bar.style.backgroundColor = boss.color;
         bar.style.width = `${Math.max(0, currentHp / boss.maxHP) * 100}%`;
     });
+
+    const mainBoss = bossesToDisplay[0];
+    if(mainBoss && vrBossFill){
+        const cur = mainBoss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : mainBoss.hp;
+        const pct = Math.max(0, cur / mainBoss.maxHP);
+        vrBossFill.object3D.scale.x = pct;
+        vrBossFill.setAttribute('material', `color:${mainBoss.color}; emissive:${mainBoss.color}; emissiveIntensity:0.6`);
+        if(vrBossName) { vrBossName.setAttribute('value', mainBoss.name); }
+    } else {
+        if(vrBossFill) vrBossFill.object3D.scale.x = 0;
+        if(vrBossName) vrBossName.setAttribute('value', '');
+    }
     
     updateStatusEffectsUI();
     updatePantheonUI();
