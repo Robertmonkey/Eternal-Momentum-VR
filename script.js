@@ -487,6 +487,13 @@ window.addEventListener('load', () => {
     const activeIds=new Set();
 
     const projectileTypes=new Set(['nova_bullet','ricochet_projectile','seeking_shrapnel','helix_bolt','player_fragment']);
+    const projectileEmojis={
+      nova_bullet:'🔹',
+      ricochet_projectile:'🔸',
+      seeking_shrapnel:'🚀',
+      helix_bolt:'💫',
+      player_fragment:'✦'
+    };
 
     function spawn(obj, container){
       const id = obj.instanceId || `${obj.type||'obj'}-${obj.startTime||0}-${obj.x}`;
@@ -506,9 +513,23 @@ window.addEventListener('load', () => {
         }else if(obj.emoji||obj.type==='rune_of_fate'){
           el.setAttribute('geometry','primitive: dodecahedron; radius:0.2');
           el.setAttribute('material',`color:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissive:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissiveIntensity:0.6`);
+          const label=document.createElement('a-text');
+          label.setAttribute('value',obj.type==='rune_of_fate'?'⭐':(obj.emoji||'❓'));
+          label.setAttribute('align','center');
+          label.setAttribute('width','0.5');
+          label.setAttribute('color','#ffffff');
+          label.object3D.position.set(0,0,0.25);
+          el.appendChild(label);
         }else if(projectileTypes.has(obj.type)){
           el.setAttribute('geometry','primitive: sphere; radius:0.05');
           el.setAttribute('material',`color:${obj.customColor||'#ffffff'}; emissive:${obj.customColor||'#ffffff'}; emissiveIntensity:0.8`);
+          const label=document.createElement('a-text');
+          label.setAttribute('value',projectileEmojis[obj.type]||'•');
+          label.setAttribute('align','center');
+          label.setAttribute('width','0.3');
+          label.setAttribute('color','#ffffff');
+          label.object3D.position.set(0,0,0.1);
+          el.appendChild(label);
         }else{
           el.setAttribute('geometry','primitive: sphere; radius:0.2');
           el.setAttribute('material',`color:${obj.customColor||'#c0392b'}; emissive:${obj.customColor||'#c0392b'}; emissiveIntensity:0.4`);

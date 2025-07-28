@@ -70,11 +70,11 @@ Adherence to these constraints is crucial for a successful implementation.
 - Create interactive tutorial stage with holographic guides.
 - Implement online leaderboard for stage scores.
 - Build stage selection console for replaying cleared stages.
- - Use simple 3D shapes and emoji textures for pickups and projectiles; no custom models are required.
+- Add VR HUD panels for health, shield and boss bars.
 - Implement pathfinding system for enemies on the spherical battlefield.
 
 ## NEED
- - Primitive shapes and emoji textures for enemies, pickups, and projectiles (no custom 3D modeling).
+ - Primitive shapes and emoji textures for enemies (pickups and projectiles complete).
 - Additional sound effects and background music loops.
 - VR performance profiling on target hardware.
 - QA testers for cross-device VR compatibility.
