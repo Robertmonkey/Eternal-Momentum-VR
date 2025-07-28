@@ -1,4 +1,6 @@
-import * as THREE from 'three';
+// Access the global THREE instance supplied by A-Frame at runtime. Tests expose
+// the same namespace via the "three" npm package so we avoid importing it here
+// to keep the browser build working without a bundler.
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
 import { VR_PROJECTILE_SPEED_SCALE } from './config.js';
