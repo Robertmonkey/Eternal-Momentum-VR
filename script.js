@@ -87,6 +87,15 @@ window.addEventListener('load', () => {
     rightTriggerDown: false
   };
 
+  function pulseControllers(duration = 50, strength = 0.5){
+    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    for(const gp of pads){
+      if(gp && gp.hapticActuators && gp.hapticActuators[0]){
+        try{ gp.hapticActuators[0].pulse(strength, duration); }catch(e){}
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Helper: anchor the command deck to the camera at waist height and ensure
   // it rotates only with the player's yaw. Called on scene load and on every
@@ -241,11 +250,13 @@ window.addEventListener('load', () => {
 
       btn.addEventListener('mouseenter',()=>{
         AudioManager.playSfx('uiHoverSound');
+        pulseControllers(20, 0.3);
         label.setAttribute('visible',true);
       });
       btn.addEventListener('mouseleave',()=>label.setAttribute('visible',false));
       btn.addEventListener('click',async ()=>{
         AudioManager.playSfx('uiClickSound');
+        pulseControllers(40, 0.6);
         if(cfg.action) await cfg.action();
       });
       commandDeck.appendChild(wrapper);
