@@ -137,6 +137,7 @@ window.addEventListener('load', () => {
 
   let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
   const entityMap = new Map();  // maps game objects → A‑Frame entities
+  const previousPositions = new Map(); // tracks last position for orientation
   const panelCache = new Map(); // caches html2canvas results
 
   // --- VR‑only runtime state ---------------------------------------------------
@@ -648,6 +649,7 @@ window.addEventListener('load', () => {
   function restartCurrentStage(){
     for(const e of entityMap.values()) e.remove();
     entityMap.clear();
+    previousPositions.clear();
     hideGameOverPanel();
     resetGame(state.arenaMode);
     applyAllTalentEffects();
@@ -809,7 +811,19 @@ window.addEventListener('load', () => {
         }
       }
       el.object3D.position.copy(pos);
-      el.object3D.lookAt(0,0,0);
+      if(projectileTypes.has(obj.type)){
+        const prev = previousPositions.get(id);
+        if(prev){
+          const dir = pos.clone().sub(prev).normalize();
+          el.object3D.lookAt(pos.clone().add(dir));
+        } else {
+          el.object3D.lookAt(0,0,0);
+        }
+        previousPositions.set(id,pos.clone());
+      } else {
+        el.object3D.lookAt(0,0,0);
+        previousPositions.set(id,pos.clone());
+      }
       if(container===enemyContainer){
         const rad = (obj.r || 20) / canvas.width * SPHERE_RADIUS;
         el.setAttribute('enemy-hitbox', `radius:${rad}`);
@@ -824,7 +838,7 @@ window.addEventListener('load', () => {
 
     // Remove entities that disappeared from game state
     for(const [id,el] of entityMap.entries()){
-      if(!activeIds.has(id)){ el.remove(); entityMap.delete(id); }
+      if(!activeIds.has(id)){ el.remove(); entityMap.delete(id); previousPositions.delete(id); }
     }
 
     if(state.gameOver){
