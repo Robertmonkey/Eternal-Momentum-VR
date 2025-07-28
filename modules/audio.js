@@ -9,7 +9,14 @@ export const AudioManager = {
     musicPlaylist: [],
     currentTrackIndex: -1,
     currentMusic: null,
-    isFading: false,
+  isFading: false,
+  stageMusicMap: [
+    {min:1,  max:5,  track:'bgMusic_01'},
+    {min:6,  max:10, track:'bgMusic_02'},
+    {min:11, max:15, track:'bgMusic_03'},
+    {min:16, max:20, track:'bgMusic_04'},
+    {min:21, max:Infinity, track:'bgMusic_05'}
+  ],
     
     setup(audioElements, soundBtn) {
         audioElements.forEach(el => {
@@ -86,7 +93,7 @@ export const AudioManager = {
         }
     },
 
-    playLoopingSfx(soundId) {
+  playLoopingSfx(soundId) {
         if (!this.unlocked || this.userMuted) return;
         const sfx = this.soundElements[soundId];
         if (sfx && sfx.paused) {
@@ -100,6 +107,24 @@ export const AudioManager = {
         if (sfx && !sfx.paused) {
             sfx.pause();
         }
+    },
+
+    getTrackForStage(stage){
+        for(const m of this.stageMusicMap){
+            if(stage >= m.min && stage <= m.max) return m.track;
+        }
+        return 'bgMusic_01';
+    },
+
+    playMusicForStage(stage){
+        if(!this.unlocked) this.unlockAudio();
+        const id = this.getTrackForStage(stage);
+        const track = this.soundElements[id];
+        if(!track) return;
+        this.musicPlaylist = [track];
+        this.currentTrackIndex = -1;
+        this.currentMusic = null;
+        this.playMusic();
     },
     
     handleVisibilityChange() {
