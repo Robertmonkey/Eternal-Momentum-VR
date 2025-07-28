@@ -69,7 +69,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Improve 3D projectile physics for enemy attacks.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
-- Optimize html2canvas rendering to prevent VR menu freeze during panel open.
+- Port stage select panel to a holographic A-Frame screen.
 
 ## NEED
 - High-contrast emoji textures for improved readability.

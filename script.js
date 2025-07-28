@@ -112,6 +112,8 @@ window.addEventListener('load', () => {
     assetsEl.addEventListener('loaded',async ()=>{
       await preRenderPanels();
       loadingScreen.style.display = 'none';
+      // Begin gameplay only after assets and UI panels are ready
+      restartCurrentStage();
     });
   } else if(loadingScreen){
     loadingScreen.style.display = 'none';
@@ -975,7 +977,7 @@ window.addEventListener('load', () => {
     anchorCommandDeck();
     createCommandCluster();
     setupStageSelectPanel();
-    restartCurrentStage();
+    // Stage now starts once assets are fully loaded
     AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
   });
   safeAddEventListener(sceneEl,'enter-vr',()=>{
