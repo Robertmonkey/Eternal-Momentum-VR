@@ -186,11 +186,11 @@ window.addEventListener('load', () => {
 
     // Functional console buttons
     const buttons = {
-      ascension:{angle:-40, r:1.2,  y:0.30, emoji:"🜂", action:openAscensionPanel},
-      cores:    {angle:-10, r:1.25, y:0.25, emoji:"⭐", action:openCorePanel},
-      orrery:   {angle: 20, r:1.25, y:0.20, emoji:"🪐", action:openOrreryPanel},
-      resume:   {angle: 50, r:1.30, y:0.15, emoji:"▶",  action:()=>vrState.isGameRunning=true},
-      sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", action:()=>AudioManager.toggleMute()}
+      ascension:{angle:-40, r:1.2,  y:0.30, emoji:"🜂", label:"Ascension", action:openAscensionPanel},
+      cores:    {angle:-10, r:1.25, y:0.25, emoji:"⭐", label:"Cores",     action:openCorePanel},
+      orrery:   {angle: 20, r:1.25, y:0.20, emoji:"🪐", label:"Orrery",    action:openOrreryPanel},
+      resume:   {angle: 50, r:1.30, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
+      sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()}
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
@@ -202,7 +202,22 @@ window.addEventListener('load', () => {
       btn.object3D.lookAt(new THREE.Vector3(0,cfg.y,0));
       const idAttr = id==='sound' ? 'id="soundOptionsToggle"' : '';
       btn.innerHTML=`<a-text ${idAttr} value="${cfg.emoji}" align="center" width="1" color="#eaf2ff" position="0 0.01 0.06"></a-text>`;
-      btn.addEventListener('mouseenter',()=>AudioManager.playSfx('uiHoverSound'));
+
+      const label=document.createElement('a-text');
+      label.setAttribute('value',cfg.label);
+      label.setAttribute('align','center');
+      label.setAttribute('width','1.5');
+      label.setAttribute('color','#eaf2ff');
+      label.setAttribute('position','0 0.17 0.06');
+      label.setAttribute('visible','false');
+      label.setAttribute('look-at','#camera');
+      btn.appendChild(label);
+
+      btn.addEventListener('mouseenter',()=>{
+        AudioManager.playSfx('uiHoverSound');
+        label.setAttribute('visible',true);
+      });
+      btn.addEventListener('mouseleave',()=>label.setAttribute('visible',false));
       btn.addEventListener('click',async ()=>{
         AudioManager.playSfx('uiClickSound');
         if(cfg.action) await cfg.action();
