@@ -153,5 +153,6 @@ Eternal Momentum VR can optionally record anonymous performance data such as ave
 ### User Feedback from Testing
 Recent playtesting revealed several issues that need to be addressed:
 
-* loading screen hangs on 0% and looks nothing like the orginal games. ✅ Loading screen now reaches 100% and transitions to the home screen correctly.
-* Console error - script.js:1235 Uncaught SyntaxError: missing ) after argument list ✅
+* loading screen hangs on 0% and VR option comes up but we are not at the home screen, we never see the home screen.
+* Console error - Eternal-Momentum-VR/:1 Uncaught TypeError: Failed to resolve module specifier "three". Relative references must start with either "/", "./", or "../".
+* when we enter VR we only see some kind of green ball under us, everything else is black and does not show up.
