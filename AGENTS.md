@@ -87,9 +87,9 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Debug loading screen hang and ensure home screen appears after assets load.
 - Tune navmesh detail levels for performance vs accuracy.
 - Profile Quest 3 performance and optimize materials.
+- Implement dynamic quality settings for low-end hardware.
 
 ## NEED
 - Additional sound effects and background music loops.

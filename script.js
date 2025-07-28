@@ -113,14 +113,24 @@ window.addEventListener('load', () => {
   const rightHand = document.getElementById('rightHand');
 
   const assetsEl = document.querySelector('a-assets');
-  if(assetsEl && loadingScreen){
+  if(sceneEl && assetsEl && loadingScreen){
     let assetsLoaded = false;
-    assetsEl.addEventListener('progress',e=>{
+
+    const showHomeScreen = () => {
+      loadingScreen.style.display = 'none';
+      if(homeScreen){
+        homeScreen.style.display = 'flex';
+        requestAnimationFrame(()=>homeScreen.classList.add('visible'));
+      }
+    };
+
+    assetsEl.addEventListener('progress', e => {
       const pct = Math.round((e.detail.loaded / e.detail.total) * 100);
       if(loadingProgressFill) loadingProgressFill.style.width = pct + '%';
       if(loadingStatusText) loadingStatusText.innerText = `Loading ${pct}%`;
     });
-    assetsEl.addEventListener('loaded',async ()=>{
+
+    const onAssetsLoaded = async () => {
       assetsLoaded = true;
       await preRenderPanels();
       const saveExists = !!localStorage.getItem('eternalMomentumSave');
@@ -128,26 +138,16 @@ window.addEventListener('load', () => {
       if(eraseVrBtn)    eraseVrBtn.style.display    = saveExists ? 'block' : 'none';
       if(loadingProgressFill) loadingProgressFill.style.width = '100%';
       if(loadingStatusText) loadingStatusText.innerText = 'Loading Complete';
-      loadingScreen.style.display = 'none';
-      if(homeScreen){
-        homeScreen.style.display = 'flex';
-        requestAnimationFrame(()=>homeScreen.classList.add('visible'));
-      } else {
-        sceneEl.enterVR();
-      }
-    });
+      showHomeScreen();
+    };
+
+    if(sceneEl.hasLoaded) onAssetsLoaded();
+    else safeAddEventListener(sceneEl,'loaded', onAssetsLoaded);
+
     // Fallback: show home screen even if assets fail to fire "loaded"
-    setTimeout(()=>{
-      if(!assetsLoaded && loadingScreen.style.display !== 'none'){
-        loadingScreen.style.display = 'none';
-        if(homeScreen){
-          homeScreen.style.display = 'flex';
-          requestAnimationFrame(()=>homeScreen.classList.add('visible'));
-        } else {
-          sceneEl.enterVR();
-        }
-      }
-    }, 7000);
+    setTimeout(() => {
+      if(!assetsLoaded) showHomeScreen();
+    }, 10000);
   } else if(loadingScreen){
     loadingScreen.style.display = 'none';
   }
