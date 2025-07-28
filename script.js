@@ -514,15 +514,15 @@ window.addEventListener('load', () => {
 
     // Functional console buttons
     const buttons = {
-      stages:   {angle:-70, r:1.25, y:0.25, emoji:"🎯", label:"Stages",   action:openLevelSelectPanel},
-      ascension:{angle:-40, r:1.2,  y:0.30, emoji:"🜂", label:"Ascension", action:openAscensionPanel},
-      cores:    {angle:-10, r:1.25, y:0.25, emoji:"⭐", label:"Cores",     action:openCorePanel},
-      orrery:   {angle: 20, r:1.25, y:0.20, emoji:"🪐", label:"Orrery",    action:openOrreryPanel},
-      resume:   {angle: 50, r:1.30, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
-      sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()},
-      settings: {angle:100, r:1.30, y:0.10, emoji:"⚙️", label:"Settings", action:openSettingsPanel},
-      recenter: {angle:120, r:1.30, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck},
-      telemetry:{angle:140, r:1.30, y:0.10, emoji:"📊", label:"Telemetry", action:openTelemetryPanel}
+      stages:   {angle:-70, r:1.05, y:0.25, emoji:"🎯", label:"Stages",   action:openLevelSelectPanel},
+      ascension:{angle:-40, r:1.00, y:0.30, emoji:"🜂", label:"Ascension", action:openAscensionPanel},
+      cores:    {angle:-10, r:1.05, y:0.25, emoji:"⭐", label:"Cores",     action:openCorePanel},
+      orrery:   {angle: 20, r:1.05, y:0.20, emoji:"🪐", label:"Orrery",    action:openOrreryPanel},
+      resume:   {angle: 50, r:1.05, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
+      sound:    {angle: 80, r:1.05, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()},
+      settings: {angle:100, r:1.05, y:0.10, emoji:"⚙️", label:"Settings", action:openSettingsPanel},
+      recenter: {angle:120, r:1.05, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck},
+      telemetry:{angle:140, r:1.05, y:0.10, emoji:"📊", label:"Telemetry", action:openTelemetryPanel}
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
@@ -533,10 +533,16 @@ window.addEventListener('load', () => {
       wrapper.object3D.position.set(Math.sin(ang)*cfg.r,cfg.y,-Math.cos(ang)*cfg.r);
       wrapper.object3D.lookAt(new THREE.Vector3(0,cfg.y,0));
 
+      const ring=document.createElement('a-torus');
+      ring.setAttribute('geometry','primitive: torus; radius:0.17; radiusTubular:0.01; segmentsTubular:12');
+      ring.setAttribute('material','color:#00ffff; emissive:#00ffff; emissiveIntensity:0.5; opacity:0.5; transparent:true');
+      ring.object3D.position.set(0,-0.035,0);
+      wrapper.appendChild(ring);
+
       const base=document.createElement('a-cylinder');
       base.setAttribute('radius',0.15);
       base.setAttribute('height',0.02);
-      base.setAttribute('material','color:#050510; emissive:#00ffff; emissiveIntensity:0.3; metalness:0.2; roughness:0.6');
+      base.setAttribute('material','color:#050510; emissive:#00ffff; emissiveIntensity:0.35; metalness:0.2; roughness:0.6');
       base.object3D.position.set(0,-0.03,0);
       wrapper.appendChild(base);
 
@@ -812,11 +818,8 @@ window.addEventListener('load', () => {
 
   async function showHolographicPanel(modalSel, canvasSel){
     if(vrState.holographicPanelVisible) return;
-    let target = panelCache.get(modalSel);
-    if(!target){
-      target = await renderPanel(modalSel, canvasSel);
-      if(!target) return;
-    }
+    const target = await renderPanel(modalSel, canvasSel);
+    if(!target) return;
     await new Promise(r=>setTimeout(r,0));
     holographicPanel.setAttribute('canvas-texture',`#${target.id}`);
     holographicPanel.setAttribute('visible',true);

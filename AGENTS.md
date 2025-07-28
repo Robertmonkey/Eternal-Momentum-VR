@@ -88,7 +88,7 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- Style physical buttons with glowing 3D shapes and emoji labels.
+- Refine tutorial prompts and VR onboarding flow.
 
 ## NEED
 - Additional sound effects and background music loops.
