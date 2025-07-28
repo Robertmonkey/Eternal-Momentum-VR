@@ -63,14 +63,14 @@ Adherence to these constraints is crucial for a successful implementation.
     |-- assets/       ← png / mp3 / mp4 used by both versions
 
 ## TODO
-- Prevent command deck buttons from following the player's headset; they must stay fixed relative to the world, as noted in README. 
-- Implement haptic cues for damage taken and power activation. 
+- Implement haptic cues for damage taken and power activation.
 - Add comfort settings menu for turning speed and vignette intensity.
-- Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added. 
+- Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added.
 - Begin port of enemy and boss AI logic to fully 3D components.
-- Expand entity spawner to cover projectile effects. 
-- Add null checks before attaching UI event listeners. 
-- Correct asset paths in legacy style sheet to prevent 404 errors. 
+- Expand entity spawner to cover projectile effects.
+- Add null checks before attaching UI event listeners.
+- Correct asset paths in legacy style sheet to prevent 404 errors.
+- Add a recenter option so players can reposition the command deck if they drift too far from the origin.
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.
