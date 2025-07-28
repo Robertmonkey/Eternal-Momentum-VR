@@ -88,7 +88,7 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- Polish the home screen's VR entry transition and add continue/erase options.
+- Create a VR-friendly stage select menu accessible from the command deck.
 
 ## NEED
 - Additional sound effects and background music loops.

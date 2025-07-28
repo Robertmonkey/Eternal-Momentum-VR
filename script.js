@@ -97,6 +97,9 @@ window.addEventListener('load', () => {
   const loadingProgress  = document.getElementById('loadingProgress');
   const homeScreen      = document.getElementById('homeScreen');
   const startVrBtn      = document.getElementById('startVrBtn');
+  const continueVrBtn   = document.getElementById('continueVrBtn');
+  const eraseVrBtn      = document.getElementById('eraseVrBtn');
+  const fadeOverlay     = document.getElementById('fadeOverlay');
   let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
@@ -118,6 +121,9 @@ window.addEventListener('load', () => {
     });
     assetsEl.addEventListener('loaded',async ()=>{
       await preRenderPanels();
+      const saveExists = !!localStorage.getItem('eternalMomentumSave');
+      if(continueVrBtn) continueVrBtn.style.display = saveExists ? 'block' : 'none';
+      if(eraseVrBtn)    eraseVrBtn.style.display    = saveExists ? 'block' : 'none';
       loadingScreen.style.display = 'none';
       if(homeScreen){
         homeScreen.style.display = 'flex';
@@ -130,15 +136,38 @@ window.addEventListener('load', () => {
     loadingScreen.style.display = 'none';
   }
 
+  async function startVr(resetSave=false){
+    if(resetSave){
+      localStorage.removeItem('eternalMomentumSave');
+      loadPlayerState();
+    }
+    if(homeScreen){
+      homeScreen.classList.remove('visible');
+      homeScreen.addEventListener('transitionend',()=>{ homeScreen.style.display='none'; },{once:true});
+    }
+    if(fadeOverlay){
+      fadeOverlay.classList.add('visible');
+      await new Promise(r=>setTimeout(r,500));
+    }
+    sceneEl.enterVR();
+    if(fadeOverlay){
+      setTimeout(()=>fadeOverlay.classList.remove('visible'),500);
+    }
+  }
+
   if(startVrBtn){
-    safeAddEventListener(startVrBtn,'click',()=>{
-      if(homeScreen){
-        homeScreen.classList.remove('visible');
-        homeScreen.addEventListener('transitionend',()=>{
-          homeScreen.style.display='none';
-        },{once:true});
-      }
-      sceneEl.enterVR();
+    safeAddEventListener(startVrBtn,'click',()=>startVr(true));
+  }
+  if(continueVrBtn){
+    safeAddEventListener(continueVrBtn,'click',()=>startVr(false));
+  }
+  if(eraseVrBtn){
+    safeAddEventListener(eraseVrBtn,'click',()=>{
+      showCustomConfirm(
+        '|| SEVER TIMELINE? ||',
+        'All progress will be lost. This cannot be undone.',
+        () => { localStorage.removeItem('eternalMomentumSave'); window.location.reload(); }
+      );
     });
   }
 
