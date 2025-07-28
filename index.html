@@ -32,6 +32,18 @@
     <div id="loadingProgress">Loading 0%</div>
   </div>
 
+  <div id="homeScreen" style="display:none;">
+    <video autoplay muted loop playsinline id="homeVideoBg">
+      <source src="assets/home.mp4" type="video/mp4">
+    </video>
+    <div id="homeOverlay">
+      <h1 id="gameTitle">ETERNAL MOMENTUM VR</h1>
+      <div id="homeActions">
+        <button id="startVrBtn" class="home-btn">BEGIN</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ⇣⇣ VR SCENE ⇣⇣ -->
   <a-scene embedded background="color: #000">
     <!-- Ambient fill so player never starts in pitch black -->

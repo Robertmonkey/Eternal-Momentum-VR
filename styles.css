@@ -86,3 +86,44 @@ only appear on hover, are visible for the capture.
   font-size: 2em;
   z-index: 9999;
 }
+
+#homeScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--dark-bg);
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: 9998;
+}
+#homeScreen.visible {
+  opacity: 1;
+}
+#homeVideoBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+#homeOverlay {
+  text-align: center;
+  color: var(--font-color);
+}
+.home-btn {
+  font-size: 1.5rem;
+  padding: 10px 30px;
+  margin-top: 20px;
+  color: var(--font-color);
+  background: rgba(0,255,255,0.1);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.home-btn:hover {
+  background: rgba(0,255,255,0.2);
+}

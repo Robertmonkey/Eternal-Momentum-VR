@@ -88,7 +88,7 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- recreate orignal load and home screens.
+- Polish the home screen's VR entry transition and add continue/erase options.
 
 ## NEED
 - Additional sound effects and background music loops.

@@ -95,6 +95,8 @@ window.addEventListener('load', () => {
   const crosshair        = document.getElementById('crosshair');
   const loadingScreen    = document.getElementById('loadingScreen');
   const loadingProgress  = document.getElementById('loadingProgress');
+  const homeScreen      = document.getElementById('homeScreen');
+  const startVrBtn      = document.getElementById('startVrBtn');
   let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
@@ -117,11 +119,27 @@ window.addEventListener('load', () => {
     assetsEl.addEventListener('loaded',async ()=>{
       await preRenderPanels();
       loadingScreen.style.display = 'none';
-      // Begin gameplay only after assets and UI panels are ready
-      initialiseStage();
+      if(homeScreen){
+        homeScreen.style.display = 'flex';
+        requestAnimationFrame(()=>homeScreen.classList.add('visible'));
+      } else {
+        sceneEl.enterVR();
+      }
     });
   } else if(loadingScreen){
     loadingScreen.style.display = 'none';
+  }
+
+  if(startVrBtn){
+    safeAddEventListener(startVrBtn,'click',()=>{
+      if(homeScreen){
+        homeScreen.classList.remove('visible');
+        homeScreen.addEventListener('transitionend',()=>{
+          homeScreen.style.display='none';
+        },{once:true});
+      }
+      sceneEl.enterVR();
+    });
   }
 
   const SPHERE_RADIUS = 8;
@@ -458,7 +476,7 @@ window.addEventListener('load', () => {
     // Deck floor – uses gridCanvas for emissive glow
     const deckFloor = document.createElement('a-circle');
     deckFloor.setAttribute('id','deckFloor');
-    deckFloor.setAttribute('radius',2);
+    deckFloor.setAttribute('radius',3);
     deckFloor.setAttribute('rotation','-90 0 0');
     deckFloor.setAttribute('material','transparent:true; opacity:0.6; side:double');
     deckFloor.setAttribute('canvas-texture','#gridCanvas');
