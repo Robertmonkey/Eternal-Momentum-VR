@@ -373,6 +373,71 @@ window.addEventListener('load', () => {
     recenterPrompt.setAttribute('visible','false');
     recenterPrompt.setAttribute('look-at','#camera');
     commandDeck.appendChild(recenterPrompt);
+
+    // --- VR HUD Panels -----------------------------------------------------
+    const hud=document.createElement('a-entity');
+    hud.setAttribute('id','vrHud');
+    hud.object3D.position.set(0,0.35,0.6);
+    hud.setAttribute('look-at','#camera');
+
+    // Health / shield bar
+    const healthGroup=document.createElement('a-entity');
+    healthGroup.object3D.position.set(0,0.15,0);
+    const hbBg=document.createElement('a-plane');
+    hbBg.setAttribute('width','0.6');
+    hbBg.setAttribute('height','0.08');
+    hbBg.setAttribute('material','color:#111; opacity:0.6');
+    healthGroup.appendChild(hbBg);
+    const hbFill=document.createElement('a-plane');
+    hbFill.setAttribute('id','vrHealthFill');
+    hbFill.setAttribute('width','0.6');
+    hbFill.setAttribute('height','0.06');
+    hbFill.setAttribute('material','color:#ff5555; emissive:#ff5555; emissiveIntensity:0.6');
+    hbFill.object3D.position.set(0,0,0.01);
+    healthGroup.appendChild(hbFill);
+    const shFill=document.createElement('a-plane');
+    shFill.setAttribute('id','vrShieldFill');
+    shFill.setAttribute('width','0.6');
+    shFill.setAttribute('height','0.06');
+    shFill.setAttribute('material','color:#00ffff; opacity:0.5; emissive:#00ffff; emissiveIntensity:0.5');
+    shFill.object3D.position.set(0,0,0.015);
+    healthGroup.appendChild(shFill);
+    const hbText=document.createElement('a-text');
+    hbText.setAttribute('id','vrHealthText');
+    hbText.setAttribute('value','100/100');
+    hbText.setAttribute('align','center');
+    hbText.setAttribute('width','0.6');
+    hbText.setAttribute('color','#eaf2ff');
+    hbText.object3D.position.set(0,0,0.02);
+    healthGroup.appendChild(hbText);
+    hud.appendChild(healthGroup);
+
+    // Boss HP bar
+    const bossGroup=document.createElement('a-entity');
+    bossGroup.object3D.position.set(0,-0.05,0);
+    const bbBg=document.createElement('a-plane');
+    bbBg.setAttribute('width','1.2');
+    bbBg.setAttribute('height','0.08');
+    bbBg.setAttribute('material','color:#111; opacity:0.6');
+    bossGroup.appendChild(bbBg);
+    const bbFill=document.createElement('a-plane');
+    bbFill.setAttribute('id','vrBossFill');
+    bbFill.setAttribute('width','1.2');
+    bbFill.setAttribute('height','0.06');
+    bbFill.setAttribute('material','color:#e74c3c; emissive:#e74c3c; emissiveIntensity:0.6');
+    bbFill.object3D.position.set(0,0,0.01);
+    bossGroup.appendChild(bbFill);
+    const bbText=document.createElement('a-text');
+    bbText.setAttribute('id','vrBossName');
+    bbText.setAttribute('value','');
+    bbText.setAttribute('align','center');
+    bbText.setAttribute('width','1.2');
+    bbText.setAttribute('color','#eaf2ff');
+    bbText.object3D.position.set(0,0,0.02);
+    bossGroup.appendChild(bbText);
+    hud.appendChild(bossGroup);
+
+    commandDeck.appendChild(hud);
   }
 
   function showTutorialPrompt(){
