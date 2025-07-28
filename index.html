@@ -126,6 +126,12 @@
       <a-entity id="pickupContainer"></a-entity>
       <a-entity id="effectContainer"></a-entity>
 
+      <!-- 3‑D crosshair at controller hit point -->
+      <a-entity id="crosshair" visible="false" look-at="#camera">
+        <a-ring radius-inner="0.04" radius-outer="0.06"
+                 material="color:#eaf2ff; emissive:#eaf2ff; emissiveIntensity:0.8; side:double"></a-ring>
+      </a-entity>
+
       <!-- Player avatar marker -->
       <a-entity id="nexusAvatar">
         <a-sphere radius="0.3"
