@@ -14,14 +14,14 @@
   --nexus-glow: #00ff00;
 
   /* --- Custom Cursor Definitions --- */
-  --cursor-default: url('../assets/cursors/default.cur'), auto;
-  --cursor-link: url('../assets/cursors/link.cur'), pointer;
-  --cursor-text: url('../assets/cursors/text.cur'), text;
-  --cursor-help: url('../assets/cursors/help.cur'), help;
-  --cursor-working: url('../assets/cursors/working.ani'), progress;
-  --cursor-busy: url('../assets/cursors/busy.ani'), wait;
-  --cursor-not-allowed: url('../assets/cursors/not-allowed.cur'), not-allowed;
-  --cursor-move: url('../assets/cursors/move.cur'), move;
+  --cursor-default: url('/assets/cursors/default.cur'), auto;
+  --cursor-link: url('/assets/cursors/link.cur'), pointer;
+  --cursor-text: url('/assets/cursors/text.cur'), text;
+  --cursor-help: url('/assets/cursors/help.cur'), help;
+  --cursor-working: url('/assets/cursors/working.ani'), progress;
+  --cursor-busy: url('/assets/cursors/busy.ani'), wait;
+  --cursor-not-allowed: url('/assets/cursors/not-allowed.cur'), not-allowed;
+  --cursor-move: url('/assets/cursors/move.cur'), move;
 }
 @keyframes sheen-animation {
     0% { transform: translateX(-150%) skewX(-30deg); }
@@ -42,7 +42,7 @@ canvas { display:block; width:100vw; height:100vh; }
     width: 100%;
     height: 100%;
     background-color: var(--dark-bg);
-    background-image: url('../assets/load.png');
+    background-image: url('/assets/load.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -987,7 +987,7 @@ button:hover { background: rgba(0, 255, 255, 0.4); }
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('../assets/bg.png');
+  background-image: url('/assets/bg.png');
   background-position: center;
   background-size: cover;
   opacity: 0.15; 
