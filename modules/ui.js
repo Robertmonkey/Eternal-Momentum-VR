@@ -578,6 +578,10 @@ export function populateOrreryMenu(onStart) {
     const costDisplay = document.getElementById('orrery-current-cost');
     const startBtn = document.getElementById('orrery-start-btn');
     const resetBtn = document.getElementById('orrery-reset-btn');
+
+    if (!pointsDisplay || !bossListContainer || !selectionContainer || !costDisplay || !startBtn || !resetBtn) {
+        return;
+    }
     
     let selectedBosses = [];
     let currentCost = 0;

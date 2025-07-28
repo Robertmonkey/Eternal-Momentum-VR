@@ -68,7 +68,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added.
 - Begin port of enemy and boss AI logic to fully 3D components.
 - Expand entity spawner to cover projectile effects.
-- Add null checks before attaching UI event listeners.
+- Create helper utility for safe event binding to reduce repetitive null checks.
 - Correct asset paths in legacy style sheet to prevent 404 errors.
 - Add a recenter option so players can reposition the command deck if they drift too far from the origin.
 
