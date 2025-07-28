@@ -88,9 +88,9 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- Implement command cluster layout for VR UI panels.
+- Style physical buttons with glowing 3D shapes and emoji labels.
 
 ## NEED
 - Additional sound effects and background music loops.
 - remove features not found in the orginal game to focus on readme direction.
-- avoid, remove and replace anything requiring adintional assets.
+- Polish audio levels for existing SFX.
