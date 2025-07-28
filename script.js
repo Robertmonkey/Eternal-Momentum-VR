@@ -305,6 +305,21 @@ window.addEventListener('load', () => {
     commandDeck.appendChild(recenterPrompt);
   }
 
+  function showTutorialPrompt(){
+    if(localStorage.getItem('tutorialShown')) return;
+    const tut=document.createElement('a-text');
+    tut.setAttribute('id','tutorialPrompt');
+    tut.setAttribute('value','Aim at the sphere and squeeze the trigger to move.');
+    tut.setAttribute('align','center');
+    tut.setAttribute('width','3');
+    tut.setAttribute('color','#00ffff');
+    tut.setAttribute('position','0 0.8 0');
+    tut.setAttribute('look-at','#camera');
+    commandDeck.appendChild(tut);
+    setTimeout(()=>{ tut.remove(); }, 8000);
+    localStorage.setItem('tutorialShown','1');
+  }
+
   // ---------------------------------------------------------------------------
   // Render a DOM modal to a canvas then apply it to the holographic plane.
   // ---------------------------------------------------------------------------
@@ -503,6 +518,7 @@ window.addEventListener('load', () => {
   safeAddEventListener(sceneEl,'enter-vr',()=>{
     anchorCommandDeck();
     restartCurrentStage();
+    showTutorialPrompt();
   });
 
   window.addEventListener('keydown', e => {
