@@ -60,3 +60,14 @@ only appear on hover, are visible for the capture.
     border-color: var(--secondary-glow);
     box-shadow: 0 0 30px var(--secondary-glow);
 }
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+  color: #00ffff;
+  font-size: 2em;
+  z-index: 9999;
+}

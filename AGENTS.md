@@ -65,11 +65,11 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Begin port of enemy and boss AI logic to fully 3D components.
-- Implement a VR-native loading screen that displays progress before entering the command deck.
 - Create interactive tutorial stage with holographic guides.
-- Add option for snap-turn vs smooth-turn in the Settings menu.
 - Optimize html2canvas captures to reduce menu-opening lag.
 - Implement online leaderboard for stage scores.
+- Build stage selection console for replaying cleared stages.
+- Integrate 3D models for pickups and projectiles.
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.
