@@ -96,6 +96,23 @@
       </a-entity>
     </a-plane>
 
+    <!-- 3‑D Boss info panel -->
+    <a-plane id="bossInfoPanel" class="interactive"
+             width="3" height="2"
+             position="0 2.0 -2.4"
+             visible="false">
+      <a-entity mixin="console-button"
+                id="closeBossInfoBtn3D"
+                position="0 -0.95 0.02"
+                class="interactive">
+        <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-text id="bossInfoPanelTitle" align="center" width="2.8" color="#eaf2ff"
+              position="0 0.7 0.02"></a-text>
+      <a-text id="bossInfoPanelContent" align="left" width="2.8" wrap-count="50"
+              color="#eaf2ff" position="0 0 0.02"></a-text>
+    </a-plane>
+
     <!-- Gameplay battleground -->
     <a-sphere id="battleSphere" radius="8"
               segments-height="60" segments-width="60"
