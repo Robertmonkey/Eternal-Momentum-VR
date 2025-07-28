@@ -1,14 +1,29 @@
 /* Basic stylesheet for Eternal Momentum VR prototype. */
 
+:root {
+  --primary-glow: #00ffff;
+  --secondary-glow: #ff00ff;
+  --nexus-glow: #00ff00;
+  --dark-bg: #000;
+  --ui-bg: rgba(20,20,40,0.85);
+  --font-color: #eaf2ff;
+}
+
 html, body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #000;
+  background: var(--dark-bg);
   overflow: hidden;
   font-family: sans-serif;
-  color: #fff;
+  color: var(--font-color);
+}
+
+body.high-contrast {
+  --primary-glow: #ffff00;
+  --ui-bg: #000;
+  --font-color: #ffffff;
 }
 
 /* Hide the mouse cursor when in VR to avoid distraction */
@@ -66,8 +81,8 @@ only appear on hover, are visible for the capture.
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #000;
-  color: #00ffff;
+  background: var(--dark-bg);
+  color: var(--primary-glow);
   font-size: 2em;
   z-index: 9999;
 }
