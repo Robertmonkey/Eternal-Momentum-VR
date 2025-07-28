@@ -114,6 +114,12 @@ only appear on hover, are visible for the capture.
   text-align: center;
   color: var(--font-color);
 }
+
+#homeActions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 .home-btn {
   font-size: 1.5rem;
   padding: 10px 30px;
@@ -126,4 +132,26 @@ only appear on hover, are visible for the capture.
 }
 .home-btn:hover {
   background: rgba(0,255,255,0.2);
+}
+
+.home-btn.erase {
+  background: rgba(231,76,60,0.1);
+  border-color: rgba(231,76,60,0.4);
+}
+.home-btn.erase:hover {
+  background: rgba(231,76,60,0.2);
+  border-color: var(--health-low);
+}
+
+#fadeOverlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: #000;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: 9997;
+}
+#fadeOverlay.visible {
+  opacity: 1;
 }
