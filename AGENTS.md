@@ -38,3 +38,26 @@ Adherence to these constraints is crucial for a successful implementation.
 2.  **DO NOT Mix 2D and 3D Coordinate Systems.** All `(x, y)` coordinates from the legacy `gameLoop` must be re-interpreted as `(u, v)` texture coordinates for the spherical battlefield. These must be converted to `THREE.Vector3` positions on the sphere's surface before being used to position any 3D object.
 3.  **DO NOT Allow Gameplay on the Command Deck.** The Command Deck is a static environment for the player and the UI only. The `battleSphere` is the exclusive arena for all gameplay entities and effects. This separation is a non-negotiable architectural rule.
 4.  **DO NOT Use Unlabeled or Unstyled Placeholders.** All new assets must match the dark, neon-glow aesthetic of the original game. Reference the color variables in `/Eternal-Momentum-OLD GAME/style.css`. Placeholder geometry like the blue cylinders must be replaced with properly designed assets that match the game's theme and have clear labels.
+# AGENTS.md – Comprehensive Guide for AI Agents Working on **Eternal Momentum / Eternal Momentum VR**
+
+> **Purpose**  This document gives Codex‑style agents (or any automated assistant) **everything they need** to reason about, modify, and extend the project **without confusion**.  
+> It merges knowledge of the **original 2‑D game** (in `Eternal‑Momentum‑OLD GAME/`) with the current **VR rewrite** so agents always know where to look, how subsystems map to one another, and what project conventions must never be violated.
+
+---
+
+## 1  Repository Map
+
+```text
+/                     ← VR project root
+|-- index.html        ← A‑Frame scene for VR build
+|-- script.js         ← VR runtime bootstrap
+|-- modules/          ← VR ES‑module logic (mirrors legacy modules)
+|-- styles.css        ← VR‑only CSS (comfort vignette, off‑screen modals)
+|-- AGENTS.md         ← **THIS FILE**
+|-- README.md         ← High‑level project brief + legacy overview
+|-- Eternal-Momentum-OLD GAME/   ← **Original 2‑D browser game**
+    |-- index.html    ← legacy HTML scaffold :contentReference[oaicite:4]{index=4}
+    |-- style.css     ← neon/space aesthetic, colour variables
+    |-- main.js       ← entry point
+    |-- modules/      ← state.js, gameLoop.js, powers.js, cores.js, ascension.js, ui.js, utils.js…
+    |-- assets/       ← png / mp3 / mp4 used by both versions
