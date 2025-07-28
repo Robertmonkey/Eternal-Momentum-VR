@@ -67,6 +67,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added.
 - Expand entity spawner to cover projectile effects. ✅
 - Add null checks before attaching UI event listeners. ✅
+- Correct asset paths in legacy style sheet to prevent 404 errors. ✅
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.
