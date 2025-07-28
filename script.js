@@ -18,6 +18,7 @@ import { populateAberrationCoreMenu, populateOrreryMenu, showBossInfo, populateL
 import { uvToSpherePos, spherePosToUv, safeAddEventListener } from './modules/utils.js';
 import { moveTowards } from './modules/movement3d.js';
 import { updateEnemies3d } from './modules/enemyAI3d.js';
+import { updateProjectiles3d } from './modules/projectilePhysics3d.js';
 import { AudioManager } from './modules/audio.js';
 import { STAGE_CONFIG } from './modules/config.js';
 
@@ -728,6 +729,7 @@ window.addEventListener('load', () => {
 
     // Begin port of enemy AI to 3-D: update enemy positions on the sphere
     updateEnemies3d(vrState.avatarPos, SPHERE_RADIUS, canvas.width, canvas.height);
+    updateProjectiles3d(SPHERE_RADIUS, canvas.width, canvas.height);
 
     if(crosshair && crosshair.getAttribute('visible')){
       scaleCrosshair(crosshair.object3D.position);
