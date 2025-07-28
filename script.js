@@ -95,6 +95,7 @@ window.addEventListener('load', () => {
       }
     }
   }
+  window.pulseControllers = pulseControllers;
 
   // ---------------------------------------------------------------------------
   // Helper: anchor the command deck to the camera at waist height and ensure
@@ -102,12 +103,14 @@ window.addEventListener('load', () => {
   // frame to keep orientation stable even if the player tilts their head.
   // ---------------------------------------------------------------------------
   function anchorCommandDeck() {
-    if (cameraEl && commandDeck.parentElement !== cameraEl) {
-      cameraEl.appendChild(commandDeck);
-      commandDeck.object3D.position.set(0, -0.6, 0); // waist level
+    if(!sceneEl||!cameraEl) return;
+    if(commandDeck.parentElement !== sceneEl){
+      sceneEl.appendChild(commandDeck);
     }
-    const rot = cameraEl.object3D.rotation;
-    commandDeck.object3D.rotation.set(-rot.x, 0, -rot.z);
+    const pos = new THREE.Vector3();
+    cameraEl.object3D.getWorldPosition(pos);
+    commandDeck.object3D.position.set(pos.x, pos.y - 0.6, pos.z);
+    commandDeck.object3D.rotation.set(0,0,0);
   }
 
   // ---------------------------------------------------------------------------
@@ -314,7 +317,6 @@ window.addEventListener('load', () => {
   // ---------------------------------------------------------------------------
   function animate(){
     requestAnimationFrame(animate);
-    anchorCommandDeck();
     if(!vrState.isGameRunning||state.isPaused) return;
 
     // Map VR cursor to legacy (u,v) for gameLoop
