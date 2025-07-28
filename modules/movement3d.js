@@ -17,7 +17,7 @@ import { spherePosToUv } from './utils.js';
 export function moveTowards (avatarPos, targetPos, speedMod = 1, radius = 1) {
   const dir = targetPos.clone().sub(avatarPos);
   const dist = dir.length();
-  if (dist > 1e‑4) {
+  if (dist > 1e-4) {
     dir.normalize();
     avatarPos.add(dir.multiplyScalar(dist * 0.015 * speedMod));
     avatarPos.normalize().multiplyScalar(radius);
