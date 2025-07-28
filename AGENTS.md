@@ -64,7 +64,8 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Build proper 3D models and textures for all console buttons.
-- Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added.
+- Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added. ✅
+- Add tooltip labels to console buttons for clarity.
 - Expand entity spawner to cover projectile effects. ✅
 - Add null checks before attaching UI event listeners. ✅
 - Correct asset paths in legacy style sheet to prevent 404 errors. ✅
