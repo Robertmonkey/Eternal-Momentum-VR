@@ -69,6 +69,8 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Improve 3D projectile physics for enemy attacks.
 - Investigate crosshair and avatar visibility issues when a stage begins.
+- Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for
+  health, shield, ascension and ability slots.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
