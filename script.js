@@ -874,6 +874,7 @@ window.addEventListener('load', () => {
     }
     spawnBossesForStage(state.currentStage);
     vrState.isGameRunning = true;
+    showTutorialPrompt();
   }
 
   // Alias used by older code paths
