@@ -67,6 +67,7 @@ window.addEventListener('load', () => {
   const pickupContainer  = document.getElementById('pickupContainer');
   const projectileContainer = document.getElementById('projectileContainer');
   const effectContainer  = document.getElementById('effectContainer');
+  const crosshair        = document.getElementById('crosshair');
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
   const leftHand  = document.getElementById('leftHand');
@@ -349,9 +350,19 @@ window.addEventListener('load', () => {
   if(battleSphere){
     battleSphere.addEventListener('raycaster-intersection',e=>{
       const hit=e.detail.intersections[0];
-      if(hit) vrState.cursorPoint.copy(hit.point);
+      if(hit){
+        vrState.cursorPoint.copy(hit.point);
+        if(crosshair){
+          crosshair.object3D.position.copy(hit.point);
+          crosshair.object3D.lookAt(0,0,0);
+          crosshair.setAttribute('visible', true);
+        }
+      }
     });
-    battleSphere.addEventListener('raycaster-intersection-cleared',()=>vrState.cursorPoint.set(0,0,0));
+    battleSphere.addEventListener('raycaster-intersection-cleared',()=>{
+      vrState.cursorPoint.set(0,0,0);
+      if(crosshair) crosshair.setAttribute('visible', false);
+    });
   }
 
   function setupController(hand){
