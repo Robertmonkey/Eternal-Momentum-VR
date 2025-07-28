@@ -68,8 +68,8 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
-- Add telegraph indicators for boss attacks using 3D holographic warnings.
-- Optimize navmesh pathfinding performance and caching.
+- Integrate telegraph system with other boss abilities like shrinking boxes and shaper runes.
+- Add VR performance telemetry logging and analytics hooks.
 
 ## NEED
 - High-contrast emoji textures for improved readability.

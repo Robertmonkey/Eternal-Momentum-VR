@@ -4,6 +4,8 @@ import { uvToSpherePos, spherePosToUv } from './utils.js';
 
 let nodes = [];
 let neighbors = [];
+let pathCache = new Map();
+let lastObsHash = '';
 
 export function buildNavMesh(subdiv = 2, radius = 1){
   const geo = new THREE.IcosahedronGeometry(radius, subdiv);
@@ -21,6 +23,7 @@ export function buildNavMesh(subdiv = 2, radius = 1){
     neigh[c].add(a); neigh[c].add(b);
   }
   neighbors = neigh.map(s=>Array.from(s));
+  pathCache.clear();
 }
 
 function closestNodeIdx(pos){
@@ -37,12 +40,23 @@ function isBlocked(idx){
   });
 }
 
+function obstaclesHash(){
+  return state.pathObstacles.map(o=>`${o.u.toFixed(2)},${o.v.toFixed(2)},${o.radius}`).join('|');
+}
+
 export function findPath(startUv,endUv){
   if(!nodes.length) buildNavMesh();
+  const obsHash = obstaclesHash();
+  if(obsHash !== lastObsHash){
+    pathCache.clear();
+    lastObsHash = obsHash;
+  }
   const startPos = uvToSpherePos(startUv.u,startUv.v,1);
   const endPos   = uvToSpherePos(endUv.u,endUv.v,1);
   const start = closestNodeIdx(startPos);
   const goal  = closestNodeIdx(endPos);
+  const cacheKey = `${start}-${goal}-${obsHash}`;
+  if(pathCache.has(cacheKey)) return pathCache.get(cacheKey);
   const open=[start];
   const came=new Map();
   const g=new Map([[start,0]]);
@@ -71,5 +85,7 @@ export function findPath(startUv,endUv){
     cur=came.get(cur);
   }
   path.reverse();
-  return path.map(i=>spherePosToUv(nodes[i],1));
+  const result = path.map(i=>spherePosToUv(nodes[i],1));
+  pathCache.set(cacheKey, result);
+  return result;
 }
