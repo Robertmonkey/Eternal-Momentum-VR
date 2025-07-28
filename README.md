@@ -136,6 +136,7 @@ The battlefield is the entire inner surface of a **massive, hollow sphere** that
 * **Holographic Menus:** Complex menus like the Ascension Grid appear as large, interactive holographic panels.
 * **Physical Buttons:** Common actions are mapped to large, physical 3D buttons on the floating panels.
 * **Holographic Status Display:** A projector displays floating, 3D icons of your equipped powers and a detailed hologram of your attuned **Aberration Core**.
+* **Audio Controls:** The settings panel provides sliders for music and SFX volume.
 
 ### 4. Core Gameplay Loop & VR Control Scheme
 * **Targeting on the Sphere:** Your hand controller projects a **cursor** onto the **inner surface of the gameplay sphere**.
@@ -144,7 +145,7 @@ The battlefield is the entire inner surface of a **massive, hollow sphere** that
 
 ---
 ## Telemetry & Privacy
-Eternal Momentum VR can optionally record anonymous performance data such as average frame rate. Data is stored **only** in the browser's localStorage for local troubleshooting. Telemetry is **disabled by default** and can be enabled in the in‑game settings panel. No personal information is collected or transmitted anywhere.
+Eternal Momentum VR can optionally record anonymous performance data such as average frame rate. Data is stored **only** in the browser's localStorage for local troubleshooting. Telemetry is **disabled by default** and can be enabled in the in‑game settings panel. A dedicated **Telemetry** panel on the command deck lists recent frame‑rate samples. No personal information is collected or transmitted anywhere.
 
 ---
 ### User Feedback from Testing

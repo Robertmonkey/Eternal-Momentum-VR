@@ -98,6 +98,8 @@ window.addEventListener('load', () => {
   let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
+  const telemetryPanel   = document.getElementById('telemetryPanel');
+  const closeTelemetryBtn= document.getElementById('closeTelemetryBtn');
   const gameOverPanel    = document.getElementById('gameOverPanel');
   const retryBtn         = document.getElementById('retryBtn');
   const gameOverAscBtn   = document.getElementById('gameOverAscBtn');
@@ -130,7 +132,9 @@ window.addEventListener('load', () => {
     crosshairColor: '#00ffff',
     crosshairSize: 1.0,
     turnStyle: 'smooth',
-    telemetryEnabled: false
+    telemetryEnabled: false,
+    musicVolume: 0.35,
+    sfxVolume: 0.85
   };
 
   const userSettings = {
@@ -139,7 +143,9 @@ window.addEventListener('load', () => {
     crosshairColor: localStorage.getItem('crosshairColor') || DEFAULT_SETTINGS.crosshairColor,
     crosshairSize: parseFloat(localStorage.getItem('crosshairSize')) || DEFAULT_SETTINGS.crosshairSize,
     turnStyle: localStorage.getItem('turnStyle') || DEFAULT_SETTINGS.turnStyle,
-    telemetryEnabled: localStorage.getItem('telemetryEnabled') === 'true'
+    telemetryEnabled: localStorage.getItem('telemetryEnabled') === 'true',
+    musicVolume: parseFloat(localStorage.getItem('musicVolume')) || DEFAULT_SETTINGS.musicVolume,
+    sfxVolume: parseFloat(localStorage.getItem('sfxVolume')) || DEFAULT_SETTINGS.sfxVolume
   };
 
   let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
@@ -179,6 +185,8 @@ window.addEventListener('load', () => {
     localStorage.setItem('crosshairSize', userSettings.crosshairSize);
     localStorage.setItem('turnStyle', userSettings.turnStyle);
     localStorage.setItem('telemetryEnabled', userSettings.telemetryEnabled);
+    localStorage.setItem('musicVolume', userSettings.musicVolume);
+    localStorage.setItem('sfxVolume', userSettings.sfxVolume);
   }
 
   function applySettings(){
@@ -193,6 +201,8 @@ window.addEventListener('load', () => {
       vignetteEl.setAttribute('opacity', userSettings.vignetteIntensity);
       vignetteEl.setAttribute('visible', userSettings.vignetteIntensity > 0);
     }
+    AudioManager.setMusicVolume(userSettings.musicVolume);
+    AudioManager.setSfxVolume(userSettings.sfxVolume);
   }
 
   // ---------------------------------------------------------------------------
@@ -334,15 +344,32 @@ window.addEventListener('load', () => {
     const vig  = document.getElementById('vignetteRange');
     const color= document.getElementById('crosshairColor');
     const size = document.getElementById('crosshairSizeRange');
+    const music= document.getElementById('musicVolumeRange');
+    const sfx  = document.getElementById('sfxVolumeRange');
     const styleSel = document.getElementById('turnStyleSelect');
     const tele = document.getElementById('telemetryToggle');
     if(turn){ turn.value = userSettings.turnSpeed; }
     if(vig){ vig.value = userSettings.vignetteIntensity; }
     if(color){ color.value = userSettings.crosshairColor; }
     if(size){ size.value = userSettings.crosshairSize; }
+    if(music){ music.value = userSettings.musicVolume; }
+    if(sfx){ sfx.value = userSettings.sfxVolume; }
     if(styleSel){ styleSel.value = userSettings.turnStyle; }
     if(tele){ tele.checked = userSettings.telemetryEnabled; }
     await showHolographicPanel('#settingsModal','#settingsCanvas');
+  }
+
+  function openTelemetryPanel(){
+    const panel=document.getElementById('telemetryPanel');
+    const content=document.getElementById('telemetryContent');
+    if(!panel||!content) return;
+    const logs=JSON.parse(localStorage.getItem('telemetryLogs')||'[]');
+    const lines=logs.slice(-5).map(l=>{
+      const t=new Date(l.ts).toLocaleTimeString();
+      return `${t} - ${l.fps}fps`;
+    });
+    content.setAttribute('value', lines.join('\n'));
+    panel.setAttribute('visible', true);
   }
 
   function showGameOverPanel(){
@@ -387,7 +414,8 @@ window.addEventListener('load', () => {
       resume:   {angle: 50, r:1.30, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
       sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()},
       settings: {angle:100, r:1.30, y:0.10, emoji:"⚙️", label:"Settings", action:openSettingsPanel},
-      recenter: {angle:120, r:1.30, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck}
+      recenter: {angle:120, r:1.30, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck},
+      telemetry:{angle:140, r:1.30, y:0.10, emoji:"📊", label:"Telemetry", action:openTelemetryPanel}
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
@@ -690,6 +718,10 @@ window.addEventListener('load', () => {
     vrState.holographicPanelVisible=false;
     AudioManager.playSfx('uiModalClose');
   });
+  safeAddEventListener(closeTelemetryBtn,'click',()=>{
+    if(telemetryPanel) telemetryPanel.setAttribute('visible',false);
+    AudioManager.playSfx('uiModalClose');
+  });
 
   // ---------------------------------------------------------------------------
   // Initialise gameplay for the current stage. Called on load and when
@@ -938,6 +970,8 @@ window.addEventListener('load', () => {
   const vignetteRange = document.getElementById('vignetteRange');
   const crosshairColorInput = document.getElementById('crosshairColor');
   const crosshairSizeRange = document.getElementById('crosshairSizeRange');
+  const musicVolumeRange   = document.getElementById('musicVolumeRange');
+  const sfxVolumeRange     = document.getElementById('sfxVolumeRange');
   const turnStyleSelect   = document.getElementById('turnStyleSelect');
   const telemetryToggle   = document.getElementById('telemetryToggle');
 
@@ -945,6 +979,8 @@ window.addEventListener('load', () => {
   safeAddEventListener(vignetteRange,'input',e=>{ userSettings.vignetteIntensity = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(crosshairColorInput,'input',e=>{ userSettings.crosshairColor = e.target.value; applySettings(); saveSettings(); });
   safeAddEventListener(crosshairSizeRange,'input',e=>{ userSettings.crosshairSize = parseFloat(e.target.value); applySettings(); saveSettings(); });
+  safeAddEventListener(musicVolumeRange,'input',e=>{ userSettings.musicVolume = parseFloat(e.target.value); applySettings(); saveSettings(); });
+  safeAddEventListener(sfxVolumeRange,'input',e=>{ userSettings.sfxVolume = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(turnStyleSelect,'input',e=>{ userSettings.turnStyle = e.target.value; saveSettings(); });
   safeAddEventListener(telemetryToggle,'input',e=>{
     userSettings.telemetryEnabled = e.target.checked;
@@ -1064,6 +1100,7 @@ window.addEventListener('load', () => {
     setupStageSelectPanel();
     // Stage now starts once assets are fully loaded
     AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
+    applySettings();
   });
   safeAddEventListener(sceneEl,'enter-vr',()=>{
     anchorCommandDeck();

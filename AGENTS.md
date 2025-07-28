@@ -87,9 +87,9 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Build a telemetry panel in VR to review performance metrics.
-- Add volume sliders for music and SFX in the settings panel.
 - Implement localization framework starting with the privacy notice text.
+- Optimize holographic menu rendering to eliminate button click freezes.
+- Implement colorblind accessibility options for the VR HUD.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -99,6 +99,6 @@ Adherence to these constraints is crucial for a successful implementation.
 - QA across varied room-scale setups to verify recenter functionality.
 - Voice actor for in-game tutorial narration.
 - Playtesting pathfinding on complex stage layouts.
-- Interface for viewing saved telemetry metrics in-game.
 - Localization support for the telemetry privacy notice.
 - VR accessibility options for colorblind users.
+- Performance optimization of draw calls and memory usage.
