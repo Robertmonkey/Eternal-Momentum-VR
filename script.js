@@ -151,6 +151,8 @@ window.addEventListener('load', () => {
     rightTriggerDown: false
   };
 
+  const tutorial = { step:-1, el:null };
+
   function pulseControllers(duration = 50, strength = 0.5){
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
     for(const gp of pads){
@@ -540,19 +542,41 @@ window.addEventListener('load', () => {
     commandDeck.appendChild(hud);
   }
 
-  function showTutorialPrompt(){
-    if(localStorage.getItem('tutorialShown')) return;
+  function showTutorialStep(){
+    if(tutorial.el) tutorial.el.remove();
+    let text='';
+    if(tutorial.step===0){
+      text='Aim at the sphere and squeeze the trigger to move.';
+    }else if(tutorial.step===1){
+      text='Great! Press either trigger again to fire your power.';
+    }else if(tutorial.step===2){
+      text='Press both triggers together to unleash your Core.';
+    }else{
+      tutorial.el=null;
+      localStorage.setItem('tutorialShown','1');
+      return;
+    }
     const tut=document.createElement('a-text');
     tut.setAttribute('id','tutorialPrompt');
-    tut.setAttribute('value','Aim at the sphere and squeeze the trigger to move.');
+    tut.setAttribute('value',text);
     tut.setAttribute('align','center');
     tut.setAttribute('width','3');
     tut.setAttribute('color','#00ffff');
     tut.setAttribute('position','0 0.8 0');
     tut.setAttribute('look-at','#camera');
     commandDeck.appendChild(tut);
-    setTimeout(()=>{ tut.remove(); }, 8000);
-    localStorage.setItem('tutorialShown','1');
+    tutorial.el=tut;
+  }
+
+  function advanceTutorial(){
+    tutorial.step++;
+    showTutorialStep();
+  }
+
+  function showTutorialPrompt(){
+    if(localStorage.getItem('tutorialShown')) return;
+    tutorial.step=0;
+    showTutorialStep();
   }
 
   // ---------------------------------------------------------------------------
@@ -823,6 +847,7 @@ window.addEventListener('load', () => {
     let trigger=false;
     hand.addEventListener('triggerdown',()=>{
       trigger=true;
+      if(tutorial.step===0) advanceTutorial();
       if(hand===leftHand) vrState.leftTriggerDown = true;
       else vrState.rightTriggerDown = true;
 
@@ -830,6 +855,7 @@ window.addEventListener('load', () => {
       if(vrState.leftTriggerDown && vrState.rightTriggerDown && now - vrState.lastCoreUse > 150){
         activateCorePower(window.mousePosition.x, window.mousePosition.y, window.gameHelpers);
         vrState.lastCoreUse = now;
+        if(tutorial.step===2) advanceTutorial();
         return;
       }
 
@@ -837,7 +863,10 @@ window.addEventListener('load', () => {
         const otherDown = hand===leftHand ? vrState.rightTriggerDown : vrState.leftTriggerDown;
         if(trigger && !otherDown){
           const key=(hand===leftHand)?state.offensiveInventory[0]:state.defensiveInventory[0];
-          if(key) usePower(key);
+          if(key){
+            usePower(key);
+            if(tutorial.step===1) advanceTutorial();
+          }
         }
       },150);
     });
