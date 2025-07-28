@@ -150,6 +150,7 @@ window.addEventListener('load', () => {
       await new Promise(r=>setTimeout(r,500));
     }
     sceneEl.enterVR();
+    initialiseStage();
     if(fadeOverlay){
       setTimeout(()=>fadeOverlay.classList.remove('visible'),500);
     }
@@ -893,6 +894,7 @@ window.addEventListener('load', () => {
       state.currentStage = 1;
     }
     spawnBossesForStage(state.currentStage);
+    AudioManager.playMusicForStage(state.currentStage);
     vrState.isGameRunning = true;
     showTutorialPrompt();
   }
@@ -1296,7 +1298,6 @@ window.addEventListener('load', () => {
   });
   safeAddEventListener(sceneEl,'enter-vr',()=>{
     anchorCommandDeck();
-    initialiseStage();
     showTutorialPrompt();
     updateUiScale();
   });
