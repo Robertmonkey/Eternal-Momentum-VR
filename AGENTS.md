@@ -87,10 +87,17 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Optimize draw calls and memory usage during intense battles.
-- Build the command cluster layout around the player.
+- Extend pooling to effects and pickups for memory optimization.
+- Implement advanced holographic menus for all remaining UI modals.
 
 ## NEED
 - Additional sound effects and background music loops.
 - remove features not found in the orginal game to focus on readme direction.
 - Balance enemy health values for VR pacing.
+
+## Workflow for Agents
+1. Review `README.md` and this `AGENTS.md` before starting work.
+2. Choose tasks from the TODO/NEED lists or the roadmap and implement them.
+3. After completing a task, update the lists by removing the finished item and adding the next logical step.
+4. When user feedback items in `README.md` are addressed, mark them with a ✅ and briefly note the fix in your commit messages.
+
