@@ -131,7 +131,13 @@
       <!-- 3‑D crosshair at controller hit point -->
       <a-entity id="crosshair" visible="false" look-at="#camera">
         <a-ring radius-inner="0.04" radius-outer="0.06"
-                 material="color:#eaf2ff; emissive:#eaf2ff; emissiveIntensity:0.8; side:double"></a-ring>
+                 material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.9; side:double"></a-ring>
+        <a-plane width="0.08" height="0.005"
+                 material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
+                 position="0 0 0.001"></a-plane>
+        <a-plane width="0.005" height="0.08"
+                 material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
+                 position="0 0 0.001"></a-plane>
       </a-entity>
 
       <!-- Player avatar marker -->
