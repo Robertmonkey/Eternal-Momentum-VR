@@ -195,44 +195,60 @@ export function updateUI() {
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     document.querySelectorAll('.ability-key').forEach(el => { el.style.display = isTouchDevice ? 'none' : 'block'; });
 
-    ascensionFill.style.width = `${(state.player.essence / state.player.essenceToNextLevel) * 100}%`;
-    ascensionText.innerText = `LVL ${state.player.level}`;
-    apDisplay.innerText = `AP: ${state.player.ascensionPoints}`;
+    if (ascensionFill) {
+        ascensionFill.style.width = `${(state.player.essence / state.player.essenceToNextLevel) * 100}%`;
+    }
+    if (ascensionText) {
+        ascensionText.innerText = `LVL ${state.player.level}`;
+    }
+    if (apDisplay) {
+        apDisplay.innerText = `AP: ${state.player.ascensionPoints}`;
+    }
     
     updateAberrationCoreUI(); 
     updateCoreCooldownUI();
 
     const healthPct = Math.max(0, state.player.health) / state.player.maxHealth;
-    healthBarValue.style.width = `${healthPct * 100}%`;
-    healthBarText.innerText = `${Math.max(0, Math.round(state.player.health))}/${Math.round(state.player.maxHealth)}`;
-    healthBarValue.classList.toggle('health-high', healthPct > 0.6);
-    healthBarValue.classList.toggle('health-medium', healthPct <= 0.6 && healthPct > 0.3);
-    healthBarValue.classList.toggle('health-low', healthPct <= 0.3);
+    if (healthBarValue) {
+        healthBarValue.style.width = `${healthPct * 100}%`;
+        healthBarValue.classList.toggle('health-high', healthPct > 0.6);
+        healthBarValue.classList.toggle('health-medium', healthPct <= 0.6 && healthPct > 0.3);
+        healthBarValue.classList.toggle('health-low', healthPct <= 0.3);
+    }
+    if (healthBarText) {
+        healthBarText.innerText = `${Math.max(0, Math.round(state.player.health))}/${Math.round(state.player.maxHealth)}`;
+    }
     if(vrHealthFill){ vrHealthFill.object3D.scale.x = healthPct; }
     if(vrHealthText){ vrHealthText.setAttribute('value', `${Math.max(0, Math.round(state.player.health))}/${Math.round(state.player.maxHealth)}`); }
 
     const shieldEffect = state.player.statusEffects.find(e => e.name === 'Shield' || e.name === 'Contingency Protocol');
-    if (shieldEffect) {
-        const now = Date.now();
-        const remaining = shieldEffect.endTime - now;
-        const duration = shieldEffect.endTime - shieldEffect.startTime;
-        shieldBar.style.width = `${Math.max(0, remaining) / duration * 100}%`;
-        if(vrShieldFill){ vrShieldFill.object3D.scale.x = Math.max(0, remaining) / duration; vrShieldFill.setAttribute('visible', true); }
-    } else {
-        shieldBar.style.width = '0%';
-        if(vrShieldFill){ vrShieldFill.object3D.scale.x = 0; vrShieldFill.setAttribute('visible', false); }
+    if (shieldBar) {
+        if (shieldEffect) {
+            const now = Date.now();
+            const remaining = shieldEffect.endTime - now;
+            const duration = shieldEffect.endTime - shieldEffect.startTime;
+            shieldBar.style.width = `${Math.max(0, remaining) / duration * 100}%`;
+            if(vrShieldFill){ vrShieldFill.object3D.scale.x = Math.max(0, remaining) / duration; vrShieldFill.setAttribute('visible', true); }
+        } else {
+            shieldBar.style.width = '0%';
+            if(vrShieldFill){ vrShieldFill.object3D.scale.x = 0; vrShieldFill.setAttribute('visible', false); }
+        }
     }
     
     const offP = state.offensiveInventory[0];
     const defP = state.defensiveInventory[0];
-    offSlot.innerHTML = offP ? powers[offP].emoji : '';
-    defSlot.innerHTML = defP ? powers[defP].emoji : '';
+    if (offSlot) {
+        offSlot.innerHTML = offP ? powers[offP].emoji : '';
+        offSlot.className = `ability-slot main ${offP ? '' : 'empty'}`;
+        offSlot.setAttribute('data-tooltip-text', offP ? powers[offP].desc : 'Offensive Power (Left-Click)');
+    }
+    if (defSlot) {
+        defSlot.innerHTML = defP ? powers[defP].emoji : '';
+        defSlot.className = `ability-slot ${defP ? '' : 'empty'}`;
+        defSlot.setAttribute('data-tooltip-text', defP ? powers[defP].desc : 'Defensive Power (Right-Click)');
+    }
     if(vrOffEmoji){ vrOffEmoji.setAttribute('value', offP ? powers[offP].emoji : ''); }
     if(vrDefEmoji){ vrDefEmoji.setAttribute('value', defP ? powers[defP].emoji : ''); }
-    offSlot.className = `ability-slot main ${offP ? '' : 'empty'}`;
-    defSlot.className = `ability-slot ${defP ? '' : 'empty'}`;
-    offSlot.setAttribute('data-tooltip-text', offP ? powers[offP].desc : 'Offensive Power (Left-Click)');
-    defSlot.setAttribute('data-tooltip-text', defP ? powers[defP].desc : 'Defensive Power (Right-Click)');
 
     for (let i = 1; i <= 2; i++) {
         const offPower = state.offensiveInventory[i];
@@ -273,41 +289,43 @@ export function updateUI() {
         }
     });
 
-    for (const child of Array.from(bossContainer.children)) {
-        if (!currentBossIdsOnScreen.has(child.dataset.instanceId)) {
-            bossContainer.removeChild(child);
+    if (bossContainer) {
+        for (const child of Array.from(bossContainer.children)) {
+            if (!currentBossIdsOnScreen.has(child.dataset.instanceId)) {
+                bossContainer.removeChild(child);
+            }
         }
+
+        const GRID_THRESHOLD = 4;
+        bossContainer.classList.toggle('grid-layout', bossesToDisplay.length >= GRID_THRESHOLD);
+
+        bossesToDisplay.forEach(boss => {
+            let wrapper = document.getElementById('boss-hp-' + boss.instanceId);
+
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.className = 'boss-hp-bar-wrapper';
+                wrapper.id = 'boss-hp-' + boss.instanceId;
+                wrapper.dataset.instanceId = boss.instanceId.toString();
+
+                const label = document.createElement('div');
+                label.className = 'boss-hp-label';
+                label.innerText = boss.name;
+
+                const bar = document.createElement('div');
+                bar.className = 'boss-hp-bar';
+
+                wrapper.appendChild(label);
+                wrapper.appendChild(bar);
+                bossContainer.appendChild(wrapper);
+            }
+
+            const bar = wrapper.querySelector('.boss-hp-bar');
+            const currentHp = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.hp;
+            bar.style.backgroundColor = boss.color;
+            bar.style.width = `${Math.max(0, currentHp / boss.maxHP) * 100}%`;
+        });
     }
-    
-    const GRID_THRESHOLD = 4;
-    bossContainer.classList.toggle('grid-layout', bossesToDisplay.length >= GRID_THRESHOLD);
-
-    bossesToDisplay.forEach(boss => {
-        let wrapper = document.getElementById('boss-hp-' + boss.instanceId);
-        
-        if (!wrapper) {
-            wrapper = document.createElement('div');
-            wrapper.className = 'boss-hp-bar-wrapper';
-            wrapper.id = 'boss-hp-' + boss.instanceId;
-            wrapper.dataset.instanceId = boss.instanceId.toString();
-
-            const label = document.createElement('div');
-            label.className = 'boss-hp-label';
-            label.innerText = boss.name;
-            
-            const bar = document.createElement('div');
-            bar.className = 'boss-hp-bar';
-            
-            wrapper.appendChild(label);
-            wrapper.appendChild(bar);
-            bossContainer.appendChild(wrapper);
-        }
-
-        const bar = wrapper.querySelector('.boss-hp-bar');
-        const currentHp = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.hp;
-        bar.style.backgroundColor = boss.color;
-        bar.style.width = `${Math.max(0, currentHp / boss.maxHP) * 100}%`;
-    });
 
     const mainBoss = bossesToDisplay[0];
     if(mainBoss && vrBossFill){
