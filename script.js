@@ -782,7 +782,12 @@ window.addEventListener('load', () => {
     });
     battleSphere.addEventListener('raycaster-intersection-cleared',()=>{
       vrState.cursorPoint.set(0,0,0);
-      if(crosshair) crosshair.setAttribute('visible', false);
+      if(crosshair){
+        crosshair.object3D.position.copy(vrState.avatarPos);
+        crosshair.object3D.lookAt(0,0,0);
+        crosshair.setAttribute('visible', true);
+        scaleCrosshair(vrState.avatarPos);
+      }
     });
   }
 
