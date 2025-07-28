@@ -87,9 +87,9 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Implement localization framework starting with the privacy notice text.
 - Optimize holographic menu rendering to eliminate button click freezes.
-- Implement colorblind accessibility options for the VR HUD.
+- Add in-game language selection in settings.
+- Create high contrast theme toggle for the entire HUD.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -99,6 +99,6 @@ Adherence to these constraints is crucial for a successful implementation.
 - QA across varied room-scale setups to verify recenter functionality.
 - Voice actor for in-game tutorial narration.
 - Playtesting pathfinding on complex stage layouts.
-- Localization support for the telemetry privacy notice.
-- VR accessibility options for colorblind users.
 - Performance optimization of draw calls and memory usage.
+- Add Spanish language translations for core UI.
+- Custom colorblind-friendly emoji textures.
