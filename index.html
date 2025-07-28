@@ -1,22 +1,35 @@
+<!-- index.html – Complete VR build (updated 2025‑07‑28) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Eternal Momentum VR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Eternal Momentum VR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- A‑Frame + helper libs -->
   <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-super-hands-component@5.0.0/dist/aframe-super-hands-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="script.js" type="module"></script>
-  <link rel="stylesheet" href="styles.css"> 
-  <link rel="stylesheet" href="Eternal-Momentum-OLD GAME/style.css">
 
+  <!-- Runtime -->
+  <script type="module" src="script.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="Eternal-Momentum-OLD GAME/style.css" />
 </head>
+
 <body>
+  <!-- Neon‑grid texture source -->
   <canvas id="gridCanvas" width="512" height="512" style="display:none;"></canvas>
 
+  <!-- ⇣⇣ VR SCENE ⇣⇣ -->
   <a-scene embedded background="color: #000">
+    <!-- Ambient fill so player never starts in pitch black -->
+    <a-entity light="type: ambient; color: #555"></a-entity>
+
+    <!-- Reusable mix‑ins & audio assets -->
     <a-assets>
       <a-mixin id="console-button"
                geometry="primitive: cylinder; radius:0.12; height:0.06"
@@ -26,80 +39,153 @@
                animation__release="property: position; startEvents: mouseup; dir: alternate; dur: 100; to: 0 0 0"
                animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.5">
       </a-mixin>
+
       <a-mixin id="console-panel"
                geometry="primitive: plane; width:1; height:0.6"
                material="color:#141428; opacity:0.9; transparent:true; emissive:#00ffff; emissiveIntensity:0.25">
       </a-mixin>
-      <audio id="uiHoverSound" class="game-audio" src="assets/uiHoverSound.mp3" preload="auto"></audio>
-      <audio id="uiClickSound" class="game-audio" src="assets/uiClickSound.mp3" preload="auto"></audio>
-      <audio id="uiModalOpen" class="game-audio" src="assets/uiModalOpen.mp3" preload="auto"></audio>
-      <audio id="uiModalClose" class="game-audio" src="assets/uiModalClose.mp3" preload="auto"></audio>
+
+      <!-- UI sounds -->
+      <audio id="uiHoverSound"  class="game-audio" src="assets/uiHoverSound.mp3"  preload="auto"></audio>
+      <audio id="uiClickSound"  class="game-audio" src="assets/uiClickSound.mp3"  preload="auto"></audio>
+      <audio id="uiModalOpen"   class="game-audio" src="assets/uiModalOpen.mp3"   preload="auto"></audio>
+      <audio id="uiModalClose"  class="game-audio" src="assets/uiModalClose.mp3"  preload="auto"></audio>
     </a-assets>
 
     <a-sky color="#000"></a-sky>
 
+    <!-- Player rig -->
     <a-entity id="rig" position="0 0 0">
       <a-camera id="camera" wasd-controls-enabled="false">
-        <a-entity id="vignette" geometry="primitive: plane; width: 4; height: 4" position="0 0 -0.1"
-                material="shader: flat; src: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABdElEQVR42u2XwY7DIAwF8+s/dDS1u1t2/wvc7e7+r8ggYJBAkmmd4pA24UlIUhTrBXB4B/D49A8gT0ny8g9wDfjyC3BOkvy8gvJgXwB8SdLrf2i/f/wO8JckX/8DfC/Jg33+f/w+vH8f+NeS3gP8U5KnEPgvyb8ADkvSU4i/J/mH4DAkPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8n+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8Lck/y94DMlD4C8k+f8Ahif5n8B+Se5E8h8+DvBrSe8B/j/Jkwh8S/JrwLskPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8l+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8LckT6P5n5L83wAnJfkLZf8B/Jt+AVfTC2vKxGmdAAAAAElFTSuQmCC);
-                transparent: true; opacity: 0"
-                visible="false"></a-entity>
-      </a-camera>
-      <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: .interactive" super-hands></a-entity>
-      <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: .interactive" super-hands></a-entity>
-    </a-entity>
-
-    <a-entity id="commandDeck" position="0 0 0">
-    </a-entity>
-
-    <a-plane id="holographicPanel" class="interactive" width="3.2" height="2.4" position="0 1.6 -2.5" visible="false">
-        <a-entity mixin="console-button" id="closeHolographicPanelBtn" position="0 -1.35 0.02" class="interactive">
-            <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+        <!-- Circular vignette for comfort -->
+        <a-entity id="vignette"
+                  geometry="primitive: plane; width: 4; height: 4"
+                  position="0 0 -0.1"
+                  material="shader: flat;
+                            src: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABdElEQVR42u2XwY7DIAwF8+s/dDS1u1t2/wvc7e7+r8ggYJBAkmmd4pA24UlIUhTrBXB4B/D49A8gT0ny8g9wDfjyC3BOkvy8gvJgXwB8SdLrf2i/f/wO8JckX/8DfC/Jg33+f/w+vH8f+NeS3gP8U5KnEPgvyb8ADkvSU4i/J/mH4DAkPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8n+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8Lck/y94DMlD4C8k+f8Ahif5n8B+Se5E8h8+DvBrSe8B/j/Jkwh8S/JrwLskPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8l+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8LckT6P5n5L83wAnJfkLZf8B/Jt+AVfTC2vKxGmdAAAAAElFTkSuQmCC);
+                  transparent: true; opacity: 0"
+                  visible="false">
         </a-entity>
+      </a-camera>
+
+      <!-- VR controllers -->
+      <a-entity id="leftHand"
+                laser-controls="hand: left"
+                raycaster="objects: .interactive"
+                super-hands></a-entity>
+
+      <a-entity id="rightHand"
+                laser-controls="hand: right"
+                raycaster="objects: .interactive"
+                super-hands></a-entity>
+    </a-entity>
+
+    <!-- Command deck (anchored in script each frame) -->
+    <a-entity id="commandDeck" position="0 0 0"></a-entity>
+
+    <!-- Holographic panel canvas target -->
+    <a-plane id="holographicPanel" class="interactive"
+             width="3.2" height="2.4"
+             position="0 1.6 -2.5"
+             visible="false">
+      <a-entity mixin="console-button"
+                id="closeHolographicPanelBtn"
+                position="0 -1.35 0.02"
+                class="interactive">
+        <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
     </a-plane>
 
-    <a-sphere id="battleSphere" radius="8" segments-height="60" segments-width="60"
-              material="color: #080c18; side: double; opacity: 0.8; transparent: true"
+    <!-- Gameplay battleground -->
+    <a-sphere id="battleSphere" radius="8"
+              segments-height="60" segments-width="60"
+              material="color:#080c18; side: double; opacity:0.8; transparent:true"
               class="interactive"></a-sphere>
 
+    <!-- Dynamic containers -->
     <a-entity id="gameplayContainer">
-        <a-entity id="enemyContainer"></a-entity>
-        <a-entity id="projectileContainer"></a-entity>
-        <a-entity id="pickupContainer"></a-entity>
-        <a-entity id="effectContainer"></a-entity>
-        <a-entity id="nexusAvatar">
-          <a-sphere radius="0.3" material="color:#00ff00; emissive: #00ff00; emissiveIntensity: 0.5"></a-sphere>
-        </a-entity>
+      <a-entity id="enemyContainer"></a-entity>
+      <a-entity id="projectileContainer"></a-entity>
+      <a-entity id="pickupContainer"></a-entity>
+      <a-entity id="effectContainer"></a-entity>
+
+      <!-- Player avatar marker -->
+      <a-entity id="nexusAvatar">
+        <a-sphere radius="0.3"
+                  material="color:#00ff00; emissive:#00ff00; emissiveIntensity:0.5"></a-sphere>
+      </a-entity>
     </a-entity>
   </a-scene>
+  <!-- ⇡⇡ END VR SCENE ⇡⇡ -->
 
+  <!-- Off‑screen legacy UI modals – captured to canvas with html2canvas -->
   <div class="vr-source">
+    <!-- Ascension -->
     <div id="ascensionGridModal" class="modal">
-        <div id="ascension-grid-container" class="modal-background">
-            <div class="ascension-header"><h1>ASCENSION CONDUIT</h1><div class="ap-display-header"><span>ASCENSION POINTS</span><span id="ap-total-asc-grid">0</span></div></div>
-            <div class="ascension-content"></div>
-            <div class="ascension-footer"><button id="clearSaveBtn">ERASE TIMELINE</button></div>
+      <div id="ascension-grid-container" class="modal-background">
+        <div class="ascension-header">
+          <h1>ASCENSION CONDUIT</h1>
+          <div class="ap-display-header">
+            <span>ASCENSION POINTS</span><span id="ap-total-asc-grid">0</span>
+          </div>
         </div>
+        <div class="ascension-content"></div>
+        <div class="ascension-footer">
+          <button id="clearSaveBtn">ERASE TIMELINE</button>
+        </div>
+      </div>
     </div>
+
+    <!-- Aberration Core -->
     <div id="aberrationCoreModal" class="modal">
-        <div id="aberration-core-container" class="modal-background">
-            <div class="ascension-header"><h1>ABERRATION CORE ATTUNEMENT</h1><div id="aberration-core-equipped-display"><span>CURRENTLY ATTUNED</span><span id="aberration-core-equipped-name">None</span></div></div>
-            <div id="aberration-core-list-container"></div>
-            <div class="ascension-footer"><button id="unequipCoreBtn">UNEQUIP CORE</button></div>
+      <div id="aberration-core-container" class="modal-background">
+        <div class="ascension-header">
+          <h1>ABERRATION CORE ATTUNEMENT</h1>
+          <div id="aberration-core-equipped-display">
+            <span>CURRENTLY ATTUNED</span><span id="aberration-core-equipped-name">None</span>
+          </div>
         </div>
+        <div id="aberration-core-list-container"></div>
+        <div class="ascension-footer">
+          <button id="unequipCoreBtn">UNEQUIP CORE</button>
+        </div>
+      </div>
     </div>
+
+    <!-- Orrery -->
     <div id="orreryModal" class="modal">
-        <div id="orrery-modal-content" class="modal-background">
-            <div class="ascension-header"><h1>THE WEAVER'S ORRERY</h1><div class="ap-display-header"><span>ECHOES OF CREATION</span><span id="orrery-points-total">0</span></div></div>
-            <div id="orrery-main-content"><div id="orrery-boss-list-container"></div><div id="orrery-selection-container"><h3>TIMELINE ROSTER</h3><div id="orrery-selection-display"></div><div id="orrery-cost-display"><span>ECHOES SPENT: </span><span id="orrery-current-cost">0</span></div></div></div>
-            <div class="ascension-footer"><button id="orrery-reset-btn">CLEAR ROSTER</button><div><button id="orrery-start-btn" class="disabled">FORGE TIMELINE</button></div></div>
+      <div id="orrery-modal-content" class="modal-background">
+        <div class="ascension-header">
+          <h1>THE WEAVER'S ORRERY</h1>
+          <div class="ap-display-header">
+            <span>ECHOES OF CREATION</span><span id="orrery-points-total">0</span>
+          </div>
         </div>
+
+        <div id="orrery-main-content">
+          <div id="orrery-boss-list-container"></div>
+          <div id="orrery-selection-container">
+            <h3>TIMELINE ROSTER</h3>
+            <div id="orrery-selection-display"></div>
+            <div id="orrery-cost-display">
+              <span>ECHOES SPENT: </span><span id="orrery-current-cost">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ascension-footer">
+          <button id="orrery-reset-btn">CLEAR ROSTER</button>
+          <div><button id="orrery-start-btn" class="disabled">FORGE TIMELINE</button></div>
+        </div>
+      </div>
     </div>
+
+    <!-- Boss Info -->
     <div id="bossInfoModal" class="modal">
-        <div id="bossInfoModalBox" class="modal-background">
-            <h2 id="bossInfoModalTitle"></h2>
-            <div id="bossInfoModalContent"></div>
-        </div>
+      <div id="bossInfoModalBox" class="modal-background">
+        <h2 id="bossInfoModalTitle"></h2>
+        <div id="bossInfoModalContent"></div>
+      </div>
     </div>
   </div>
 </body>
