@@ -93,8 +93,8 @@ window.addEventListener('load', () => {
       cameraEl.appendChild(commandDeck);
       commandDeck.object3D.position.set(0, -0.6, 0); // waist level
     }
-    const yaw = cameraEl.object3D.rotation.y;
-    commandDeck.object3D.rotation.set(0, yaw, 0);
+    const rot = cameraEl.object3D.rotation;
+    commandDeck.object3D.rotation.set(-rot.x, 0, -rot.z);
   }
 
   // ---------------------------------------------------------------------------
