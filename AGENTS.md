@@ -71,7 +71,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Implement online leaderboard for stage scores.
 - Build stage selection console for replaying cleared stages.
 - Implement pathfinding system for enemies on the spherical battlefield.
-- Implement VR ability-slot HUD with emoji icons.
+- Create stage-clear summary screen with performance stats in VR.
 
 ## NEED
  - Primitive shapes and emoji textures for enemies (pickups and projectiles complete).
