@@ -88,15 +88,9 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- Implement dynamic crosshair visibility options for accessibility.
+- recreate orignal load and home screens.
 
 ## NEED
 - Additional sound effects and background music loops.
-- VR performance profiling on target hardware.
-- QA testers for cross-device VR compatibility.
-- QA across varied room-scale setups to verify recenter functionality.
-- Voice actor for in-game tutorial narration.
-- Playtesting pathfinding on complex stage layouts.
-- Model haptic feedback patterns for core abilities.
-- Create accessibility documentation for colorblind modes.
-- UI sound design for high-contrast mode.
+- remove features not found in the orginal game to focus on readme direction.
+- avoid, remove and replace anything requiring adintional assets.
