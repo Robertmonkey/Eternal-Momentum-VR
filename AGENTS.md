@@ -88,8 +88,7 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize holographic menu rendering to eliminate button click freezes.
-- Add in-game language selection in settings.
-- Extend colorblind mode to entire HUD for better accessibility.
+- Add neon grid floor beneath the command deck.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -100,5 +99,4 @@ Adherence to these constraints is crucial for a successful implementation.
 - Voice actor for in-game tutorial narration.
 - Playtesting pathfinding on complex stage layouts.
 - Performance optimization of draw calls and memory usage.
-- Add Spanish language translations for core UI.
-- Custom colorblind-friendly emoji textures.
+- Procedural grid texture for the neon floor.

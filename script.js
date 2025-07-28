@@ -22,7 +22,6 @@ import { updateProjectiles3d } from './modules/projectilePhysics3d.js';
 import { AudioManager } from './modules/audio.js';
 import { STAGE_CONFIG } from './modules/config.js';
 import { Telemetry, storeTelemetry } from './modules/telemetry.js';
-import { applyTranslations, setLanguage, getCurrentLanguage } from './modules/localization.js';
 
 // -----------------------------------------------------------------------------
 // A‑Frame helper: apply a live canvas as a texture to any mesh.
@@ -132,7 +131,6 @@ window.addEventListener('load', () => {
     vignetteIntensity: 0.4,
     crosshairColor: '#00ffff',
     crosshairSize: 1.0,
-    colorblindMode: false,
     turnStyle: 'smooth',
     telemetryEnabled: false,
     musicVolume: 0.35,
@@ -145,7 +143,6 @@ window.addEventListener('load', () => {
     vignetteIntensity: parseFloat(localStorage.getItem('vignetteIntensity')) || DEFAULT_SETTINGS.vignetteIntensity,
     crosshairColor: localStorage.getItem('crosshairColor') || DEFAULT_SETTINGS.crosshairColor,
     crosshairSize: parseFloat(localStorage.getItem('crosshairSize')) || DEFAULT_SETTINGS.crosshairSize,
-    colorblindMode: localStorage.getItem('colorblindMode') === 'true',
     turnStyle: localStorage.getItem('turnStyle') || DEFAULT_SETTINGS.turnStyle,
     telemetryEnabled: localStorage.getItem('telemetryEnabled') === 'true',
     musicVolume: parseFloat(localStorage.getItem('musicVolume')) || DEFAULT_SETTINGS.musicVolume,
@@ -188,7 +185,6 @@ window.addEventListener('load', () => {
     localStorage.setItem('vignetteIntensity', userSettings.vignetteIntensity);
     localStorage.setItem('crosshairColor', userSettings.crosshairColor);
     localStorage.setItem('crosshairSize', userSettings.crosshairSize);
-    localStorage.setItem('colorblindMode', userSettings.colorblindMode);
     localStorage.setItem('turnStyle', userSettings.turnStyle);
     localStorage.setItem('telemetryEnabled', userSettings.telemetryEnabled);
     localStorage.setItem('musicVolume', userSettings.musicVolume);
@@ -210,17 +206,7 @@ window.addEventListener('load', () => {
     }
     AudioManager.setMusicVolume(userSettings.musicVolume);
     AudioManager.setSfxVolume(userSettings.sfxVolume);
-    applyColorblindMode();
     applyHighContrastMode();
-  }
-
-  function applyColorblindMode(){
-    const hbFill = document.getElementById('vrHealthFill');
-    if(userSettings.colorblindMode){
-      hbFill && hbFill.setAttribute('material','color:#ffd700; emissive:#ffd700; emissiveIntensity:0.6');
-    }else{
-      hbFill && hbFill.setAttribute('material','color:#ff5555; emissive:#ff5555; emissiveIntensity:0.6');
-    }
   }
 
   function applyHighContrastMode(){
@@ -400,8 +386,6 @@ window.addEventListener('load', () => {
     const sfx  = document.getElementById('sfxVolumeRange');
     const styleSel = document.getElementById('turnStyleSelect');
     const tele = document.getElementById('telemetryToggle');
-    const langSel = document.getElementById('languageSelect');
-    const cbToggle = document.getElementById('colorblindToggle');
     const hcToggle = document.getElementById('highContrastToggle');
     if(turn){ turn.value = userSettings.turnSpeed; }
     if(vig){ vig.value = userSettings.vignetteIntensity; }
@@ -411,8 +395,7 @@ window.addEventListener('load', () => {
     if(sfx){ sfx.value = userSettings.sfxVolume; }
     if(styleSel){ styleSel.value = userSettings.turnStyle; }
     if(tele){ tele.checked = userSettings.telemetryEnabled; }
-    if(langSel){ langSel.value = getCurrentLanguage(); }
-    if(cbToggle){ cbToggle.checked = userSettings.colorblindMode; }
+    if(hcToggle){ hcToggle.checked = userSettings.highContrast; }
     if(hcToggle){ hcToggle.checked = userSettings.highContrast; }
     await showHolographicPanel('#settingsModal','#settingsCanvas');
   }
@@ -1025,7 +1008,6 @@ window.addEventListener('load', () => {
   // One‑time start‑up: set up deck, light, controllers, events, etc.
   // ---------------------------------------------------------------------------
   loadPlayerState();
-  applyTranslations();
   drawGrid(document.getElementById('gridCanvas'));
   drawButtonTexture(document.getElementById('buttonCanvas'));
   applySettings();
@@ -1038,8 +1020,6 @@ window.addEventListener('load', () => {
   const sfxVolumeRange     = document.getElementById('sfxVolumeRange');
   const turnStyleSelect   = document.getElementById('turnStyleSelect');
   const telemetryToggle   = document.getElementById('telemetryToggle');
-  const languageSelect    = document.getElementById('languageSelect');
-  const colorblindToggle  = document.getElementById('colorblindToggle');
   const highContrastToggle = document.getElementById('highContrastToggle');
 
   safeAddEventListener(turnSpeedRange,'input',e=>{ userSettings.turnSpeed = parseFloat(e.target.value); saveSettings(); });
@@ -1054,15 +1034,6 @@ window.addEventListener('load', () => {
     saveSettings();
     if(userSettings.telemetryEnabled) Telemetry.start(storeTelemetry);
     else Telemetry.stop();
-  });
-  safeAddEventListener(languageSelect,'input',e=>{
-    setLanguage(e.target.value);
-    saveSettings();
-  });
-  safeAddEventListener(colorblindToggle,'input',e=>{
-    userSettings.colorblindMode = e.target.checked;
-    applySettings();
-    saveSettings();
   });
   safeAddEventListener(highContrastToggle,'input',e=>{
     userSettings.highContrast = e.target.checked;
