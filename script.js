@@ -109,7 +109,8 @@ window.addEventListener('load', () => {
       const pct = Math.round((e.detail.loaded / e.detail.total) * 100);
       if(loadingProgress) loadingProgress.innerText = `Loading ${pct}%`;
     });
-    assetsEl.addEventListener('loaded',()=>{
+    assetsEl.addEventListener('loaded',async ()=>{
+      await preRenderPanels();
       loadingScreen.style.display = 'none';
     });
   } else if(loadingScreen){
@@ -602,6 +603,34 @@ window.addEventListener('load', () => {
     holographicPanel.setAttribute('visible',true);
     vrState.holographicPanelVisible=true;
     AudioManager.playSfx('uiModalOpen');
+  }
+
+  // Pre-render all holographic panels during loading so opening a menu
+  // never causes a frame hitch.  Renders each modal to its off-screen
+  // canvas exactly once and caches the texture for later use.
+  async function preRenderPanels(){
+    const panels = [
+      ['#ascensionGridModal','#ascensionGridCanvas'],
+      ['#aberrationCoreModal','#aberrationCanvas'],
+      ['#orreryModal','#orreryCanvas'],
+      ['#settingsModal','#settingsCanvas']
+    ];
+    for(const [modalSel,canvasSel] of panels){
+      const modal = document.querySelector(modalSel);
+      if(!modal) continue;
+      let target = document.querySelector(canvasSel);
+      if(!target){
+        target = document.createElement('canvas');
+        target.id = canvasSel.substring(1);
+        document.body.appendChild(target).style.display='none';
+      }
+      if(!panelCache.has(modalSel)){
+        modal.classList.add('is-rendering');
+        await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960});
+        modal.classList.remove('is-rendering');
+        panelCache.set(modalSel,target);
+      }
+    }
   }
   safeAddEventListener(closeHoloBtn,'click',()=>{
     holographicPanel.setAttribute('visible',false);

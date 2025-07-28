@@ -70,7 +70,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Improve 3D projectile physics for enemy attacks.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for
   health, shield, ascension and ability slots.
-- Optimize menu button interactions to eliminate freezes when opening holographic panels.
+- Fix holographic panels sometimes rendering only the top-left portion in VR.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
