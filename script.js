@@ -109,6 +109,7 @@ window.addEventListener('load', () => {
 
   let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
   const entityMap = new Map();  // maps game objects → A‑Frame entities
+  const panelCache = new Map(); // caches html2canvas results
 
   // --- VR‑only runtime state ---------------------------------------------------
   const vrState = {
@@ -402,9 +403,12 @@ window.addEventListener('load', () => {
       target.id=canvasSel.substring(1);
       document.body.appendChild(target).style.display='none';
     }
-    modal.classList.add('is-rendering');
-    await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960});
-    modal.classList.remove('is-rendering');
+    if(!panelCache.has(modalSel)){
+      modal.classList.add('is-rendering');
+      await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960});
+      modal.classList.remove('is-rendering');
+      panelCache.set(modalSel,target);
+    }
     holographicPanel.setAttribute('canvas-texture',canvasSel);
     holographicPanel.setAttribute('visible',true);
     vrState.holographicPanelVisible=true;
@@ -493,7 +497,10 @@ window.addEventListener('load', () => {
         el=document.createElement('a-entity');
         entityMap.set(id,el);
         container.appendChild(el);
-        if(obj.boss){
+        if(obj.model){
+          el.setAttribute('gltf-model', obj.model);
+          if(obj.modelScale) el.setAttribute('scale', obj.modelScale);
+        }else if(obj.boss){
           el.setAttribute('geometry','primitive: sphere; radius: 0.5');
           el.setAttribute('material',`color:${obj.color||'#e74c3c'}; emissive:${obj.color||'#e74c3c'}; emissiveIntensity:0.4`);
         }else if(obj.emoji||obj.type==='rune_of_fate'){
