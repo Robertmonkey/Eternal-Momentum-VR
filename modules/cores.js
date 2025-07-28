@@ -509,6 +509,9 @@ export function handleCoreOnDamageDealt(target) {
     target.isInfected = true;
     target.infectionEnd = Date.now() + 10000;
   }
+  if (typeof window.pulseControllers === 'function') {
+    window.pulseControllers(30, 0.4);
+  }
 }
 
 /**

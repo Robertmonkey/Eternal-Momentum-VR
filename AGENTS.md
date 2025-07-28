@@ -69,7 +69,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Create interactive tutorial stage with holographic guides.
 - Implement online leaderboard for stage scores.
-- Add haptic feedback on damage and ability use.
+- Create gesture-based hotkeys for quick ability access.
 - Create stage-clear summary screen with performance stats in VR.
 - Refine enemy hit detection using proper 3D colliders.
 
