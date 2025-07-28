@@ -134,4 +134,15 @@ The battlefield is the entire inner surface of a **massive, hollow sphere** that
 ### 4. Core Gameplay Loop & VR Control Scheme
 * **Targeting on the Sphere:** Your hand controller projects a **cursor** onto the **inner surface of the gameplay sphere**.
 * **Movement via Attraction:** The Nexus avatar is **not** directly controlled. It is constantly *attracted* towards your cursor's position, moving fluidly along the sphere's curved surface.
-* **Activating Abilities:** Offensive powers fire towards your cursor, while defensive powers activate around the Nexus. Squeezing **both** triggers together activates your attuned Aberration Core ability. 
+* **Activating Abilities:** Offensive powers fire towards your cursor, while defensive powers activate around the Nexus. Squeezing **both** triggers together activates your attuned Aberration Core ability.
+
+---
+### User Feedback from Testing
+Recent playtesting revealed several issues that need to be addressed:
+
+* Menu buttons appear at a comfortable height but are spaced too far apart and cause a short freeze when clicked.
+* After clicking a button in VR, the menu fails to render until the browser is focused outside the headset, leaving only a partial screen.
+* The first stage does not run—enemies and the first boss appear but remain frozen.
+* A green orb is visible beneath the entry point but lacks an identifying emoji.
+* The neon grid floor spawns under the buttons instead of beneath the player, providing no footing.
+* The crosshair cursor and the Conduit avatar are missing from the battlefield.

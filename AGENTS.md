@@ -55,12 +55,13 @@ Adherence to these constraints is crucial for a successful implementation.
 |-- styles.css        ← VR‑only CSS (comfort vignette, off‑screen modals)
 |-- AGENTS.md         ← **THIS FILE**
 |-- README.md         ← High‑level project brief + legacy overview
+|-- assets/           ← shared images, audio and cursor files
+|   |-- cursors/      ← .cur and .ani files referenced by CSS
 |-- Eternal-Momentum-OLD GAME/   ← **Original 2‑D browser game**
-    |-- index.html    ← legacy HTML scaffold :contentReference[oaicite:4]{index=4}
-    |-- style.css     ← neon/space aesthetic, colour variables
+    |-- index.html    ← legacy HTML scaffold
+    |-- style.css     ← neon/space aesthetic, colour variables (uses ../assets/ paths)
     |-- main.js       ← entry point
     |-- modules/      ← state.js, gameLoop.js, powers.js, cores.js, ascension.js, ui.js, utils.js…
-    |-- assets/       ← png / mp3 / mp4 used by both versions
 
 ## TODO
 - Implement haptic cues for damage taken and power activation.
