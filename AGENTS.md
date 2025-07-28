@@ -88,7 +88,7 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- Implement dynamic tutorial prompts for VR controls.
+- Refactor projectile system with object pooling to reduce memory thrash.
 
 ## NEED
 - Additional sound effects and background music loops.

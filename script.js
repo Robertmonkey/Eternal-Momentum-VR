@@ -335,6 +335,7 @@ window.addEventListener('load', () => {
     cameraEl.object3D.getWorldPosition(camPos);
     commandDeck.object3D.position.set(camPos.x, camPos.y - 0.5, camPos.z);
     commandDeck.object3D.rotation.set(0,0,0);
+    if(tutorial.step===3) advanceTutorial();
   }
   window.recenterCommandDeck = recenterCommandDeck;
 
@@ -735,6 +736,8 @@ window.addEventListener('load', () => {
       text='Great! Press either trigger again to fire your power.';
     }else if(tutorial.step===2){
       text='Press both triggers together to unleash your Core.';
+    }else if(tutorial.step===3){
+      text='Press the Center button or R if you drift too far.';
     }else{
       tutorial.el=null;
       localStorage.setItem('tutorialShown','1');
