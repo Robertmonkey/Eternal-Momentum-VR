@@ -70,8 +70,8 @@ Adherence to these constraints is crucial for a successful implementation.
 - Create interactive tutorial stage with holographic guides.
 - Implement online leaderboard for stage scores.
 - Add haptic feedback on damage and ability use.
-- Implement pathfinding system for enemies on the spherical battlefield.
 - Create stage-clear summary screen with performance stats in VR.
+- Refine enemy hit detection using proper 3D colliders.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -80,3 +80,4 @@ Adherence to these constraints is crucial for a successful implementation.
 - QA testers for cross-device VR compatibility.
 - QA across varied room-scale setups to verify recenter functionality.
 - Voice actor for in-game tutorial narration.
+- Playtesting pathfinding on complex stage layouts.
