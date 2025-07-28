@@ -87,7 +87,6 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Expand tutorial prompts to explain VR controls.
 - Add unit tests for 3D movement helpers.
 
 ## NEED
