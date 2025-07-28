@@ -935,6 +935,31 @@ window.addEventListener('load', () => {
     const activeIds=new Set();
 
     const projectileTypes=new Set(['nova_bullet','ricochet_projectile','seeking_shrapnel','helix_bolt','player_fragment']);
+    const projectilePool=[];
+
+    function obtainProjectile(){
+      const el=projectilePool.pop();
+      if(el){
+        el.innerHTML='';
+        el.removeAttribute('geometry');
+        el.removeAttribute('material');
+        el.removeAttribute('enemy-hitbox');
+        el.dataset.pool='projectile';
+        return el;
+      }
+      const e=document.createElement('a-entity');
+      e.dataset.pool='projectile';
+      return e;
+    }
+
+    function releaseProjectile(el){
+      el.innerHTML='';
+      el.removeAttribute('geometry');
+      el.removeAttribute('material');
+      el.removeAttribute('enemy-hitbox');
+      if(el.parentElement) el.parentElement.removeChild(el);
+      projectilePool.push(el);
+    }
     const projectileEmojis={
       nova_bullet:'🔹',
       ricochet_projectile:'🔸',
@@ -975,7 +1000,9 @@ window.addEventListener('load', () => {
       let el = entityMap.get(id);
       const pos = uvToSpherePos(obj.x/canvas.width, obj.y/canvas.height, SPHERE_RADIUS);
       if(!el){
-        el=document.createElement('a-entity');
+        const isProj = projectileTypes.has(obj.type);
+        el = isProj ? obtainProjectile() : document.createElement('a-entity');
+        if(isProj) el.dataset.pool='projectile';
         entityMap.set(id,el);
         container.appendChild(el);
         if(obj.model){
@@ -1065,7 +1092,11 @@ window.addEventListener('load', () => {
 
     // Remove entities that disappeared from game state
     for(const [id,el] of entityMap.entries()){
-      if(!activeIds.has(id)){ el.remove(); entityMap.delete(id); previousPositions.delete(id); }
+      if(!activeIds.has(id)){
+        if(el.dataset.pool==='projectile') releaseProjectile(el); else el.remove();
+        entityMap.delete(id);
+        previousPositions.delete(id);
+      }
     }
 
     if(state.gameOver){
