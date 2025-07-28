@@ -1042,6 +1042,11 @@ window.addEventListener('load', () => {
           const deg=THREE.MathUtils.radToDeg(obj.coneAngle||Math.PI/4);
           el.setAttribute("geometry",`primitive: cylinder; radius:${SPHERE_RADIUS*0.6}; height:0.05; openEnded:true; thetaStart:-${deg}/2; thetaLength:${deg}`);
           el.setAttribute("material","color:#9b59b6; opacity:0.4; transparent:true; side:double");
+        }else if(obj.type==="shrinking_box_warning"||obj.type==="shrinking_box"){
+          const size = obj.size || (obj.initialSize*(1-((Date.now()-obj.startTime)/obj.duration)));
+          const rad = size/2/canvas.width*SPHERE_RADIUS;
+          el.setAttribute('geometry',`primitive: ring; radiusInner:${Math.max(rad-0.05,0.01)}; radiusOuter:${rad}`);
+          el.setAttribute('material','color:#d35400; opacity:0.4; transparent:true; side:double');
         }
         }else{
           el.setAttribute('geometry','primitive: sphere; radius:0.2');
@@ -1071,6 +1076,11 @@ window.addEventListener('load', () => {
             const quat=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),normal);
             el.object3D.quaternion.copy(quat);
             el.object3D.rotateOnAxis(normal,obj.angle||0);
+          } else if(obj.type==="shrinking_box_warning"||obj.type==="shrinking_box"){
+            const normal=pos.clone().normalize();
+            const quat=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1),normal);
+            el.object3D.quaternion.copy(quat);
+            el.object3D.lookAt(0,0,0);
           } else {
             el.object3D.lookAt(0,0,0);
           }
@@ -1086,7 +1096,8 @@ window.addEventListener('load', () => {
     state.enemies.forEach(o=>spawn(o, enemyContainer));
     state.pickups.forEach(o=>spawn(o, pickupContainer));
     state.effects.forEach(o=>{
-      const cont = projectileTypes.has(o.type) ? projectileContainer : (o.type==="syphon_cone" ? telegraphContainer : effectContainer);
+      const isTelegraph = o.type==="syphon_cone"||o.type==="shrinking_box_warning"||o.type==="shrinking_box";
+      const cont = projectileTypes.has(o.type) ? projectileContainer : (isTelegraph ? telegraphContainer : effectContainer);
       spawn(o, cont);
     });
 

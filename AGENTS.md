@@ -88,7 +88,7 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- Implement 3D attack telegraphs for bosses.
+- Add VR tutorial prompts for the new control scheme.
 
 ## NEED
 - Additional sound effects and background music loops.
