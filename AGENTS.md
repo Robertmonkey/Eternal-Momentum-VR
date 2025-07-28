@@ -69,7 +69,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
 - Integrate telegraph system with other boss abilities like shrinking boxes and shaper runes.
-- Add VR performance telemetry logging and analytics hooks.
+- Integrate remote analytics upload for performance telemetry.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -79,3 +79,4 @@ Adherence to these constraints is crucial for a successful implementation.
 - QA across varied room-scale setups to verify recenter functionality.
 - Voice actor for in-game tutorial narration.
 - Playtesting pathfinding on complex stage layouts.
+- Analytics endpoint credentials for telemetry upload.
