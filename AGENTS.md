@@ -87,8 +87,8 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Implement high-contrast HUD toggle across all panels.
-- Refine enemy pathfinding for smooth navigation on the sphere.
+- Add dynamic UI scaling for varied headset resolutions.
+- Optimize draw calls and memory usage during intense battles.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -98,5 +98,5 @@ Adherence to these constraints is crucial for a successful implementation.
 - QA across varied room-scale setups to verify recenter functionality.
 - Voice actor for in-game tutorial narration.
 - Playtesting pathfinding on complex stage layouts.
-- Performance optimization of draw calls and memory usage.
-- Dynamic UI scaling for varied headset resolutions.
+- Model haptic feedback patterns for core abilities.
+- Create accessibility documentation for colorblind modes.

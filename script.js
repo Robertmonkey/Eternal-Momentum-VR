@@ -211,6 +211,7 @@ window.addEventListener('load', () => {
 
   function applyHighContrastMode(){
     const contrast=userSettings.highContrast;
+    document.body.classList.toggle('high-contrast', contrast);
     const hbBg=document.getElementById('vrHealthBg');
     hbBg && hbBg.setAttribute('material',`color:${contrast?'#000':'#111'}; opacity:0.9`);
     const hbFill=document.getElementById('vrHealthFill');
