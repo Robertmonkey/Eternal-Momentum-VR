@@ -26,6 +26,9 @@
   <!-- Console button texture source -->
   <canvas id="buttonCanvas" width="256" height="256" style="display:none;"></canvas>
   <canvas id="settingsCanvas" width="1280" height="960" style="display:none;"></canvas>
+  <div id="loadingScreen">
+    <div id="loadingProgress">Loading 0%</div>
+  </div>
 
   <!-- ⇣⇣ VR SCENE ⇣⇣ -->
   <a-scene embedded background="color: #000">
@@ -235,6 +238,12 @@
         </label>
         <label>Crosshair Size
           <input id="crosshairSizeRange" type="range" min="0.5" max="1.5" step="0.05">
+        </label>
+        <label>Turn Style
+          <select id="turnStyleSelect">
+            <option value="smooth">Smooth</option>
+            <option value="snap">Snap</option>
+          </select>
         </label>
       </div>
     </div>

@@ -68,11 +68,26 @@ window.addEventListener('load', () => {
   const projectileContainer = document.getElementById('projectileContainer');
   const effectContainer  = document.getElementById('effectContainer');
   const crosshair        = document.getElementById('crosshair');
+  const loadingScreen    = document.getElementById('loadingScreen');
+  const loadingProgress  = document.getElementById('loadingProgress');
   let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
   const leftHand  = document.getElementById('leftHand');
   const rightHand = document.getElementById('rightHand');
+
+  const assetsEl = document.querySelector('a-assets');
+  if(assetsEl && loadingScreen){
+    assetsEl.addEventListener('progress',e=>{
+      const pct = Math.round((e.detail.loaded / e.detail.total) * 100);
+      if(loadingProgress) loadingProgress.innerText = `Loading ${pct}%`;
+    });
+    assetsEl.addEventListener('loaded',()=>{
+      loadingScreen.style.display = 'none';
+    });
+  } else if(loadingScreen){
+    loadingScreen.style.display = 'none';
+  }
 
   const SPHERE_RADIUS = 8;
 
@@ -80,14 +95,16 @@ window.addEventListener('load', () => {
     turnSpeed: 1.0,
     vignetteIntensity: 0.4,
     crosshairColor: '#00ffff',
-    crosshairSize: 1.0
+    crosshairSize: 1.0,
+    turnStyle: 'smooth'
   };
 
   const userSettings = {
     turnSpeed: parseFloat(localStorage.getItem('turnSpeed')) || DEFAULT_SETTINGS.turnSpeed,
     vignetteIntensity: parseFloat(localStorage.getItem('vignetteIntensity')) || DEFAULT_SETTINGS.vignetteIntensity,
     crosshairColor: localStorage.getItem('crosshairColor') || DEFAULT_SETTINGS.crosshairColor,
-    crosshairSize: parseFloat(localStorage.getItem('crosshairSize')) || DEFAULT_SETTINGS.crosshairSize
+    crosshairSize: parseFloat(localStorage.getItem('crosshairSize')) || DEFAULT_SETTINGS.crosshairSize,
+    turnStyle: localStorage.getItem('turnStyle') || DEFAULT_SETTINGS.turnStyle
   };
 
   let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
@@ -119,6 +136,7 @@ window.addEventListener('load', () => {
     localStorage.setItem('vignetteIntensity', userSettings.vignetteIntensity);
     localStorage.setItem('crosshairColor', userSettings.crosshairColor);
     localStorage.setItem('crosshairSize', userSettings.crosshairSize);
+    localStorage.setItem('turnStyle', userSettings.turnStyle);
   }
 
   function applySettings(){
@@ -261,10 +279,12 @@ window.addEventListener('load', () => {
     const vig  = document.getElementById('vignetteRange');
     const color= document.getElementById('crosshairColor');
     const size = document.getElementById('crosshairSizeRange');
+    const styleSel = document.getElementById('turnStyleSelect');
     if(turn){ turn.value = userSettings.turnSpeed; }
     if(vig){ vig.value = userSettings.vignetteIntensity; }
     if(color){ color.value = userSettings.crosshairColor; }
     if(size){ size.value = userSettings.crosshairSize; }
+    if(styleSel){ styleSel.value = userSettings.turnStyle; }
     await showHolographicPanel('#settingsModal','#settingsCanvas');
   }
 
@@ -514,11 +534,13 @@ window.addEventListener('load', () => {
   const vignetteRange = document.getElementById('vignetteRange');
   const crosshairColorInput = document.getElementById('crosshairColor');
   const crosshairSizeRange = document.getElementById('crosshairSizeRange');
+  const turnStyleSelect   = document.getElementById('turnStyleSelect');
 
   safeAddEventListener(turnSpeedRange,'input',e=>{ userSettings.turnSpeed = parseFloat(e.target.value); saveSettings(); });
   safeAddEventListener(vignetteRange,'input',e=>{ userSettings.vignetteIntensity = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(crosshairColorInput,'input',e=>{ userSettings.crosshairColor = e.target.value; applySettings(); saveSettings(); });
   safeAddEventListener(crosshairSizeRange,'input',e=>{ userSettings.crosshairSize = parseFloat(e.target.value); applySettings(); saveSettings(); });
+  safeAddEventListener(turnStyleSelect,'input',e=>{ userSettings.turnStyle = e.target.value; saveSettings(); });
 
   if(battleSphere){
     battleSphere.addEventListener('raycaster-intersection',e=>{
@@ -570,20 +592,31 @@ window.addEventListener('load', () => {
   if(leftHand) setupController(leftHand);
   if(rightHand) setupController(rightHand);
 
-  function setupSmoothTurning(){
+  function setupTurning(){
     const rig = document.getElementById('rig');
+    let lastSnap = 0;
     [leftHand, rightHand].forEach(hand=>{
       if(!hand) return;
       hand.addEventListener('thumbstickmoved',e=>{
         if(!rig) return;
-        const x=e.detail.x;
-        if(Math.abs(x)>0.2){
-          rig.object3D.rotation.y -= x * userSettings.turnSpeed * 0.05;
+        const x = e.detail.x;
+        if(userSettings.turnStyle === 'smooth'){
+          if(Math.abs(x) > 0.2){
+            rig.object3D.rotation.y -= x * userSettings.turnSpeed * 0.05;
+          }
+        }else if(userSettings.turnStyle === 'snap'){
+          if(Math.abs(x) > 0.8){
+            const now = Date.now();
+            if(now - lastSnap > 250){
+              rig.object3D.rotation.y -= Math.sign(x) * THREE.MathUtils.degToRad(30);
+              lastSnap = now;
+            }
+          }
         }
       });
     });
   }
-  setupSmoothTurning();
+  setupTurning();
 
   safeAddEventListener(sceneEl,'loaded',()=>{
     anchorCommandDeck();
