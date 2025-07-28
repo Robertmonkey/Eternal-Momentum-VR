@@ -322,6 +322,15 @@ window.addEventListener('load', () => {
     const uv = spherePosToUv(vrState.avatarPos, SPHERE_RADIUS);
     state.player.x = uv.u*canvas.width;
     state.player.y = uv.v*canvas.height;
+    // Ensure avatar and crosshair are visible at start
+    nexusAvatar.setAttribute('visible', true);
+    nexusAvatar.object3D.position.copy(vrState.avatarPos);
+    nexusAvatar.object3D.lookAt(0,0,0);
+    if(crosshair){
+      crosshair.setAttribute('visible', true);
+      crosshair.object3D.position.copy(vrState.avatarPos);
+      crosshair.object3D.lookAt(0,0,0);
+    }
     if(!state.currentStage||state.currentStage<1||state.currentStage>STAGE_CONFIG.length) state.currentStage=1;
     spawnBossesForStage(state.currentStage);
     vrState.isGameRunning = true;
@@ -344,12 +353,12 @@ window.addEventListener('load', () => {
     // Move Nexus avatar toward cursor (Momentum)
     if(vrState.cursorPoint.length()){
       moveTowards(vrState.avatarPos, vrState.cursorPoint, state.player.speed, SPHERE_RADIUS);
-      nexusAvatar.object3D.position.copy(vrState.avatarPos);
-      nexusAvatar.object3D.lookAt(0,0,0);
-      const uvNow = spherePosToUv(vrState.avatarPos,SPHERE_RADIUS);
-      state.player.x = uvNow.u*canvas.width;
-      state.player.y = uvNow.v*canvas.height;
     }
+    nexusAvatar.object3D.position.copy(vrState.avatarPos);
+    nexusAvatar.object3D.lookAt(0,0,0);
+    const uvNow = spherePosToUv(vrState.avatarPos,SPHERE_RADIUS);
+    state.player.x = uvNow.u*canvas.width;
+    state.player.y = uvNow.v*canvas.height;
 
     // Spawn / update 3‑D representations of all dynamic objects
     const activeIds=new Set();
