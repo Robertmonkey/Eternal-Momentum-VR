@@ -806,7 +806,8 @@ export function gameTick(mx, my) {
                         } else {
                             state.player.health -= damage; 
                         }
-                        play('hitSound'); 
+                        play('hitSound');
+                        if(window.pulseControllers) window.pulseControllers(100,0.7);
                         if(e.onDamage) e.onDamage(e, damage, state.player, state, spawnParticlesCallback, play, stopLoopingSfx, gameHelpers);
                         if(state.player.health<=0) state.gameOver=true; 
                     } else if (state.player.shield && damage > 0) { 

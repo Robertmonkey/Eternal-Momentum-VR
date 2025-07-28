@@ -356,9 +356,11 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
 
   // Apply the main power effect
   power.apply(...applyArgs);
+  if(window.pulseControllers) window.pulseControllers(60,0.6);
   
   if (stackedEffect && power.name !== 'Stack') {
       power.apply(...applyArgs);
+      if(window.pulseControllers) window.pulseControllers(60,0.6);
       if(state.stacked) {
           state.stacked = false;
           state.player.statusEffects = state.player.statusEffects.filter(e => e.name !== 'Stacked');
@@ -369,6 +371,7 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
       setTimeout(() => {
            if (state.gameOver) return;
            power.apply(...applyArgs);
+           if(window.pulseControllers) window.pulseControllers(60,0.6);
            addStatusEffect('Duplicated', '✨', 2000);
            play('shaperAttune');
            utils.spawnParticles(state.particles, state.player.x, state.player.y, '#9b59b6', 40, 3, 30,5);
