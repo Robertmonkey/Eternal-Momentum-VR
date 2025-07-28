@@ -154,7 +154,8 @@ Eternal Momentum VR can optionally record anonymous performance data such as ave
 Recent playtesting revealed several issues that need to be addressed:
 
 * loading screen hangs on 0% and VR option comes up but we are not at the home screen, we never see the home screen. (desktop browers test)
-* Console error - navmesh.js:20 Uncaught TypeError: Cannot read properties of null (reading 'array')
-    at buildNavMesh (navmesh.js:20:25)
-    at enemyAI3d.js:14:1
+* ✅ Console error - navmesh.js:20 Uncaught TypeError: Cannot read properties of null (reading 'array')
+    Fixed by rebuilding the navmesh to deduplicate vertices without relying on an index.
+    at buildNavMesh (navmesh.js:20:25)
+    at enemyAI3d.js:14:1
 * when we enter VR we only see some kind of green ball under us, everything else is black and does not show up. Some kind of render fail, maybe from the console error?
