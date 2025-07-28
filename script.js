@@ -856,6 +856,8 @@ window.addEventListener('load', () => {
     nexusAvatar.setAttribute('visible', true);
     nexusAvatar.object3D.position.copy(vrState.avatarPos);
     nexusAvatar.object3D.lookAt(0, 0, 0);
+    const nexusLabel = document.getElementById('nexusLabel');
+    if(nexusLabel) nexusLabel.setAttribute('value','💠');
 
     if(crosshair){
       crosshair.setAttribute('visible', true);
@@ -1195,6 +1197,7 @@ window.addEventListener('load', () => {
     const prev=document.getElementById('prevStageBtn');
     const next=document.getElementById('nextStageBtn');
     const start=document.getElementById('startStageBtn');
+    const close=document.getElementById('closeStageSelectBtn');
     safeAddEventListener(prev,'click',()=>{
       const max=state.player.highestStageBeaten+1;
       vrState.stageSelectIndex = vrState.stageSelectIndex>1 ? vrState.stageSelectIndex-1 : max;
@@ -1207,6 +1210,11 @@ window.addEventListener('load', () => {
     });
     safeAddEventListener(start,'click',()=>{
       startSpecificLevel(vrState.stageSelectIndex);
+    });
+    safeAddEventListener(close,'click',()=>{
+      const panel=document.getElementById('stageSelectPanel');
+      if(panel) panel.setAttribute('visible',false);
+      vrState.stageSelectOpen=false;
     });
   }
 

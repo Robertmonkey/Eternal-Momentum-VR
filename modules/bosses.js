@@ -228,22 +228,43 @@ export const bossData = [{
     lore: "Hailing from a universe of pure thought, this being could exist in multiple places at once. The Unraveling has pinned its fractured consciousness to physical space, forcing it to 'swap' its true self between tangible, fragile illusions in a panicked attempt to evade permanent decoherence.",
     mechanics_desc: "Creates multiple identical clones of itself. Only the true Mirage can be damaged. It will periodically and instantly swap positions with one of its clones, forcing you to reacquire the correct target.",
     init: (b, state, spawnEnemy, canvas) => {
+        // Spawn five clones at random spherical coordinates around the arena
+        // to fully leverage 3D space.
         b.clones = [];
-        for (let i = 0; i < 5; i++) b.clones.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: b.r
-        });
+        for (let i = 0; i < 5; i++) {
+            b.clones.push({
+                theta: Math.random() * Math.PI * 2,
+                phi:   Math.PI * 0.3 + Math.random() * Math.PI * 0.4,
+                r: b.r
+            });
+        }
         b.lastSwap = Date.now();
     },
     logic: (b, ctx, state, utils, gameHelpers) => {
-        b.clones.forEach(c => utils.drawCircle(ctx, c.x, c.y, c.r, "rgba(255,0,255,0.5)"));
+        const canvas = ctx.canvas;
+        // Rotate clones around the sphere for a 3‑D mirage effect
+        b.clones.forEach(c => {
+            c.theta += 0.01;
+            const pos = new THREE.Vector3(
+                Math.sin(c.phi) * Math.cos(c.theta),
+                Math.cos(c.phi),
+                Math.sin(c.phi) * Math.sin(c.theta)
+            );
+            const uv = utils.spherePosToUv(pos, 1);
+            c.x = uv.u * canvas.width;
+            c.y = uv.v * canvas.height;
+            utils.drawCircle(ctx, c.x, c.y, c.r, 'rgba(255,0,255,0.5)');
+        });
         if (Date.now() - b.lastSwap > 2000) {
             b.lastSwap = Date.now();
             gameHelpers.play('mirrorSwap');
             const i = Math.floor(Math.random() * b.clones.length);
-            [b.x, b.clones[i].x] = [b.clones[i].x, b.x];
-            [b.y, b.clones[i].y] = [b.clones[i].y, b.y];
+            const swapX = b.clones[i].x;
+            const swapY = b.clones[i].y;
+            b.clones[i].x = b.x;
+            b.clones[i].y = b.y;
+            b.x = swapX;
+            b.y = swapY;
         }
     },
     onDamage: (b, dmg, source, state, spawnParticles) => {
