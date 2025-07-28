@@ -153,4 +153,5 @@ Eternal Momentum VR can optionally record anonymous performance data such as ave
 ### User Feedback from Testing
 Recent playtesting revealed several issues that need to be addressed:
 
-* loading screen hangs on 0% and looks nothing like the orginal games. ✅ Loading screen now uses the legacy progress bar and updates as assets load.
+* loading screen hangs on 0% and looks nothing like the orginal games. ❌ Loading screen now uses the legacy progress bar and updates as assets load. Bar still never progresses to 100% and we never end up at the home screen!
+* Console error - script.js:1235 Uncaught SyntaxError: missing ) after argument list
