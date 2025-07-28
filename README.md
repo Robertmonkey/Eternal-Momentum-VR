@@ -154,5 +154,5 @@ Eternal Momentum VR can optionally record anonymous performance data such as ave
 Recent playtesting revealed several issues that need to be addressed:
 
 * loading screen hangs on 0% and VR option comes up but we are not at the home screen, we never see the home screen.
-* Console error - Eternal-Momentum-VR/:1 Uncaught TypeError: Failed to resolve module specifier "three". Relative references must start with either "/", "./", or "../".
+* Console error - Eternal-Momentum-VR/:1 Uncaught TypeError: Failed to resolve module specifier "three". Relative references must start with either "/", "./", or "../". ✅ Fixed by removing direct imports of the "three" module and relying on the global THREE namespace provided by A-Frame.
 * when we enter VR we only see some kind of green ball under us, everything else is black and does not show up.

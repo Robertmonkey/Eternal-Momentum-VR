@@ -1,4 +1,6 @@
-import * as THREE from 'three';
+// Use global THREE provided by A-Frame in the browser. Tests provide it via node
+// "three" package, so no import is required here to avoid an unresolved module
+// specifier error in browsers.
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
 
