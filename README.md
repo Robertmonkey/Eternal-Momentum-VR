@@ -1,132 +1,137 @@
-```markdown
-# Eternal Momentum: **Conduit Command VR**
 
-> **Target Platform:** Meta Quest 3 (Touch Plus controllers)  
-> **Original Blueprint:** *Eternal Momentum* 2‑D browser game located in `Eternal‑Momentum‑OLD GAME/`  
-> **Core Fantasy:** You **are** the Conduit—an awakened mind floating at the centre of a colossal hollow sphere, directing reality‑warping combat from a neon‑lit command deck.
+# Eternal Momentum: Conduit Command VR
 
----
+## Project Vision & Directive
 
-## 1 Project Status
+This project is to transform the 2D browser game, **Eternal Momentum**, into a fully immersive, first-person 3D virtual reality experience for the Meta Quest 3. This repository contains the complete source code of the original 2D game, which will serve as the **blueprint** for a new, native 3D VR implementation.
 
-| Date | Stage | Notes |
-|------|-------|-------|
-|2025‑07‑28|**Critical Refactor** | Prototype boots in Quest 3 but UI & gameplay are still incomplete. A full VR‑native rewrite is in progress. |
+The core fantasy is that the player **is the Conduit**, floating at the very center of a massive, spherical reality. From a central command deck, they have a complete 360-degree view of the battlefield as it wraps around them in every direction.
 
 ---
+## Current Status: Critical Refactor in Progress
 
-## 2 Development Roadmap
+**The current VR prototype is considered non-functional and is undergoing a complete overhaul to address critical bugs.** Beta testing has revealed significant issues with the UI, core gameplay loop, and VR implementation that make the game unplayable.
 
-### **Phase 1 — Foundational Fixes (in progress)**
-- [ ] **Command Deck Anchoring** – deck & console track player waist‑height in real time.  
-- [ ] **3‑D Momentum Movement** – Nexus avatar glides along sphere toward controller cursor.  
-- [ ] **Valid Stage Autostart** – enemies + bosses spawn as soon as scene loads.
-
-### **Phase 2 — UI / UX Overhaul**
-- [ ] **Command Cluster Console** – wrap‑around panel with physical neon buttons.  
-- [ ] **Holographic Menus** – Ascension Grid, Core Attunement, Weaver’s Orrery render as large floating canvases.  
-- [ ] **Neon‑Grid Deck Floor** – transparent floor so players can see battlefield beneath.
-
-### **Phase 3 — Full Gameplay Port**
-- [ ] **Enemy & Boss AI** – replicate attack patterns from `modules/bosses.js` in 3‑D.  
-- [ ] **Game Systems** – health, power‑ups, talents, persistence, achievements.
-
-A living checklist with issue links is kept in **`AGENTS.md § Task Board`**.
+The immediate goal is to refactor the codebase to be VR-native, using the original 2D game as a strict visual and logical specification rather than a live engine.
 
 ---
+## Development Roadmap
 
-## 3 VR Control Scheme (Quest 3)
+This project will be developed in phases to ensure a stable and playable experience.
 
-| Action | Controller Input | In‑Game Effect |
-|--------|------------------|----------------|
-|**Target** location | Aim either controller’s laser pointer at the inside of the sphere | Cursor location updates every frame. |
-|**Move Nexus** | *Passive* – Nexus is always attracted to the current cursor | Fluid inertia‑based slide along sphere. |
-|**Fire Offensive Power** | **Left Trigger** *(short press)* | Launch offensive ability toward cursor. |
-|**Activate Defensive Power** | **Right Trigger** *(short press)* | Defensive shield / dash, etc. |
-|**Activate Aberration Core** | **Hold both triggers for 0.15 s** | Fires the equipped Core’s ultimate effect. |
-|**Open Menus** | Point at **physical console button** and pull trigger | Opens Ascension, Core, Orrery or Story hologram. |
-|**Close Menu** | Pull trigger on “Close” button under hologram | Returns to command view. |
-|**Pause / Vignette Toggle** | Quest **ᐧᐧ menu button** *(left controller)* | Opens VR system menu—game auto‑pauses. |
+### **Phase 1: Foundational Fixes (Highest Priority)**
+The goal of this phase is to make the game launch correctly and be minimally playable.
+-   [ ] **Fix VR Layout:** Anchor the Command Deck and all UI elements correctly relative to the player's view at waist level.
+-   [ ] **Correct Entity Spawning:** Ensure all gameplay entities (Nexus, enemies, power-ups) spawn and exist **only** on the inner surface of the outer gameplay sphere, not on the player's deck.
+-   [ ] **Implement 3D "Momentum" Movement:** Re-implement the signature Nexus movement system in 3D, where the avatar is smoothly attracted to the controller's cursor on the sphere's surface.
+-   [ ] **Reliable Stage Start:** Ensure a valid stage with functional controls, enemies, and bosses automatically begins upon entering VR.
 
-> **No keyboard shortcuts are used in VR gameplay.** Legacy hot‑keys (`A`, `C`, `O`, `L`) remain in the HTML source *only* so the original 2‑D blueprint can be captured to textures; they are irrelevant on Quest 3.
+### **Phase 2: UI/UX Overhaul**
+This phase focuses on rebuilding the UI to match the vision of a tactile, holographic command center.
+-   [ ] **Build the Command Cluster:** Arrange all UI panels in a wrap-around console, referencing the layout of the original 2D game's interface.
+-   [ ] **Create Physical Buttons:** Replace all placeholder UI elements with properly modeled and styled 3D buttons that look and feel like the glowing buttons from the original game.
+-   [ ] **Implement Holographic Menus:** Implement the functionality for buttons to open large holographic panels for menus like the Ascension Grid, Core Attunement, and Weaver's Orrery.
+-   [ ] **Add Neon Grid Floor:** Implement the transparent, glowing grid floor for the Command Deck so the player can see the battlefield below.
 
----
-
-## 4 Repository Layout (High‑Level)
-
-```
-
-Eternal‑Momentum‑VR/          ← VR project root
-├── index.html                ← A‑Frame scene & assets
-├── script.js                 ← VR runtime entry
-├── modules/                  ← ES modules (state, powers, cores, etc.)
-├── styles.css                ← VR‑specific CSS
-├── AGENTS.md                 ← Guide for AI agents / Codex
-├── README.md                 ← **THIS FILE**
-└── Eternal‑Momentum‑OLD GAME/← Original 2‑D blueprint (do not modify)
-
-```
+### **Phase 3: Full Gameplay Port**
+Once the foundation is stable, the focus will shift to porting the rich content from the original game.
+-   [ ] **Port Enemy & Boss AI:** Systematically re-implement the attack patterns and behaviors of all Aberrations from modules/bosses.js into 3D-aware components.
+-   [ ] **Port Game Systems:** Port the core game systems like health, power-ups, leveling, and talents into the new 3D architecture.
 
 ---
+## 4  Understanding the **Old 2‑D Game** (Blueprint)
+> **Why this matters**  
+> Codex and other automated tools rely on rich context to avoid mis‑mapping 2‑D concepts to 3‑D space.  
+> This section distils **everything** about the original game’s UI, flow, and data model, with direct
+> file references so you can jump to source instantly.
 
-## 5 Understanding the **Old 2‑D Game** (Blueprint)
+### 3.1 High‑level Architecture
+| Layer | Responsibility | Key files |
+|-------|----------------|-----------|
+|**DOM (+ CSS)**|All visual UI (HUD, menus, modals).|Eternal‑Momentum‑OLD GAME/index.html, style.css|
+|**Canvas 2‑D**|Realtime gameplay rendering.|gameLoop.js (draw & tick)|
+|**Game Logic**|State machine, powers, bosses, talent maths.|state.js, powers.js, bosses.js, talents.js, ascension.js, cores.js, config.js|
+|**Asset pipeline**|Sprites, emoji/procedural particles, SFX, music.|assets/* folders referenced in modules|
 
-The 2‑D build is treated as an **immutable specification**—its logic, art and file structure define how the VR version must behave.
+### 3.2 Start‑up & Flow
+1. **Loading Screen** → fades when assets reach 100 % (#loading-screen div).  
+2. **Home Screen** (#home-screen)  
+   * Background MP4 (assets/home.mp4)  
+   * Buttons: new-game-btn, continue-game-btn, erase-game-btn  
+   * All buttons call startSpecificLevel() or show confirm modals.
+3. **Gameplay Loop**  
+   * Main loop in main.js → gameTick() (from gameLoop.js) every requestAnimationFrame.  
+   * Stage progression via spawnBossesForStage() based on state.currentStage.
+4. **Persistent Save**  
+   * Serialised JSON in localStorage[ 'eternalMomentumSave' ] via savePlayerState() / loadPlayerState().
 
-### 5.1 Key Legacy Modules
-| Module | Responsibility |
-|--------|----------------|
-|`state.js`|Persistent player data, save / load JSON.|
-|`gameLoop.js`|Frame update, spawn tables, collision.|
-|`powers.js` & `cores.js`|All offensive/defensive powers & Aberration Core ultimates.|
-|`bosses.js`|Boss data & aspect switches.|
-|`ascension.js` & `talents.js`|Passive skill tree.|
-|`ui.js`|DOM manipulation for modals & HUD.|
+### 3.3 HUD & In‑game UI
+| Cluster | Elements (DOM id / class) | Behaviour | File |
+|---------|---------------------------|-----------|------|
+|**Command Bar**|hud-group-powers, hud-group-center, hud-group-info|Fixed bottom overlay containing abilities, health, XP.|style.css (§COMMAND BAR)|
+|  • Ability Slots|slot-off-0, slot-def-0, queue q-*|Drag‑&‑drop powers; flash on activation.|ui.js, powers.js|
+|  • Core Socket|aberration-core-socket|Shows currently equipped Aberration Core.|ui.js, cores.js|
+|  • Health & Shield|#health-bar-*, #shield-bar-overlay|Animated bars, sheen effect.|ui.js, gameLoop.js|
+|  • Ascension Bar|#ascension-bar-*, AP label|XP toward next level; turns purple when full.|ascension.js|
+|**Status Bars**|#status-effects-bar, #pantheon-buffs-bar|Emoji icons with timers.|ui.js|
+|**Notification**|#unlock-notification|Animated banner for unlocks.|ui.js -> showUnlockNotification()|
 
-### 5.2 Legacy UI Elements (ID reference)
-`#loading-screen`, `#home-screen`, `#gameCanvas`, `#unlock-notification`, `#gameOverMenu`, `#ascensionGridModal`, `#aberrationCoreModal`, `#orreryModal`, `#bossInfoModal`
+### 3.4 Menus & Modals
+| Modal | Shortcut | Purpose | Generating Module |
+|-------|----------|---------|-------------------|
+|**Ascension Grid**|A key / menu button|Passive talent tree; spend Ascension Points.|ascension.js|
+|**Aberration Core Attunement**|C|Equip / unequip powerful cores that modify play.|cores.js|
+|**Weaver’s Orrery**|O|Draft boss combinations for custom “Timelines”.|ui.js, main.js|
+|**Stage Select**|L|Replay cleared stages at will.|ui.js|
+|**Game Over**|auto|Restart, open Ascension, etc.|main.js|
+|**Custom Confirm**|runtime|Reusable yes/no prompt.|ui.js|
+|**Boss Info**|click boss banner|Lore & mechanics for each boss.|ui.js, bosses.js|
 
-These IDs **must not change**—VR code captures them with **html2canvas** and projects them onto 3‑D panels.
+### 3.5 Core Gameplay Systems
+* **Momentum Movement** – Player sprite attracted toward mouse (state.player.speed, easing in gameLoop.js lines 395‑410).  
+* **Offensive / Defensive Powers** – Defined in powers.js, referenced by emoji and cooldown arrays.  
+* **Aberration Cores** – Active + passive abilities (e.g. *Architect*, *Paradox*, *Vampire*). Logic in cores.js; current core saved on player object.  
+* **Bosses & Aspects** – Data‑driven objects (bosses.js). Each boss can swap “aspects” at HP thresholds, altering behaviour.  
+* **Talents / Ascension Grid** – Node graph in talents.js with colour‑coded constellations; UI rendered by ascension.js.  
+* **Levelling & Unlocks** – XP curve in config.js (LEVELING_CONFIG), stage‑based unlock table THEMATIC_UNLOCKS.  
+* **Particles & SFX** – Helper functions in utils.js and audio routing in audio.js.
+
+### 3.6 File Quick‑Reference
+| Feature | File(s) |
+|---------|---------|
+|Global game state, reset & save|modules/state.js|
+|Main loop / rendering|modules/gameLoop.js, main.js|
+|Power definitions & usage|modules/powers.js|
+|Aberration Cores logic|modules/cores.js|
+|Boss encyclopedia|modules/bosses.js|
+|Talent grid|modules/talents.js, modules/ascension.js|
+|HUD & Modals|index.html, modules/ui.js, style.css|
+|Stage configuration table|modules/config.js|
+|Math helpers & particles|modules/utils.js|
+|Audio routing|modules/audio.js|
 
 ---
+## Core Experience: Inside the Conduit
 
-## 6 Core VR Experience
+### 1. The Command Deck (Player Environment)
+The player is positioned on a circular, floating **Command Deck** at the absolute center of the universe. This deck is your stationary anchor point.
 
-1. **Command Deck**  
-   - Neon‑grid floor, 2 m radius, always under player.  
-   - Console buttons wrap ~240° arc at waist‑height.
+* **360° Omniscience:** From your central vantage point, you can see every part of the battlefield.
+* **Transparent Neon-Grid Floor:** The floor of your command deck is a transparent, luminous grid, styled to match the game's aesthetic.
+* **Floating Console:** Your UI is a series of floating holographic panels and physical controls that hover at waist-height around you.
 
-2. **BattleSphere**  
-   - 16 m diameter hollow sphere; player floats at center.  
-   - All entities are children of `#enemyContainer`, positioned **on** sphere’s interior.
+### 2. The 3D Gameplay Arena (The Spherical Timeline)
+The battlefield is the entire inner surface of a **massive, hollow sphere** that surrounds your Command Deck.
 
-3. **Holographic Menus**  
-   - Off‑screen DOM rendered to canvas → applied to `#holographicPanel`.  
-   - Opens by pointing at console button and squeezing trigger.
+* **Native 3D Gameplay:** All gameplay elements—the Nexus, enemies, and projectiles—are native 3D objects.
+* **Faithful Replication:** The behaviors and attack patterns from the original 2D game will be meticulously re-implemented in 3D.
 
-4. **Fluid Momentum Gameplay**  
-   - Nexus avatar (`#nexusAvatar`) seeks cursor with easing (`moveTowards`).  
-   - Powers & projectiles inherit original formulas; distances now use arc‑length.
+### 3. The UI (Tactile & Holographic Interaction)
+* **Holographic Menus:** Complex menus like the Ascension Grid appear as large, interactive holographic panels.
+* **Physical Buttons:** Common actions are mapped to large, physical 3D buttons on the floating panels.
+* **Holographic Status Display:** A projector displays floating, 3D icons of your equipped powers and a detailed hologram of your attuned **Aberration Core**.
 
----
-
-## 7 How to Contribute
-
-1. **Clone & sideload** the project to Quest 3 (WebXR Browser or `adb push`).  
-2. **Work in a feature branch**, comment‑out superseded code.  
-3. **Test in‑headset**; Quest Browser supports live reload (`CTRL+S` in IDE).  
-4. **Create a PR**; tick the relevant checklist lines in `AGENTS.md`.  
-5. **Never** overwrite files in `Eternal‑Momentum‑OLD GAME/`—they are a fixed reference.
-
----
-
-## 8 Credits & Licence
-
-Original game by **Vires Animi Studios** (2023).  
-VR port by the open‑source community, 2025.  
-All code MIT, art & audio under original proprietary licences—see `/assets/LICENCE.txt`.
-
----
-
-*Last updated 2025‑07‑28 — controller‑first README to align with Meta Quest 3 gameplay.*
-```
+### 4. Core Gameplay Loop & VR Control Scheme
+* **Targeting on the Sphere:** Your hand controller projects a **cursor** onto the **inner surface of the gameplay sphere**.
+* **Movement via Attraction:** The Nexus avatar is **not** directly controlled. It is constantly *attracted* towards your cursor's position, moving fluidly along the sphere's curved surface.
+* **Activating Abilities:** Offensive powers fire towards your cursor, while defensive powers activate around the Nexus. Squeezing **both** triggers together activates your attuned Aberration Core ability. 
