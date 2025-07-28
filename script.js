@@ -866,6 +866,7 @@ window.addEventListener('load', () => {
     anchorCommandDeck();
     createCommandCluster();
     setupStageSelectPanel();
+    restartCurrentStage();
     AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
   });
   safeAddEventListener(sceneEl,'enter-vr',()=>{
