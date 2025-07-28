@@ -26,6 +26,8 @@
   <!-- Console button texture source -->
   <canvas id="buttonCanvas" width="256" height="256" style="display:none;"></canvas>
   <canvas id="settingsCanvas" width="1280" height="960" style="display:none;"></canvas>
+  <!-- Stage select panel target -->
+  <canvas id="levelSelectCanvas" width="1280" height="960" style="display:none;"></canvas>
   <div id="loadingScreen">
     <div id="loadingProgress">Loading 0%</div>
   </div>
@@ -119,6 +121,27 @@
               color="#eaf2ff" position="0 0 0.02"></a-text>
     </a-plane>
 
+    <!-- Stage select panel -->
+    <a-plane id="stageSelectPanel" class="interactive"
+             width="2.5" height="1.6"
+             position="0 1.8 -2.3"
+             visible="false">
+      <a-entity mixin="console-button" id="prevStageBtn"
+                position="-0.9 -0.6 0.02" class="interactive">
+        <a-text value="<" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity mixin="console-button" id="nextStageBtn"
+                position="0.9 -0.6 0.02" class="interactive">
+        <a-text value=">" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity mixin="console-button" id="startStageBtn"
+                position="0 -0.6 0.02" class="interactive">
+        <a-text value="Start" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-text id="stageSelectTitle" align="center" width="2.2" color="#eaf2ff" position="0 0.4 0.02"></a-text>
+      <a-text id="stageSelectStage" align="center" width="2.2" color="#eaf2ff" position="0 0 0.02"></a-text>
+    </a-plane>
+
     <!-- Gameplay battleground -->
     <a-sphere id="battleSphere" radius="8"
               segments-height="60" segments-width="60"
@@ -155,6 +178,21 @@
 
   <!-- Off‑screen legacy UI modals – captured to canvas with html2canvas -->
   <div class="vr-source">
+    <!-- Level Select -->
+    <div id="levelSelectModal" class="modal">
+      <div id="modal-content" class="modal-background">
+        <button id="loreCodexBtn" class="top-right-btn">LORE CODEX</button>
+        <h2 class="modal-title">SELECT STAGE</h2>
+        <div id="level-select-list-container">
+          <div id="level-select-list"></div>
+        </div>
+        <div id="modal-actions">
+          <button id="arenaBtn">WEAVER'S ORRERY</button>
+          <button id="jumpToFrontierBtn">JUMP TO FRONTIER</button>
+          <button id="closeLevelSelectBtn" class="btn-modal-close">Close</button>
+        </div>
+      </div>
+    </div>
     <!-- Ascension -->
     <div id="ascensionGridModal" class="modal">
       <div id="ascension-grid-container" class="modal-background">
