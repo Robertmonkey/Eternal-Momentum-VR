@@ -114,12 +114,14 @@ window.addEventListener('load', () => {
 
   const assetsEl = document.querySelector('a-assets');
   if(assetsEl && loadingScreen){
+    let assetsLoaded = false;
     assetsEl.addEventListener('progress',e=>{
       const pct = Math.round((e.detail.loaded / e.detail.total) * 100);
       if(loadingProgressFill) loadingProgressFill.style.width = pct + '%';
       if(loadingStatusText) loadingStatusText.innerText = `Loading ${pct}%`;
     });
     assetsEl.addEventListener('loaded',async ()=>{
+      assetsLoaded = true;
       await preRenderPanels();
       const saveExists = !!localStorage.getItem('eternalMomentumSave');
       if(continueVrBtn) continueVrBtn.style.display = saveExists ? 'block' : 'none';
@@ -134,6 +136,18 @@ window.addEventListener('load', () => {
         sceneEl.enterVR();
       }
     });
+    // Fallback: show home screen even if assets fail to fire "loaded"
+    setTimeout(()=>{
+      if(!assetsLoaded && loadingScreen.style.display !== 'none'){
+        loadingScreen.style.display = 'none';
+        if(homeScreen){
+          homeScreen.style.display = 'flex';
+          requestAnimationFrame(()=>homeScreen.classList.add('visible'));
+        } else {
+          sceneEl.enterVR();
+        }
+      }
+    }, 7000);
   } else if(loadingScreen){
     loadingScreen.style.display = 'none';
   }
@@ -1374,15 +1388,16 @@ window.addEventListener('load', () => {
     });
   }
 
-  safeAddEventListener(sceneEl,'loaded',()=>{
+  const onSceneLoaded = () => {
     anchorCommandDeck();
     createCommandCluster();
     setupStageSelectPanel();
-    // Stage now starts once assets are fully loaded
-    AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
+    AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')), document.getElementById('soundOptionsToggle'));
     applySettings();
     updateUiScale();
-  });
+  };
+  if(sceneEl.hasLoaded) onSceneLoaded();
+  else safeAddEventListener(sceneEl,'loaded', onSceneLoaded);
   safeAddEventListener(sceneEl,'enter-vr',()=>{
     anchorCommandDeck();
     showTutorialPrompt();
