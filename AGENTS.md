@@ -63,6 +63,7 @@ Adherence to these constraints is crucial for a successful implementation.
     |-- assets/       ← png / mp3 / mp4 used by both versions
 
 ## TODO
+- Prevent command deck buttons from following the player's headset; they must stay fixed relative to the world, as noted in README.
 - Implement haptic cues for damage taken and power activation.
 - Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added. ✅
 - Begin port of enemy and boss AI logic to fully 3D components.
