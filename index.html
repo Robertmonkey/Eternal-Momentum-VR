@@ -166,6 +166,19 @@
       </a-entity>
     </a-plane>
 
+    <!-- Telemetry panel -->
+    <a-plane id="telemetryPanel" class="interactive"
+             width="2.5" height="1.6"
+             position="0 1.8 -2.3"
+             visible="false">
+      <a-entity mixin="console-button" id="closeTelemetryBtn"
+                position="0 -0.6 0.02" class="interactive">
+        <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-text id="telemetryTitle" value="Performance Logs" align="center" width="2.2" color="#eaf2ff" position="0 0.4 0.02"></a-text>
+      <a-text id="telemetryContent" align="left" width="2.2" wrap-count="40" color="#eaf2ff" position="-1.1 0 0.02"></a-text>
+    </a-plane>
+
     <!-- Gameplay battleground -->
     <a-sphere id="battleSphere" radius="8"
               segments-height="60" segments-width="60"
@@ -303,6 +316,12 @@
         </label>
         <label>Crosshair Size
           <input id="crosshairSizeRange" type="range" min="0.5" max="1.5" step="0.05">
+        </label>
+        <label>Music Volume
+          <input id="musicVolumeRange" type="range" min="0" max="1" step="0.05">
+        </label>
+        <label>SFX Volume
+          <input id="sfxVolumeRange" type="range" min="0" max="1" step="0.05">
         </label>
         <label>Turn Style
           <select id="turnStyleSelect">
