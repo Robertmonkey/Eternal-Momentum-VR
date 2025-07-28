@@ -437,6 +437,45 @@ window.addEventListener('load', () => {
     bossGroup.appendChild(bbText);
     hud.appendChild(bossGroup);
 
+    // Ability slots
+    const abilityGroup=document.createElement('a-entity');
+    abilityGroup.object3D.position.set(0,-0.25,0);
+    abilityGroup.setAttribute('look-at','#camera');
+
+    const defSlot3D=document.createElement('a-entity');
+    defSlot3D.setAttribute('id','vrDefSlot');
+    defSlot3D.object3D.position.set(-0.25,0,0);
+    const defBase=document.createElement('a-circle');
+    defBase.setAttribute('radius',0.15);
+    defBase.setAttribute('material','color:#141428; emissive:#00ffff; emissiveIntensity:0.4; opacity:0.95; transparent:true');
+    defSlot3D.appendChild(defBase);
+    const defText=document.createElement('a-text');
+    defText.setAttribute('id','vrDefEmoji');
+    defText.setAttribute('align','center');
+    defText.setAttribute('width','0.6');
+    defText.setAttribute('color','#eaf2ff');
+    defText.object3D.position.set(0,0,0.02);
+    defSlot3D.appendChild(defText);
+
+    const offSlot3D=document.createElement('a-entity');
+    offSlot3D.setAttribute('id','vrOffSlot');
+    offSlot3D.object3D.position.set(0.25,0,0);
+    const offBase=document.createElement('a-circle');
+    offBase.setAttribute('radius',0.17);
+    offBase.setAttribute('material','color:#141428; emissive:#ff00ff; emissiveIntensity:0.4; opacity:0.95; transparent:true');
+    offSlot3D.appendChild(offBase);
+    const offText=document.createElement('a-text');
+    offText.setAttribute('id','vrOffEmoji');
+    offText.setAttribute('align','center');
+    offText.setAttribute('width','0.7');
+    offText.setAttribute('color','#eaf2ff');
+    offText.object3D.position.set(0,0,0.02);
+    offSlot3D.appendChild(offText);
+
+    abilityGroup.appendChild(defSlot3D);
+    abilityGroup.appendChild(offSlot3D);
+    hud.appendChild(abilityGroup);
+
     commandDeck.appendChild(hud);
   }
 

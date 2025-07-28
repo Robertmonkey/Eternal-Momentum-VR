@@ -41,6 +41,8 @@ const vrHealthText = document.getElementById('vrHealthText');
 const vrShieldFill = document.getElementById('vrShieldFill');
 const vrBossFill = document.getElementById('vrBossFill');
 const vrBossName = document.getElementById('vrBossName');
+const vrOffEmoji = document.getElementById('vrOffEmoji');
+const vrDefEmoji = document.getElementById('vrDefEmoji');
 
 const aberrationCoreSocket = document.getElementById('aberration-core-socket');
 const aberrationCoreIcon = document.getElementById('aberration-core-icon');
@@ -225,6 +227,8 @@ export function updateUI() {
     const defP = state.defensiveInventory[0];
     offSlot.innerHTML = offP ? powers[offP].emoji : '';
     defSlot.innerHTML = defP ? powers[defP].emoji : '';
+    if(vrOffEmoji){ vrOffEmoji.setAttribute('value', offP ? powers[offP].emoji : ''); }
+    if(vrDefEmoji){ vrDefEmoji.setAttribute('value', defP ? powers[defP].emoji : ''); }
     offSlot.className = `ability-slot main ${offP ? '' : 'empty'}`;
     defSlot.className = `ability-slot ${defP ? '' : 'empty'}`;
     offSlot.setAttribute('data-tooltip-text', offP ? powers[offP].desc : 'Offensive Power (Left-Click)');
