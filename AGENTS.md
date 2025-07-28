@@ -64,14 +64,12 @@ Adherence to these constraints is crucial for a successful implementation.
     |-- modules/      ← state.js, gameLoop.js, powers.js, cores.js, ascension.js, ui.js, utils.js…
 
 ## TODO
-- Implement haptic cues for damage taken and power activation.
-- Add comfort settings menu for turning speed and vignette intensity.
-- Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added.
 - Begin port of enemy and boss AI logic to fully 3D components.
-- Expand entity spawner to cover projectile effects.
 - Implement a VR-native loading screen that displays progress before entering the command deck.
-- Implement configurable crosshair options (color/size) in settings.
 - Create interactive tutorial stage with holographic guides.
+- Add option for snap-turn vs smooth-turn in the Settings menu.
+- Optimize html2canvas captures to reduce menu-opening lag.
+- Implement online leaderboard for stage scores.
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.
