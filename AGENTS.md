@@ -88,7 +88,8 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Implement holographic menus for in-game panels.
-- preform significant debugging until the game is stable. 
+- preform significant debugging until the game is stable.
+- invesegate render issues and focus on compatiblity with meta quest 3 web browser.
 
 ## NEED
 - Additional sound effects and background music loops.
