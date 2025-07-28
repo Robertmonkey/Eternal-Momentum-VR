@@ -69,7 +69,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Improve 3D projectile physics for enemy attacks.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
-- Investigate and fix VR menu freeze when clicking buttons.
+- Implement navmesh-based enemy pathfinding on the sphere.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
