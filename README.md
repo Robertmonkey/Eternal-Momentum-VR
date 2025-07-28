@@ -7,6 +7,8 @@ This project is to transform the 2D browser game, **Eternal Momentum**, into a f
 
 All visuals will use simple 3D shapes and emoji textures, eliminating any need for custom 3D models.
 
+All gameplay data, including saves and optional telemetry, is stored **only** in the player's browser via `localStorage`. The game uses no online services.
+
 The core fantasy is that the player **is the Conduit**, floating at the very center of a massive, spherical reality. From a central command deck, they have a complete 360-degree view of the battlefield as it wraps around them in every direction.
 
 ---
@@ -27,7 +29,7 @@ The goal of this phase is to make the game launch correctly and be minimally pla
 -   [ ] **Correct Entity Spawning:** Ensure all gameplay entities (Nexus, enemies, power-ups) spawn and exist **only** on the inner surface of the outer gameplay sphere, not on the player's deck.
 -   [ ] **Implement 3D "Momentum" Movement:** Re-implement the signature Nexus movement system in 3D, where the avatar is smoothly attracted to the controller's cursor on the sphere's surface.
 -   [ ] **Reliable Stage Start:** Ensure a valid stage with functional controls, enemies, and bosses automatically begins upon entering VR.
--   [ ] **Integrate Telemetry:** Upload performance data to the analytics service for remote profiling.
+ -   [x] **Integrate Telemetry:** Record performance data locally for debugging. A toggle is available in the settings menu.
 
 ### **Phase 2: UI/UX Overhaul**
 This phase focuses on rebuilding the UI to match the vision of a tactile, holographic command center.
@@ -139,6 +141,10 @@ The battlefield is the entire inner surface of a **massive, hollow sphere** that
 * **Targeting on the Sphere:** Your hand controller projects a **cursor** onto the **inner surface of the gameplay sphere**.
 * **Movement via Attraction:** The Nexus avatar is **not** directly controlled. It is constantly *attracted* towards your cursor's position, moving fluidly along the sphere's curved surface.
 * **Activating Abilities:** Offensive powers fire towards your cursor, while defensive powers activate around the Nexus. Squeezing **both** triggers together activates your attuned Aberration Core ability.
+
+---
+## Telemetry & Privacy
+Eternal Momentum VR can optionally record anonymous performance data such as average frame rate. Data is stored **only** in the browser's localStorage for local troubleshooting. Telemetry is **disabled by default** and can be enabled in the in‑game settings panel. No personal information is collected or transmitted anywhere.
 
 ---
 ### User Feedback from Testing

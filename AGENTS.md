@@ -10,6 +10,8 @@ The goal is to build a new, native 3D VR game based on the vision in `README.md`
 
 **No Custom 3D Models:** All enemies, projectiles, pickups, and UI elements will be composed of primitive shapes and emoji textures only. We will not create or use bespoke 3D models.
 
+**Local-Only Data:** All saves and optional telemetry must be kept in localStorage. The game should never rely on external servers or network connectivity.
+
 ---
 ## Master Task List & Priorities
 
@@ -87,7 +89,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
 - Integrate telegraph system with other boss abilities like shrinking boxes and shaper runes.
-- Add optional user telemetry toggle and privacy note.
+- Implement command cluster layout around the player using A-Frame.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -97,4 +99,5 @@ Adherence to these constraints is crucial for a successful implementation.
 - QA across varied room-scale setups to verify recenter functionality.
 - Voice actor for in-game tutorial narration.
 - Playtesting pathfinding on complex stage layouts.
-- Analytics endpoint credentials for telemetry upload.
+- Interface for viewing saved telemetry metrics in-game.
+- Localization support for the telemetry privacy notice.
