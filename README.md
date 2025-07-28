@@ -27,6 +27,7 @@ The goal of this phase is to make the game launch correctly and be minimally pla
 -   [ ] **Correct Entity Spawning:** Ensure all gameplay entities (Nexus, enemies, power-ups) spawn and exist **only** on the inner surface of the outer gameplay sphere, not on the player's deck.
 -   [ ] **Implement 3D "Momentum" Movement:** Re-implement the signature Nexus movement system in 3D, where the avatar is smoothly attracted to the controller's cursor on the sphere's surface.
 -   [ ] **Reliable Stage Start:** Ensure a valid stage with functional controls, enemies, and bosses automatically begins upon entering VR.
+-   [ ] **Integrate Telemetry:** Upload performance data to the analytics service for remote profiling.
 
 ### **Phase 2: UI/UX Overhaul**
 This phase focuses on rebuilding the UI to match the vision of a tactile, holographic command center.

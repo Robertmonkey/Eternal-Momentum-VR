@@ -42,3 +42,20 @@ export const Telemetry = {
     this.interval = null;
   }
 };
+
+/**
+ * Upload telemetry payload to the remote analytics service.
+ * This uses a simple POST request and ignores errors.
+ * @param {{fps:number,ts:number}} data
+ */
+export async function uploadTelemetry(data){
+  try{
+    await fetch('https://example.com/api/telemetry',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+  }catch(err){
+    console.warn('Telemetry upload failed', err);
+  }
+}
