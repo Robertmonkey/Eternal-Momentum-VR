@@ -52,8 +52,25 @@ Adherence to these constraints is crucial for a successful implementation.
 ```text
 /                     ← VR project root
 |-- index.html        ← A‑Frame scene for VR build
+|-- main.js           ← non‑VR entry and testing harness
 |-- script.js         ← VR runtime bootstrap
-|-- modules/          ← VR ES‑module logic (mirrors legacy modules)
+|-- modules/          ← ES‑module logic for the VR rewrite
+|   |-- ascension.js
+|   |-- audio.js
+|   |-- bosses.js
+|   |-- config.js
+|   |-- cores.js
+|   |-- enemyAI3d.js
+|   |-- gameLoop.js
+|   |-- movement3d.js
+|   |-- navmesh.js
+|   |-- powers.js
+|   |-- projectilePhysics3d.js
+|   |-- state.js
+|   |-- talents.js
+|   |-- telemetry.js
+|   |-- ui.js
+|   |-- utils.js
 |-- styles.css        ← VR‑only CSS (comfort vignette, off‑screen modals)
 |-- AGENTS.md         ← **THIS FILE**
 |-- README.md         ← High‑level project brief + legacy overview
@@ -64,6 +81,7 @@ Adherence to these constraints is crucial for a successful implementation.
     |-- style.css     ← neon/space aesthetic, colour variables (uses ../assets/ paths)
     |-- main.js       ← entry point
     |-- modules/      ← state.js, gameLoop.js, powers.js, cores.js, ascension.js, ui.js, utils.js…
+```
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
