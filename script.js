@@ -98,18 +98,20 @@ window.addEventListener('load', () => {
   window.pulseControllers = pulseControllers;
 
   // ---------------------------------------------------------------------------
-  // Helper: anchor the command deck to the camera at waist height and ensure
-  // it rotates only with the player's yaw. Called on scene load and on every
-  // frame to keep orientation stable even if the player tilts their head.
+  // Helper: position the command deck at a fixed world location so it
+  // never moves with the player's headset.  Called on scene load and when
+  // entering VR to ensure the deck is at waist height relative to the
+  // origin and remains horizontally aligned.
   // ---------------------------------------------------------------------------
   function anchorCommandDeck() {
-    if(!sceneEl||!cameraEl) return;
+    if(!sceneEl||!commandDeck) return;
     if(commandDeck.parentElement !== sceneEl){
       sceneEl.appendChild(commandDeck);
     }
-    const pos = new THREE.Vector3();
-    cameraEl.object3D.getWorldPosition(pos);
-    commandDeck.object3D.position.set(pos.x, pos.y - 0.6, pos.z);
+    // Position the deck at a fixed world location so it does not
+    // track the player's headset movements.  Waist height is roughly
+    // one metre above the origin.
+    commandDeck.object3D.position.set(0, 1.0, 0);
     commandDeck.object3D.rotation.set(0,0,0);
   }
 
