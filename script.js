@@ -65,6 +65,7 @@ window.addEventListener('load', () => {
   const nexusAvatar = document.getElementById('nexusAvatar');
   const enemyContainer   = document.getElementById('enemyContainer');
   const pickupContainer  = document.getElementById('pickupContainer');
+  const projectileContainer = document.getElementById('projectileContainer');
   const effectContainer  = document.getElementById('effectContainer');
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
@@ -228,28 +229,27 @@ window.addEventListener('load', () => {
 
     // Spawn / update 3‑D representations of all dynamic objects
     const activeIds=new Set();
-    [
-      ...state.enemies,
-      ...state.pickups,
-      ...state.effects,
-      ...state.decoys
-    ].forEach(obj=>{
+
+    const projectileTypes=new Set(['nova_bullet','ricochet_projectile','seeking_shrapnel','helix_bolt','player_fragment']);
+
+    function spawn(obj, container){
       const id = obj.instanceId || `${obj.type||'obj'}-${obj.startTime||0}-${obj.x}`;
       activeIds.add(id);
-
       let el = entityMap.get(id);
       const pos = uvToSpherePos(obj.x/canvas.width, obj.y/canvas.height, SPHERE_RADIUS);
       if(!el){
-        el = document.createElement('a-entity');
+        el=document.createElement('a-entity');
         entityMap.set(id,el);
-        effectContainer.appendChild(el);
-        // Very light taxonomy → choose primitive & material
+        container.appendChild(el);
         if(obj.boss){
           el.setAttribute('geometry','primitive: sphere; radius: 0.5');
           el.setAttribute('material',`color:${obj.color||'#e74c3c'}; emissive:${obj.color||'#e74c3c'}; emissiveIntensity:0.4`);
         }else if(obj.emoji||obj.type==='rune_of_fate'){
           el.setAttribute('geometry','primitive: dodecahedron; radius:0.2');
-          el.setAttribute('material', `color:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissive:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissiveIntensity:0.6`);
+          el.setAttribute('material',`color:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissive:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissiveIntensity:0.6`);
+        }else if(projectileTypes.has(obj.type)){
+          el.setAttribute('geometry','primitive: sphere; radius:0.05');
+          el.setAttribute('material',`color:${obj.customColor||'#ffffff'}; emissive:${obj.customColor||'#ffffff'}; emissiveIntensity:0.8`);
         }else{
           el.setAttribute('geometry','primitive: sphere; radius:0.2');
           el.setAttribute('material',`color:${obj.customColor||'#c0392b'}; emissive:${obj.customColor||'#c0392b'}; emissiveIntensity:0.4`);
@@ -257,7 +257,12 @@ window.addEventListener('load', () => {
       }
       el.object3D.position.copy(pos);
       el.object3D.lookAt(0,0,0);
-    });
+    }
+
+    state.enemies.forEach(o=>spawn(o, enemyContainer));
+    state.pickups.forEach(o=>spawn(o, pickupContainer));
+    state.effects.forEach(o=>spawn(o, projectileTypes.has(o.type)?projectileContainer:effectContainer));
+    state.decoys.forEach(o=>spawn(o, effectContainer));
 
     // Remove entities that disappeared from game state
     for(const [id,el] of entityMap.entries()){

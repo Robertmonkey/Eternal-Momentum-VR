@@ -332,11 +332,13 @@ export function showBossInfo(bossIds, type) {
     AudioManager.playSfx('uiModalOpen');
 }
 
-closeBossInfoBtn.addEventListener('click', () => {
-    bossInfoModal.style.display = 'none';
-    if (bossInfoPanel) bossInfoPanel.setAttribute('visible', 'false');
-    AudioManager.playSfx('uiModalClose');
-});
+if (closeBossInfoBtn) {
+    closeBossInfoBtn.addEventListener('click', () => {
+        bossInfoModal.style.display = 'none';
+        if (bossInfoPanel) bossInfoPanel.setAttribute('visible', 'false');
+        AudioManager.playSfx('uiModalClose');
+    });
+}
 
 if (closeBossInfoBtn3D) closeBossInfoBtn3D.addEventListener('click', () => {
     bossInfoModal.style.display = 'none';
