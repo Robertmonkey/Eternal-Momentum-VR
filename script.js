@@ -603,8 +603,12 @@ window.addEventListener('load', () => {
       await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960,scale:1});
       modal.classList.remove('is-rendering');
       panelCache.set(modalSel,target);
+    } else {
+      target = panelCache.get(modalSel);
     }
-    holographicPanel.setAttribute('canvas-texture',canvasSel);
+    // Yield to ensure texture upload does not stall the frame
+    await new Promise(r=>setTimeout(r,0));
+    holographicPanel.setAttribute('canvas-texture',`#${target.id}`);
     holographicPanel.setAttribute('visible',true);
     vrState.holographicPanelVisible=true;
     AudioManager.playSfx('uiModalOpen');
@@ -618,7 +622,8 @@ window.addEventListener('load', () => {
       ['#ascensionGridModal','#ascensionGridCanvas'],
       ['#aberrationCoreModal','#aberrationCanvas'],
       ['#orreryModal','#orreryCanvas'],
-      ['#settingsModal','#settingsCanvas']
+      ['#settingsModal','#settingsCanvas'],
+      ['#levelSelectModal','#levelSelectCanvas']
     ];
     for(const [modalSel,canvasSel] of panels){
       const modal = document.querySelector(modalSel);
