@@ -549,15 +549,15 @@ window.addEventListener('load', () => {
       wrapper.object3D.lookAt(new THREE.Vector3(0,cfg.y,0));
 
       const ring=document.createElement('a-torus');
-      ring.setAttribute('geometry','primitive: torus; radius:0.17; radiusTubular:0.01; segmentsTubular:12');
-      ring.setAttribute('material','color:#00ffff; emissive:#00ffff; emissiveIntensity:0.5; opacity:0.5; transparent:true');
+      ring.setAttribute('geometry','primitive: torus; radius:0.17; radiusTubular:0.01; segmentsTubular:20');
+      ring.setAttribute('material','color:#00ffff; emissive:#00ffff; emissiveIntensity:0.6; opacity:0.45; transparent:true');
       ring.object3D.position.set(0,-0.035,0);
       wrapper.appendChild(ring);
 
       const base=document.createElement('a-cylinder');
       base.setAttribute('radius',0.15);
       base.setAttribute('height',0.02);
-      base.setAttribute('material','color:#050510; emissive:#00ffff; emissiveIntensity:0.35; metalness:0.2; roughness:0.6');
+      base.setAttribute('material','shader: standard; color:#050510; emissive:#00ffff; emissiveIntensity:0.4; metalness:0.25; roughness:0.6');
       base.object3D.position.set(0,-0.03,0);
       wrapper.appendChild(base);
 

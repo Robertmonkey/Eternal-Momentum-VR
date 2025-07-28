@@ -87,11 +87,11 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Style physical buttons for VR UI.
+- Implement holographic menus for in-game panels.
 
 ## NEED
 - Additional sound effects and background music loops.
-- Calibrate enemy projectile speed for VR.
+- Tune boss health values for VR balance.
 
 ## Workflow for Agents
 1. Review `README.md` and this `AGENTS.md` before starting work.

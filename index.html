@@ -61,12 +61,12 @@
     <!-- Reusable mix‑ins & audio assets -->
     <a-assets>
       <a-mixin id="console-button"
-               geometry="primitive: cylinder; radius:0.12; height:0.06"
-               material="color:#0b1020; opacity:0.95; transparent:true;
-                        emissive:#00ffff; emissiveIntensity:0.7; metalness:0.2; roughness:0.4"
+               geometry="primitive: cylinder; radius:0.13; height:0.05"
+               material="shader: standard; color:#0b1020; opacity:0.95; transparent:true;
+                        emissive:#00ffff; emissiveIntensity:0.8; metalness:0.3; roughness:0.5"
                animation__press="property: position; startEvents: mousedown; dir: alternate; dur: 100; to: 0 -0.02 0"
                animation__release="property: position; startEvents: mouseup; dir: alternate; dur: 100; to: 0 0 0"
-               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.5">
+               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.6">
       </a-mixin>
 
       <a-mixin id="console-panel"

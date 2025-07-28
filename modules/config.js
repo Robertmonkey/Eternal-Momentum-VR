@@ -92,3 +92,8 @@ export const STAGE_CONFIG = [
     { stage: 29, displayName: 'The Shaper of Fate',   bosses: ['shaper_of_fate'] },
     { stage: 30, displayName: 'The Pantheon',         bosses: ['pantheon'] }
 ];
+
+// Global tuning values for the VR prototype
+// Scale factor applied to all enemy projectile velocities. Can be tweaked for
+// comfort as the VR movement speed is refined.
+export const VR_PROJECTILE_SPEED_SCALE = 0.85;
