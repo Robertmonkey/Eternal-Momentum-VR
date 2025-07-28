@@ -584,11 +584,28 @@ window.addEventListener('load', () => {
     recenterPrompt.setAttribute('look-at','#camera');
     commandDeck.appendChild(recenterPrompt);
 
-    // --- VR HUD Panels -----------------------------------------------------
-    const hud=document.createElement('a-entity');
-    hud.setAttribute('id','vrHud');
-    hud.object3D.position.set(0,0.35,0.6);
-    hud.setAttribute('look-at','#camera');
+    // --- Command cluster panels ------------------------------------------
+    const cluster=document.createElement('a-entity');
+    cluster.setAttribute('id','commandCluster');
+    commandDeck.appendChild(cluster);
+
+    function panelAt(angle,r=0.6){
+      const p=document.createElement('a-entity');
+      const rad=THREE.MathUtils.degToRad(angle);
+      p.object3D.position.set(Math.sin(rad)*r,0.35,-Math.cos(rad)*r);
+      p.object3D.lookAt(new THREE.Vector3(0,0.35,0));
+      p.setAttribute('look-at','#camera');
+      return p;
+    }
+
+    const leftPanel=panelAt(-40);
+    const centerPanel=panelAt(0);
+    const rightPanel=panelAt(40);
+    cluster.appendChild(leftPanel);
+    cluster.appendChild(centerPanel);
+    cluster.appendChild(rightPanel);
+
+    const hud=centerPanel;
 
     // Health / shield bar
     const healthGroup=document.createElement('a-entity');
@@ -681,7 +698,7 @@ window.addEventListener('load', () => {
     apText.setAttribute('color','#eaf2ff');
     apText.object3D.position.set(0,0.12,0.02);
     ascGroup.appendChild(apText);
-    hud.appendChild(ascGroup);
+    rightPanel.appendChild(ascGroup);
 
     // Ability slots
     const abilityGroup=document.createElement('a-entity');
@@ -722,9 +739,7 @@ window.addEventListener('load', () => {
 
     abilityGroup.appendChild(defSlot3D);
     abilityGroup.appendChild(offSlot3D);
-    hud.appendChild(abilityGroup);
-
-    commandDeck.appendChild(hud);
+    leftPanel.appendChild(abilityGroup);
   }
 
   function showTutorialStep(){
@@ -1007,8 +1022,9 @@ window.addEventListener('load', () => {
         entityMap.set(id,el);
         container.appendChild(el);
         if(obj.model){
-          el.setAttribute('gltf-model', obj.model);
-          if(obj.modelScale) el.setAttribute('scale', obj.modelScale);
+          // Replace any custom models with a simple placeholder shape
+          el.setAttribute('geometry','primitive: box; depth:0.3; height:0.3; width:0.3');
+          el.setAttribute('material',`color:${obj.customColor||'#888'}; emissive:${obj.customColor||'#888'}; emissiveIntensity:0.5`);
         }else if(obj.boss){
           el.setAttribute('geometry','primitive: sphere; radius: 0.5');
           el.setAttribute('material',`color:${obj.color||'#e74c3c'}; emissive:${obj.color||'#e74c3c'}; emissiveIntensity:0.4`);
