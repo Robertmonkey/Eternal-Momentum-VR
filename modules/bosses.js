@@ -165,12 +165,22 @@ export const bossData = [{
         }
     },
     logic: (b, ctx, state, utils) => {
+        const cu = b.x / CANVAS_W;
+        const cv = b.y / CANVAS_H;
+        const centerVec = utils.uvToSpherePos(cu, cv, 1);
+        const basisA = new THREE.Vector3(centerVec.z, 0, -centerVec.x).normalize();
+        const basisB = new THREE.Vector3().crossVectors(centerVec, basisA).normalize();
         b.wells.forEach(w => {
-            const wellX = b.x + Math.cos(w.angle) * w.dist;
-            const wellY = b.y + Math.sin(w.angle) * w.dist;
+            const angRadius = (w.dist / CANVAS_W) * 2 * Math.PI;
+            const offset = basisA.clone().multiplyScalar(Math.cos(w.angle) * angRadius)
+                               .add(basisB.clone().multiplyScalar(Math.sin(w.angle) * angRadius));
+            const pos = centerVec.clone().add(offset).normalize();
+            const uv = utils.spherePosToUv(pos, 1);
+            const wellX = uv.u * CANVAS_W;
+            const wellY = uv.v * CANVAS_H;
             utils.drawCircle(ctx, wellX, wellY, w.r, "rgba(155, 89, 182, 0.3)");
             const dx = state.player.x - wellX,
-                dy = state.player.y - wellY;
+                  dy = state.player.y - wellY;
             if (Math.hypot(dx, dy) < w.r + state.player.r) {
                 state.player.x -= dx * 0.05;
                 state.player.y -= dy * 0.05;

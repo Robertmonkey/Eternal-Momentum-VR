@@ -962,6 +962,7 @@ window.addEventListener('load', () => {
 
     const projectileTypes=new Set(['nova_bullet','ricochet_projectile','seeking_shrapnel','helix_bolt','player_fragment']);
     const projectilePool=[];
+    const enemyPool=[];
 
     function obtainProjectile(){
       const el=projectilePool.pop();
@@ -978,6 +979,21 @@ window.addEventListener('load', () => {
       return e;
     }
 
+    function obtainEnemy(){
+      const el=enemyPool.pop();
+      if(el){
+        el.innerHTML='';
+        el.removeAttribute('geometry');
+        el.removeAttribute('material');
+        el.removeAttribute('enemy-hitbox');
+        el.dataset.pool='enemy';
+        return el;
+      }
+      const e=document.createElement('a-entity');
+      e.dataset.pool='enemy';
+      return e;
+    }
+
     function releaseProjectile(el){
       el.innerHTML='';
       el.removeAttribute('geometry');
@@ -985,6 +1001,15 @@ window.addEventListener('load', () => {
       el.removeAttribute('enemy-hitbox');
       if(el.parentElement) el.parentElement.removeChild(el);
       projectilePool.push(el);
+    }
+
+    function releaseEnemy(el){
+      el.innerHTML='';
+      el.removeAttribute('geometry');
+      el.removeAttribute('material');
+      el.removeAttribute('enemy-hitbox');
+      if(el.parentElement) el.parentElement.removeChild(el);
+      enemyPool.push(el);
     }
     const projectileEmojis={
       nova_bullet:'🔹',
@@ -1027,8 +1052,10 @@ window.addEventListener('load', () => {
       const pos = uvToSpherePos(obj.x/canvas.width, obj.y/canvas.height, SPHERE_RADIUS);
       if(!el){
         const isProj = projectileTypes.has(obj.type);
-        el = isProj ? obtainProjectile() : document.createElement('a-entity');
-        if(isProj) el.dataset.pool='projectile';
+        const isEnemy = container===enemyContainer;
+        if(isProj) el = obtainProjectile();
+        else if(isEnemy) el = obtainEnemy();
+        else el = document.createElement('a-entity');
         entityMap.set(id,el);
         container.appendChild(el);
         if(obj.model){
@@ -1131,7 +1158,9 @@ window.addEventListener('load', () => {
     // Remove entities that disappeared from game state
     for(const [id,el] of entityMap.entries()){
       if(!activeIds.has(id)){
-        if(el.dataset.pool==='projectile') releaseProjectile(el); else el.remove();
+        if(el.dataset.pool==='projectile') releaseProjectile(el);
+        else if(el.dataset.pool==='enemy') releaseEnemy(el);
+        else el.remove();
         entityMap.delete(id);
         previousPositions.delete(id);
       }
