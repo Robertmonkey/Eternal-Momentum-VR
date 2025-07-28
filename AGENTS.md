@@ -89,7 +89,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize holographic menu rendering to eliminate button click freezes.
 - Add in-game language selection in settings.
-- Create high contrast theme toggle for the entire HUD.
+- Extend colorblind mode to entire HUD for better accessibility.
 
 ## NEED
 - High-contrast emoji textures for improved readability.

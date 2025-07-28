@@ -136,7 +136,8 @@ window.addEventListener('load', () => {
     turnStyle: 'smooth',
     telemetryEnabled: false,
     musicVolume: 0.35,
-    sfxVolume: 0.85
+    sfxVolume: 0.85,
+    highContrast: false
   };
 
   const userSettings = {
@@ -148,7 +149,8 @@ window.addEventListener('load', () => {
     turnStyle: localStorage.getItem('turnStyle') || DEFAULT_SETTINGS.turnStyle,
     telemetryEnabled: localStorage.getItem('telemetryEnabled') === 'true',
     musicVolume: parseFloat(localStorage.getItem('musicVolume')) || DEFAULT_SETTINGS.musicVolume,
-    sfxVolume: parseFloat(localStorage.getItem('sfxVolume')) || DEFAULT_SETTINGS.sfxVolume
+    sfxVolume: parseFloat(localStorage.getItem('sfxVolume')) || DEFAULT_SETTINGS.sfxVolume,
+    highContrast: localStorage.getItem('highContrast') === 'true'
   };
 
   let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
@@ -191,6 +193,7 @@ window.addEventListener('load', () => {
     localStorage.setItem('telemetryEnabled', userSettings.telemetryEnabled);
     localStorage.setItem('musicVolume', userSettings.musicVolume);
     localStorage.setItem('sfxVolume', userSettings.sfxVolume);
+    localStorage.setItem('highContrast', userSettings.highContrast);
   }
 
   function applySettings(){
@@ -208,6 +211,7 @@ window.addEventListener('load', () => {
     AudioManager.setMusicVolume(userSettings.musicVolume);
     AudioManager.setSfxVolume(userSettings.sfxVolume);
     applyColorblindMode();
+    applyHighContrastMode();
   }
 
   function applyColorblindMode(){
@@ -217,6 +221,40 @@ window.addEventListener('load', () => {
     }else{
       hbFill && hbFill.setAttribute('material','color:#ff5555; emissive:#ff5555; emissiveIntensity:0.6');
     }
+  }
+
+  function applyHighContrastMode(){
+    const contrast=userSettings.highContrast;
+    const hbBg=document.getElementById('vrHealthBg');
+    hbBg && hbBg.setAttribute('material',`color:${contrast?'#000':'#111'}; opacity:0.9`);
+    const hbFill=document.getElementById('vrHealthFill');
+    hbFill && hbFill.setAttribute('material',`color:${contrast?'#ffff00':'#ff5555'}; emissive:${contrast?'#ffff00':'#ff5555'}; emissiveIntensity:0.8`);
+    const shFill=document.getElementById('vrShieldFill');
+    shFill && shFill.setAttribute('material',`color:#00ffff; opacity:${contrast?'0.8':'0.5'}; emissive:#00ffff; emissiveIntensity:${contrast?'0.8':'0.5'}`);
+    const hbText=document.getElementById('vrHealthText');
+    hbText && hbText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
+    const bbBg=document.getElementById('vrBossBg');
+    bbBg && bbBg.setAttribute('material',`color:${contrast?'#000':'#111'}; opacity:0.9`);
+    const bbFill=document.getElementById('vrBossFill');
+    bbFill && bbFill.setAttribute('material',`color:${contrast?'#ff00ff':'#e74c3c'}; emissive:${contrast?'#ff00ff':'#e74c3c'}; emissiveIntensity:0.8`);
+    const bbText=document.getElementById('vrBossName');
+    bbText && bbText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
+    const ascBg=document.getElementById('vrAscBg');
+    ascBg && ascBg.setAttribute('material',`color:${contrast?'#000':'#111'}; opacity:0.9`);
+    const ascFill=document.getElementById('vrAscensionFill');
+    ascFill && ascFill.setAttribute('material',`color:${contrast?'#00ff00':'#8e44ad'}; emissive:${contrast?'#00ff00':'#8e44ad'}; emissiveIntensity:0.8`);
+    const ascText=document.getElementById('vrAscensionText');
+    ascText && ascText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
+    const apText=document.getElementById('vrApDisplay');
+    apText && apText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
+    const defBase=document.getElementById('vrDefBase');
+    defBase && defBase.setAttribute('material',`color:${contrast?'#000':'#141428'}; emissive:#00ffff; emissiveIntensity:${contrast?'0.7':'0.4'}; opacity:0.95; transparent:true`);
+    const offBase=document.getElementById('vrOffBase');
+    offBase && offBase.setAttribute('material',`color:${contrast?'#000':'#141428'}; emissive:#ff00ff; emissiveIntensity:${contrast?'0.7':'0.4'}; opacity:0.95; transparent:true`);
+    const defText=document.getElementById('vrDefEmoji');
+    defText && defText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
+    const offText=document.getElementById('vrOffEmoji');
+    offText && offText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
   }
 
   // ---------------------------------------------------------------------------
@@ -364,6 +402,7 @@ window.addEventListener('load', () => {
     const tele = document.getElementById('telemetryToggle');
     const langSel = document.getElementById('languageSelect');
     const cbToggle = document.getElementById('colorblindToggle');
+    const hcToggle = document.getElementById('highContrastToggle');
     if(turn){ turn.value = userSettings.turnSpeed; }
     if(vig){ vig.value = userSettings.vignetteIntensity; }
     if(color){ color.value = userSettings.crosshairColor; }
@@ -374,6 +413,7 @@ window.addEventListener('load', () => {
     if(tele){ tele.checked = userSettings.telemetryEnabled; }
     if(langSel){ langSel.value = getCurrentLanguage(); }
     if(cbToggle){ cbToggle.checked = userSettings.colorblindMode; }
+    if(hcToggle){ hcToggle.checked = userSettings.highContrast; }
     await showHolographicPanel('#settingsModal','#settingsCanvas');
   }
 
@@ -505,6 +545,7 @@ window.addEventListener('load', () => {
     const healthGroup=document.createElement('a-entity');
     healthGroup.object3D.position.set(0,0.15,0);
     const hbBg=document.createElement('a-plane');
+    hbBg.setAttribute('id','vrHealthBg');
     hbBg.setAttribute('width','0.6');
     hbBg.setAttribute('height','0.08');
     hbBg.setAttribute('material','color:#111; opacity:0.6');
@@ -537,6 +578,7 @@ window.addEventListener('load', () => {
     const bossGroup=document.createElement('a-entity');
     bossGroup.object3D.position.set(0,-0.05,0);
     const bbBg=document.createElement('a-plane');
+    bbBg.setAttribute('id','vrBossBg');
     bbBg.setAttribute('width','1.2');
     bbBg.setAttribute('height','0.08');
     bbBg.setAttribute('material','color:#111; opacity:0.6');
@@ -562,6 +604,7 @@ window.addEventListener('load', () => {
     const ascGroup=document.createElement('a-entity');
     ascGroup.object3D.position.set(0,-0.15,0);
     const ascBg=document.createElement('a-plane');
+    ascBg.setAttribute('id','vrAscBg');
     ascBg.setAttribute('width','0.8');
     ascBg.setAttribute('height','0.06');
     ascBg.setAttribute('material','color:#111; opacity:0.6');
@@ -600,6 +643,7 @@ window.addEventListener('load', () => {
     defSlot3D.setAttribute('id','vrDefSlot');
     defSlot3D.object3D.position.set(-0.25,0,0);
     const defBase=document.createElement('a-circle');
+    defBase.setAttribute('id','vrDefBase');
     defBase.setAttribute('radius',0.15);
     defBase.setAttribute('material','color:#141428; emissive:#00ffff; emissiveIntensity:0.4; opacity:0.95; transparent:true');
     defSlot3D.appendChild(defBase);
@@ -615,6 +659,7 @@ window.addEventListener('load', () => {
     offSlot3D.setAttribute('id','vrOffSlot');
     offSlot3D.object3D.position.set(0.25,0,0);
     const offBase=document.createElement('a-circle');
+    offBase.setAttribute('id','vrOffBase');
     offBase.setAttribute('radius',0.17);
     offBase.setAttribute('material','color:#141428; emissive:#ff00ff; emissiveIntensity:0.4; opacity:0.95; transparent:true');
     offSlot3D.appendChild(offBase);
@@ -995,6 +1040,7 @@ window.addEventListener('load', () => {
   const telemetryToggle   = document.getElementById('telemetryToggle');
   const languageSelect    = document.getElementById('languageSelect');
   const colorblindToggle  = document.getElementById('colorblindToggle');
+  const highContrastToggle = document.getElementById('highContrastToggle');
 
   safeAddEventListener(turnSpeedRange,'input',e=>{ userSettings.turnSpeed = parseFloat(e.target.value); saveSettings(); });
   safeAddEventListener(vignetteRange,'input',e=>{ userSettings.vignetteIntensity = parseFloat(e.target.value); applySettings(); saveSettings(); });
@@ -1016,6 +1062,11 @@ window.addEventListener('load', () => {
   safeAddEventListener(colorblindToggle,'input',e=>{
     userSettings.colorblindMode = e.target.checked;
     applySettings();
+    saveSettings();
+  });
+  safeAddEventListener(highContrastToggle,'input',e=>{
+    userSettings.highContrast = e.target.checked;
+    applyHighContrastMode();
     saveSettings();
   });
 
