@@ -119,6 +119,7 @@ The player is positioned on a circular, floating **Command Deck** at the absolut
 * **360° Omniscience:** From your central vantage point, you can see every part of the battlefield.
 * **Transparent Neon-Grid Floor:** The floor of your command deck is a transparent, luminous grid, styled to match the game's aesthetic.
 * **Floating Console:** Your UI is a series of floating holographic panels and physical controls that hover at waist-height around you.
+* **Recenter Option:** Press the new **Center** button or the `R` key to move the command deck back to your current position if you drift away.
 
 ### 2. The 3D Gameplay Arena (The Spherical Timeline)
 The battlefield is the entire inner surface of a **massive, hollow sphere** that surrounds your Command Deck.

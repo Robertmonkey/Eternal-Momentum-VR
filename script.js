@@ -116,6 +116,20 @@ window.addEventListener('load', () => {
   }
 
   // ---------------------------------------------------------------------------
+  // Helper: move the command deck to the player's current position without
+  // attaching it to the headset.  Useful if the player drifts away from the
+  // origin in room‑scale play.
+  // ---------------------------------------------------------------------------
+  function recenterCommandDeck(){
+    if(!cameraEl||!commandDeck) return;
+    const camPos = new THREE.Vector3();
+    cameraEl.object3D.getWorldPosition(camPos);
+    commandDeck.object3D.position.set(camPos.x, camPos.y - 0.5, camPos.z);
+    commandDeck.object3D.rotation.set(0,0,0);
+  }
+  window.recenterCommandDeck = recenterCommandDeck;
+
+  // ---------------------------------------------------------------------------
   // Helper: draw the neon‑grid floor texture once at start‑up.
   // ---------------------------------------------------------------------------
   function drawGrid(c) {
@@ -216,7 +230,8 @@ window.addEventListener('load', () => {
       cores:    {angle:-10, r:1.25, y:0.25, emoji:"⭐", label:"Cores",     action:openCorePanel},
       orrery:   {angle: 20, r:1.25, y:0.20, emoji:"🪐", label:"Orrery",    action:openOrreryPanel},
       resume:   {angle: 50, r:1.30, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
-      sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()}
+      sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()},
+      recenter: {angle:110, r:1.30, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck}
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
@@ -443,6 +458,10 @@ window.addEventListener('load', () => {
   safeAddEventListener(sceneEl,'enter-vr',()=>{
     anchorCommandDeck();
     restartCurrentStage();
+  });
+
+  window.addEventListener('keydown', e => {
+    if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
   });
 
   animate();
