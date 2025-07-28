@@ -124,6 +124,7 @@ window.addEventListener('load', () => {
       const saveExists = !!localStorage.getItem('eternalMomentumSave');
       if(continueVrBtn) continueVrBtn.style.display = saveExists ? 'block' : 'none';
       if(eraseVrBtn)    eraseVrBtn.style.display    = saveExists ? 'block' : 'none';
+      if(loadingProgressFill) loadingProgressFill.style.width = '100%';
       if(loadingStatusText) loadingStatusText.innerText = 'Loading Complete';
       loadingScreen.style.display = 'none';
       if(homeScreen){
@@ -174,12 +175,11 @@ window.addEventListener('load', () => {
   }
 
   const SPHERE_RADIUS = 8;
+  const BOSS_DAMAGE_MULTIPLIER = 0.75;
 
   const DEFAULT_SETTINGS = {
     turnSpeed: 1.0,
     vignetteIntensity: 0.4,
-    crosshairColor: '#00ffff',
-    crosshairSize: 1.0,
     turnStyle: 'smooth',
     telemetryEnabled: false,
     musicVolume: 0.35,
@@ -190,8 +190,6 @@ window.addEventListener('load', () => {
   const userSettings = {
     turnSpeed: parseFloat(localStorage.getItem('turnSpeed')) || DEFAULT_SETTINGS.turnSpeed,
     vignetteIntensity: parseFloat(localStorage.getItem('vignetteIntensity')) || DEFAULT_SETTINGS.vignetteIntensity,
-    crosshairColor: localStorage.getItem('crosshairColor') || DEFAULT_SETTINGS.crosshairColor,
-    crosshairSize: parseFloat(localStorage.getItem('crosshairSize')) || DEFAULT_SETTINGS.crosshairSize,
     turnStyle: localStorage.getItem('turnStyle') || DEFAULT_SETTINGS.turnStyle,
     telemetryEnabled: localStorage.getItem('telemetryEnabled') === 'true',
     musicVolume: parseFloat(localStorage.getItem('musicVolume')) || DEFAULT_SETTINGS.musicVolume,
@@ -199,7 +197,8 @@ window.addEventListener('load', () => {
     highContrast: localStorage.getItem('highContrast') === 'true'
   };
 
-  let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
+  const CROSSHAIR_COLOR = '#00ffff';
+  let CROSSHAIR_SCALE_MULT = 0.08;
   const entityMap = new Map();  // maps game objects → A‑Frame entities
   const previousPositions = new Map(); // tracks last position for orientation
   const panelCache = new Map(); // caches html2canvas results
@@ -251,8 +250,6 @@ window.addEventListener('load', () => {
   function saveSettings(){
     localStorage.setItem('turnSpeed', userSettings.turnSpeed);
     localStorage.setItem('vignetteIntensity', userSettings.vignetteIntensity);
-    localStorage.setItem('crosshairColor', userSettings.crosshairColor);
-    localStorage.setItem('crosshairSize', userSettings.crosshairSize);
     localStorage.setItem('turnStyle', userSettings.turnStyle);
     localStorage.setItem('telemetryEnabled', userSettings.telemetryEnabled);
     localStorage.setItem('musicVolume', userSettings.musicVolume);
@@ -261,10 +258,10 @@ window.addEventListener('load', () => {
   }
 
   function applySettings(){
-    CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
+    // Crosshair uses a fixed scale and color in VR
     if(crosshair){
       crosshair.querySelectorAll('a-ring, a-plane').forEach(el=>{
-        el.setAttribute('material', `color:${userSettings.crosshairColor}; emissive:${userSettings.crosshairColor}; emissiveIntensity:0.9; side:double`);
+        el.setAttribute('material', `color:${CROSSHAIR_COLOR}; emissive:${CROSSHAIR_COLOR}; emissiveIntensity:0.9; side:double`);
       });
     }
     const vignetteEl = document.getElementById('vignette');
@@ -284,7 +281,9 @@ window.addEventListener('load', () => {
     const factor=Math.min(window.innerWidth, window.innerHeight)/base;
     const s=Math.min(1.5, Math.max(0.7, factor));
     commandDeck.object3D.scale.set(s,s,s);
-    CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize * s;
+    // scale crosshair with deck so it remains proportionate
+    // user cannot change size directly
+    CROSSHAIR_SCALE_MULT = 0.08 * s;
   }
 
 
@@ -322,7 +321,7 @@ window.addEventListener('load', () => {
     const offText=document.getElementById('vrOffEmoji');
     offText && offText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
     if(crosshair){
-      const c = contrast ? '#ffffff' : userSettings.crosshairColor;
+      const c = contrast ? '#ffffff' : CROSSHAIR_COLOR;
       crosshair.querySelectorAll('a-ring, a-plane').forEach(el=>{
         el.setAttribute('material', `color:${c}; emissive:${c}; emissiveIntensity:0.9; side:double`);
       });
@@ -466,8 +465,6 @@ window.addEventListener('load', () => {
   async function openSettingsPanel(){
     const turn = document.getElementById('turnSpeedRange');
     const vig  = document.getElementById('vignetteRange');
-    const color= document.getElementById('crosshairColor');
-    const size = document.getElementById('crosshairSizeRange');
     const music= document.getElementById('musicVolumeRange');
     const sfx  = document.getElementById('sfxVolumeRange');
     const styleSel = document.getElementById('turnStyleSelect');
@@ -475,8 +472,6 @@ window.addEventListener('load', () => {
     const hcToggle = document.getElementById('highContrastToggle');
     if(turn){ turn.value = userSettings.turnSpeed; }
     if(vig){ vig.value = userSettings.vignetteIntensity; }
-    if(color){ color.value = userSettings.crosshairColor; }
-    if(size){ size.value = userSettings.crosshairSize; }
     if(music){ music.value = userSettings.musicVolume; }
     if(sfx){ sfx.value = userSettings.sfxVolume; }
     if(styleSel){ styleSel.value = userSettings.turnStyle; }
@@ -1089,7 +1084,8 @@ window.addEventListener('load', () => {
 
     function handleEnemyCollision(enemyObj){
       const baseDmg = enemyObj.boss ? (enemyObj.enraged ? 20 : 10) : 1;
-      const dmg = baseDmg * state.player.talent_modifiers.damage_taken_multiplier;
+      const scale   = enemyObj.boss ? BOSS_DAMAGE_MULTIPLIER : 1;
+      const dmg = baseDmg * scale * state.player.talent_modifiers.damage_taken_multiplier;
       if(!state.player.shield && dmg > 0){
         state.player.health -= dmg;
         if(state.player.health <= 0) state.gameOver = true;
@@ -1243,8 +1239,6 @@ window.addEventListener('load', () => {
 
   const turnSpeedRange = document.getElementById('turnSpeedRange');
   const vignetteRange = document.getElementById('vignetteRange');
-  const crosshairColorInput = document.getElementById('crosshairColor');
-  const crosshairSizeRange = document.getElementById('crosshairSizeRange');
   const musicVolumeRange   = document.getElementById('musicVolumeRange');
   const sfxVolumeRange     = document.getElementById('sfxVolumeRange');
   const turnStyleSelect   = document.getElementById('turnStyleSelect');
@@ -1253,8 +1247,6 @@ window.addEventListener('load', () => {
 
   safeAddEventListener(turnSpeedRange,'input',e=>{ userSettings.turnSpeed = parseFloat(e.target.value); saveSettings(); });
   safeAddEventListener(vignetteRange,'input',e=>{ userSettings.vignetteIntensity = parseFloat(e.target.value); applySettings(); saveSettings(); });
-  safeAddEventListener(crosshairColorInput,'input',e=>{ userSettings.crosshairColor = e.target.value; applySettings(); saveSettings(); });
-  safeAddEventListener(crosshairSizeRange,'input',e=>{ userSettings.crosshairSize = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(musicVolumeRange,'input',e=>{ userSettings.musicVolume = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(sfxVolumeRange,'input',e=>{ userSettings.sfxVolume = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(turnStyleSelect,'input',e=>{ userSettings.turnStyle = e.target.value; saveSettings(); });
