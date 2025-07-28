@@ -116,6 +116,60 @@ window.addEventListener('load', () => {
   }
 
   // ---------------------------------------------------------------------------
+  // Helpers: holographic panels for menus and core equipment handling
+  // ---------------------------------------------------------------------------
+  function equipCore(coreId){
+    state.player.equippedAberrationCore = coreId;
+    savePlayerState();
+    populateAberrationCoreMenu(onCoreEquip);
+    updateUI();
+  }
+
+  function onCoreEquip(coreId){
+    const isEquipped = state.player.equippedAberrationCore === coreId;
+    if(vrState.isGameRunning && !state.gameOver && !isEquipped){
+      showCustomConfirm(
+        '|| DESTABILIZE TIMELINE? ||',
+        'Attuning a new Aberration Core requires a full system recalibration. The current timeline will collapse, forcing a restart of the stage. Do you wish to proceed?',
+        () => {
+          equipCore(coreId);
+          holographicPanel.setAttribute('visible',false);
+          vrState.holographicPanelVisible = false;
+          restartCurrentStage();
+        }
+      );
+    } else if(!isEquipped){
+      equipCore(coreId);
+    }
+  }
+
+  function startOrreryEncounter(bossList){
+    resetGame(true);
+    applyAllTalentEffects();
+    state.customOrreryBosses = bossList;
+    state.currentStage = 999;
+    holographicPanel.setAttribute('visible',false);
+    vrState.holographicPanelVisible = false;
+    restartCurrentStage();
+  }
+
+  async function openAscensionPanel(){
+    document.getElementById('ap-total-asc-grid').innerText = state.player.ascensionPoints;
+    renderAscensionGrid();
+    await showHolographicPanel('#ascensionGridModal','#ascensionGridCanvas');
+  }
+
+  async function openCorePanel(){
+    populateAberrationCoreMenu(onCoreEquip);
+    await showHolographicPanel('#aberrationCoreModal','#aberrationCanvas');
+  }
+
+  async function openOrreryPanel(){
+    populateOrreryMenu(startOrreryEncounter);
+    await showHolographicPanel('#orreryModal','#orreryCanvas');
+  }
+
+  // ---------------------------------------------------------------------------
   // Helper: build the command‑cluster deck & buttons programmatically.
   // ---------------------------------------------------------------------------
   function createCommandCluster(){
@@ -132,11 +186,11 @@ window.addEventListener('load', () => {
 
     // Functional console buttons
     const buttons = {
-      ascension:{angle:-40, r:1.2,  y:0.30, emoji:'🜂', modal:'#ascensionGridModal',  canvas:'#ascensionGridCanvas'},
-      cores:    {angle:-10, r:1.25, y:0.25, emoji:'⭐', modal:'#aberrationCoreModal', canvas:'#aberrationCanvas'},
-      orrery:   {angle: 20, r:1.25, y:0.20, emoji:'🪐', modal:'#orreryModal',         canvas:'#orreryCanvas'},
-      resume:   {angle: 50, r:1.30, y:0.15, emoji:'▶',  action:()=>vrState.isGameRunning=true},
-      sound:    {angle: 80, r:1.30, y:0.10, emoji:'🔊', action:()=>AudioManager.toggleMute()}
+      ascension:{angle:-40, r:1.2,  y:0.30, emoji:"🜂", action:openAscensionPanel},
+      cores:    {angle:-10, r:1.25, y:0.25, emoji:"⭐", action:openCorePanel},
+      orrery:   {angle: 20, r:1.25, y:0.20, emoji:"🪐", action:openOrreryPanel},
+      resume:   {angle: 50, r:1.30, y:0.15, emoji:"▶",  action:()=>vrState.isGameRunning=true},
+      sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", action:()=>AudioManager.toggleMute()}
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
@@ -151,8 +205,7 @@ window.addEventListener('load', () => {
       btn.addEventListener('mouseenter',()=>AudioManager.playSfx('uiHoverSound'));
       btn.addEventListener('click',async ()=>{
         AudioManager.playSfx('uiClickSound');
-        if(cfg.action) cfg.action();
-        if(cfg.modal) await showHolographicPanel(cfg.modal,cfg.canvas);
+        if(cfg.action) await cfg.action();
       });
       commandDeck.appendChild(btn);
     });
