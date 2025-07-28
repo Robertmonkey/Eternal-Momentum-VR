@@ -95,6 +95,11 @@ window.addEventListener('load', () => {
   let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
+  const gameOverPanel    = document.getElementById('gameOverPanel');
+  const retryBtn         = document.getElementById('retryBtn');
+  const gameOverAscBtn   = document.getElementById('gameOverAscBtn');
+  const gameOverCoreBtn  = document.getElementById('gameOverCoreBtn');
+  const gameOverStageBtn = document.getElementById('gameOverStageBtn');
   const leftHand  = document.getElementById('leftHand');
   const rightHand = document.getElementById('rightHand');
 
@@ -325,6 +330,24 @@ window.addEventListener('load', () => {
     if(styleSel){ styleSel.value = userSettings.turnStyle; }
     await showHolographicPanel('#settingsModal','#settingsCanvas');
   }
+
+  function showGameOverPanel(){
+    if(gameOverPanel){
+      gameOverPanel.setAttribute('visible', true);
+    }
+    vrState.isGameRunning = false;
+  }
+
+  function hideGameOverPanel(){
+    if(gameOverPanel){
+      gameOverPanel.setAttribute('visible', false);
+    }
+  }
+
+  if(retryBtn) safeAddEventListener(retryBtn,'click',()=>{ hideGameOverPanel(); restartCurrentStage(); });
+  if(gameOverAscBtn) safeAddEventListener(gameOverAscBtn,'click',async ()=>{ hideGameOverPanel(); await openAscensionPanel(); });
+  if(gameOverCoreBtn) safeAddEventListener(gameOverCoreBtn,'click',async ()=>{ hideGameOverPanel(); await openCorePanel(); });
+  if(gameOverStageBtn) safeAddEventListener(gameOverStageBtn,'click',async ()=>{ hideGameOverPanel(); await openLevelSelectPanel(); });
 
   // ---------------------------------------------------------------------------
   // Helper: build the command‑cluster deck & buttons programmatically.
@@ -568,6 +591,7 @@ window.addEventListener('load', () => {
   function restartCurrentStage(){
     for(const e of entityMap.values()) e.remove();
     entityMap.clear();
+    hideGameOverPanel();
     resetGame(state.arenaMode);
     applyAllTalentEffects();
     vrState.avatarPos.set(0,SPHERE_RADIUS,0);
@@ -744,6 +768,10 @@ window.addEventListener('load', () => {
     // Remove entities that disappeared from game state
     for(const [id,el] of entityMap.entries()){
       if(!activeIds.has(id)){ el.remove(); entityMap.delete(id); }
+    }
+
+    if(state.gameOver){
+      showGameOverPanel();
     }
   }
 

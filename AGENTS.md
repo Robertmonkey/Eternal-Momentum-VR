@@ -70,7 +70,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Improve 3D projectile physics for enemy attacks.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for
   health, shield, ascension and ability slots.
-- Implement stage progression and game-over handling entirely in VR.
+- Integrate interactive tutorial prompts into the VR experience.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
