@@ -21,7 +21,7 @@ import { updateEnemies3d } from './modules/enemyAI3d.js';
 import { updateProjectiles3d } from './modules/projectilePhysics3d.js';
 import { AudioManager } from './modules/audio.js';
 import { STAGE_CONFIG } from './modules/config.js';
-import { Telemetry, uploadTelemetry } from './modules/telemetry.js';
+import { Telemetry, storeTelemetry } from './modules/telemetry.js';
 
 // -----------------------------------------------------------------------------
 // A‑Frame helper: apply a live canvas as a texture to any mesh.
@@ -129,7 +129,8 @@ window.addEventListener('load', () => {
     vignetteIntensity: 0.4,
     crosshairColor: '#00ffff',
     crosshairSize: 1.0,
-    turnStyle: 'smooth'
+    turnStyle: 'smooth',
+    telemetryEnabled: false
   };
 
   const userSettings = {
@@ -137,7 +138,8 @@ window.addEventListener('load', () => {
     vignetteIntensity: parseFloat(localStorage.getItem('vignetteIntensity')) || DEFAULT_SETTINGS.vignetteIntensity,
     crosshairColor: localStorage.getItem('crosshairColor') || DEFAULT_SETTINGS.crosshairColor,
     crosshairSize: parseFloat(localStorage.getItem('crosshairSize')) || DEFAULT_SETTINGS.crosshairSize,
-    turnStyle: localStorage.getItem('turnStyle') || DEFAULT_SETTINGS.turnStyle
+    turnStyle: localStorage.getItem('turnStyle') || DEFAULT_SETTINGS.turnStyle,
+    telemetryEnabled: localStorage.getItem('telemetryEnabled') === 'true'
   };
 
   let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
@@ -176,6 +178,7 @@ window.addEventListener('load', () => {
     localStorage.setItem('crosshairColor', userSettings.crosshairColor);
     localStorage.setItem('crosshairSize', userSettings.crosshairSize);
     localStorage.setItem('turnStyle', userSettings.turnStyle);
+    localStorage.setItem('telemetryEnabled', userSettings.telemetryEnabled);
   }
 
   function applySettings(){
@@ -332,11 +335,13 @@ window.addEventListener('load', () => {
     const color= document.getElementById('crosshairColor');
     const size = document.getElementById('crosshairSizeRange');
     const styleSel = document.getElementById('turnStyleSelect');
+    const tele = document.getElementById('telemetryToggle');
     if(turn){ turn.value = userSettings.turnSpeed; }
     if(vig){ vig.value = userSettings.vignetteIntensity; }
     if(color){ color.value = userSettings.crosshairColor; }
     if(size){ size.value = userSettings.crosshairSize; }
     if(styleSel){ styleSel.value = userSettings.turnStyle; }
+    if(tele){ tele.checked = userSettings.telemetryEnabled; }
     await showHolographicPanel('#settingsModal','#settingsCanvas');
   }
 
@@ -899,12 +904,19 @@ window.addEventListener('load', () => {
   const crosshairColorInput = document.getElementById('crosshairColor');
   const crosshairSizeRange = document.getElementById('crosshairSizeRange');
   const turnStyleSelect   = document.getElementById('turnStyleSelect');
+  const telemetryToggle   = document.getElementById('telemetryToggle');
 
   safeAddEventListener(turnSpeedRange,'input',e=>{ userSettings.turnSpeed = parseFloat(e.target.value); saveSettings(); });
   safeAddEventListener(vignetteRange,'input',e=>{ userSettings.vignetteIntensity = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(crosshairColorInput,'input',e=>{ userSettings.crosshairColor = e.target.value; applySettings(); saveSettings(); });
   safeAddEventListener(crosshairSizeRange,'input',e=>{ userSettings.crosshairSize = parseFloat(e.target.value); applySettings(); saveSettings(); });
   safeAddEventListener(turnStyleSelect,'input',e=>{ userSettings.turnStyle = e.target.value; saveSettings(); });
+  safeAddEventListener(telemetryToggle,'input',e=>{
+    userSettings.telemetryEnabled = e.target.checked;
+    saveSettings();
+    if(userSettings.telemetryEnabled) Telemetry.start(storeTelemetry);
+    else Telemetry.stop();
+  });
 
   if(battleSphere){
     battleSphere.addEventListener('raycaster-intersection',e=>{
@@ -1028,6 +1040,6 @@ window.addEventListener('load', () => {
     if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
   });
 
-  Telemetry.start(uploadTelemetry);
+  if(userSettings.telemetryEnabled) Telemetry.start(storeTelemetry);
   animate();
 });
