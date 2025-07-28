@@ -87,8 +87,8 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- preform significant debugging until the game is stable.
-- create unit tests for navmesh pathfinding to ensure 3D movement reliability.
+- Debug loading screen hang and ensure home screen appears after assets load.
+- Tune navmesh detail levels for performance vs accuracy.
 - Profile Quest 3 performance and optimize materials.
 
 ## NEED

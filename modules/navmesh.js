@@ -12,18 +12,38 @@ let lastObsHash = '';
 export function buildNavMesh(subdiv = 2, radius = 1){
   const geo = new THREE.IcosahedronGeometry(radius, subdiv);
   const pos = geo.getAttribute('position');
+
+  // IcosahedronGeometry in newer THREE versions is non-indexed.
+  // Build a deduplicated vertex list and adjacency map manually.
   nodes = [];
-  for(let i=0;i<pos.count;i++){
-    nodes.push(new THREE.Vector3().fromBufferAttribute(pos,i));
+  const key = (x,y,z)=>`${x.toFixed(5)},${y.toFixed(5)},${z.toFixed(5)}`;
+  const vertMap = new Map();
+  const triIdx = [];
+
+  for(let i=0;i<pos.count;i+=3){
+    const verts=[];
+    for(let j=0;j<3;j++){
+      const x=pos.getX(i+j); const y=pos.getY(i+j); const z=pos.getZ(i+j);
+      const k=key(x,y,z);
+      let idx=vertMap.get(k);
+      if(idx===undefined){
+        idx = nodes.length;
+        nodes.push(new THREE.Vector3(x,y,z));
+        vertMap.set(k,idx);
+      }
+      verts.push(idx);
+    }
+    triIdx.push(...verts);
   }
+
   const neigh = new Array(nodes.length).fill(0).map(()=>new Set());
-  const idx = geo.index.array;
-  for(let i=0;i<idx.length;i+=3){
-    const a=idx[i], b=idx[i+1], c=idx[i+2];
+  for(let i=0;i<triIdx.length;i+=3){
+    const a=triIdx[i], b=triIdx[i+1], c=triIdx[i+2];
     neigh[a].add(b); neigh[a].add(c);
     neigh[b].add(a); neigh[b].add(c);
     neigh[c].add(a); neigh[c].add(b);
   }
+
   neighbors = neigh.map(s=>Array.from(s));
   pathCache.clear();
 }
