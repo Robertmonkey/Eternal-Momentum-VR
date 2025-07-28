@@ -90,6 +90,7 @@ window.addEventListener('load', () => {
   const pickupContainer  = document.getElementById('pickupContainer');
   const projectileContainer = document.getElementById('projectileContainer');
   const effectContainer  = document.getElementById('effectContainer');
+  const telegraphContainer = document.getElementById("telegraphContainer");
   const crosshair        = document.getElementById('crosshair');
   const loadingScreen    = document.getElementById('loadingScreen');
   const loadingProgress  = document.getElementById('loadingProgress');
@@ -821,6 +822,11 @@ window.addEventListener('load', () => {
           label.setAttribute('color','#ffffff');
           label.object3D.position.set(0,0,0.1);
           el.appendChild(label);
+        }else if(obj.type==="syphon_cone"){
+          const deg=THREE.MathUtils.radToDeg(obj.coneAngle||Math.PI/4);
+          el.setAttribute("geometry",`primitive: cylinder; radius:${SPHERE_RADIUS*0.6}; height:0.05; openEnded:true; thetaStart:-${deg}/2; thetaLength:${deg}`);
+          el.setAttribute("material","color:#9b59b6; opacity:0.4; transparent:true; side:double");
+        }
         }else{
           el.setAttribute('geometry','primitive: sphere; radius:0.2');
           el.setAttribute('material',`color:${obj.customColor||'#c0392b'}; emissive:${obj.customColor||'#c0392b'}; emissiveIntensity:0.4`);
@@ -833,20 +839,27 @@ window.addEventListener('load', () => {
           el.appendChild(label);
         }
       }
-      el.object3D.position.copy(pos);
-      if(projectileTypes.has(obj.type)){
-        const prev = previousPositions.get(id);
-        if(prev){
-          const dir = pos.clone().sub(prev).normalize();
-          el.object3D.lookAt(pos.clone().add(dir));
+        el.object3D.position.copy(pos);
+        if(projectileTypes.has(obj.type)){
+          const prev = previousPositions.get(id);
+          if(prev){
+            const dir = pos.clone().sub(prev).normalize();
+            el.object3D.lookAt(pos.clone().add(dir));
+          } else {
+            el.object3D.lookAt(0,0,0);
+          }
+          previousPositions.set(id,pos.clone());
         } else {
-          el.object3D.lookAt(0,0,0);
+          if(obj.type==="syphon_cone"){
+            const normal=pos.clone().normalize();
+            const quat=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),normal);
+            el.object3D.quaternion.copy(quat);
+            el.object3D.rotateOnAxis(normal,obj.angle||0);
+          } else {
+            el.object3D.lookAt(0,0,0);
+          }
+          previousPositions.set(id,pos.clone());
         }
-        previousPositions.set(id,pos.clone());
-      } else {
-        el.object3D.lookAt(0,0,0);
-        previousPositions.set(id,pos.clone());
-      }
       if(container===enemyContainer){
         const rad = (obj.r || 20) / canvas.width * SPHERE_RADIUS;
         el.setAttribute('enemy-hitbox', `radius:${rad}`);
@@ -856,8 +869,10 @@ window.addEventListener('load', () => {
 
     state.enemies.forEach(o=>spawn(o, enemyContainer));
     state.pickups.forEach(o=>spawn(o, pickupContainer));
-    state.effects.forEach(o=>spawn(o, projectileTypes.has(o.type)?projectileContainer:effectContainer));
-    state.decoys.forEach(o=>spawn(o, effectContainer));
+    state.effects.forEach(o=>{
+      const cont = projectileTypes.has(o.type) ? projectileContainer : (o.type==="syphon_cone" ? telegraphContainer : effectContainer);
+      spawn(o, cont);
+    });
 
     // Remove entities that disappeared from game state
     for(const [id,el] of entityMap.entries()){
