@@ -1417,16 +1417,27 @@ export const bossData = [{
             b.lastWallSummon = Date.now();
             gameHelpers.play('wallSummon');
             const boxSize = Math.min(ctx.canvas.width, ctx.canvas.height) * 0.8;
-            state.effects.push({
-                type: 'shrinking_box',
+            const warn = {
+                type: 'shrinking_box_warning',
                 startTime: Date.now(),
-                duration: 6000,
+                duration: 1500,
                 x: state.player.x,
                 y: state.player.y,
-                initialSize: boxSize,
-                gapSide: Math.floor(Math.random() * 4),
-                gapPosition: Math.random()
-            });
+                size: boxSize
+            };
+            state.effects.push(warn);
+            setTimeout(() => {
+                state.effects.push({
+                    type: 'shrinking_box',
+                    startTime: Date.now(),
+                    duration: 6000,
+                    x: warn.x,
+                    y: warn.y,
+                    initialSize: boxSize,
+                    gapSide: Math.floor(Math.random() * 4),
+                    gapPosition: Math.random()
+                });
+            }, 1500);
         }
     },
     onDeath: (b, state, sE, sP, play, stopLoopingSfx) => {
@@ -1947,19 +1958,32 @@ export const bossData = [{
             ].sort(() => Math.random() - 0.5);
 
             for (let i = 0; i < 3; i++) {
-                const rune = {
-                    type: 'shaper_rune',
+                const warn = {
+                    type: 'shaper_rune_warning',
                     runeType: shuffledRunes[i],
                     x: positions[i].x,
                     y: positions[i].y,
                     r: 60,
-                    endTime: now + 4000,
+                    startTime: now,
+                    duration: 1000,
                     sourceBoss: b
                 };
-                state.effects.push(rune);
-                b.activeRunes.push(rune);
+                state.effects.push(warn);
+                setTimeout(() => {
+                    const rune = {
+                        type: 'shaper_rune',
+                        runeType: warn.runeType,
+                        x: warn.x,
+                        y: warn.y,
+                        r: warn.r,
+                        endTime: Date.now() + 4000,
+                        sourceBoss: b
+                    };
+                    state.effects.push(rune);
+                    b.activeRunes.push(rune);
+                }, 1000);
             }
-            b.phaseTimer = now + 4000;
+            b.phaseTimer = now + 5000;
         }
         
         else if (b.phase === 'prophecy' && now > b.phaseTimer) {
