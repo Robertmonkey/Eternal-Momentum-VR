@@ -87,8 +87,8 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Extend pooling to effects and pickups for memory optimization.
 - Implement advanced holographic menus for all remaining UI modals.
+- Profile object pool performance and extend pooling to holographic panel textures.
 
 ## NEED
 - Additional sound effects and background music loops.

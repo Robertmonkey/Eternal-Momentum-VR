@@ -205,6 +205,10 @@ window.addEventListener('load', () => {
   const entityMap = new Map();  // maps game objects → A‑Frame entities
   const previousPositions = new Map(); // tracks last position for orientation
   const panelCache = new Map(); // caches html2canvas results
+  const projectilePool = [];
+  const enemyPool = [];
+  const effectPool = [];
+  const pickupPool = [];
 
   // --- VR‑only runtime state ---------------------------------------------------
   const vrState = {
@@ -961,8 +965,6 @@ window.addEventListener('load', () => {
     const activeIds=new Set();
 
     const projectileTypes=new Set(['nova_bullet','ricochet_projectile','seeking_shrapnel','helix_bolt','player_fragment']);
-    const projectilePool=[];
-    const enemyPool=[];
 
     function obtainProjectile(){
       const el=projectilePool.pop();
@@ -994,6 +996,36 @@ window.addEventListener('load', () => {
       return e;
     }
 
+    function obtainEffect(){
+      const el = effectPool.pop();
+      if(el){
+        el.innerHTML='';
+        el.removeAttribute('geometry');
+        el.removeAttribute('material');
+        el.removeAttribute('enemy-hitbox');
+        el.dataset.pool='effect';
+        return el;
+      }
+      const e=document.createElement('a-entity');
+      e.dataset.pool='effect';
+      return e;
+    }
+
+    function obtainPickup(){
+      const el = pickupPool.pop();
+      if(el){
+        el.innerHTML='';
+        el.removeAttribute('geometry');
+        el.removeAttribute('material');
+        el.removeAttribute('enemy-hitbox');
+        el.dataset.pool='pickup';
+        return el;
+      }
+      const e=document.createElement('a-entity');
+      e.dataset.pool='pickup';
+      return e;
+    }
+
     function releaseProjectile(el){
       el.innerHTML='';
       el.removeAttribute('geometry');
@@ -1010,6 +1042,24 @@ window.addEventListener('load', () => {
       el.removeAttribute('enemy-hitbox');
       if(el.parentElement) el.parentElement.removeChild(el);
       enemyPool.push(el);
+    }
+
+    function releaseEffect(el){
+      el.innerHTML='';
+      el.removeAttribute('geometry');
+      el.removeAttribute('material');
+      el.removeAttribute('enemy-hitbox');
+      if(el.parentElement) el.parentElement.removeChild(el);
+      effectPool.push(el);
+    }
+
+    function releasePickup(el){
+      el.innerHTML='';
+      el.removeAttribute('geometry');
+      el.removeAttribute('material');
+      el.removeAttribute('enemy-hitbox');
+      if(el.parentElement) el.parentElement.removeChild(el);
+      pickupPool.push(el);
     }
     const projectileEmojis={
       nova_bullet:'🔹',
@@ -1053,8 +1103,12 @@ window.addEventListener('load', () => {
       if(!el){
         const isProj = projectileTypes.has(obj.type);
         const isEnemy = container===enemyContainer;
+        const isPickup = container===pickupContainer;
+        const isEffect = container===effectContainer || container===telegraphContainer;
         if(isProj) el = obtainProjectile();
         else if(isEnemy) el = obtainEnemy();
+        else if(isPickup) el = obtainPickup();
+        else if(isEffect) el = obtainEffect();
         else el = document.createElement('a-entity');
         entityMap.set(id,el);
         container.appendChild(el);
@@ -1160,6 +1214,8 @@ window.addEventListener('load', () => {
       if(!activeIds.has(id)){
         if(el.dataset.pool==='projectile') releaseProjectile(el);
         else if(el.dataset.pool==='enemy') releaseEnemy(el);
+        else if(el.dataset.pool==='effect') releaseEffect(el);
+        else if(el.dataset.pool==='pickup') releasePickup(el);
         else el.remove();
         entityMap.delete(id);
         previousPositions.delete(id);
