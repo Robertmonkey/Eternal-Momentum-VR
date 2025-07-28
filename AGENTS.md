@@ -66,10 +66,10 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Begin port of enemy and boss AI logic to fully 3D components.
 - Create interactive tutorial stage with holographic guides.
-- Optimize html2canvas captures to reduce menu-opening lag.
 - Implement online leaderboard for stage scores.
 - Build stage selection console for replaying cleared stages.
 - Integrate 3D models for pickups and projectiles.
+- Implement pathfinding system for enemies on the spherical battlefield.
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.
