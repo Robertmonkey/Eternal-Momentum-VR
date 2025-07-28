@@ -14,7 +14,7 @@ import { state, resetGame, savePlayerState, loadPlayerState } from './modules/st
 import { activateCorePower } from './modules/cores.js';
 import { powers, usePower } from './modules/powers.js';
 import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.js';
-import { populateAberrationCoreMenu, populateOrreryMenu, showBossInfo } from './modules/ui.js';
+import { populateAberrationCoreMenu, populateOrreryMenu, showBossInfo, populateLevelSelect, showCustomConfirm } from './modules/ui.js';
 import { uvToSpherePos, spherePosToUv, safeAddEventListener } from './modules/utils.js';
 import { moveTowards } from './modules/movement3d.js';
 import { updateEnemies3d } from './modules/enemyAI3d.js';
@@ -118,6 +118,8 @@ window.addEventListener('load', () => {
     avatarPos:  new THREE.Vector3(),
     isGameRunning: false,
     holographicPanelVisible: false,
+    stageSelectOpen: false,
+    stageSelectIndex: 1,
     lastCoreUse: -Infinity,
     leftTriggerDown: false,
     rightTriggerDown: false
@@ -274,6 +276,21 @@ window.addEventListener('load', () => {
     await showHolographicPanel('#orreryModal','#orreryCanvas');
   }
 
+  async function openLevelSelectPanel(){
+    vrState.stageSelectIndex = state.currentStage;
+    updateStageSelectDisplay();
+    const panel=document.getElementById('stageSelectPanel');
+    if(panel){ panel.setAttribute('visible',true); }
+    vrState.stageSelectOpen = true;
+  }
+
+  function updateStageSelectDisplay(){
+    const title=document.getElementById('stageSelectTitle');
+    const stage=document.getElementById('stageSelectStage');
+    if(title) title.setAttribute('value','SELECT STAGE');
+    if(stage) stage.setAttribute('value',`STAGE ${vrState.stageSelectIndex}`);
+  }
+
   async function openSettingsPanel(){
     const turn = document.getElementById('turnSpeedRange');
     const vig  = document.getElementById('vignetteRange');
@@ -305,6 +322,7 @@ window.addEventListener('load', () => {
 
     // Functional console buttons
     const buttons = {
+      stages:   {angle:-70, r:1.25, y:0.25, emoji:"🎯", label:"Stages",   action:openLevelSelectPanel},
       ascension:{angle:-40, r:1.2,  y:0.30, emoji:"🜂", label:"Ascension", action:openAscensionPanel},
       cores:    {angle:-10, r:1.25, y:0.25, emoji:"⭐", label:"Cores",     action:openCorePanel},
       orrery:   {angle: 20, r:1.25, y:0.20, emoji:"🪐", label:"Orrery",    action:openOrreryPanel},
@@ -550,6 +568,15 @@ window.addEventListener('load', () => {
     vrState.isGameRunning = true;
   }
 
+  function startSpecificLevel(levelNum){
+    state.arenaMode = false;
+    state.currentStage = levelNum;
+    const panel=document.getElementById('stageSelectPanel');
+    if(panel) panel.setAttribute('visible',false);
+    vrState.stageSelectOpen = false;
+    restartCurrentStage();
+  }
+
   // ---------------------------------------------------------------------------
   // Continuous animation / game‑tick loop
   // ---------------------------------------------------------------------------
@@ -600,6 +627,17 @@ window.addEventListener('load', () => {
       helix_bolt:'💫',
       player_fragment:'✦'
     };
+    const bossEmojis={
+      splitter:'🔶',
+      reflector:'🛡️',
+      vampire:'🩸',
+      gravity:'🌀',
+      swarm:'🐝',
+      mirror:'🪞',
+      emp:'⚡',
+      architect:'🏛️',
+      aethel_and_umbra:'☯️'
+    };
 
     function spawn(obj, container){
       const id = obj.instanceId || `${obj.type||'obj'}-${obj.startTime||0}-${obj.x}`;
@@ -616,6 +654,13 @@ window.addEventListener('load', () => {
         }else if(obj.boss){
           el.setAttribute('geometry','primitive: sphere; radius: 0.5');
           el.setAttribute('material',`color:${obj.color||'#e74c3c'}; emissive:${obj.color||'#e74c3c'}; emissiveIntensity:0.4`);
+          const label=document.createElement('a-text');
+          label.setAttribute('value',bossEmojis[obj.id]||'👾');
+          label.setAttribute('align','center');
+          label.setAttribute('width','0.8');
+          label.setAttribute('color','#ffffff');
+          label.object3D.position.set(0,0,0.35);
+          el.appendChild(label);
         }else if(obj.emoji||obj.type==='rune_of_fate'){
           el.setAttribute('geometry','primitive: dodecahedron; radius:0.2');
           el.setAttribute('material',`color:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissive:${obj.emoji==='🩸'?'#800020':'#2ecc71'}; emissiveIntensity:0.6`);
@@ -639,6 +684,13 @@ window.addEventListener('load', () => {
         }else{
           el.setAttribute('geometry','primitive: sphere; radius:0.2');
           el.setAttribute('material',`color:${obj.customColor||'#c0392b'}; emissive:${obj.customColor||'#c0392b'}; emissiveIntensity:0.4`);
+          const label=document.createElement('a-text');
+          label.setAttribute('value','💀');
+          label.setAttribute('align','center');
+          label.setAttribute('width','0.5');
+          label.setAttribute('color','#ffffff');
+          label.object3D.position.set(0,0,0.25);
+          el.appendChild(label);
         }
       }
       el.object3D.position.copy(pos);
@@ -752,9 +804,29 @@ window.addEventListener('load', () => {
   }
   setupTurning();
 
+  function setupStageSelectPanel(){
+    const prev=document.getElementById('prevStageBtn');
+    const next=document.getElementById('nextStageBtn');
+    const start=document.getElementById('startStageBtn');
+    safeAddEventListener(prev,'click',()=>{
+      const max=state.player.highestStageBeaten+1;
+      vrState.stageSelectIndex = vrState.stageSelectIndex>1 ? vrState.stageSelectIndex-1 : max;
+      updateStageSelectDisplay();
+    });
+    safeAddEventListener(next,'click',()=>{
+      const max=state.player.highestStageBeaten+1;
+      vrState.stageSelectIndex = vrState.stageSelectIndex<max ? vrState.stageSelectIndex+1 : 1;
+      updateStageSelectDisplay();
+    });
+    safeAddEventListener(start,'click',()=>{
+      startSpecificLevel(vrState.stageSelectIndex);
+    });
+  }
+
   safeAddEventListener(sceneEl,'loaded',()=>{
     anchorCommandDeck();
     createCommandCluster();
+    setupStageSelectPanel();
     AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
   });
   safeAddEventListener(sceneEl,'enter-vr',()=>{
