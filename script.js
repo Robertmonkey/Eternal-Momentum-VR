@@ -116,6 +116,17 @@ window.addEventListener('load', () => {
     }
   }
 
+  function drawButtonTexture(c){
+    const g = c.getContext('2d');
+    const s = c.width;
+    const grad = g.createRadialGradient(s/2,s/2,2,s/2,s/2,s/2);
+    grad.addColorStop(0,'#0b1020');
+    grad.addColorStop(0.8,'#0b1020');
+    grad.addColorStop(1,'#00ffff');
+    g.fillStyle = grad;
+    g.fillRect(0,0,s,s);
+  }
+
   // ---------------------------------------------------------------------------
   // Helpers: holographic panels for menus and core equipment handling
   // ---------------------------------------------------------------------------
@@ -195,14 +206,28 @@ window.addEventListener('load', () => {
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
-      const btn=document.createElement('a-entity');
-      btn.setAttribute('id',id); btn.setAttribute('mixin','console-button');
-      btn.classList.add('interactive');
+      const wrapper=document.createElement('a-entity');
+      wrapper.setAttribute('id',id);
+      wrapper.classList.add('interactive');
       const ang=THREE.MathUtils.degToRad(cfg.angle);
-      btn.object3D.position.set(Math.sin(ang)*cfg.r,cfg.y,-Math.cos(ang)*cfg.r);
-      btn.object3D.lookAt(new THREE.Vector3(0,cfg.y,0));
+      wrapper.object3D.position.set(Math.sin(ang)*cfg.r,cfg.y,-Math.cos(ang)*cfg.r);
+      wrapper.object3D.lookAt(new THREE.Vector3(0,cfg.y,0));
+
+      const base=document.createElement('a-cylinder');
+      base.setAttribute('radius',0.15);
+      base.setAttribute('height',0.02);
+      base.setAttribute('material','color:#050510; emissive:#00ffff; emissiveIntensity:0.3; metalness:0.2; roughness:0.6');
+      base.object3D.position.set(0,-0.03,0);
+      wrapper.appendChild(base);
+
+      const btn=document.createElement('a-entity');
+      btn.setAttribute('mixin','console-button');
+      btn.setAttribute('canvas-texture','#buttonCanvas');
+      btn.classList.add('interactive');
+      wrapper.appendChild(btn);
+
       const idAttr = id==='sound' ? 'id="soundOptionsToggle"' : '';
-      btn.innerHTML=`<a-text ${idAttr} value="${cfg.emoji}" align="center" width="1" color="#eaf2ff" position="0 0.01 0.06"></a-text>`;
+      btn.innerHTML=`<a-text ${idAttr} value="${cfg.emoji}" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>`;
 
       const label=document.createElement('a-text');
       label.setAttribute('value',cfg.label);
@@ -223,7 +248,7 @@ window.addEventListener('load', () => {
         AudioManager.playSfx('uiClickSound');
         if(cfg.action) await cfg.action();
       });
-      commandDeck.appendChild(btn);
+      commandDeck.appendChild(wrapper);
     });
   }
 
@@ -346,6 +371,7 @@ window.addEventListener('load', () => {
   // ---------------------------------------------------------------------------
   loadPlayerState();
   drawGrid(document.getElementById('gridCanvas'));
+  drawButtonTexture(document.getElementById('buttonCanvas'));
 
   if(battleSphere){
     battleSphere.addEventListener('raycaster-intersection',e=>{
