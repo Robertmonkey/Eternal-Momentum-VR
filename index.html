@@ -53,6 +53,18 @@
 
   <div id="fadeOverlay"></div>
 
+  <!-- Motion permission prompt -->
+  <div id="motionPermissionModal">
+    <div id="motionPermissionBox">
+      <h2>SYNC MOTION DATA?</h2>
+      <p>To harmonize your Conduit, we require access to your device's motion sensors.</p>
+      <div id="motionPermissionActions">
+        <button id="motionAllowBtn">GRANT ACCESS</button>
+        <button id="motionDenyBtn" class="btn-modal-close">NOT NOW</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ⇣⇣ VR SCENE ⇣⇣ -->
   <a-scene embedded background="color: #000">
     <!-- Ambient fill so player never starts in pitch black -->

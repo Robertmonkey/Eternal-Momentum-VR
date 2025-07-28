@@ -189,3 +189,62 @@ only appear on hover, are visible for the capture.
 #fadeOverlay.visible {
   opacity: 1;
 }
+
+/* Motion permission prompt */
+#motionPermissionModal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 20, 0.8);
+  backdrop-filter: blur(8px) brightness(0.7);
+  z-index: 10000;
+}
+
+#motionPermissionBox {
+  background: var(--ui-bg);
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid var(--secondary-glow);
+  box-shadow: 0 0 25px var(--secondary-glow);
+  text-align: center;
+  max-width: 420px;
+}
+
+#motionPermissionBox h2 {
+  font-size: 1.8rem;
+  color: var(--secondary-glow);
+  margin-bottom: 15px;
+}
+
+#motionPermissionBox p {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  line-height: 1.6;
+  opacity: 0.9;
+  color: var(--font-color);
+}
+
+#motionPermissionActions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+#motionPermissionActions button {
+  width: 120px;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+#motionAllowBtn {
+  background: #2ecc71;
+  border-color: #27ae60;
+}
+
+#motionDenyBtn {
+  background: #c0392b;
+  border-color: #e74c3c;
+}
