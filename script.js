@@ -84,6 +84,20 @@ window.addEventListener('load', () => {
   };
 
   // ---------------------------------------------------------------------------
+  // Helper: anchor the command deck to the camera at waist height and ensure
+  // it rotates only with the player's yaw. Called on scene load and on every
+  // frame to keep orientation stable even if the player tilts their head.
+  // ---------------------------------------------------------------------------
+  function anchorCommandDeck() {
+    if (cameraEl && commandDeck.parentElement !== cameraEl) {
+      cameraEl.appendChild(commandDeck);
+      commandDeck.object3D.position.set(0, -0.6, 0); // waist level
+    }
+    const yaw = cameraEl.object3D.rotation.y;
+    commandDeck.object3D.rotation.set(0, yaw, 0);
+  }
+
+  // ---------------------------------------------------------------------------
   // Helper: draw the neon‑grid floor texture once at start‑up.
   // ---------------------------------------------------------------------------
   function drawGrid(c) {
@@ -190,6 +204,8 @@ window.addEventListener('load', () => {
     requestAnimationFrame(animate);
     if(!vrState.isGameRunning||state.isPaused) return;
 
+    anchorCommandDeck();
+
     // Map VR cursor to legacy (u,v) for gameLoop
     const cursorUv = vrState.cursorPoint.length()
       ? spherePosToUv(vrState.cursorPoint,SPHERE_RADIUS)
@@ -274,12 +290,12 @@ window.addEventListener('load', () => {
   setupController(leftHand); setupController(rightHand);
 
   sceneEl.addEventListener('loaded', ()=>{
-    commandDeck.object3D.position.y=-0.6; // waist height
+    anchorCommandDeck();
     createCommandCluster();
     AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
   });
   sceneEl.addEventListener('enter-vr',()=>{
-    commandDeck.object3D.position.y=-0.6;
+    anchorCommandDeck();
     restartCurrentStage();
   });
 
