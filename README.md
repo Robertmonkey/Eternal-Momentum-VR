@@ -38,6 +38,78 @@ Once the foundation is stable, the focus will shift to porting the rich content 
 -   [ ] **Port Game Systems:** Port the core game systems like health, power-ups, leveling, and talents into the new 3D architecture.
 
 ---
+## 4  Understanding the **Old 2‑D Game** (Blueprint)
+> **Why this matters**  
+> Codex and other automated tools rely on rich context to avoid mis‑mapping 2‑D concepts to 3‑D space.  
+> This section distils **everything** about the original game’s UI, flow, and data model, with direct
+> file references so you can jump to source instantly.
+
+### 3.1 High‑level Architecture
+| Layer | Responsibility | Key files |
+|-------|----------------|-----------|
+|**DOM (+ CSS)**|All visual UI (HUD, menus, modals).|`Eternal‑Momentum‑OLD GAME/index.html`, `style.css`|
+|**Canvas 2‑D**|Realtime gameplay rendering.|`gameLoop.js` (draw & tick)|
+|**Game Logic**|State machine, powers, bosses, talent maths.|`state.js`, `powers.js`, `bosses.js`, `talents.js`, `ascension.js`, `cores.js`, `config.js`|
+|**Asset pipeline**|Sprites, emoji/procedural particles, SFX, music.|`assets/*` folders referenced in modules|
+
+### 3.2 Start‑up & Flow
+1. **Loading Screen** → fades when assets reach 100 % (`#loading-screen` div).  
+2. **Home Screen** (`#home-screen`)  
+   * Background MP4 (`assets/home.mp4`)  
+   * Buttons: `new-game-btn`, `continue-game-btn`, `erase-game-btn`  
+   * All buttons call `startSpecificLevel()` or show confirm modals.
+3. **Gameplay Loop**  
+   * Main loop in `main.js` → `gameTick()` (from `gameLoop.js`) every `requestAnimationFrame`.  
+   * Stage progression via `spawnBossesForStage()` based on `state.currentStage`.
+4. **Persistent Save**  
+   * Serialised JSON in `localStorage[ 'eternalMomentumSave' ]` via `savePlayerState()` / `loadPlayerState()`.
+
+### 3.3 HUD & In‑game UI
+| Cluster | Elements (DOM id / class) | Behaviour | File |
+|---------|---------------------------|-----------|------|
+|**Command Bar**|`hud-group-powers`, `hud-group-center`, `hud-group-info`|Fixed bottom overlay containing abilities, health, XP.|`style.css` (§COMMAND BAR)|
+|  • Ability Slots|`slot-off-0`, `slot-def-0`, queue `q-*`|Drag‑&‑drop powers; flash on activation.|`ui.js`, `powers.js`|
+|  • Core Socket|`aberration-core-socket`|Shows currently equipped Aberration Core.|`ui.js`, `cores.js`|
+|  • Health & Shield|`#health-bar-*`, `#shield-bar-overlay`|Animated bars, sheen effect.|`ui.js`, `gameLoop.js`|
+|  • Ascension Bar|`#ascension-bar-*`, AP label|XP toward next level; turns purple when full.|`ascension.js`|
+|**Status Bars**|`#status-effects-bar`, `#pantheon-buffs-bar`|Emoji icons with timers.|`ui.js`|
+|**Notification**|`#unlock-notification`|Animated banner for unlocks.|`ui.js -> showUnlockNotification()`|
+
+### 3.4 Menus & Modals
+| Modal | Shortcut | Purpose | Generating Module |
+|-------|----------|---------|-------------------|
+|**Ascension Grid**|`A` key / menu button|Passive talent tree; spend Ascension Points.|`ascension.js`|
+|**Aberration Core Attunement**|`C`|Equip / unequip powerful cores that modify play.|`cores.js`|
+|**Weaver’s Orrery**|`O`|Draft boss combinations for custom “Timelines”.|`ui.js`, `main.js`|
+|**Stage Select**|`L`|Replay cleared stages at will.|`ui.js`|
+|**Game Over**|auto|Restart, open Ascension, etc.|`main.js`|
+|**Custom Confirm**|runtime|Reusable yes/no prompt.|`ui.js`|
+|**Boss Info**|click boss banner|Lore & mechanics for each boss.|`ui.js`, `bosses.js`|
+
+### 3.5 Core Gameplay Systems
+* **Momentum Movement** – Player sprite attracted toward mouse (`state.player.speed`, easing in `gameLoop.js` lines 395‑410).  
+* **Offensive / Defensive Powers** – Defined in `powers.js`, referenced by emoji and cooldown arrays.  
+* **Aberration Cores** – Active + passive abilities (e.g. *Architect*, *Paradox*, *Vampire*). Logic in `cores.js`; current core saved on player object.  
+* **Bosses & Aspects** – Data‑driven objects (`bosses.js`). Each boss can swap “aspects” at HP thresholds, altering behaviour.  
+* **Talents / Ascension Grid** – Node graph in `talents.js` with colour‑coded constellations; UI rendered by `ascension.js`.  
+* **Levelling & Unlocks** – XP curve in `config.js (LEVELING_CONFIG)`, stage‑based unlock table `THEMATIC_UNLOCKS`.  
+* **Particles & SFX** – Helper functions in `utils.js` and audio routing in `audio.js`.
+
+### 3.6 File Quick‑Reference
+| Feature | File(s) |
+|---------|---------|
+|Global game state, reset & save|`modules/state.js`|
+|Main loop / rendering|`modules/gameLoop.js`, `main.js`|
+|Power definitions & usage|`modules/powers.js`|
+|Aberration Cores logic|`modules/cores.js`|
+|Boss encyclopedia|`modules/bosses.js`|
+|Talent grid|`modules/talents.js`, `modules/ascension.js`|
+|HUD & Modals|`index.html`, `modules/ui.js`, `style.css`|
+|Stage configuration table|`modules/config.js`|
+|Math helpers & particles|`modules/utils.js`|
+|Audio routing|`modules/audio.js`|
+
+---
 ## Core Experience: Inside the Conduit
 
 ### 1. The Command Deck (Player Environment)
