@@ -87,11 +87,10 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Eliminate menu render freeze when opening holographic panels.
 - Optimize draw calls and memory usage during intense battles.
+- Implement dynamic crosshair visibility options for accessibility.
 
 ## NEED
-- High-contrast emoji textures for improved readability.
 - Additional sound effects and background music loops.
 - VR performance profiling on target hardware.
 - QA testers for cross-device VR compatibility.
@@ -100,3 +99,4 @@ Adherence to these constraints is crucial for a successful implementation.
 - Playtesting pathfinding on complex stage layouts.
 - Model haptic feedback patterns for core abilities.
 - Create accessibility documentation for colorblind modes.
+- UI sound design for high-contrast mode.

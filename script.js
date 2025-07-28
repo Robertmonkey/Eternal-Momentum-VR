@@ -253,6 +253,12 @@ window.addEventListener('load', () => {
     defText && defText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
     const offText=document.getElementById('vrOffEmoji');
     offText && offText.setAttribute('color',contrast?'#ffffff':'#eaf2ff');
+    if(crosshair){
+      const c = contrast ? '#ffffff' : userSettings.crosshairColor;
+      crosshair.querySelectorAll('a-ring, a-plane').forEach(el=>{
+        el.setAttribute('material', `color:${c}; emissive:${c}; emissiveIntensity:0.9; side:double`);
+      });
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -713,27 +719,39 @@ window.addEventListener('load', () => {
   // ---------------------------------------------------------------------------
   // Render a DOM modal to a canvas then apply it to the holographic plane.
   // ---------------------------------------------------------------------------
-  async function showHolographicPanel(modalSel, canvasSel){
-    if(vrState.holographicPanelVisible) return;
-    const modal=document.querySelector(modalSel);
-    if(!modal) return;
-    let target=document.querySelector(canvasSel);
+  async function renderPanel(modalSel, canvasSel){
+    const modal = document.querySelector(modalSel);
+    if(!modal) return null;
+    let target = document.querySelector(canvasSel);
     if(!target){
-      target=document.createElement('canvas');
-      target.id=canvasSel.substring(1);
+      target = document.createElement('canvas');
+      target.id = canvasSel.substring(1);
       document.body.appendChild(target).style.display='none';
     }
-    if(!panelCache.has(modalSel)){
-      modal.classList.add('is-rendering');
-      target.width = 1280;
-      target.height = 960;
+    if(panelCache.has(modalSel)) return panelCache.get(modalSel);
+    modal.classList.add('is-rendering');
+    target.width = 1280;
+    target.height = 960;
+    const render = async()=>{
       await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960,scale:1});
-      modal.classList.remove('is-rendering');
-      panelCache.set(modalSel,target);
-    } else {
-      target = panelCache.get(modalSel);
+    };
+    if('requestIdleCallback' in window){
+      await new Promise(r=>requestIdleCallback(async()=>{await render(); r();}));
+    }else{
+      await render();
     }
-    // Yield to ensure texture upload does not stall the frame
+    modal.classList.remove('is-rendering');
+    panelCache.set(modalSel,target);
+    return target;
+  }
+
+  async function showHolographicPanel(modalSel, canvasSel){
+    if(vrState.holographicPanelVisible) return;
+    let target = panelCache.get(modalSel);
+    if(!target){
+      target = await renderPanel(modalSel, canvasSel);
+      if(!target) return;
+    }
     await new Promise(r=>setTimeout(r,0));
     holographicPanel.setAttribute('canvas-texture',`#${target.id}`);
     holographicPanel.setAttribute('visible',true);
@@ -753,22 +771,9 @@ window.addEventListener('load', () => {
       ['#levelSelectModal','#levelSelectCanvas']
     ];
     for(const [modalSel,canvasSel] of panels){
-      const modal = document.querySelector(modalSel);
-      if(!modal) continue;
-      let target = document.querySelector(canvasSel);
-      if(!target){
-        target = document.createElement('canvas');
-        target.id = canvasSel.substring(1);
-        document.body.appendChild(target).style.display='none';
-      }
-      if(!panelCache.has(modalSel)){
-        modal.classList.add('is-rendering');
-        target.width = 1280;
-        target.height = 960;
-        await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960,scale:1});
-        modal.classList.remove('is-rendering');
-        panelCache.set(modalSel,target);
-      }
+      if(panelCache.has(modalSel)) continue;
+      await renderPanel(modalSel, canvasSel);
+      await new Promise(r=>setTimeout(r,50));
     }
   }
   safeAddEventListener(closeHoloBtn,'click',()=>{
