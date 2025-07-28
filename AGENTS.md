@@ -70,8 +70,8 @@ Adherence to these constraints is crucial for a successful implementation.
 - Begin port of enemy and boss AI logic to fully 3D components.
 - Expand entity spawner to cover projectile effects.
 - Implement a VR-native loading screen that displays progress before entering the command deck.
-- Add a visual prompt reminding players to recenter if they move far from the command deck.
-- Implement distance-based scaling for the crosshair to improve depth perception.
+- Add tutorial prompts for first-time VR players.
+- Refine crosshair materials to match the neon aesthetic.
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.

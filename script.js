@@ -68,12 +68,14 @@ window.addEventListener('load', () => {
   const projectileContainer = document.getElementById('projectileContainer');
   const effectContainer  = document.getElementById('effectContainer');
   const crosshair        = document.getElementById('crosshair');
+  let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
   const leftHand  = document.getElementById('leftHand');
   const rightHand = document.getElementById('rightHand');
 
   const SPHERE_RADIUS = 8;
+  const CROSSHAIR_SCALE_MULT = 0.08;
   const entityMap = new Map();  // maps game objects → A‑Frame entities
 
   // --- VR‑only runtime state ---------------------------------------------------
@@ -153,6 +155,15 @@ window.addEventListener('load', () => {
     grad.addColorStop(1,'#00ffff');
     g.fillStyle = grad;
     g.fillRect(0,0,s,s);
+  }
+
+  function scaleCrosshair(pos){
+    if(!crosshair||!cameraEl) return;
+    const camPos = new THREE.Vector3();
+    cameraEl.object3D.getWorldPosition(camPos);
+    const dist = camPos.distanceTo(pos);
+    const s = dist * CROSSHAIR_SCALE_MULT;
+    crosshair.object3D.scale.set(s,s,s);
   }
 
   // ---------------------------------------------------------------------------
@@ -281,6 +292,17 @@ window.addEventListener('load', () => {
       });
       commandDeck.appendChild(wrapper);
     });
+
+    recenterPrompt = document.createElement('a-text');
+    recenterPrompt.setAttribute('id','recenterPrompt');
+    recenterPrompt.setAttribute('value','Press "Center" or R to recenter');
+    recenterPrompt.setAttribute('align','center');
+    recenterPrompt.setAttribute('width','2.5');
+    recenterPrompt.setAttribute('color','#ff8080');
+    recenterPrompt.setAttribute('position','0 0.5 0');
+    recenterPrompt.setAttribute('visible','false');
+    recenterPrompt.setAttribute('look-at','#camera');
+    commandDeck.appendChild(recenterPrompt);
   }
 
   // ---------------------------------------------------------------------------
@@ -330,6 +352,7 @@ window.addEventListener('load', () => {
       crosshair.setAttribute('visible', true);
       crosshair.object3D.position.copy(vrState.avatarPos);
       crosshair.object3D.lookAt(0,0,0);
+      scaleCrosshair(vrState.avatarPos);
     }
     if(!state.currentStage||state.currentStage<1||state.currentStage>STAGE_CONFIG.length) state.currentStage=1;
     spawnBossesForStage(state.currentStage);
@@ -359,6 +382,18 @@ window.addEventListener('load', () => {
     const uvNow = spherePosToUv(vrState.avatarPos,SPHERE_RADIUS);
     state.player.x = uvNow.u*canvas.width;
     state.player.y = uvNow.v*canvas.height;
+
+    if(crosshair && crosshair.getAttribute('visible')){
+      scaleCrosshair(crosshair.object3D.position);
+    }
+    if(recenterPrompt){
+      const camPos = new THREE.Vector3();
+      const deckPos = new THREE.Vector3();
+      cameraEl.object3D.getWorldPosition(camPos);
+      commandDeck.object3D.getWorldPosition(deckPos);
+      const dist = camPos.distanceTo(deckPos);
+      recenterPrompt.setAttribute('visible', dist > 1.5);
+    }
 
     // Spawn / update 3‑D representations of all dynamic objects
     const activeIds=new Set();
@@ -418,6 +453,7 @@ window.addEventListener('load', () => {
         if(crosshair){
           crosshair.object3D.position.copy(hit.point);
           crosshair.object3D.lookAt(0,0,0);
+          scaleCrosshair(hit.point);
           crosshair.setAttribute('visible', true);
         }
       }
