@@ -8,6 +8,8 @@ This file provides the primary technical directives for AI agents working on the
 
 The goal is to build a new, native 3D VR game based on the vision in `README.md`. The original 2D game, located in `/Eternal-Momentum-OLD GAME/`, serves as a **highly detailed blueprint and specification**, not a live engine to be bridged.
 
+**No Custom 3D Models:** All enemies, projectiles, pickups, and UI elements will be composed of primitive shapes and emoji textures only. We will not create or use bespoke 3D models.
+
 ---
 ## Master Task List & Priorities
 
@@ -25,7 +27,7 @@ Your immediate priority is to make the game playable. Address these tasks in ord
 After the game is playable, the UI must be rebuilt to match the original game's aesthetic.
 
 * [ ] **Task 2.1: Implement Command Cluster Layout:** Programmatically arrange the UI panels (`scorePanel`, `offPowerPanel`, etc.) in a wrap-around "command cluster" on the player's console, as seen in the original game. They must be spread out and easily readable.
-* [ ] **Task 2.2: Model & Style Physical Buttons:** Replace all placeholder UI geometry (the blue cylinders) with properly sized, glowing buttons modeled after the original game's UI. Each button must have a clear emoji label (`<a-text>`) and be interactive.
+* [ ] **Task 2.2: Style Physical Buttons:** Replace all placeholder UI geometry (the blue cylinders) with properly sized, glowing buttons built from simple shapes. Each button must have a clear emoji label (`<a-text>`) and be interactive. No custom 3D models are required.
 * [ ] **Task 2.3: Implement Holographic Menus:** Clicking a menu button (e.g., "Ascension") must open the correct UI panel from the original `index.html` as a large, interactive holographic screen in front of the player. This must be achieved by rendering the HTML modal to an offscreen canvas and applying that canvas as a texture to an `<a-plane>`.
 * [ ] **Task 2.4: Create the Neon Grid Floor Texture:** Add a transparent neon grid floor beneath the command deck using the `gridCanvas` texture, allowing players to see space below.
 
@@ -68,11 +70,11 @@ Adherence to these constraints is crucial for a successful implementation.
 - Create interactive tutorial stage with holographic guides.
 - Implement online leaderboard for stage scores.
 - Build stage selection console for replaying cleared stages.
-- Integrate 3D models for pickups and projectiles.
+ - Use simple 3D shapes and emoji textures for pickups and projectiles; no custom models are required.
 - Implement pathfinding system for enemies on the spherical battlefield.
 
 ## NEED
-- 3D art assets for enemies, pickups, and projectiles.
+ - Primitive shapes and emoji textures for enemies, pickups, and projectiles (no custom 3D modeling).
 - Additional sound effects and background music loops.
 - VR performance profiling on target hardware.
 - QA testers for cross-device VR compatibility.

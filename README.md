@@ -5,6 +5,8 @@
 
 This project is to transform the 2D browser game, **Eternal Momentum**, into a fully immersive, first-person 3D virtual reality experience for the Meta Quest 3. This repository contains the complete source code of the original 2D game, which will serve as the **blueprint** for a new, native 3D VR implementation.
 
+All visuals will use simple 3D shapes and emoji textures, eliminating any need for custom 3D models.
+
 The core fantasy is that the player **is the Conduit**, floating at the very center of a massive, spherical reality. From a central command deck, they have a complete 360-degree view of the battlefield as it wraps around them in every direction.
 
 ---
@@ -29,7 +31,7 @@ The goal of this phase is to make the game launch correctly and be minimally pla
 ### **Phase 2: UI/UX Overhaul**
 This phase focuses on rebuilding the UI to match the vision of a tactile, holographic command center.
 -   [ ] **Build the Command Cluster:** Arrange all UI panels in a wrap-around console, referencing the layout of the original 2D game's interface.
--   [ ] **Create Physical Buttons:** Replace all placeholder UI elements with properly modeled and styled 3D buttons that look and feel like the glowing buttons from the original game.
+-   [ ] **Create Physical Buttons:** Replace all placeholder UI elements with styled buttons built from simple 3D shapes and emoji labels—no custom models are required—to match the glowing buttons from the original game.
 -   [ ] **Implement Holographic Menus:** Implement the functionality for buttons to open large holographic panels for menus like the Ascension Grid, Core Attunement, and Weaver's Orrery.
 -   [ ] **Add Neon Grid Floor:** Implement the transparent, glowing grid floor for the Command Deck so the player can see the battlefield below.
 
