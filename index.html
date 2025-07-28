@@ -142,6 +142,30 @@
       <a-text id="stageSelectStage" align="center" width="2.2" color="#eaf2ff" position="0 0 0.02"></a-text>
     </a-plane>
 
+    <!-- Game over panel -->
+    <a-plane id="gameOverPanel" class="interactive"
+             width="2.5" height="1.6"
+             position="0 1.8 -2.3"
+             visible="false">
+      <a-text value="TIMELINE COLLAPSED" align="center" width="2.2" color="#ff8080" position="0 0.4 0.02"></a-text>
+      <a-entity mixin="console-button" id="retryBtn"
+                position="0 0.1 0.02" class="interactive">
+        <a-text value="Restart" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity mixin="console-button" id="gameOverAscBtn"
+                position="-0.8 -0.3 0.02" class="interactive">
+        <a-text value="Ascension" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity mixin="console-button" id="gameOverCoreBtn"
+                position="0 -0.3 0.02" class="interactive">
+        <a-text value="Cores" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+      <a-entity mixin="console-button" id="gameOverStageBtn"
+                position="0.8 -0.3 0.02" class="interactive">
+        <a-text value="Stages" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
+      </a-entity>
+    </a-plane>
+
     <!-- Gameplay battleground -->
     <a-sphere id="battleSphere" radius="8"
               segments-height="60" segments-width="60"
