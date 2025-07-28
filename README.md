@@ -157,4 +157,4 @@ Recent playtesting revealed several issues that need to be addressed:
 * The first stage does not run ✅
 * A green orb is visible beneath the entry point but lacks an identifying emoji. The buttons lack emojis and should be aligned with the game play UI from the old game which is missing. (level bar, health, core, inventory, boss health bar system and more) ✅
 * The neon grid floor is missing ✅
-* The crosshair cursor and the Conduit avatar are missing from the battlefield ✅
+* The crosshair cursor and the Conduit avatar are missing from the battlefield ✅✅

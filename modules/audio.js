@@ -3,8 +3,8 @@
 export const AudioManager = {
     unlocked: false,
     userMuted: false,
-    sfxVolume: 0.85,
-    musicVolume: 0.35,
+    sfxVolume: 0.75,
+    musicVolume: 0.40,
     soundElements: {},
     musicPlaylist: [],
     currentTrackIndex: -1,
@@ -20,7 +20,18 @@ export const AudioManager = {
         });
         this.musicPlaylist.sort(() => Math.random() - 0.5);
         this.soundBtn = soundBtn;
+        this.normalizeVolumes();
         this.updateButtonIcon();
+    },
+
+    normalizeVolumes() {
+        Object.values(this.soundElements).forEach(el => {
+            if (el.loop) {
+                el.volume = this.sfxVolume;
+            } else {
+                el.volume = Math.min(el.volume, this.sfxVolume);
+            }
+        });
     },
     
     unlockAudio() {
@@ -61,6 +72,7 @@ export const AudioManager = {
     },
     setSfxVolume(vol) {
         this.sfxVolume = Math.min(1, Math.max(0, vol));
+        this.normalizeVolumes();
     },
     playSfx(soundId) {
         if (!this.unlocked || this.userMuted) return;
