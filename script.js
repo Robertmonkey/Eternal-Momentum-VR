@@ -15,7 +15,7 @@ import { activateCorePower } from './modules/cores.js';
 import { powers, usePower } from './modules/powers.js';
 import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.js';
 import { populateAberrationCoreMenu, populateOrreryMenu, showBossInfo } from './modules/ui.js';
-import { uvToSpherePos, spherePosToUv } from './modules/utils.js';
+import { uvToSpherePos, spherePosToUv, safeAddEventListener } from './modules/utils.js';
 import { moveTowards } from './modules/movement3d.js';
 import { AudioManager } from './modules/audio.js';
 import { STAGE_CONFIG } from './modules/config.js';
@@ -289,13 +289,11 @@ window.addEventListener('load', () => {
     vrState.holographicPanelVisible=true;
     AudioManager.playSfx('uiModalOpen');
   }
-  if(closeHoloBtn){
-    closeHoloBtn.addEventListener('click',()=>{
-      holographicPanel.setAttribute('visible',false);
-      vrState.holographicPanelVisible=false;
-      AudioManager.playSfx('uiModalClose');
-    });
-  }
+  safeAddEventListener(closeHoloBtn,'click',()=>{
+    holographicPanel.setAttribute('visible',false);
+    vrState.holographicPanelVisible=false;
+    AudioManager.playSfx('uiModalClose');
+  });
 
   // ---------------------------------------------------------------------------
   // Restart (or start) the current stage – called on scene load & on respawn.
@@ -437,17 +435,15 @@ window.addEventListener('load', () => {
   if(leftHand) setupController(leftHand);
   if(rightHand) setupController(rightHand);
 
-  if(sceneEl){
-    sceneEl.addEventListener('loaded', ()=>{
-      anchorCommandDeck();
-      createCommandCluster();
-      AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
-    });
-    sceneEl.addEventListener('enter-vr',()=>{
-      anchorCommandDeck();
-      restartCurrentStage();
-    });
-  }
+  safeAddEventListener(sceneEl,'loaded',()=>{
+    anchorCommandDeck();
+    createCommandCluster();
+    AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
+  });
+  safeAddEventListener(sceneEl,'enter-vr',()=>{
+    anchorCommandDeck();
+    restartCurrentStage();
+  });
 
   animate();
 });
