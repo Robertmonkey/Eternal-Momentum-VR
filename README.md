@@ -17,7 +17,7 @@ The core fantasy is that the player **is the Conduit**, floating at the very cen
 **The current VR prototype is considered non-functional and is undergoing a complete overhaul to address critical bugs.** Beta testing has revealed significant issues with the UI, core gameplay loop, and VR implementation that make the game unplayable.
 
 The immediate goal is to refactor the codebase to be VR-native, using the original 2D game as a strict visual and logical specification rather than a live engine.
-Non-gameplay features like localization and colorblind options are deferred until the full gameplay port is complete.
+Non-gameplay features like localization and colorblind options are deferred until the full gameplay port is complete. In-game tutorial prompts will also wait until the core game is fully playable.
 
 ---
 ## Development Roadmap
@@ -152,4 +152,4 @@ Eternal Momentum VR can optionally record anonymous performance data such as ave
 ### User Feedback from Testing
 Recent playtesting revealed several issues that need to be addressed:
 
-* loading screen hangs on 0% and looks nothing like the orginal games.
+* loading screen hangs on 0% and looks nothing like the orginal games. ✅ Loading screen now uses the legacy progress bar and updates as assets load.

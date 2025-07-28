@@ -79,12 +79,37 @@ only appear on hover, are visible for the capture.
   position: fixed;
   inset: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: var(--dark-bg);
+  background: var(--dark-bg) url('assets/load.png') center/cover no-repeat;
   color: var(--primary-glow);
-  font-size: 2em;
+  font-size: 1.5em;
   z-index: 9999;
+  cursor: wait;
+}
+
+#loadingProgressContainer {
+  width: 300px;
+  height: 20px;
+  border: 2px solid var(--primary-glow);
+  border-radius: 10px;
+  background-color: rgba(0,0,0,0.5);
+  padding: 2px;
+  margin-top: 20px;
+}
+
+#loadingProgressFill {
+  width: 0%;
+  height: 100%;
+  background-color: var(--primary-glow);
+  border-radius: 6px;
+  box-shadow: 0 0 10px var(--primary-glow);
+  transition: width 0.2s ease-out;
+}
+
+#loadingStatusText {
+  margin-top: 15px;
 }
 
 #homeScreen {

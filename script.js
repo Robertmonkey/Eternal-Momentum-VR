@@ -94,7 +94,8 @@ window.addEventListener('load', () => {
   const telegraphContainer = document.getElementById("telegraphContainer");
   const crosshair        = document.getElementById('crosshair');
   const loadingScreen    = document.getElementById('loadingScreen');
-  const loadingProgress  = document.getElementById('loadingProgress');
+  const loadingProgressFill = document.getElementById('loadingProgressFill');
+  const loadingStatusText   = document.getElementById('loadingStatusText');
   const homeScreen      = document.getElementById('homeScreen');
   const startVrBtn      = document.getElementById('startVrBtn');
   const continueVrBtn   = document.getElementById('continueVrBtn');
@@ -117,13 +118,15 @@ window.addEventListener('load', () => {
   if(assetsEl && loadingScreen){
     assetsEl.addEventListener('progress',e=>{
       const pct = Math.round((e.detail.loaded / e.detail.total) * 100);
-      if(loadingProgress) loadingProgress.innerText = `Loading ${pct}%`;
+      if(loadingProgressFill) loadingProgressFill.style.width = pct + '%';
+      if(loadingStatusText) loadingStatusText.innerText = `Loading ${pct}%`;
     });
     assetsEl.addEventListener('loaded',async ()=>{
       await preRenderPanels();
       const saveExists = !!localStorage.getItem('eternalMomentumSave');
       if(continueVrBtn) continueVrBtn.style.display = saveExists ? 'block' : 'none';
       if(eraseVrBtn)    eraseVrBtn.style.display    = saveExists ? 'block' : 'none';
+      if(loadingStatusText) loadingStatusText.innerText = 'Loading Complete';
       loadingScreen.style.display = 'none';
       if(homeScreen){
         homeScreen.style.display = 'flex';
