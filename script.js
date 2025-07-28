@@ -113,7 +113,7 @@ window.addEventListener('load', () => {
       await preRenderPanels();
       loadingScreen.style.display = 'none';
       // Begin gameplay only after assets and UI panels are ready
-      restartCurrentStage();
+      initialiseStage();
     });
   } else if(loadingScreen){
     loadingScreen.style.display = 'none';
@@ -274,7 +274,7 @@ window.addEventListener('load', () => {
           equipCore(coreId);
           holographicPanel.setAttribute('visible',false);
           vrState.holographicPanelVisible = false;
-          restartCurrentStage();
+          initialiseStage();
         }
       );
     } else if(!isEquipped){
@@ -289,7 +289,7 @@ window.addEventListener('load', () => {
     state.currentStage = 999;
     holographicPanel.setAttribute('visible',false);
     vrState.holographicPanelVisible = false;
-    restartCurrentStage();
+    initialiseStage();
   }
 
   async function openAscensionPanel(){
@@ -350,7 +350,7 @@ window.addEventListener('load', () => {
     }
   }
 
-  if(retryBtn) safeAddEventListener(retryBtn,'click',()=>{ hideGameOverPanel(); restartCurrentStage(); });
+  if(retryBtn) safeAddEventListener(retryBtn,'click',()=>{ hideGameOverPanel(); initialiseStage(); });
   if(gameOverAscBtn) safeAddEventListener(gameOverAscBtn,'click',async ()=>{ hideGameOverPanel(); await openAscensionPanel(); });
   if(gameOverCoreBtn) safeAddEventListener(gameOverCoreBtn,'click',async ()=>{ hideGameOverPanel(); await openCorePanel(); });
   if(gameOverStageBtn) safeAddEventListener(gameOverStageBtn,'click',async ()=>{ hideGameOverPanel(); await openLevelSelectPanel(); });
@@ -651,32 +651,46 @@ window.addEventListener('load', () => {
   });
 
   // ---------------------------------------------------------------------------
-  // Restart (or start) the current stage – called on scene load & on respawn.
+  // Initialise gameplay for the current stage. Called on load and when
+  // the player respawns or enters VR. This resets state, positions the
+  // avatar at the top of the battle sphere and spawns the appropriate
+  // boss wave.
   // ---------------------------------------------------------------------------
-  function restartCurrentStage(){
+  function initialiseStage(){
     for(const e of entityMap.values()) e.remove();
     entityMap.clear();
     previousPositions.clear();
     hideGameOverPanel();
+
     resetGame(state.arenaMode);
     applyAllTalentEffects();
-    vrState.avatarPos.set(0,SPHERE_RADIUS,0);
+
+    vrState.avatarPos.set(0, SPHERE_RADIUS, 0);
     const uv = spherePosToUv(vrState.avatarPos, SPHERE_RADIUS);
-    state.player.x = uv.u*canvas.width;
-    state.player.y = uv.v*canvas.height;
-    // Ensure avatar and crosshair are visible at start
+    state.player.x = uv.u * canvas.width;
+    state.player.y = uv.v * canvas.height;
+
     nexusAvatar.setAttribute('visible', true);
     nexusAvatar.object3D.position.copy(vrState.avatarPos);
-    nexusAvatar.object3D.lookAt(0,0,0);
+    nexusAvatar.object3D.lookAt(0, 0, 0);
+
     if(crosshair){
       crosshair.setAttribute('visible', true);
       crosshair.object3D.position.copy(vrState.avatarPos);
-      crosshair.object3D.lookAt(0,0,0);
+      crosshair.object3D.lookAt(0, 0, 0);
       scaleCrosshair(vrState.avatarPos);
     }
-    if(!state.currentStage||state.currentStage<1||state.currentStage>STAGE_CONFIG.length) state.currentStage=1;
+
+    if(!state.currentStage || state.currentStage < 1 || state.currentStage > STAGE_CONFIG.length){
+      state.currentStage = 1;
+    }
     spawnBossesForStage(state.currentStage);
     vrState.isGameRunning = true;
+  }
+
+  // Alias used by older code paths
+  function restartCurrentStage(){
+    initialiseStage();
   }
 
   function startSpecificLevel(levelNum){
@@ -685,7 +699,7 @@ window.addEventListener('load', () => {
     const panel=document.getElementById('stageSelectPanel');
     if(panel) panel.setAttribute('visible',false);
     vrState.stageSelectOpen = false;
-    restartCurrentStage();
+    initialiseStage();
   }
 
   // ---------------------------------------------------------------------------
@@ -987,7 +1001,7 @@ window.addEventListener('load', () => {
   });
   safeAddEventListener(sceneEl,'enter-vr',()=>{
     anchorCommandDeck();
-    restartCurrentStage();
+    initialiseStage();
     showTutorialPrompt();
   });
 
