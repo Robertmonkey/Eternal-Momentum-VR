@@ -179,11 +179,13 @@ window.addEventListener('load', () => {
     vrState.holographicPanelVisible=true;
     AudioManager.playSfx('uiModalOpen');
   }
-  closeHoloBtn.addEventListener('click',()=>{
-    holographicPanel.setAttribute('visible',false);
-    vrState.holographicPanelVisible=false;
-    AudioManager.playSfx('uiModalClose');
-  });
+  if(closeHoloBtn){
+    closeHoloBtn.addEventListener('click',()=>{
+      holographicPanel.setAttribute('visible',false);
+      vrState.holographicPanelVisible=false;
+      AudioManager.playSfx('uiModalClose');
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Restart (or start) the current stage – called on scene load & on respawn.
@@ -276,11 +278,13 @@ window.addEventListener('load', () => {
   loadPlayerState();
   drawGrid(document.getElementById('gridCanvas'));
 
-  battleSphere.addEventListener('raycaster-intersection',e=>{
-    const hit=e.detail.intersections[0];
-    if(hit) vrState.cursorPoint.copy(hit.point);
-  });
-  battleSphere.addEventListener('raycaster-intersection-cleared',()=>vrState.cursorPoint.set(0,0,0));
+  if(battleSphere){
+    battleSphere.addEventListener('raycaster-intersection',e=>{
+      const hit=e.detail.intersections[0];
+      if(hit) vrState.cursorPoint.copy(hit.point);
+    });
+    battleSphere.addEventListener('raycaster-intersection-cleared',()=>vrState.cursorPoint.set(0,0,0));
+  }
 
   function setupController(hand){
     let trigger=false;
@@ -310,17 +314,20 @@ window.addEventListener('load', () => {
       else vrState.rightTriggerDown = false;
     });
   }
-  setupController(leftHand); setupController(rightHand);
+  if(leftHand) setupController(leftHand);
+  if(rightHand) setupController(rightHand);
 
-  sceneEl.addEventListener('loaded', ()=>{
-    anchorCommandDeck();
-    createCommandCluster();
-    AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
-  });
-  sceneEl.addEventListener('enter-vr',()=>{
-    anchorCommandDeck();
-    restartCurrentStage();
-  });
+  if(sceneEl){
+    sceneEl.addEventListener('loaded', ()=>{
+      anchorCommandDeck();
+      createCommandCluster();
+      AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
+    });
+    sceneEl.addEventListener('enter-vr',()=>{
+      anchorCommandDeck();
+      restartCurrentStage();
+    });
+  }
 
   animate();
 });
