@@ -111,6 +111,10 @@ window.addEventListener('load', () => {
   const gameOverStageBtn = document.getElementById('gameOverStageBtn');
   const leftHand  = document.getElementById('leftHand');
   const rightHand = document.getElementById('rightHand');
+  const motionPermissionModal = document.getElementById('motionPermissionModal');
+  const motionAllowBtn = document.getElementById('motionAllowBtn');
+  const motionDenyBtn = document.getElementById('motionDenyBtn');
+  let pendingStartReset = false;
 
   const assetsEl = document.querySelector('a-assets');
   if(sceneEl && assetsEl && loadingScreen){
@@ -172,11 +176,49 @@ window.addEventListener('load', () => {
     }
   }
 
+  function needsMotionPermission(){
+    return typeof DeviceMotionEvent !== 'undefined' &&
+           typeof DeviceMotionEvent.requestPermission === 'function' &&
+           !localStorage.getItem('motionPermissionGranted');
+  }
+
+  async function handleMotionAllow(){
+    if(motionPermissionModal) motionPermissionModal.style.display = 'none';
+    if(typeof DeviceMotionEvent !== 'undefined' &&
+       typeof DeviceMotionEvent.requestPermission === 'function'){
+      try{
+        const res = await DeviceMotionEvent.requestPermission();
+        localStorage.setItem('motionPermissionGranted', res);
+      }catch(e){}
+    }
+    startVr(pendingStartReset);
+  }
+
+  function handleMotionDeny(){
+    if(motionPermissionModal) motionPermissionModal.style.display = 'none';
+    startVr(pendingStartReset);
+  }
+
+  function handleStartClick(resetSave){
+    if(needsMotionPermission() && motionPermissionModal){
+      pendingStartReset = resetSave;
+      motionPermissionModal.style.display = 'flex';
+    } else {
+      startVr(resetSave);
+    }
+  }
+
+  if(motionAllowBtn){
+    safeAddEventListener(motionAllowBtn,'click',handleMotionAllow);
+  }
+  if(motionDenyBtn){
+    safeAddEventListener(motionDenyBtn,'click',handleMotionDeny);
+  }
   if(startVrBtn){
-    safeAddEventListener(startVrBtn,'click',()=>startVr(true));
+    safeAddEventListener(startVrBtn,'click',()=>handleStartClick(true));
   }
   if(continueVrBtn){
-    safeAddEventListener(continueVrBtn,'click',()=>startVr(false));
+    safeAddEventListener(continueVrBtn,'click',()=>handleStartClick(false));
   }
   if(eraseVrBtn){
     safeAddEventListener(eraseVrBtn,'click',()=>{
