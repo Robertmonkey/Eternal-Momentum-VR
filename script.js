@@ -595,7 +595,9 @@ window.addEventListener('load', () => {
     }
     if(!panelCache.has(modalSel)){
       modal.classList.add('is-rendering');
-      await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960});
+      target.width = 1280;
+      target.height = 960;
+      await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960,scale:1});
       modal.classList.remove('is-rendering');
       panelCache.set(modalSel,target);
     }
@@ -626,7 +628,9 @@ window.addEventListener('load', () => {
       }
       if(!panelCache.has(modalSel)){
         modal.classList.add('is-rendering');
-        await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960});
+        target.width = 1280;
+        target.height = 960;
+        await html2canvas(modal,{backgroundColor:null,canvas:target,width:1280,height:960,scale:1});
         modal.classList.remove('is-rendering');
         panelCache.set(modalSel,target);
       }

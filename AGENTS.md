@@ -70,7 +70,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Improve 3D projectile physics for enemy attacks.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for
   health, shield, ascension and ability slots.
-- Fix holographic panels sometimes rendering only the top-left portion in VR.
+- Implement enemy pathing along the sphere's inner surface.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
