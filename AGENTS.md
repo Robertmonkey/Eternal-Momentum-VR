@@ -87,12 +87,11 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Implement command cluster layout for VR UI.
+- Style physical buttons for VR UI.
 
 ## NEED
 - Additional sound effects and background music loops.
-- remove features not found in the orginal game to focus on readme direction.
-- Adjust boss damage output for VR scale.
+- Calibrate enemy projectile speed for VR.
 
 ## Workflow for Agents
 1. Review `README.md` and this `AGENTS.md` before starting work.
