@@ -21,7 +21,7 @@ import { updateEnemies3d } from './modules/enemyAI3d.js';
 import { updateProjectiles3d } from './modules/projectilePhysics3d.js';
 import { AudioManager } from './modules/audio.js';
 import { STAGE_CONFIG } from './modules/config.js';
-import { Telemetry } from './modules/telemetry.js';
+import { Telemetry, uploadTelemetry } from './modules/telemetry.js';
 
 // -----------------------------------------------------------------------------
 // A‑Frame helper: apply a live canvas as a texture to any mesh.
@@ -1028,6 +1028,6 @@ window.addEventListener('load', () => {
     if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
   });
 
-  Telemetry.start();
+  Telemetry.start(uploadTelemetry);
   animate();
 });

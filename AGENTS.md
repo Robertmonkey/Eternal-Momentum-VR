@@ -87,7 +87,7 @@ Adherence to these constraints is crucial for a successful implementation.
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
 - Integrate telegraph system with other boss abilities like shrinking boxes and shaper runes.
-- Integrate remote analytics upload for performance telemetry.
+- Add optional user telemetry toggle and privacy note.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
