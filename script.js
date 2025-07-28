@@ -45,6 +45,27 @@ AFRAME.registerComponent('canvas-texture', {
 });
 
 // -----------------------------------------------------------------------------
+// Simple collision component for enemies. Checks distance to the Nexus avatar
+// each frame and emits a `hit-player` event when within range. This is a
+// lightweight alternative to a full physics system and improves hit detection
+// accuracy in 3D space.
+// -----------------------------------------------------------------------------
+AFRAME.registerComponent('enemy-hitbox', {
+  schema: { radius: { type: 'number', default: 0.2 } },
+  init() {
+    this.avatar = document.getElementById('nexusAvatar');
+  },
+  tick() {
+    if(!this.avatar) return;
+    const playerPos = this.avatar.object3D.position;
+    const enemyPos  = this.el.object3D.position;
+    if(playerPos.distanceTo(enemyPos) < this.data.radius + 0.3){
+      this.el.emit('hit-player');
+    }
+  }
+});
+
+// -----------------------------------------------------------------------------
 // Main initialisation sequence – runs once DOM is ready.
 // -----------------------------------------------------------------------------
 window.addEventListener('load', () => {
@@ -639,6 +660,19 @@ window.addEventListener('load', () => {
       aethel_and_umbra:'☯️'
     };
 
+    function handleEnemyCollision(enemyObj){
+      const baseDmg = enemyObj.boss ? (enemyObj.enraged ? 20 : 10) : 1;
+      const dmg = baseDmg * state.player.talent_modifiers.damage_taken_multiplier;
+      if(!state.player.shield && dmg > 0){
+        state.player.health -= dmg;
+        if(state.player.health <= 0) state.gameOver = true;
+        AudioManager.playSfx('hitSound');
+      }else if(state.player.shield && dmg > 0){
+        state.player.shield = false;
+        AudioManager.playSfx('shieldBreak');
+      }
+    }
+
     function spawn(obj, container){
       const id = obj.instanceId || `${obj.type||'obj'}-${obj.startTime||0}-${obj.x}`;
       activeIds.add(id);
@@ -695,6 +729,11 @@ window.addEventListener('load', () => {
       }
       el.object3D.position.copy(pos);
       el.object3D.lookAt(0,0,0);
+      if(container===enemyContainer){
+        const rad = (obj.r || 20) / canvas.width * SPHERE_RADIUS;
+        el.setAttribute('enemy-hitbox', `radius:${rad}`);
+        el.addEventListener('hit-player', ()=>handleEnemyCollision(obj));
+      }
     }
 
     state.enemies.forEach(o=>spawn(o, enemyContainer));

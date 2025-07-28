@@ -67,7 +67,7 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Refine enemy hit detection using proper 3D colliders.
+- Improve 3D projectile physics for enemy attacks.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
