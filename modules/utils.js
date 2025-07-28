@@ -262,3 +262,15 @@ export function spherePosToUv(vec, radius = 1) {
   const v = phi / Math.PI;
   return { u, v };
 }
+
+/**
+ * Safely add an event listener if the element exists.
+ * @param {EventTarget|null} el
+ * @param {string} type
+ * @param {Function} handler
+ * @param {Object} [options]
+ */
+export function safeAddEventListener(el, type, handler, options){
+  if(!el) return;
+  el.addEventListener(type, handler, options);
+}

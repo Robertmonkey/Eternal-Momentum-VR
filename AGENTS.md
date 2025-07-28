@@ -69,11 +69,12 @@ Adherence to these constraints is crucial for a successful implementation.
 - Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added.
 - Begin port of enemy and boss AI logic to fully 3D components.
 - Expand entity spawner to cover projectile effects.
-- Create helper utility for safe event binding to reduce repetitive null checks.
 - Add a recenter option so players can reposition the command deck if they drift too far from the origin.
 - Implement a VR-native loading screen that displays progress before entering the command deck.
+- Fix crosshair cursor and Nexus avatar visibility when the stage starts.
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.
 - Additional sound effects and background music loops.
 - VR performance profiling on target hardware.
+- QA testers for cross-device VR compatibility.
