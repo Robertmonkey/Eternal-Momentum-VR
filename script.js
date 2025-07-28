@@ -207,7 +207,18 @@ window.addEventListener('load', () => {
     AudioManager.setMusicVolume(userSettings.musicVolume);
     AudioManager.setSfxVolume(userSettings.sfxVolume);
     applyHighContrastMode();
+    updateUiScale();
   }
+
+  function updateUiScale(){
+    if(!commandDeck) return;
+    const base=1024;
+    const factor=Math.min(window.innerWidth, window.innerHeight)/base;
+    const s=Math.min(1.5, Math.max(0.7, factor));
+    commandDeck.object3D.scale.set(s,s,s);
+    CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize * s;
+  }
+
 
   function applyHighContrastMode(){
     const contrast=userSettings.highContrast;
@@ -1154,16 +1165,19 @@ window.addEventListener('load', () => {
     // Stage now starts once assets are fully loaded
     AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')),document.getElementById('soundOptionsToggle'));
     applySettings();
+    updateUiScale();
   });
   safeAddEventListener(sceneEl,'enter-vr',()=>{
     anchorCommandDeck();
     initialiseStage();
     showTutorialPrompt();
+    updateUiScale();
   });
 
   window.addEventListener('keydown', e => {
     if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
   });
+  window.addEventListener('resize', updateUiScale);
 
   if(userSettings.telemetryEnabled) Telemetry.start(storeTelemetry);
   animate();
