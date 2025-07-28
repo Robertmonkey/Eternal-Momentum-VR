@@ -142,8 +142,8 @@ The battlefield is the entire inner surface of a **massive, hollow sphere** that
 Recent playtesting revealed several issues that need to be addressed:
 
 * Menu buttons appear at a comfortable height but are spaced too far apart and cause a short freeze when clicked.
-* After clicking a button in VR, the menu fails to render until the browser is focused outside the headset, leaving only a partial screen.
-* The first stage does not run—enemies and the first boss appear but remain frozen.
-* A green orb is visible beneath the entry point but lacks an identifying emoji.
-* The neon grid floor spawns under the buttons instead of beneath the player, providing no footing.
+* After clicking a button in VR, the menu fails to render until the browser is focused outside the headset, leaving only a partial screen. The menu shows what looks like a low quility cut of its top left cornor in VR.
+* The first stage does not run
+* A green orb is visible beneath the entry point but lacks an identifying emoji. The buttons lack emojis and should be aligned with the game play UI from the old game which is missing. (level bar, health, core, inventory, boss health bar system and more)
+* The neon grid floor is missing.
 * The crosshair cursor and the Conduit avatar are missing from the battlefield.
