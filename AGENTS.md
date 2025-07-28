@@ -65,7 +65,7 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Build proper 3D models and textures for all console buttons.
 - Implement remaining UI panels as holographic canvases (Ascension, Cores, Orrery). Boss info panel added.
-- Expand entity spawner to cover projectiles and decoys.
+- Expand entity spawner to cover projectile effects.
 
 ## NEED
 - 3D art assets for enemies, pickups, and projectiles.

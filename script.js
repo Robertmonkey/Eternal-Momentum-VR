@@ -80,7 +80,9 @@ window.addEventListener('load', () => {
     avatarPos:  new THREE.Vector3(),
     isGameRunning: false,
     holographicPanelVisible: false,
-    lastCoreUse: -Infinity
+    lastCoreUse: -Infinity,
+    leftTriggerDown: false,
+    rightTriggerDown: false
   };
 
   // ---------------------------------------------------------------------------
@@ -279,14 +281,29 @@ window.addEventListener('load', () => {
     let trigger=false;
     hand.addEventListener('triggerdown',()=>{
       trigger=true;
+      if(hand===leftHand) vrState.leftTriggerDown = true;
+      else vrState.rightTriggerDown = true;
+
+      const now = Date.now();
+      if(vrState.leftTriggerDown && vrState.rightTriggerDown && now - vrState.lastCoreUse > 150){
+        activateCorePower(window.mousePosition.x, window.mousePosition.y, window.gameHelpers);
+        vrState.lastCoreUse = now;
+        return;
+      }
+
       setTimeout(()=>{
-        if(trigger){
+        const otherDown = hand===leftHand ? vrState.rightTriggerDown : vrState.leftTriggerDown;
+        if(trigger && !otherDown){
           const key=(hand===leftHand)?state.offensiveInventory[0]:state.defensiveInventory[0];
           if(key) usePower(key);
         }
       },150);
     });
-    hand.addEventListener('triggerup',()=>{trigger=false;});
+    hand.addEventListener('triggerup',()=>{
+      trigger=false;
+      if(hand===leftHand) vrState.leftTriggerDown = false;
+      else vrState.rightTriggerDown = false;
+    });
   }
   setupController(leftHand); setupController(rightHand);
 
