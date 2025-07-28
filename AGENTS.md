@@ -88,8 +88,8 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
-- Integrate telegraph system with other boss abilities like shrinking boxes and shaper runes.
 - Implement command cluster layout around the player using A-Frame.
+- Refine haptic feedback and controller vibrations for key actions.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
@@ -101,3 +101,4 @@ Adherence to these constraints is crucial for a successful implementation.
 - Playtesting pathfinding on complex stage layouts.
 - Interface for viewing saved telemetry metrics in-game.
 - Localization support for the telemetry privacy notice.
+- VR accessibility options for colorblind users.

@@ -1504,6 +1504,21 @@ export function gameTick(mx, my) {
                 state.effects.splice(i, 1);
             }
         }
+        else if (effect.type === 'shrinking_box_warning') {
+            const progress = (Date.now() - effect.startTime) / effect.duration;
+            const size = effect.size;
+            const half = size / 2;
+            const left = effect.x - half, right = effect.x + half;
+            const top = effect.y - half, bottom = effect.y + half;
+            ctx.strokeStyle = 'rgba(211,84,0,' + (0.3 + 0.7 * progress) + ')';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(left, top, size, size);
+            if (progress >= 1) {
+                state.effects.splice(i, 1);
+                i--;
+                continue;
+            }
+        }
         else if (effect.type === 'shrinking_box') {
             playLooping('wallShrink');
             const progress = (Date.now() - effect.startTime) / effect.duration;
@@ -1542,6 +1557,19 @@ export function gameTick(mx, my) {
                 ctx.fillRect(left, top, wallThickness, gapStart);
                 ctx.fillRect(left, top + gapStart + gapSize, wallThickness, currentSize - gapStart - gapSize);
             } else { ctx.fillRect(left, top, wallThickness, currentSize); }
+        }
+        else if (effect.type === 'shaper_rune_warning') {
+            const progress = (Date.now() - effect.startTime) / effect.duration;
+            ctx.strokeStyle = 'rgba(241,196,15,' + (0.3 + 0.7 * progress) + ')';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(effect.x, effect.y, effect.r, 0, Math.PI * 2);
+            ctx.stroke();
+            if (progress >= 1) {
+                state.effects.splice(i, 1);
+                i--;
+                continue;
+            }
         }
         else if (effect.type === 'shaper_rune') {
             const runeSymbols = { nova: '💫', shockwave: '💥', lasers: '☄️', heal: '❤️', speed_buff: '🚀' };
