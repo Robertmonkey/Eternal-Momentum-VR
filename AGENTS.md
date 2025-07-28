@@ -68,9 +68,9 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Improve 3D projectile physics for enemy attacks.
-- Investigate crosshair and avatar visibility issues when a stage begins.
 - Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for
   health, shield, ascension and ability slots.
+- Implement stage progression and game-over handling entirely in VR.
 
 ## NEED
 - High-contrast emoji textures for improved readability.
