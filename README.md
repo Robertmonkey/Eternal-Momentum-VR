@@ -113,8 +113,8 @@ Once the foundation is stable, the focus will shift to porting the rich content 
 ---
 ## Core Experience: Inside the Conduit
 
-### 1. The Command Deck (Player Environment)
-The player is positioned on a circular, floating **Command Deck** at the absolute center of the universe. This deck is your stationary anchor point.
+### 1. The Command Deck (Player Environment) THIS SHOULD NEVER ROTATE OR MOVE! The game will be played with room scale and moving elements in the command deck will make the user sick!
+The player is positioned on a circular, floating **Command Deck** at the absolute center of the universe. This deck is your stationary anchor point. THIS SHOULD NEVER ROTATE OR MOVE! The game will be played with room scale and moving elements in the command deck will make the user sick!
 
 * **360° Omniscience:** From your central vantage point, you can see every part of the battlefield.
 * **Transparent Neon-Grid Floor:** The floor of your command deck is a transparent, luminous grid, styled to match the game's aesthetic.
@@ -126,7 +126,7 @@ The battlefield is the entire inner surface of a **massive, hollow sphere** that
 * **Native 3D Gameplay:** All gameplay elements—the Nexus, enemies, and projectiles—are native 3D objects.
 * **Faithful Replication:** The behaviors and attack patterns from the original 2D game will be meticulously re-implemented in 3D.
 
-### 3. The UI (Tactile & Holographic Interaction)
+### 3. The UI (Tactile & Holographic Interaction) THIS SHOULD NEVER ROTATE OR MOVE! The game will be played with room scale and moving elements in the command deck will make the user sick!
 * **Holographic Menus:** Complex menus like the Ascension Grid appear as large, interactive holographic panels.
 * **Physical Buttons:** Common actions are mapped to large, physical 3D buttons on the floating panels.
 * **Holographic Status Display:** A projector displays floating, 3D icons of your equipped powers and a detailed hologram of your attuned **Aberration Core**.
