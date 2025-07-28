@@ -75,7 +75,22 @@ window.addEventListener('load', () => {
   const rightHand = document.getElementById('rightHand');
 
   const SPHERE_RADIUS = 8;
-  const CROSSHAIR_SCALE_MULT = 0.08;
+
+  const DEFAULT_SETTINGS = {
+    turnSpeed: 1.0,
+    vignetteIntensity: 0.4,
+    crosshairColor: '#00ffff',
+    crosshairSize: 1.0
+  };
+
+  const userSettings = {
+    turnSpeed: parseFloat(localStorage.getItem('turnSpeed')) || DEFAULT_SETTINGS.turnSpeed,
+    vignetteIntensity: parseFloat(localStorage.getItem('vignetteIntensity')) || DEFAULT_SETTINGS.vignetteIntensity,
+    crosshairColor: localStorage.getItem('crosshairColor') || DEFAULT_SETTINGS.crosshairColor,
+    crosshairSize: parseFloat(localStorage.getItem('crosshairSize')) || DEFAULT_SETTINGS.crosshairSize
+  };
+
+  let CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
   const entityMap = new Map();  // maps game objects → A‑Frame entities
 
   // --- VR‑only runtime state ---------------------------------------------------
@@ -98,6 +113,27 @@ window.addEventListener('load', () => {
     }
   }
   window.pulseControllers = pulseControllers;
+
+  function saveSettings(){
+    localStorage.setItem('turnSpeed', userSettings.turnSpeed);
+    localStorage.setItem('vignetteIntensity', userSettings.vignetteIntensity);
+    localStorage.setItem('crosshairColor', userSettings.crosshairColor);
+    localStorage.setItem('crosshairSize', userSettings.crosshairSize);
+  }
+
+  function applySettings(){
+    CROSSHAIR_SCALE_MULT = 0.08 * userSettings.crosshairSize;
+    if(crosshair){
+      crosshair.querySelectorAll('a-ring, a-plane').forEach(el=>{
+        el.setAttribute('material', `color:${userSettings.crosshairColor}; emissive:${userSettings.crosshairColor}; emissiveIntensity:0.9; side:double`);
+      });
+    }
+    const vignetteEl = document.getElementById('vignette');
+    if(vignetteEl){
+      vignetteEl.setAttribute('opacity', userSettings.vignetteIntensity);
+      vignetteEl.setAttribute('visible', userSettings.vignetteIntensity > 0);
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Helper: position the command deck at a fixed world location so it
@@ -220,6 +256,18 @@ window.addEventListener('load', () => {
     await showHolographicPanel('#orreryModal','#orreryCanvas');
   }
 
+  async function openSettingsPanel(){
+    const turn = document.getElementById('turnSpeedRange');
+    const vig  = document.getElementById('vignetteRange');
+    const color= document.getElementById('crosshairColor');
+    const size = document.getElementById('crosshairSizeRange');
+    if(turn){ turn.value = userSettings.turnSpeed; }
+    if(vig){ vig.value = userSettings.vignetteIntensity; }
+    if(color){ color.value = userSettings.crosshairColor; }
+    if(size){ size.value = userSettings.crosshairSize; }
+    await showHolographicPanel('#settingsModal','#settingsCanvas');
+  }
+
   // ---------------------------------------------------------------------------
   // Helper: build the command‑cluster deck & buttons programmatically.
   // ---------------------------------------------------------------------------
@@ -242,7 +290,8 @@ window.addEventListener('load', () => {
       orrery:   {angle: 20, r:1.25, y:0.20, emoji:"🪐", label:"Orrery",    action:openOrreryPanel},
       resume:   {angle: 50, r:1.30, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
       sound:    {angle: 80, r:1.30, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()},
-      recenter: {angle:110, r:1.30, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck}
+      settings: {angle:100, r:1.30, y:0.10, emoji:"⚙️", label:"Settings", action:openSettingsPanel},
+      recenter: {angle:120, r:1.30, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck}
     };
 
     Object.entries(buttons).forEach(([id,cfg])=>{
@@ -459,6 +508,17 @@ window.addEventListener('load', () => {
   loadPlayerState();
   drawGrid(document.getElementById('gridCanvas'));
   drawButtonTexture(document.getElementById('buttonCanvas'));
+  applySettings();
+
+  const turnSpeedRange = document.getElementById('turnSpeedRange');
+  const vignetteRange = document.getElementById('vignetteRange');
+  const crosshairColorInput = document.getElementById('crosshairColor');
+  const crosshairSizeRange = document.getElementById('crosshairSizeRange');
+
+  safeAddEventListener(turnSpeedRange,'input',e=>{ userSettings.turnSpeed = parseFloat(e.target.value); saveSettings(); });
+  safeAddEventListener(vignetteRange,'input',e=>{ userSettings.vignetteIntensity = parseFloat(e.target.value); applySettings(); saveSettings(); });
+  safeAddEventListener(crosshairColorInput,'input',e=>{ userSettings.crosshairColor = e.target.value; applySettings(); saveSettings(); });
+  safeAddEventListener(crosshairSizeRange,'input',e=>{ userSettings.crosshairSize = parseFloat(e.target.value); applySettings(); saveSettings(); });
 
   if(battleSphere){
     battleSphere.addEventListener('raycaster-intersection',e=>{
@@ -509,6 +569,21 @@ window.addEventListener('load', () => {
   }
   if(leftHand) setupController(leftHand);
   if(rightHand) setupController(rightHand);
+
+  function setupSmoothTurning(){
+    const rig = document.getElementById('rig');
+    [leftHand, rightHand].forEach(hand=>{
+      if(!hand) return;
+      hand.addEventListener('thumbstickmoved',e=>{
+        if(!rig) return;
+        const x=e.detail.x;
+        if(Math.abs(x)>0.2){
+          rig.object3D.rotation.y -= x * userSettings.turnSpeed * 0.05;
+        }
+      });
+    });
+  }
+  setupSmoothTurning();
 
   safeAddEventListener(sceneEl,'loaded',()=>{
     anchorCommandDeck();

@@ -25,6 +25,7 @@
   <canvas id="gridCanvas" width="512" height="512" style="display:none;"></canvas>
   <!-- Console button texture source -->
   <canvas id="buttonCanvas" width="256" height="256" style="display:none;"></canvas>
+  <canvas id="settingsCanvas" width="1280" height="960" style="display:none;"></canvas>
 
   <!-- ⇣⇣ VR SCENE ⇣⇣ -->
   <a-scene embedded background="color: #000">
@@ -128,17 +129,17 @@
       <a-entity id="pickupContainer"></a-entity>
       <a-entity id="effectContainer"></a-entity>
 
-      <!-- 3‑D crosshair at controller hit point -->
-      <a-entity id="crosshair" visible="false" look-at="#camera">
-        <a-ring radius-inner="0.04" radius-outer="0.06"
-                 material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.9; side:double"></a-ring>
-        <a-plane width="0.08" height="0.005"
-                 material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
-                 position="0 0 0.001"></a-plane>
-        <a-plane width="0.005" height="0.08"
-                 material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
-                 position="0 0 0.001"></a-plane>
-      </a-entity>
+    <!-- 3‑D crosshair at controller hit point -->
+    <a-entity id="crosshair" visible="false" look-at="#camera">
+      <a-ring radius-inner="0.04" radius-outer="0.06"
+               material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.9; side:double"></a-ring>
+      <a-plane width="0.08" height="0.005"
+               material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
+               position="0 0 0.001"></a-plane>
+      <a-plane width="0.005" height="0.08"
+               material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
+               position="0 0 0.001"></a-plane>
+    </a-entity>
 
       <!-- Player avatar marker -->
       <a-entity id="nexusAvatar">
@@ -216,6 +217,25 @@
       <div id="bossInfoModalBox" class="modal-background">
         <h2 id="bossInfoModalTitle"></h2>
         <div id="bossInfoModalContent"></div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div id="settingsModal" class="modal">
+      <div id="settings-container" class="modal-background">
+        <h2>Comfort Settings</h2>
+        <label>Turn Speed
+          <input id="turnSpeedRange" type="range" min="0.5" max="3" step="0.1">
+        </label>
+        <label>Vignette Intensity
+          <input id="vignetteRange" type="range" min="0" max="1" step="0.05">
+        </label>
+        <label>Crosshair Color
+          <input id="crosshairColor" type="color" value="#00ffff">
+        </label>
+        <label>Crosshair Size
+          <input id="crosshairSizeRange" type="range" min="0.5" max="1.5" step="0.05">
+        </label>
       </div>
     </div>
   </div>
