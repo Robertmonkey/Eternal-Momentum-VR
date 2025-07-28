@@ -142,14 +142,16 @@ export const AudioManager = {
 
     crossfadeToNextTrack(duration = 3000) {
         if (this.isFading || this.userMuted) return;
+        if (this.musicPlaylist.length === 0) return;
         if (this.currentMusic) {
              this.fadeOutMusic(duration);
         }
         this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
         const nextTrack = this.musicPlaylist[this.currentTrackIndex];
+        if (!nextTrack) return;
         this.currentMusic = nextTrack;
         nextTrack.currentTime = 0;
-        nextTrack.play().catch(e => {});
+        nextTrack.play().catch(() => {});
         this._fade(nextTrack, 0, this.musicVolume, duration);
     },
     
