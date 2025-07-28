@@ -153,7 +153,8 @@ Eternal Momentum VR can optionally record anonymous performance data such as ave
 ### User Feedback from Testing
 Recent playtesting revealed several issues that need to be addressed:
 
-* loading screen hangs on 0% and VR option comes up but we are not at the home screen, we never see the home screen. (desktop browers test)
+* ✅ loading screen hangs on 0% and VR option comes up but we are not at the home screen, we never see the home screen. (desktop browers test)
+    Fixed by waiting for the scene's `loaded` event and showing the home screen with a 10s fallback.
 * ✅ Console error - navmesh.js:20 Uncaught TypeError: Cannot read properties of null (reading 'array')
     Fixed by rebuilding the navmesh to deduplicate vertices without relying on an index.
     at buildNavMesh (navmesh.js:20:25)
