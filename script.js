@@ -335,7 +335,7 @@ window.addEventListener('load', () => {
     cameraEl.object3D.getWorldPosition(camPos);
     commandDeck.object3D.position.set(camPos.x, camPos.y - 0.5, camPos.z);
     commandDeck.object3D.rotation.set(0,0,0);
-    if(tutorial.step===3) advanceTutorial();
+    if(tutorial.step===4) advanceTutorial();
   }
   window.recenterCommandDeck = recenterCommandDeck;
 
@@ -752,12 +752,14 @@ window.addEventListener('load', () => {
     if(tutorial.el) tutorial.el.remove();
     let text='';
     if(tutorial.step===0){
-      text='Aim at the sphere and squeeze the trigger to move.';
+      text='Welcome! Aim with your controller and squeeze the trigger to begin.';
     }else if(tutorial.step===1){
-      text='Great! Press either trigger again to fire your power.';
+      text='Aim at the sphere and squeeze the trigger to move.';
     }else if(tutorial.step===2){
-      text='Press both triggers together to unleash your Core.';
+      text='Great! Press either trigger again to fire your power.';
     }else if(tutorial.step===3){
+      text='Press both triggers together to unleash your Core.';
+    }else if(tutorial.step===4){
       text='Press the Center button or R if you drift too far.';
     }else{
       tutorial.el=null;
@@ -1208,7 +1210,7 @@ window.addEventListener('load', () => {
       if(vrState.leftTriggerDown && vrState.rightTriggerDown && now - vrState.lastCoreUse > 150){
         activateCorePower(window.mousePosition.x, window.mousePosition.y, window.gameHelpers);
         vrState.lastCoreUse = now;
-        if(tutorial.step===2) advanceTutorial();
+        if(tutorial.step===3) advanceTutorial();
         return;
       }
 
@@ -1218,7 +1220,7 @@ window.addEventListener('load', () => {
           const key=(hand===leftHand)?state.offensiveInventory[0]:state.defensiveInventory[0];
           if(key){
             usePower(key);
-            if(tutorial.step===1) advanceTutorial();
+            if(tutorial.step===2) advanceTutorial();
           }
         }
       },150);

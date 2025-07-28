@@ -88,9 +88,9 @@ Adherence to these constraints is crucial for a successful implementation.
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
 - Optimize draw calls and memory usage during intense battles.
-- Refine tutorial prompts and VR onboarding flow.
+- Integrate stage-specific music variations.
 
 ## NEED
 - Additional sound effects and background music loops.
 - remove features not found in the orginal game to focus on readme direction.
-- Polish audio levels for existing SFX.
+- Balance enemy health values for VR pacing.
