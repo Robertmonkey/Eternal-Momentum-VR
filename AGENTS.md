@@ -87,13 +87,13 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Implement advanced holographic menus for all remaining UI modals.
-- Profile object pool performance and extend pooling to holographic panel textures.
+- Expand tutorial prompts to explain VR controls.
+- Add unit tests for 3D movement helpers.
 
 ## NEED
 - Additional sound effects and background music loops.
 - remove features not found in the orginal game to focus on readme direction.
-- Balance enemy health values for VR pacing.
+- Adjust boss damage output for VR scale.
 
 ## Workflow for Agents
 1. Review `README.md` and this `AGENTS.md` before starting work.

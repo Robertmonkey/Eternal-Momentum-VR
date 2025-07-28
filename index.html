@@ -28,6 +28,8 @@
   <canvas id="settingsCanvas" width="1280" height="960" style="display:none;"></canvas>
   <!-- Stage select panel target -->
   <canvas id="levelSelectCanvas" width="1280" height="960" style="display:none;"></canvas>
+  <!-- Telemetry panel target -->
+  <canvas id="telemetryCanvas" width="1280" height="960" style="display:none;"></canvas>
   <div id="loadingScreen">
     <div id="loadingProgressContainer">
       <div id="loadingProgressFill"></div>
@@ -145,30 +147,7 @@
               color="#eaf2ff" position="0 0 0.02"></a-text>
     </a-plane>
 
-    <!-- Stage select panel -->
-    <a-plane id="stageSelectPanel" class="interactive"
-             width="2.5" height="1.6"
-             position="0 1.8 -2.3"
-             visible="false">
-      <a-entity mixin="console-button" id="prevStageBtn"
-                position="-0.9 -0.6 0.02" class="interactive">
-        <a-text value="<" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity mixin="console-button" id="nextStageBtn"
-                position="0.9 -0.6 0.02" class="interactive">
-        <a-text value=">" align="center" width="0.5" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity mixin="console-button" id="startStageBtn"
-                position="0 -0.6 0.02" class="interactive">
-        <a-text value="Start" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity mixin="console-button" id="closeStageSelectBtn"
-                position="0 0.2 0.02" class="interactive">
-        <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-text id="stageSelectTitle" align="center" width="2.2" color="#eaf2ff" position="0 0.4 0.02"></a-text>
-      <a-text id="stageSelectStage" align="center" width="2.2" color="#eaf2ff" position="0 0 0.02"></a-text>
-    </a-plane>
+
 
     <!-- Game over panel -->
     <a-plane id="gameOverPanel" class="interactive"
@@ -194,18 +173,7 @@
       </a-entity>
     </a-plane>
 
-    <!-- Telemetry panel -->
-    <a-plane id="telemetryPanel" class="interactive"
-             width="2.5" height="1.6"
-             position="0 1.8 -2.3"
-             visible="false">
-      <a-entity mixin="console-button" id="closeTelemetryBtn"
-                position="0 -0.6 0.02" class="interactive">
-        <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-text id="telemetryTitle" value="Performance Logs" align="center" width="2.2" color="#eaf2ff" position="0 0.4 0.02"></a-text>
-      <a-text id="telemetryContent" align="left" width="2.2" wrap-count="40" color="#eaf2ff" position="-1.1 0 0.02"></a-text>
-    </a-plane>
+
 
     <!-- Gameplay battleground -->
     <a-sphere id="battleSphere" radius="8"
@@ -364,6 +332,14 @@
           <input id="telemetryToggle" type="checkbox">
         </label>
         <p id="privacyNote" style="font-size:0.8em; opacity:0.8;">Enabling records anonymous performance data locally only.</p>
+      </div>
+    </div>
+
+    <!-- Telemetry Logs -->
+    <div id="telemetryModal" class="modal">
+      <div id="telemetry-modal-content" class="modal-background">
+        <h2>Performance Logs</h2>
+        <pre id="telemetryModalContent"></pre>
       </div>
     </div>
   </div>

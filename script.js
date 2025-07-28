@@ -104,8 +104,6 @@ window.addEventListener('load', () => {
   let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
-  const telemetryPanel   = document.getElementById('telemetryPanel');
-  const closeTelemetryBtn= document.getElementById('closeTelemetryBtn');
   const gameOverPanel    = document.getElementById('gameOverPanel');
   const retryBtn         = document.getElementById('retryBtn');
   const gameOverAscBtn   = document.getElementById('gameOverAscBtn');
@@ -205,10 +203,25 @@ window.addEventListener('load', () => {
   const entityMap = new Map();  // maps game objects → A‑Frame entities
   const previousPositions = new Map(); // tracks last position for orientation
   const panelCache = new Map(); // caches html2canvas results
+  const canvasPool = [];
   const projectilePool = [];
   const enemyPool = [];
   const effectPool = [];
   const pickupPool = [];
+
+  function obtainCanvas(id){
+    const c = canvasPool.pop() || document.createElement('canvas');
+    c.id = id;
+    c.width = 1280;
+    c.height = 960;
+    document.body.appendChild(c).style.display = 'none';
+    return c;
+  }
+
+  function releaseCanvas(c){
+    if(c.parentElement) c.parentElement.removeChild(c);
+    canvasPool.push(c);
+  }
 
   // --- VR‑only runtime state ---------------------------------------------------
   const vrState = {
@@ -439,8 +452,7 @@ window.addEventListener('load', () => {
   async function openLevelSelectPanel(){
     vrState.stageSelectIndex = state.currentStage;
     updateStageSelectDisplay();
-    const panel=document.getElementById('stageSelectPanel');
-    if(panel){ panel.setAttribute('visible',true); }
+    await showHolographicPanel('#levelSelectModal','#levelSelectCanvas');
     vrState.stageSelectOpen = true;
   }
 
@@ -474,17 +486,17 @@ window.addEventListener('load', () => {
     await showHolographicPanel('#settingsModal','#settingsCanvas');
   }
 
-  function openTelemetryPanel(){
-    const panel=document.getElementById('telemetryPanel');
-    const content=document.getElementById('telemetryContent');
-    if(!panel||!content) return;
-    const logs=JSON.parse(localStorage.getItem('telemetryLogs')||'[]');
-    const lines=logs.slice(-5).map(l=>{
-      const t=new Date(l.ts).toLocaleTimeString();
-      return `${t} - ${l.fps}fps`;
-    });
-    content.setAttribute('value', lines.join('\n'));
-    panel.setAttribute('visible', true);
+  async function openTelemetryPanel(){
+    const content=document.getElementById('telemetryModalContent');
+    if(content){
+      const logs=JSON.parse(localStorage.getItem('telemetryLogs')||'[]');
+      const lines=logs.slice(-5).map(l=>{
+        const t=new Date(l.ts).toLocaleTimeString();
+        return `${t} - ${l.fps}fps`;
+      });
+      content.innerText = lines.join('\n');
+    }
+    await showHolographicPanel('#telemetryModal','#telemetryCanvas');
   }
 
   function showGameOverPanel(){
@@ -805,9 +817,7 @@ window.addEventListener('load', () => {
     if(!modal) return null;
     let target = document.querySelector(canvasSel);
     if(!target){
-      target = document.createElement('canvas');
-      target.id = canvasSel.substring(1);
-      document.body.appendChild(target).style.display='none';
+      target = obtainCanvas(canvasSel.substring(1));
     }
     if(panelCache.has(modalSel)) return panelCache.get(modalSel);
     modal.classList.add('is-rendering');
@@ -846,7 +856,8 @@ window.addEventListener('load', () => {
       ['#aberrationCoreModal','#aberrationCanvas'],
       ['#orreryModal','#orreryCanvas'],
       ['#settingsModal','#settingsCanvas'],
-      ['#levelSelectModal','#levelSelectCanvas']
+      ['#levelSelectModal','#levelSelectCanvas'],
+      ['#telemetryModal','#telemetryCanvas']
     ];
     for(const [modalSel,canvasSel] of panels){
       if(panelCache.has(modalSel)) continue;
@@ -857,10 +868,6 @@ window.addEventListener('load', () => {
   safeAddEventListener(closeHoloBtn,'click',()=>{
     holographicPanel.setAttribute('visible',false);
     vrState.holographicPanelVisible=false;
-    AudioManager.playSfx('uiModalClose');
-  });
-  safeAddEventListener(closeTelemetryBtn,'click',()=>{
-    if(telemetryPanel) telemetryPanel.setAttribute('visible',false);
     AudioManager.playSfx('uiModalClose');
   });
 
@@ -914,8 +921,8 @@ window.addEventListener('load', () => {
   function startSpecificLevel(levelNum){
     state.arenaMode = false;
     state.currentStage = levelNum;
-    const panel=document.getElementById('stageSelectPanel');
-    if(panel) panel.setAttribute('visible',false);
+    holographicPanel.setAttribute('visible', false);
+    vrState.holographicPanelVisible = false;
     vrState.stageSelectOpen = false;
     initialiseStage();
   }
@@ -1369,9 +1376,10 @@ window.addEventListener('load', () => {
       startSpecificLevel(vrState.stageSelectIndex);
     });
     safeAddEventListener(close,'click',()=>{
-      const panel=document.getElementById('stageSelectPanel');
-      if(panel) panel.setAttribute('visible',false);
+      holographicPanel.setAttribute('visible',false);
+      vrState.holographicPanelVisible=false;
       vrState.stageSelectOpen=false;
+      AudioManager.playSfx('uiModalClose');
     });
   }
 
