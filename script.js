@@ -512,6 +512,39 @@ window.addEventListener('load', () => {
     bossGroup.appendChild(bbText);
     hud.appendChild(bossGroup);
 
+    // Ascension progress
+    const ascGroup=document.createElement('a-entity');
+    ascGroup.object3D.position.set(0,-0.15,0);
+    const ascBg=document.createElement('a-plane');
+    ascBg.setAttribute('width','0.8');
+    ascBg.setAttribute('height','0.06');
+    ascBg.setAttribute('material','color:#111; opacity:0.6');
+    ascGroup.appendChild(ascBg);
+    const ascFill=document.createElement('a-plane');
+    ascFill.setAttribute('id','vrAscensionFill');
+    ascFill.setAttribute('width','0.8');
+    ascFill.setAttribute('height','0.04');
+    ascFill.setAttribute('material','color:#8e44ad; emissive:#8e44ad; emissiveIntensity:0.6');
+    ascFill.object3D.position.set(0,0,0.01);
+    ascGroup.appendChild(ascFill);
+    const ascText=document.createElement('a-text');
+    ascText.setAttribute('id','vrAscensionText');
+    ascText.setAttribute('value','LVL 1');
+    ascText.setAttribute('align','center');
+    ascText.setAttribute('width','0.8');
+    ascText.setAttribute('color','#eaf2ff');
+    ascText.object3D.position.set(0,0,0.02);
+    ascGroup.appendChild(ascText);
+    const apText=document.createElement('a-text');
+    apText.setAttribute('id','vrApDisplay');
+    apText.setAttribute('value','AP: 0');
+    apText.setAttribute('align','center');
+    apText.setAttribute('width','0.8');
+    apText.setAttribute('color','#eaf2ff');
+    apText.object3D.position.set(0,0.12,0.02);
+    ascGroup.appendChild(apText);
+    hud.appendChild(ascGroup);
+
     // Ability slots
     const abilityGroup=document.createElement('a-entity');
     abilityGroup.object3D.position.set(0,-0.25,0);
@@ -781,9 +814,11 @@ window.addEventListener('load', () => {
         state.player.health -= dmg;
         if(state.player.health <= 0) state.gameOver = true;
         AudioManager.playSfx('hitSound');
+        if(window.pulseControllers) window.pulseControllers(80,0.8);
       }else if(state.player.shield && dmg > 0){
         state.player.shield = false;
         AudioManager.playSfx('shieldBreak');
+        if(window.pulseControllers) window.pulseControllers(60,0.6);
       }
     }
 

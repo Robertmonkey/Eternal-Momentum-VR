@@ -87,9 +87,9 @@ Adherence to these constraints is crucial for a successful implementation.
 
 ## TODO
 - Expand boss attack patterns to use full 3D positioning and effects.
-- Replace DOM-based UI dependencies in `modules/ui.js` with A-Frame components for health, shield, ascension and ability slots.
-- Implement command cluster layout around the player using A-Frame.
-- Refine haptic feedback and controller vibrations for key actions.
+- Build a telemetry panel in VR to review performance metrics.
+- Add volume sliders for music and SFX in the settings panel.
+- Implement localization framework starting with the privacy notice text.
 
 ## NEED
 - High-contrast emoji textures for improved readability.

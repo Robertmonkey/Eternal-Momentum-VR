@@ -43,6 +43,9 @@ const vrBossFill = document.getElementById('vrBossFill');
 const vrBossName = document.getElementById('vrBossName');
 const vrOffEmoji = document.getElementById('vrOffEmoji');
 const vrDefEmoji = document.getElementById('vrDefEmoji');
+const vrAscFill = document.getElementById('vrAscensionFill');
+const vrAscText = document.getElementById('vrAscensionText');
+const vrApDisplay = document.getElementById('vrApDisplay');
 
 const aberrationCoreSocket = document.getElementById('aberration-core-socket');
 const aberrationCoreIcon = document.getElementById('aberration-core-icon');
@@ -195,8 +198,9 @@ export function updateUI() {
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     document.querySelectorAll('.ability-key').forEach(el => { el.style.display = isTouchDevice ? 'none' : 'block'; });
 
+    const ascPct = (state.player.essence / state.player.essenceToNextLevel);
     if (ascensionFill) {
-        ascensionFill.style.width = `${(state.player.essence / state.player.essenceToNextLevel) * 100}%`;
+        ascensionFill.style.width = `${ascPct * 100}%`;
     }
     if (ascensionText) {
         ascensionText.innerText = `LVL ${state.player.level}`;
@@ -204,6 +208,9 @@ export function updateUI() {
     if (apDisplay) {
         apDisplay.innerText = `AP: ${state.player.ascensionPoints}`;
     }
+    if(vrAscFill){ vrAscFill.object3D.scale.x = ascPct; }
+    if(vrAscText){ vrAscText.setAttribute('value', `LVL ${state.player.level}`); }
+    if(vrApDisplay){ vrApDisplay.setAttribute('value', `AP: ${state.player.ascensionPoints}`); }
     
     updateAberrationCoreUI(); 
     updateCoreCooldownUI();
