@@ -1,12 +1,20 @@
 /* Basic stylesheet for Eternal Momentum VR prototype. */
 
 :root {
+  /* Match color variables from the 2‑D game for a consistent theme */
   --primary-glow: #00ffff;
-  --secondary-glow: #ff00ff;
-  --nexus-glow: #00ff00;
-  --dark-bg: #000;
-  --ui-bg: rgba(20,20,40,0.85);
+  --secondary-glow: #f000ff;
+  --dark-bg: #1e1e2f;
+  --ui-bg: rgba(20, 20, 40, 0.85);
+  --border-color: rgba(0, 255, 255, 0.4);
   --font-color: #eaf2ff;
+  --health-high: #3498db;
+  --health-medium: #f1c40f;
+  --health-low: #e74c3c;
+  --health-bar-bg: #444;
+  --disabled-color: rgba(255, 255, 255, 0.2);
+  --shield-color: rgba(241, 196, 15, 0.7);
+  --nexus-glow: #00ff00;
 }
 
 html, body {
@@ -16,7 +24,8 @@ html, body {
   padding: 0;
   background: var(--dark-bg);
   overflow: hidden;
-  font-family: sans-serif;
+  /* Use the same font stack as the original game */
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
   color: var(--font-color);
 }
 
