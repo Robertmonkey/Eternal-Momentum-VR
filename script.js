@@ -17,6 +17,7 @@ import { applyAllTalentEffects, renderAscensionGrid } from './modules/ascension.
 import { populateAberrationCoreMenu, populateOrreryMenu, showBossInfo } from './modules/ui.js';
 import { uvToSpherePos, spherePosToUv, safeAddEventListener } from './modules/utils.js';
 import { moveTowards } from './modules/movement3d.js';
+import { updateEnemies3d } from './modules/enemyAI3d.js';
 import { AudioManager } from './modules/audio.js';
 import { STAGE_CONFIG } from './modules/config.js';
 
@@ -165,11 +166,9 @@ window.addEventListener('load', () => {
     if(commandDeck.parentElement !== sceneEl){
       sceneEl.appendChild(commandDeck);
     }
-    // Position the deck at a fixed world location so it does not
-    // track the player's headset movements.  Waist height is roughly
-    // one metre above the origin.
-    commandDeck.object3D.position.set(0, 1.0, 0);
-    commandDeck.object3D.rotation.set(0,0,0);
+    // Place the deck at the player's current position but detach it from
+    // headset movement so it stays fixed in the world.
+    recenterCommandDeck();
   }
 
   // ---------------------------------------------------------------------------
@@ -574,6 +573,9 @@ window.addEventListener('load', () => {
     const uvNow = spherePosToUv(vrState.avatarPos,SPHERE_RADIUS);
     state.player.x = uvNow.u*canvas.width;
     state.player.y = uvNow.v*canvas.height;
+
+    // Begin port of enemy AI to 3-D: update enemy positions on the sphere
+    updateEnemies3d(vrState.avatarPos, SPHERE_RADIUS, canvas.width, canvas.height);
 
     if(crosshair && crosshair.getAttribute('visible')){
       scaleCrosshair(crosshair.object3D.position);

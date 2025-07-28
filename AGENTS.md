@@ -66,7 +66,7 @@ Adherence to these constraints is crucial for a successful implementation.
     |-- modules/      ← state.js, gameLoop.js, powers.js, cores.js, ascension.js, ui.js, utils.js…
 
 ## TODO
-- Begin port of enemy and boss AI logic to fully 3D components.
+- Expand boss attack patterns to use full 3D positioning and effects.
 - Create interactive tutorial stage with holographic guides.
 - Implement online leaderboard for stage scores.
 - Build stage selection console for replaying cleared stages.
