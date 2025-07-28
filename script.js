@@ -1162,7 +1162,6 @@ window.addEventListener('load', () => {
           const rad = size/2/canvas.width*SPHERE_RADIUS;
           el.setAttribute('geometry',`primitive: ring; radiusInner:${Math.max(rad-0.05,0.01)}; radiusOuter:${rad}`);
           el.setAttribute('material','color:#d35400; opacity:0.4; transparent:true; side:double');
-        }
         }else{
           el.setAttribute('geometry','primitive: sphere; radius:0.2');
           el.setAttribute('material',`color:${obj.customColor||'#c0392b'}; emissive:${obj.customColor||'#c0392b'}; emissiveIntensity:0.4`);
@@ -1396,6 +1395,9 @@ window.addEventListener('load', () => {
     anchorCommandDeck();
     showTutorialPrompt();
     updateUiScale();
+    if(!vrState.isGameRunning){
+      initialiseStage();
+    }
   });
 
   window.addEventListener('keydown', e => {
