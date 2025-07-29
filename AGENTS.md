@@ -72,6 +72,7 @@ Violating any A‑rule blocks a merge.
 | VR scene bootstrap | `script.js`, `index.html` |
 | UI builder (new)  | `modules/vrCommandCluster.js` |
 | Spherical movement maths | `modules/movement3d.js` |
+| Bundled libs | `/vendor/*` |
 | Legacy 2‑D spec | `/Eternal‑Momentum‑OLD GAME/*` |
 
 ---
@@ -94,5 +95,6 @@ Violating any A‑rule blocks a merge.
 - T2.3 implemented: holographic menus rendered with `html2canvas`.
 - T2.4 implemented: neon grid floor drawn to `gridCanvas`.
 - Added local `three.module.js` under `/vendor` for GitHub Pages.
+- Documented `/vendor` folder in repository map.
 
 Happy hacking. The galaxy counts on your code!
