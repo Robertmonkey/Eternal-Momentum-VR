@@ -1,4 +1,7 @@
-import * as THREE from 'three';
+// Use local three.js bundle so the browser can load the module without
+// a build step. Node-based unit tests still resolve the package name
+// "three" via node_modules.
+import * as THREE from '../node_modules/three/build/three.module.js';
 import { powers } from './powers.js';
 
 const PANEL_DEFS = [
