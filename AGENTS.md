@@ -25,7 +25,7 @@ This document serves two critical functions:
 | **S06** | **HUD Implementation: Health & Resources** | Within the HUD container, implement the Health, Shield, Ascension, and Status Effects bars. This involves creating 3D planes that replicate `#health-bar-container`, `#shield-bar-overlay`, `#ascension-bar-container`, and `#status-effects-bar`. Their visuals (width, color, text) must be dynamically updatable by the `UIManager` based on the global `state` object. | **Done** |
 | **S07** | **HUD Implementation: Powers & Core** | Recreate the power-up slots (`.abilities` and `.ability-queue`) as hexagonal `THREE.ShapeGeometry` planes. The `UIManager` must update their textures to show the correct power-up emoji from `state.offensiveInventory` and `state.defensiveInventory`. Implement the `#aberration-core-socket` as a circular plane with a child plane for the cooldown overlay. | **Done** |
 | **S08** | **HUD Implementation: Boss UI** | Implement the `#bossHpContainer` and `#bossBanner` elements. The container should be a designated area in the UI (e.g., top-center) where individual boss health bars can be dynamically added and removed. The banner is a text element that appears and fades out when a boss spawns. | **Done** |
-| **S09** | **Modal UI Implementation** | Create the functionality to display the primary modal menus as large, floating holographic panels. This task covers the initial implementation for: `#gameOverMenu`, `#levelSelectModal`, `#ascensionGridModal`, and `#aberrationCoreModal`. Each modal should be populated with interactive elements that the player can target with the laser pointer. | Not Started |
+| **S09** | **Modal UI Implementation** | Create the functionality to display the primary modal menus as large, floating holographic panels. This task covers the initial implementation for: `#gameOverMenu`, `#levelSelectModal`, `#ascensionGridModal`, and `#aberrationCoreModal`. Each modal should be populated with interactive elements that the player can target with the laser pointer. | **Done** |
 
 ---
 
@@ -98,9 +98,10 @@ This document serves two critical functions:
 | 2025-07-31 | S05 |`UIManager.js` | HUD scaffold with curved command bar attached to camera. |
 | 2025-07-31 | S06 |`UIManager.js`, `vrMain.js` | Health, shield, ascension, and status bars implemented with dynamic updates. |
 | 2025-07-31 | S08 |`UIManager.js`, `ui.js` | Boss health bars and spawn banner added to VR HUD. |
+| 2025-07-31 | S09 |`ModalManager.js`, `PlayerController.js`, `vrMain.js` | Initial holographic modal system implemented. |
 
 ### Next Steps
-1.  **Begin Task S09:** Modal UI Implementation
+1.  **Begin Task B6:** Mirror Mirage
 
 ---
 
