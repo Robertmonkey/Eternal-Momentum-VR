@@ -17,7 +17,7 @@ This document serves two critical functions:
 | :--- | :--- | :--- | :--- |
 | **F-01** | Create `AssetManager.js` | Must handle loading/caching of assets. | **Done** |
 | **F-02**| Create `BaseAgent.js` | Must extend `THREE.Group`. Must include health, damage, death, and update methods. | **Done**|
-| **F-03** | Create `ProjectileManager.js` | Manages an object pool of projectiles, their movement, and collisions. | **To Do** |
+| **F-03** | Create `ProjectileManager.js` | Manages an object pool of projectiles, their movement, and collisions. | **Done** |
 
 ### Phase 2: Complete Boss Implementation Plan
 * **Detailed Implementation (B1-B10)**: Implement these bosses using the detailed guides below.
@@ -62,11 +62,10 @@ This document serves two critical functions:
 | Date | Task ID | Agent/System Implemented | Notes |
 | :--- | :--- | :--- | :--- |
 | 2025-07-29 | F-01/F-02 |`AssetManager.js`, `BaseAgent.js` | Initial foundational modules created. |
-| | | | |
+| 2025-07-29 | F-03 |`ProjectileManager.js` | Basic projectile pooling and update logic implemented. |
 
 ### Next Steps
-1.  **Implement Task F-03:** Create the `ProjectileManager.js` module.
-2.  **Begin Task B1:** Create `SplitterAI.js` and implement its state machine.
+1.  **Begin Task B1:** Create `SplitterAI.js` and implement its state machine.
 
 ---
 
