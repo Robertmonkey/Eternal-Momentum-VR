@@ -330,9 +330,12 @@ window.addEventListener('load', () => {
             document.addEventListener('visibilitychange', () => AudioManager.handleVisibilityChange());
             soundBtn.addEventListener("click", () => AudioManager.toggleMute());
             
-            document.querySelectorAll('button, .stage-select-item, .orrery-boss-item, .aberration-core-item, .talent-node.can-purchase, #aberration-core-socket').forEach(button => {
-                button.addEventListener('mouseenter', () => AudioManager.playSfx('uiHoverSound'));
-                button.addEventListener('click', () => AudioManager.playSfx('uiClickSound'));
+            const sfxSelector = 'button, .stage-select-item, .orrery-boss-item, .aberration-core-item, .talent-node.can-purchase, #aberration-core-socket';
+            document.body.addEventListener('mouseenter', e => {
+                if(e.target.closest(sfxSelector)) AudioManager.playSfx('uiHoverSound');
+            }, true);
+            document.body.addEventListener('click', e => {
+                if(e.target.closest(sfxSelector)) AudioManager.playSfx('uiClickSound');
             });
 
             levelSelectBtn.addEventListener("click", () => { 

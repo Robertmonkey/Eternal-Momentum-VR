@@ -156,13 +156,17 @@ export const powers={
   speed:{emoji:"🚀",desc:"Speed Boost for 5s",apply:(utils, game)=>{
       if(!state.player.speedBoostActive){
           state.player.speedBoostActive = true;
+          state.player._speedBoostOriginal = state.player.speed;
           state.player.speed *= 1.5;
       }
       game.addStatusEffect('Speed Boost', '🚀', 5000);
       utils.spawnParticles(state.particles, state.player.x,state.player.y,"#00f5ff",40,3,30,5);
       setTimeout(()=>{
           state.player.speedBoostActive = false;
-          state.player.speed /= 1.5;
+          if(state.player._speedBoostOriginal !== undefined){
+              state.player.speed = state.player._speedBoostOriginal;
+              delete state.player._speedBoostOriginal;
+          }
       },5000);
   }},
   freeze:{emoji:"🧊",desc:"Freeze enemies for 4s",apply:(utils, game)=>{

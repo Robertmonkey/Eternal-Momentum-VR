@@ -33,7 +33,9 @@ export const AudioManager = {
 
     normalizeVolumes() {
         Object.values(this.soundElements).forEach(el => {
-            if (el.loop) {
+            if (el.id && el.id.startsWith('bgMusic')) {
+                el.volume = this.musicVolume;
+            } else if (el.loop) {
                 el.volume = this.sfxVolume;
             } else {
                 el.volume = Math.min(el.volume, this.sfxVolume);
@@ -75,6 +77,11 @@ export const AudioManager = {
 
     setMusicVolume(vol) {
         this.musicVolume = Math.min(1, Math.max(0, vol));
+        Object.values(this.soundElements).forEach(el => {
+            if (el.id && el.id.startsWith('bgMusic')) {
+                el.volume = this.musicVolume;
+            }
+        });
         if (this.currentMusic) this.currentMusic.volume = this.musicVolume;
     },
     setSfxVolume(vol) {
@@ -85,8 +92,10 @@ export const AudioManager = {
         if (!this.unlocked || this.userMuted) return;
         const originalSfx = this.soundElements[soundId];
         if (originalSfx) {
-            const sfxInstance = new Audio(originalSfx.src);
+            const sfxInstance = originalSfx.cloneNode();
             sfxInstance.volume = this.sfxVolume;
+            sfxInstance.addEventListener('ended', () => sfxInstance.remove());
+            document.body.appendChild(sfxInstance);
             sfxInstance.play().catch(e => console.warn(`SFX instance for ${soundId} failed to play.`, e));
         } else {
             console.warn(`Sound with ID "${soundId}" not found.`);
@@ -129,14 +138,14 @@ export const AudioManager = {
     
     handleVisibilityChange() {
         if (!this.unlocked) return;
-        
+
         if (document.hidden) {
             if (this.currentMusic && !this.currentMusic.paused) {
                 this.currentMusic.pause();
             }
-            // --- FIX: Add Obelisk hum to the list of sounds to stop ---
-            this.stopLoopingSfx('beamHumSound');
-            this.stopLoopingSfx('obeliskHum');
+            Object.entries(this.soundElements).forEach(([id, el]) => {
+                if (el.loop && !el.paused) el.pause();
+            });
         } else {
             if (!this.userMuted && this.currentMusic && this.currentMusic.paused) {
                 this.currentMusic.play().catch(e => {});
@@ -185,16 +194,29 @@ export const AudioManager = {
     crossfadeToNextTrack(duration = 3000) {
         if (this.isFading || this.userMuted) return;
         if (this.musicPlaylist.length === 0) return;
+
+        const startNext = () => {
+            this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
+            const nextTrack = this.musicPlaylist[this.currentTrackIndex];
+            if (!nextTrack) return;
+            this.currentMusic = nextTrack;
+            nextTrack.currentTime = 0;
+            nextTrack.play().catch(() => {});
+            this._fade(nextTrack, 0, this.musicVolume, duration);
+        };
+
         if (this.currentMusic) {
-             this.fadeOutMusic(duration);
+            const trackToFade = this.currentMusic;
+            this._fade(trackToFade, trackToFade.volume, 0, duration, () => {
+                trackToFade.pause();
+                if (this.currentMusic === trackToFade) {
+                    this.currentMusic = null;
+                }
+                startNext();
+            });
+        } else {
+            startNext();
         }
-        this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
-        const nextTrack = this.musicPlaylist[this.currentTrackIndex];
-        if (!nextTrack) return;
-        this.currentMusic = nextTrack;
-        nextTrack.currentTime = 0;
-        nextTrack.play().catch(() => {});
-        this._fade(nextTrack, 0, this.musicVolume, duration);
     },
     
     playMusic() {

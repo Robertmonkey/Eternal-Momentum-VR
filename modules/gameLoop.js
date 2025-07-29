@@ -8,6 +8,8 @@ import * as utils from './utils.js';
 import { AudioManager } from './audio.js';
 import * as Cores from './cores.js';
 
+const missingStageWarned = new Set();
+
 let canvas = document.getElementById("gameCanvas");
 if (!canvas) {
   canvas = document.createElement('canvas');
@@ -228,7 +230,10 @@ export function spawnBossesForStage(stageNum) {
             play('architectBuild');
         }
     } else {
-        console.error(`No boss configuration found for stage ${stageNum}`);
+        if (!missingStageWarned.has(stageNum)) {
+            console.error(`No boss configuration found for stage ${stageNum}`);
+            missingStageWarned.add(stageNum);
+        }
     }
 }
 

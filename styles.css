@@ -136,7 +136,7 @@ only appear on hover, are visible for the capture.
 #homeScreen.visible {
   opacity: 1;
 }
-#homeVideoBg {
+#home-video-bg {
   position: absolute;
   inset: 0;
   width: 100%;
