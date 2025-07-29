@@ -31,8 +31,10 @@ export const state = {
     maxHealth: 100,
     health: 100,
     shield: false,
+    shield_end_time: 0,
     stunnedUntil: 0,
     berserkUntil: 0,
+    speedBoostActive: false,
     controlsInverted: false,
     statusEffects: [],
     level: 1,
@@ -218,7 +220,9 @@ export function resetGame(isArena = false) {
   state.player.statusEffects = [];
   state.player.activePantheonBuffs = [];
   state.player.shield = false;
+  state.player.shield_end_time = 0;
   state.player.berserkUntil = 0;
+  state.player.speedBoostActive = false;
   state.player.talent_states.phaseMomentum.lastDamageTime = Date.now();
   state.player.talent_states.reactivePlating.cooldownUntil = 0;
   state.player.infected = false;

@@ -64,7 +64,7 @@ function updatePantheonUI() {
         const coreData = bossData.find(b => b.id === buff.coreId);
         if (!coreData) return;
 
-        const remaining = (buff.endTime - now) / 1000;
+        const remaining = Math.max(0, (buff.endTime - now) / 1000);
         
         const iconEl = document.createElement('div');
         iconEl.className = 'pantheon-buff-icon';
@@ -92,7 +92,7 @@ function updateStatusEffectsUI() {
 
     state.player.statusEffects.forEach(effect => {
         const remaining = effect.endTime - now;
-        const duration = effect.endTime - effect.startTime;
+        const duration = Math.max(1, effect.endTime - effect.startTime);
         const progress = Math.max(0, remaining) / duration;
         const iconEl = document.createElement('div');
         iconEl.className = 'status-icon';

@@ -44,7 +44,7 @@ export const powers={
   shockwave:{emoji:"💥",desc:"Expanding wave damages enemies.",apply:(utils, game, mx, my, options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options;
       let speed = 800;
-      let radius = Math.max(innerWidth, innerHeight);
+      let radius = Math.max(window.innerWidth, window.innerHeight);
       let damage = (((state.player.berserkUntil > Date.now()) ? 30 : 15) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
       state.effects.push({ type: 'shockwave', caster: origin, x: origin.x, y: origin.y, radius: 0, maxRadius: radius, speed: speed, startTime: Date.now(), hitEnemies: new Set(), damage: damage });
       game.play('shockwaveSound');
@@ -137,15 +137,15 @@ export const powers={
         game.play('gravitySound'); 
         state.gravityActive=true; 
         state.gravityEnd=Date.now()+1000; 
-        utils.spawnParticles(state.particles, innerWidth/2, innerHeight/2,"#9b59b6",100,4,40,5); 
+        utils.spawnParticles(state.particles, window.innerWidth/2, window.innerHeight/2,"#9b59b6",100,4,40,5);
         
         if (state.player.purchasedTalents.has('temporal-collapse')) {
             setTimeout(() => {
                 if(state.gameOver) return;
                 state.effects.push({ 
                     type: 'slow_zone', 
-                    x: innerWidth / 2, 
-                    y: innerHeight / 2, 
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
                     r: 250, 
                     endTime: Date.now() + 4000 
                 });
@@ -153,7 +153,18 @@ export const powers={
         }
     }
   },
-  speed:{emoji:"🚀",desc:"Speed Boost for 5s",apply:(utils, game)=>{ state.player.speed*=1.5; game.addStatusEffect('Speed Boost', '🚀', 5000); utils.spawnParticles(state.particles, state.player.x,state.player.y,"#00f5ff",40,3,30,5); setTimeout(()=>state.player.speed/=1.5,5000); }},
+  speed:{emoji:"🚀",desc:"Speed Boost for 5s",apply:(utils, game)=>{
+      if(!state.player.speedBoostActive){
+          state.player.speedBoostActive = true;
+          state.player.speed *= 1.5;
+      }
+      game.addStatusEffect('Speed Boost', '🚀', 5000);
+      utils.spawnParticles(state.particles, state.player.x,state.player.y,"#00f5ff",40,3,30,5);
+      setTimeout(()=>{
+          state.player.speedBoostActive = false;
+          state.player.speed /= 1.5;
+      },5000);
+  }},
   freeze:{emoji:"🧊",desc:"Freeze enemies for 4s",apply:(utils, game)=>{
       state.enemies.forEach(e=>{
           if (e.id === 'fractal_horror' || e.isFriendly) return;

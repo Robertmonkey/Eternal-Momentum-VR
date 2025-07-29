@@ -533,7 +533,6 @@ window.addEventListener('load', () => {
     if(styleSel){ styleSel.value = userSettings.turnStyle; }
     if(tele){ tele.checked = userSettings.telemetryEnabled; }
     if(hcToggle){ hcToggle.checked = userSettings.highContrast; }
-    if(hcToggle){ hcToggle.checked = userSettings.highContrast; }
     await showHolographicPanel('#settingsModal','#settingsCanvas');
   }
 
