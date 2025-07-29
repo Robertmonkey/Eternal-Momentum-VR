@@ -236,7 +236,7 @@ function purchaseTalent(talentId) {
 
     } else {
         AudioManager.playSfx('talentError');
-        console.log("Cannot purchase talent! Not enough AP or prerequisites not met.");
+        console.warn("Cannot purchase talent! Not enough AP or prerequisites not met.");
     }
 }
 

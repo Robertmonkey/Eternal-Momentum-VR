@@ -145,6 +145,11 @@ export const AudioManager = {
     },
 
     _fade(audioElement, startVol, endVol, duration, onComplete) {
+        if (duration <= 0) {
+            audioElement.volume = endVol;
+            if(onComplete) onComplete();
+            return;
+        }
         this.isFading = true;
         let currentVol = startVol;
         audioElement.volume = currentVol;
