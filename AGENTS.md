@@ -93,5 +93,6 @@ Violating any A‑rule blocks a merge.
 - T2.2 implemented: emoji cylinder buttons using `console-button` mixin.
 - T2.3 implemented: holographic menus rendered with `html2canvas`.
 - T2.4 implemented: neon grid floor drawn to `gridCanvas`.
+- Added local `three.module.js` under `/vendor` for GitHub Pages.
 
 Happy hacking. The galaxy counts on your code!
