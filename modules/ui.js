@@ -6,6 +6,13 @@ import { STAGE_CONFIG } from './config.js';
 import { getBossesForStage } from './gameLoop.js';
 import { AudioManager } from './audio.js';
 
+function isVr(){
+  return typeof document !== 'undefined' &&
+         typeof document.querySelector === 'function' &&
+         document.querySelector('a-scene')?.is('vr-mode');
+}
+const inVr = isVr();
+
 const ascensionFill = document.getElementById('ascension-bar-fill');
 const ascensionText = document.getElementById('ascension-bar-text');
 const apDisplay = document.getElementById('ascension-points-display');
@@ -195,6 +202,7 @@ function updateAberrationCoreUI() {
 
 
 export function updateUI() {
+    if(inVr) return;
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     document.querySelectorAll('.ability-key').forEach(el => { el.style.display = isTouchDevice ? 'none' : 'block'; });
 
@@ -351,6 +359,7 @@ export function updateUI() {
 }
 
 export function showBossInfo(bossIds, type) {
+    if(inVr) return;
     let title = '';
     let content = '';
 
@@ -401,7 +410,7 @@ if (closeBossInfoBtn3D) closeBossInfoBtn3D.addEventListener('click', () => {
 
 export function showBossBanner(boss){
     // If a traditional DOM banner exists (non-VR mode) update it.
-    if (bossBannerEl) {
+    if (!inVr && bossBannerEl) {
         bossBannerEl.innerText = "🚨 " + boss.name + " 🚨";
         bossBannerEl.style.opacity = 1;
         setTimeout(() => bossBannerEl.style.opacity = 0, 2500);
@@ -441,7 +450,7 @@ export function showUnlockNotification(text, subtext = '') {
     if (subtext) {
         content = `<span class="unlock-title">${subtext}</span>` + content;
     }
-    if (notificationBanner) {
+    if (!inVr && notificationBanner) {
         notificationBanner.innerHTML = content;
         notificationBanner.classList.add('show');
         setTimeout(() => {
