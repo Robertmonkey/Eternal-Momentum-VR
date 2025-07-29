@@ -26,7 +26,7 @@ This document serves two critical functions:
 | ID | Task (Boss Name) | Status |
 | :--- | :--- | :--- |
 | **B1** | Splitter Sentinel | **Done** |
-| **B2** | Reflector Warden | **To Do** |
+| **B2** | Reflector Warden | **Done** |
 | **B3** | Vampire Veil | **To Do** |
 | **B4** | Gravity Tyrant | **To Do** |
 | **B5** | Swarm Link | **To Do** |
@@ -64,9 +64,10 @@ This document serves two critical functions:
 | 2025-07-29 | F-01/F-02 |`AssetManager.js`, `BaseAgent.js` | Initial foundational modules created. |
 | 2025-07-29 | F-03 |`ProjectileManager.js` | Basic projectile pooling and update logic implemented. |
 | 2025-07-29 | B1 |`SplitterAI.js` | Initial boss state machine implemented. |
+| 2025-07-29 | B2 |`ReflectorAI.js` | Reflector Warden state machine implemented. |
 
 ### Next Steps
-1.  **Begin Task B2:** Create `ReflectorAI.js` and implement its state machine.
+1.  **Begin Task B3:** Create `VampireAI.js` and implement its state machine.
 
 ---
 
