@@ -1,100 +1,148 @@
+# Agent Behavior & Development Workflow
+
+*Version: 4.0, Complete*
+*Date: July 29, 2025*
+
+## 1. Introduction
+
+This document serves two critical functions:
+1.  **Design Specification**: It is the definitive guide to the behavior, mechanics, and implementation of all 30 AI agents. The patterns established in the first ten detailed boss guides should be replicated for all subsequent bosses.
+2.  **Live Workflow Log**: It is a living document that the AI assistant will update after every work session to track progress, log changes, and define the next steps. The **Master Development Task List** must be followed sequentially.
+
+## 2. Master Development Task List
+
+### Phase 1: Foundational Agent Systems
+
+| ID | Task | Acceptance Criteria | Status |
+| :--- | :--- | :--- | :--- |
+| **F-01** | Create `AssetManager.js` | Must handle loading/caching of assets. | **Done** |
+| **F-02**| Create `BaseAgent.js` | Must extend `THREE.Group`. Must include health, damage, death, and update methods. | **Done**|
+| **F-03** | Create `ProjectileManager.js` | Manages an object pool of projectiles, their movement, and collisions. | **To Do** |
+
+### Phase 2: Complete Boss Implementation Plan
+* **Detailed Implementation (B1-B10)**: Implement these bosses using the detailed guides below.
+* **Pattern-Based Implementation (B11-B30)**: Implement these bosses by applying the established patterns.
+
+| ID | Task (Boss Name) | Status |
+| :--- | :--- | :--- |
+| **B1** | Splitter Sentinel | **To Do** |
+| **B2** | Reflector Warden | **To Do** |
+| **B3** | Vampire Veil | **To Do** |
+| **B4** | Gravity Tyrant | **To Do** |
+| **B5** | Swarm Link | **To Do** |
+| **B6** | Mirror Mirage | **To Do** |
+| **B7** | EMP Overload | **To Do** |
+| **B8** | The Architect | **To Do** |
+| **B9** | Aethel & Umbra | **To Do** |
+| **B10**| Looping Eye | **To Do** |
+| **B11**| The Juggernaut | **To Do** |
+| **B12**| The Puppeteer | **To Do** |
+| **B13**| The Glitch | **To Do** |
+| **B14**| Sentinel Pair | **To Do** |
+| **B15**| The Basilisk | **To Do** |
+| **B16**| The Annihilator | **To Do** |
+| **B17**| The Parasite | **To Do** |
+| **B18**| Quantum Shadow | **To Do** |
+| **B19**| Time Eater | **To Do** |
+| **B20**| The Singularity | **To Do** |
+| **B21**| The Miasma | **To Do** |
+| **B22**| The Temporal Paradox| **To Do** |
+| **B23**| The Syphon | **To Do** |
+| **B24**| The Centurion | **To Do** |
+| **B25**| The Fractal Horror | **To Do** |
+| **B26**| The Obelisk | **To Do** |
+| **B27**| The Helix Weaver | **To Do** |
+| **B28**| The Epoch-Ender | **To Do** |
+| **B29**| The Shaper of Fate | **To Do** |
+| **B30**| The Pantheon | **To Do** |
+
+## 3. AI Development Workflow Log
+
+### Implementation Log
+| Date | Task ID | Agent/System Implemented | Notes |
+| :--- | :--- | :--- | :--- |
+| 2025-07-29 | F-01/F-02 |`AssetManager.js`, `BaseAgent.js` | Initial foundational modules created. |
+| | | | |
+
+### Next Steps
+1.  **Implement Task F-03:** Create the `ProjectileManager.js` module.
+2.  **Begin Task B1:** Create `SplitterAI.js` and implement its state machine.
 
 ---
 
-## 📄 New `AGENTS.md`
+## 4. Detailed Boss Implementation Guides (1-10)
 
-```markdown
-# AGENTS.md — Definitive Guide for Codex‑Style Agents
+### **B1: Splitter Sentinel**
+* **Player Strategy**: A straightforward fight. Keep distance, focus fire, and prepare to manage two faster minions upon its defeat.
+* **Geometry & Materials**: A `THREE.SphereGeometry` with a red (`0xff0000`), emissive `MeshBasicMaterial`.
+* **Movement Patterns**: Static. It does not move from its spawn point.
+* **Attack Patterns**: Every 5 seconds, it fires a single, slow-moving spherical projectile at the player.
+* **VFX & SFX Cues**: On death, play `splitterOnDeath.mp3` and emit a burst of red particles.
 
-> **Read this first.** Every pull‑request is validated against the rules below.
+### **B2: Reflector Warden**
+* **Player Strategy**: A puzzle of timing. Do not attack when its shields are glowing. Wait for the shields to drop, then unleash damage.
+* **Geometry & Materials**: A central `THREE.BoxGeometry` (dark purple, `0x300030`) with four child `THREE.PlaneGeometry` shields. Shields use a transparent material with a purple (`0x800080`) emissive color that is toggled.
+* **Movement Patterns**: Rotates slowly on its Y-axis when defensive. Static when vulnerable.
+* **State Machine**:
+    * `DEFENSIVE` (8s): Immune. Shields are emissive. Reflects projectiles.
+    * `VULNERABLE` (4s): Takes damage. Shields are not emissive.
+* **VFX & SFX Cues**: Shield hit: `reflectorOnHit.mp3`. Shields drop: `shieldBreak.mp3`.
 
----
+### **B3: Vampire Veil**
+* **Player Strategy**: A damage race. Stay aggressive. When it emits a red aura, move your avatar far away to prevent it from healing.
+* **Geometry & Materials**: A `THREE.ConeGeometry` (crimson, `0xdc143c`). A large, semi-transparent red sphere visualizes the syphon radius.
+* **State Machine**:
+    * `ATTACKING`: Fires a burst of 3 projectiles, then transitions to `SYPHONING`.
+    * `SYPHONING` (3s): If the player is within the radius, the boss regenerates health. Then transitions back to `ATTACKING`.
+* **VFX & SFX Cues**: Syphon starts: `vampireHeal.mp3` and red aura appears.
 
-## 1  Core Experience (What the player **must** feel)
+### **B4: Gravity Tyrant**
+* **Player Strategy**: A battle of positioning. Constantly move your avatar outwards against the pull. The force is weaker at a greater distance.
+* **Geometry & Materials**: A `THREE.TorusKnotGeometry` (deep blue, `0x00008b`).
+* **Movement Patterns**: Moves slowly to random points on the arena surface.
+* **Attack Patterns**: Continuously applies a gravitational force to the player's avatar. Fires a single projectile every 6 seconds.
+* **VFX & SFX Cues**: A deep, constant hum (`gravitySound.mp3`). The arena can have subtle, inward-flowing particles.
 
-1. **Grounded in Space**  
-   The Command Deck is a static island; the player can walk around it (room‑scale) but it never follows the headset or rotates.  
-2. **Instant Glanceable HUD**  
-   A 210‑degree arc of panels (“Command Cluster”) sits ~1 m in front of the deck at waist height.  
-3. **360° Battlesphere**  
-   All gameplay happens on the inner surface of a 24 m radius sphere. Nothing spawns on the deck itself.
+### **B5: Swarm Link**
+* **Player Strategy**: A multi-target fight. All three entities share one health bar. Focus fire on one at a time to reduce the number of incoming projectiles.
+* **Geometry & Materials**: Three small `THREE.IcosahedronGeometry` entities (yellow, `0xffff00`), linked by `THREE.Line` objects with a flickering material.
+* **Logic**: The `SwarmLinkAI.js` manager tracks a shared health pool. Each of the three minions acts independently, firing a single projectile every 4 seconds. When a minion is defeated, it is removed. The fight ends when the shared health pool is zero.
+* **VFX & SFX Cues**: Constant electrical crackle (`chainSound.mp3`).
 
-These requirements are repeated because play‑testers reported nausea when anything on the deck moved. 
+### **B6: Mirror Mirage**
+* **Player Strategy**: A shell game. The boss creates two identical, non-damaging clones. You must track and damage the *real* one. Hitting a clone causes it to vanish and respawn elsewhere.
+* **Geometry & Materials**: Three identical `THREE.OctahedronGeometry` objects (cyan, `0x00ffff`).
+* **Logic**: The `MirrorMirageAI.js` controls all three entities. Only the "real" one has health. Every 10 seconds, the boss and its clones will rapidly teleport to new positions.
+* **VFX & SFX Cues**: Teleport/swap effect uses `mirrorSwap.mp3`.
 
----
+### **B7: EMP Overload**
+* **Player Strategy**: A resource denial fight. The boss periodically unleashes an EMP blast that disables your power-ups and Core ability for a short time. Inflict damage between these blasts.
+* **Geometry & Materials**: A `THREE.TorusGeometry` (electric blue, `0x00BFFF`) with smaller spheres orbiting it.
+* **State Machine**:
+    * `NORMAL` (10s): Fires standard projectiles.
+    * `CHARGING` (3s): Emits a loud siren (`powerSirenSound.mp3`) and glows brightly.
+    * `DISCHARGE`: Unleashes a full-arena visual pulse. The player's `PowerUpManager` is temporarily disabled.
+* **VFX & SFX Cues**: Discharge event uses `empDischarge.mp3`.
 
-## 2  Architectural Absolutes
+### **B8: The Architect**
+* **Player Strategy**: The arena itself becomes the enemy. Dodge the boss's projectiles while navigating the maze of rotating walls it creates.
+* **Geometry & Materials**: A complex, non-primitive shape assembled from multiple `THREE.BoxGeometry` objects (stone grey, `0x808080`). Walls are long, thin `THREE.CylinderGeometry`.
+* **State Machine**:
+    * `SUMMONING` (4s): Spawns 3 long, rotating `Wall` objects that act as barriers.
+    * `ATTACKING` (8s): Fires volleys of projectiles, using the walls for cover.
+    * `RECONFIGURING`: Destroys old walls (with `wallShrink.mp3`) and transitions back to `SUMMONING`.
+* **VFX & SFX Cues**: Wall creation uses `architectBuild.mp3` and `wallSummon.mp3`.
 
-| ID | Directive |
-|----|-----------|
-| A1 | _Never_ manipulate the live DOM for visible VR UI. Build with A‑Frame entities. |
-| A2 | _Never_ place gameplay entities on or inside the Command Deck. |
-| A3 | Use **primitive shapes + emoji textures only** (no custom 3‑D models). |
-| A4 | All saves/telemetry stay in browser `localStorage`; no network calls. |
-| A5 | Code must compile under ES Modules; keep Node scripts in `tests/`. |
+### **B9: Aethel & Umbra**
+* **Player Strategy**: A duo boss fight. Aethel (light) creates healing zones for Umbra (dark). You must defeat Aethel first to stop the healing, then focus on Umbra.
+* **Geometry & Materials**: Aethel is a white, glowing `DodecahedronGeometry`. Umbra is a black, sharp-edged `TetrahedronGeometry`.
+* **Logic**: Two independent agents. `AethelAI` creates healing circles on the arena floor. `UmbraAI` is aggressive, constantly firing projectiles. Both must be defeated.
+* **VFX & SFX Cues**: When both are defeated, play `aspectDefeated.mp3`.
 
-Violating any A‑rule blocks a merge.
-
----
-
-## 3  Master Task List (updated 2025‑07‑29)
-
-### 3.1 Priority 1 — Un‑break the Prototype
-- **T1.1  World‑Anchor Deck & UI** ✅
-  * Create `#commandDeck` (**positioned once**) at `(0 1.0 0)`.  
-  * Register `world-stationary` component that **does nothing in `tick`**; _DO NOT_ attach to the headset.  
-  * Panels/buttons live under `#commandDeck`.  
-- **T1.2  Stage Start** ✅ – call `resetGame()` then `spawnBossesForStage()` on `enter-vr`.
-- **T1.3  3‑D Momentum Movement** ✅ – port lines 401‑404 from 2‑D `gameLoop.js` with spherical maths.
-
-### 3.2 Priority 2 — Command Cluster & Menus
-- **T2.1 ** ✅ Wrap‑around panel layout (array‑driven builder).
-- **T2.2 ** ✅ Emoji‑labelled cylinder buttons (mixin `console‑button`).
-- **T2.3 ** ✅ Holographic menus via `html2canvas` → texture on `a-plane`.
-- **T2.4 ** ✅ Procedural neon‑grid floor (`gridCanvas` → `a-plane` below deck).
-
----
-
-## 4  Workflow for Agents
-
-1. Read both `README.md` (vision) and this file (rules).  
-2. Pick the **highest‑priority unchecked task** and create a branch.  
-3. Implement _without deleting legacy code_; comment‑out with reason if replacement is needed.  
-4. Update this file: check the task, add a concise changelog entry.  
-5. Open a PR titled `feat: T1.1 world‑anchor deck` (_example_).
-
----
-
-## 5  File Quick‑Reference
-
-| Sub‑System | Key File(s) |
-|------------|-------------|
-| VR scene bootstrap | `script.js`, `index.html` |
-| UI builder (new)  | `modules/vrCommandCluster.js` |
-| Spherical movement maths | `modules/movement3d.js` |
-| Bundled libs | `/vendor/*` |
-| Legacy 2‑D spec | `/Eternal‑Momentum‑OLD GAME/*` |
-
----
-
-## 6  Common Pitfalls & Fixes
-
-* **Head‑Locked HUD** → _Reject_. Move panels under `#commandDeck`.  
-* **Blue placeholder cylinders** → replace with `console‑button` mixin (see T2.2).  
-* **Entities at (Y < 1)_** → ensure Y matches sphere surface; use helper `placeOnSphere()`.
-
----
-
-## Changelog
-
-- T1.1 implemented: command deck now fixed at `(0 1 0)` using `world-stationary`.
-- T1.2 implemented: stage resets on `enter-vr`.
-- T1.3 implemented: 3-D Momentum movement on the battle sphere.
-- T2.1 implemented: wrap-around panels built via `vrCommandCluster.js`.
-- T2.2 implemented: emoji cylinder buttons using `console-button` mixin.
-- T2.3 implemented: holographic menus rendered with `html2canvas`.
-- T2.4 implemented: neon grid floor drawn to `gridCanvas`.
-- Added local `three.module.js` under `/vendor` for GitHub Pages.
-- Documented `/vendor` folder in repository map.
-
-Happy hacking. The galaxy counts on your code!
+### **B10: Looping Eye**
+* **Player Strategy**: A memory and timing challenge. The boss "records" the player's movement for 5 seconds, then "replays" a damaging trail along that exact path while also firing projectiles.
+* **Geometry & Materials**: A large central sphere resembling an eye. The pupil's material can change color to indicate its state.
+* **State Machine**:
+    * `RECORDING` (5s): Pupil is red. The boss records the player avatar's `position` array.
+    * `REPLAY` (5s): Pupil is blue. The boss emits a damaging trail of particles along the recorded path (`paradoxTrailHum.mp3` plays). Simultaneously, it fires simple projectiles.
+* **VFX & SFX Cues**: State transitions are marked with `timeRewind.mp3`.
