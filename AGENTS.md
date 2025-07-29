@@ -93,7 +93,7 @@ This document serves two critical functions:
 | 2025-07-29 | Audit |Boss modules adjusted to match original mechanics.|
 
 ### Next Steps
-1.  **Begin Task B8:** Create `ArchitectAI.js` and implement its wall-summoning behavior.
+1.  **Begin Task S01:** Core Scene & VR Setup
 
 ---
 
