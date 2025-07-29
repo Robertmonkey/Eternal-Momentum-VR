@@ -27,7 +27,7 @@ This document serves two critical functions:
 | :--- | :--- | :--- |
 | **B1** | Splitter Sentinel | **Done** |
 | **B2** | Reflector Warden | **Done** |
-| **B3** | Vampire Veil | **To Do** |
+| **B3** | Vampire Veil | **Done** |
 | **B4** | Gravity Tyrant | **To Do** |
 | **B5** | Swarm Link | **To Do** |
 | **B6** | Mirror Mirage | **To Do** |
@@ -65,9 +65,10 @@ This document serves two critical functions:
 | 2025-07-29 | F-03 |`ProjectileManager.js` | Basic projectile pooling and update logic implemented. |
 | 2025-07-29 | B1 |`SplitterAI.js` | Initial boss state machine implemented. |
 | 2025-07-29 | B2 |`ReflectorAI.js` | Reflector Warden state machine implemented. |
+| 2025-07-29 | B3 |`VampireAI.js` | Vampire Veil syphon mechanic implemented. |
 
 ### Next Steps
-1.  **Begin Task B3:** Create `VampireAI.js` and implement its state machine.
+1.  **Begin Task B4:** Create `GravityAI.js` and implement its state machine.
 
 ---
 
