@@ -9,6 +9,26 @@ This document serves two critical functions:
 1.  **Design Specification**: It is the definitive guide to the behavior, mechanics, and implementation of all 30 AI agents. The patterns established in the first ten detailed boss guides should be replicated for all subsequent bosses.
 2.  **Live Workflow Log**: It is a living document that the AI assistant will update after every work session to track progress, log changes, and define the next steps. The **Master Development Task List** must be followed sequentially.
 
+---
+
+## High-Priority Scaffolding Tasks (P0)
+
+**ATTENTION:** The following `SXX` tasks are designated **Priority 0**. They MUST be completed in the specified sequential order **BEFORE** proceeding to the "Master Development Task List" (`BXX` tasks) below. Do not begin work on any boss implementation until all scaffolding tasks are complete and verified.
+
+| Task ID | Component | Description | Status |
+| :--- | :--- | :--- |:--- |
+| **S01** | **Core Scene & VR Setup** | Initialize the `three.js` scene, renderer, and camera. Implement the WebXR session logic (`sessionstart`, `sessionend`). Create the player rig (a `Group` containing the camera and controllers) so that all subsequent player-relative objects (UI, etc.) can be parented to it. Set up basic `AmbientLight` and `DirectionalLight`. | Not Started |
+| **S02** | **Environment Implementation** | Build the static environment. Create a large `THREE.SphereGeometry` (radius: 500) with an inverted material (`THREE.BackSide`) to serve as the gameplay arena. At the scene origin `(0,0,0)`, create a static `THREE.CylinderGeometry` (radius: 10, height: 0.5) to act as the player's central platform. | Not Started |
+| **S03** | **Player Controller & Avatar** | Implement the `PlayerController`. It must manage the right controller's laser pointer/raycaster to determine a target point on the inner arena sphere. Create a `THREE.SphereGeometry` for the player avatar (radius: 5) and implement movement logic that smoothly moves it across the sphere's surface toward the target point. Map controller inputs: Trigger -> Offensive Power, Grip -> Defensive Power, Trigger+Grip -> Core Ability. | Not Started |
+| **S04** | **Application State Flow** | Implement the main application state machine based on `main.js`. This includes creating the visual states for the **Loading Screen** (`#loading-screen`) and **Home Screen** (`#home-screen`). The `index.html` file is the source of truth for the elements and buttons on these screens. These should be presented as the first views to the user upon starting the application. | Not Started |
+| **S05** | **UI Manager & HUD Scaffolding** | Create the `UIManager`. All UI elements must be holographic 3D objects in the scene, parented to the player rig's camera. Implement the main HUD container (`.command-bar` from `index.html`) as a curved `THREE.PlaneGeometry` that floats at the bottom of the player's view. | Not Started |
+| **S06** | **HUD Implementation: Health & Resources** | Within the HUD container, implement the Health, Shield, Ascension, and Status Effects bars. This involves creating 3D planes that replicate `#health-bar-container`, `#shield-bar-overlay`, `#ascension-bar-container`, and `#status-effects-bar`. Their visuals (width, color, text) must be dynamically updatable by the `UIManager` based on the global `state` object. | Not Started |
+| **S07** | **HUD Implementation: Powers & Core** | Recreate the power-up slots (`.abilities` and `.ability-queue`) as hexagonal `THREE.ShapeGeometry` planes. The `UIManager` must update their textures to show the correct power-up emoji from `state.offensiveInventory` and `state.defensiveInventory`. Implement the `#aberration-core-socket` as a circular plane with a child plane for the cooldown overlay. | Not Started |
+| **S08** | **HUD Implementation: Boss UI** | Implement the `#bossHpContainer` and `#bossBanner` elements. The container should be a designated area in the UI (e.g., top-center) where individual boss health bars can be dynamically added and removed. The banner is a text element that appears and fades out when a boss spawns. | Not Started |
+| **S09** | **Modal UI Implementation** | Create the functionality to display the primary modal menus as large, floating holographic panels. This task covers the initial implementation for: `#gameOverMenu`, `#levelSelectModal`, `#ascensionGridModal`, and `#aberrationCoreModal`. Each modal should be populated with interactive elements that the player can target with the laser pointer. | Not Started |
+
+---
+
 ## 2. Master Development Task List
 
 ### Phase 1: Foundational Agent Systems
