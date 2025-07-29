@@ -28,7 +28,7 @@ This document serves two critical functions:
 | **B1** | Splitter Sentinel | **Done** |
 | **B2** | Reflector Warden | **Done** |
 | **B3** | Vampire Veil | **Done** |
-| **B4** | Gravity Tyrant | **To Do** |
+| **B4** | Gravity Tyrant | **Done** |
 | **B5** | Swarm Link | **To Do** |
 | **B6** | Mirror Mirage | **To Do** |
 | **B7** | EMP Overload | **To Do** |
@@ -66,9 +66,10 @@ This document serves two critical functions:
 | 2025-07-29 | B1 |`SplitterAI.js` | Initial boss state machine implemented. |
 | 2025-07-29 | B2 |`ReflectorAI.js` | Reflector Warden state machine implemented. |
 | 2025-07-29 | B3 |`VampireAI.js` | Vampire Veil syphon mechanic implemented. |
+| 2025-07-29 | B4 |`GravityAI.js` | Gravity Tyrant gravitational pull implemented. |
 
 ### Next Steps
-1.  **Begin Task B4:** Create `GravityAI.js` and implement its state machine.
+1.  **Begin Task B5:** Create `SwarmLinkAI.js` and implement its state machine.
 
 ---
 
