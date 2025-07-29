@@ -72,7 +72,12 @@ export const AudioManager = {
     },
 
     updateButtonIcon() {
-        if(this.soundBtn) this.soundBtn.innerText = this.userMuted ? "🔇" : "🔊";
+        if(!this.soundBtn) return;
+        if(this.soundBtn.tagName && this.soundBtn.tagName.toLowerCase() === 'a-text') {
+            this.soundBtn.setAttribute('value', this.userMuted ? '🔇' : '🔊');
+        } else {
+            this.soundBtn.innerText = this.userMuted ? '🔇' : '🔊';
+        }
     },
 
     setMusicVolume(vol) {
