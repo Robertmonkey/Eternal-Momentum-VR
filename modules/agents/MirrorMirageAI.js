@@ -2,11 +2,11 @@ import { BaseAgent } from '../BaseAgent.js';
 import { uvToSpherePos } from '../utils.js';
 
 // MirrorMirageAI - Implements boss B6: Mirror Mirage
-// The boss creates two identical clones. Only one is real and
-// can take damage. Every 10 seconds all clones, including the
-// real one, teleport to new random positions on the sphere.
-// Hitting a clone causes it to disappear briefly before
-// respawning elsewhere.
+// The boss spawns two identical decoys plus the real form.
+// Only the real one can be damaged. Every 10 seconds all
+// three rapidly teleport to new random positions on the
+// gameplay sphere. Striking a decoy causes it to vanish and
+// respawn at a different location after a brief delay.
 
 export class MirrorMirageAI extends BaseAgent {
   constructor(radius = 1) {
@@ -19,8 +19,8 @@ export class MirrorMirageAI extends BaseAgent {
     const geom = new THREE.OctahedronGeometry(0.3 * radius, 0);
     const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
 
-    // Create five clones
-    for (let i = 0; i < 5; i++) {
+    // Create three clones total (two decoys and the real one)
+    for (let i = 0; i < 3; i++) {
       const mesh = new THREE.Mesh(geom.clone(), mat.clone());
       this.add(mesh);
       this.clones.push(mesh);
@@ -35,9 +35,15 @@ export class MirrorMirageAI extends BaseAgent {
     return uvToSpherePos(u, v, this.radius);
   }
 
-  teleportAll() {
-    this.clones.forEach(clone => clone.position.copy(this.randomPos()));
+  teleportAll(gameHelpers) {
+    this.clones.forEach(clone => {
+      clone.position.copy(this.randomPos());
+      clone.visible = true;
+    });
     this.realIndex = Math.floor(Math.random() * this.clones.length);
+    if (gameHelpers && typeof gameHelpers.play === 'function') {
+      gameHelpers.play('mirrorSwap');
+    }
   }
 
   /**
@@ -45,25 +51,29 @@ export class MirrorMirageAI extends BaseAgent {
    * @param {THREE.Object3D} mesh - The clone mesh that was struck.
    * @param {number} [damage=0] - Damage to apply if this is the real clone.
    */
-  hitClone(mesh, damage = 0) {
+  hitClone(mesh, damage = 0, gameHelpers) {
     const index = this.clones.indexOf(mesh);
     if (index === -1) return;
     if (index === this.realIndex) {
       super.takeDamage(damage);
+    } else {
+      mesh.visible = false;
+      setTimeout(() => {
+        mesh.position.copy(this.randomPos());
+        mesh.visible = true;
+      }, 1000);
+      if (gameHelpers && typeof gameHelpers.play === 'function') {
+        gameHelpers.play('mirrorSwap');
+      }
     }
   }
 
-  update(delta) {
+  update(delta, gameHelpers) {
     if (!this.alive) return;
     this.swapTimer += delta;
-    if (this.swapTimer >= 2) {
+    if (this.swapTimer >= 10) {
       this.swapTimer = 0;
-      const i = Math.floor(Math.random() * this.clones.length);
-      const target = this.clones[i];
-      const temp = this.position.clone();
-      this.position.copy(target.position);
-      target.position.copy(temp);
-      this.realIndex = i;
+      this.teleportAll(gameHelpers);
       if (typeof this.onSwap === 'function') this.onSwap();
     }
   }
