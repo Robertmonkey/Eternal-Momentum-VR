@@ -10,7 +10,7 @@ import { uvToSpherePos } from '../utils.js';
 
 export class MirrorMirageAI extends BaseAgent {
   constructor(radius = 1) {
-    super({ health: 70 });
+    super({ health: 240 });
     this.radius = radius;
     this.clones = [];
     this.realIndex = 0;
@@ -19,8 +19,8 @@ export class MirrorMirageAI extends BaseAgent {
     const geom = new THREE.OctahedronGeometry(0.3 * radius, 0);
     const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
 
-    // Create three clones
-    for (let i = 0; i < 3; i++) {
+    // Create five clones
+    for (let i = 0; i < 5; i++) {
       const mesh = new THREE.Mesh(geom.clone(), mat.clone());
       this.add(mesh);
       this.clones.push(mesh);
@@ -50,22 +50,20 @@ export class MirrorMirageAI extends BaseAgent {
     if (index === -1) return;
     if (index === this.realIndex) {
       super.takeDamage(damage);
-    } else {
-      // Fake clone: vanish and respawn at a new position
-      mesh.visible = false;
-      setTimeout(() => {
-        mesh.position.copy(this.randomPos());
-        mesh.visible = true;
-      }, 500);
     }
   }
 
   update(delta) {
     if (!this.alive) return;
     this.swapTimer += delta;
-    if (this.swapTimer >= 10) {
+    if (this.swapTimer >= 2) {
       this.swapTimer = 0;
-      this.teleportAll();
+      const i = Math.floor(Math.random() * this.clones.length);
+      const target = this.clones[i];
+      const temp = this.position.clone();
+      this.position.copy(target.position);
+      target.position.copy(temp);
+      this.realIndex = i;
       if (typeof this.onSwap === 'function') this.onSwap();
     }
   }

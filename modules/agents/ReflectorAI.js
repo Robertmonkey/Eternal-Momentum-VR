@@ -5,7 +5,7 @@ export class ReflectorAI extends BaseAgent {
     const geom = new THREE.BoxGeometry(0.4 * radius, 0.4 * radius, 0.4 * radius);
     const mat = new THREE.MeshBasicMaterial({ color: 0x300030 });
     const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 40, model: mesh });
+    super({ health: 120, model: mesh });
 
     const shieldGeom = new THREE.PlaneGeometry(0.6 * radius, 0.6 * radius);
     const shieldMat = new THREE.MeshBasicMaterial({
@@ -38,31 +38,42 @@ export class ReflectorAI extends BaseAgent {
       this.shields.push(s);
     }
     this.radius = radius;
-    this.state = 'DEFENSIVE';
-    this.timer = 0;
+    this.phase = 'idle';
+    this.last = Date.now();
+    this.cycles = 0;
+    this.reflecting = false;
   }
 
   update(delta) {
     if (!this.alive) return;
-    this.timer += delta;
-    if (this.state === 'DEFENSIVE') {
+    if (Date.now() - this.last > 2000) {
+      this.phase = this.phase === 'idle' ? 'moving' : 'idle';
+      this.last = Date.now();
+      if (this.phase === 'moving') {
+        this.cycles++;
+        if (this.cycles % 3 === 0) {
+          this.reflecting = true;
+          setTimeout(() => (this.reflecting = false), 2000);
+        }
+      }
+    }
+    if (this.phase === 'moving') {
       this.rotation.y += delta * 0.5;
-      if (this.timer >= 8) {
-        this.timer = 0;
-        this.state = 'VULNERABLE';
-        this.shields.forEach(s => s.material.opacity = 0.2);
-      }
-    } else if (this.state === 'VULNERABLE') {
-      if (this.timer >= 4) {
-        this.timer = 0;
-        this.state = 'DEFENSIVE';
-        this.shields.forEach(s => s.material.opacity = 0.5);
-      }
+      this.shields.forEach(s => (s.material.opacity = 0.5));
+    } else {
+      this.shields.forEach(s => (s.material.opacity = 0.2));
     }
   }
 
-  takeDamage(amount) {
-    if (this.state === 'DEFENSIVE') return; // immune during defensive
+  takeDamage(amount, playerObj) {
+    if (this.phase !== 'idle') {
+      // heals instead of taking damage when not idle
+      this.health = Math.min(this.maxHealth, this.health + amount);
+      if (this.reflecting && playerObj && typeof playerObj.health === 'number') {
+        playerObj.health -= 10;
+      }
+      return;
+    }
     super.takeDamage(amount);
   }
 }
