@@ -17,7 +17,7 @@ This document serves two critical functions:
 
 | Task ID | Component | Description | Status |
 | :--- | :--- | :--- |:--- |
-| **S01** | **Core Scene & VR Setup** | Initialize the `three.js` scene, renderer, and camera. Implement the WebXR session logic (`sessionstart`, `sessionend`). Create the player rig (a `Group` containing the camera and controllers) so that all subsequent player-relative objects (UI, etc.) can be parented to it. Set up basic `AmbientLight` and `DirectionalLight`. | Not Started |
+| **S01** | **Core Scene & VR Setup** | Initialize the `three.js` scene, renderer, and camera. Implement the WebXR session logic (`sessionstart`, `sessionend`). Create the player rig (a `Group` containing the camera and controllers) so that all subsequent player-relative objects (UI, etc.) can be parented to it. Set up basic `AmbientLight` and `DirectionalLight`. | **Done** |
 | **S02** | **Environment Implementation** | Build the static environment. Create a large `THREE.SphereGeometry` (radius: 500) with an inverted material (`THREE.BackSide`) to serve as the gameplay arena. At the scene origin `(0,0,0)`, create a static `THREE.CylinderGeometry` (radius: 10, height: 0.5) to act as the player's central platform. | Not Started |
 | **S03** | **Player Controller & Avatar** | Implement the `PlayerController`. It must manage the right controller's laser pointer/raycaster to determine a target point on the inner arena sphere. Create a `THREE.SphereGeometry` for the player avatar (radius: 5) and implement movement logic that smoothly moves it across the sphere's surface toward the target point. Map controller inputs: Trigger -> Offensive Power, Grip -> Defensive Power, Trigger+Grip -> Core Ability. | Not Started |
 | **S04** | **Application State Flow** | Implement the main application state machine based on `main.js`. This includes creating the visual states for the **Loading Screen** (`#loading-screen`) and **Home Screen** (`#home-screen`). The `index.html` file is the source of truth for the elements and buttons on these screens. These should be presented as the first views to the user upon starting the application. | Not Started |
@@ -91,9 +91,10 @@ This document serves two critical functions:
 | 2025-07-29 | B6 |`MirrorMirageAI.js` | Clone swapping mechanics implemented. |
 | 2025-07-29 | B7 |`EMPOverloadAI.js` | EMP blast and inventory reset implemented. |
 | 2025-07-29 | Audit |Boss modules adjusted to match original mechanics.|
+| 2025-07-29 | S01 |`scene.js` | Three.js WebXR scaffolding implemented. |
 
 ### Next Steps
-1.  **Begin Task S01:** Core Scene & VR Setup
+1.  **Begin Task S02:** Environment Implementation
 
 ---
 
