@@ -1,6 +1,6 @@
 import { initScene, getRenderer, getScene, getCamera } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
-import { initUI } from './modules/UIManager.js';
+import { initUI, updateHud } from './modules/UIManager.js';
 
 let initialized = false;
 
@@ -12,6 +12,7 @@ export function start() {
   initialized = true;
   getRenderer().setAnimationLoop(() => {
     updatePlayerController();
+    updateHud();
     getRenderer().render(getScene(), getCamera());
   });
 }
