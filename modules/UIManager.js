@@ -14,6 +14,9 @@ let defSlots = [];
 let offQueue = [];
 let defQueue = [];
 let coreGroup, coreIcon, coreCooldown;
+let bossContainer;
+const bossBars = new Map();
+let bannerSprite, bannerTimeout;
 
 export function initUI() {
   const camera = getCamera();
@@ -25,6 +28,7 @@ export function initUI() {
 
   createCommandBar();
   createHudElements();
+  createBossUI();
 }
 
 function createCommandBar() {
@@ -221,6 +225,34 @@ function createHudElements() {
   coreCooldown = core.overlay;
 }
 
+function createBossUI() {
+  bossContainer = new THREE.Group();
+  bossContainer.name = 'bossContainer';
+  bossContainer.position.set(0, 0.45, -1.2);
+  uiGroup.add(bossContainer);
+}
+
+function createBossBar(boss) {
+  const group = new THREE.Group();
+  const bgMat = new THREE.MeshBasicMaterial({ color: 0x111111, opacity: 0.6, transparent: true });
+  const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.05), bgMat);
+  group.add(bg);
+
+  const fillMat = new THREE.MeshBasicMaterial({ color: boss.color || '#ff5555', transparent: true });
+  const fill = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.03), fillMat);
+  fill.position.set(0, 0, 0.01);
+  fill.scale.x = 1;
+  group.add(fill);
+
+  const label = createTextSprite(boss.name, '#eaf2ff', 32);
+  label.position.set(0, 0.04, 0.015);
+  group.add(label);
+
+  group.userData.fill = fill;
+  group.userData.label = label;
+  return group;
+}
+
 export function getUIRoot() {
   return uiGroup;
 }
@@ -342,8 +374,69 @@ export function updateHud() {
             }
           }
         }
-        coreCooldown.scale.y = progress;
+      coreCooldown.scale.y = progress;
       }
     }
   }
+
+  // --- Boss Health Bars ---
+  if (bossContainer) {
+    const bosses = state.enemies.filter(e => e.boss);
+    const renderedTypes = new Set();
+    const display = [];
+    const currentIds = new Set();
+
+    bosses.forEach(b => {
+      currentIds.add(String(b.instanceId));
+      const shared = ['sentinel_pair', 'fractal_horror'];
+      if (shared.includes(b.id)) {
+        if (!renderedTypes.has(b.id)) {
+          display.push(b);
+          renderedTypes.add(b.id);
+        }
+      } else {
+        display.push(b);
+      }
+    });
+
+    // Remove old bars
+    for (const [id, bar] of bossBars.entries()) {
+      if (!currentIds.has(id)) {
+        bossContainer.remove(bar);
+        bossBars.delete(id);
+      }
+    }
+
+    display.forEach((boss, idx) => {
+      let bar = bossBars.get(String(boss.instanceId));
+      if (!bar) {
+        bar = createBossBar(boss);
+        bossBars.set(String(boss.instanceId), bar);
+        bossContainer.add(bar);
+      }
+      bar.position.set(0, -idx * 0.1, 0);
+      const hp = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.hp;
+      bar.userData.fill.scale.x = Math.max(0, hp / boss.maxHP);
+      bar.userData.fill.material.color.setStyle(boss.color);
+      updateTextSprite(bar.userData.label, boss.name);
+    });
+  }
+}
+
+export function showBossBanner(text) {
+  if (!uiGroup) return;
+  if (bannerSprite) {
+    uiGroup.remove(bannerSprite);
+    clearTimeout(bannerTimeout);
+    bannerSprite = null;
+  }
+  bannerSprite = createTextSprite(`🚨 ${text} 🚨`, '#f1c40f', 48);
+  bannerSprite.position.set(0, 0.7, -1);
+  uiGroup.add(bannerSprite);
+  bannerTimeout = setTimeout(() => {
+    if (bannerSprite) {
+      uiGroup.remove(bannerSprite);
+      bannerSprite = null;
+    }
+  }, 2500);
 }
