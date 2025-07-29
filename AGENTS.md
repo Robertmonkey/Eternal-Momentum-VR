@@ -40,7 +40,7 @@ Violating any A‑rule blocks a merge.
 ## 3  Master Task List (updated 2025‑07‑29)
 
 ### 3.1 Priority 1 — Un‑break the Prototype
-- **T1.1  World‑Anchor Deck & UI**  
+- **T1.1  World‑Anchor Deck & UI** ✅
   * Create `#commandDeck` (**positioned once**) at `(0 1.0 0)`.  
   * Register `world-stationary` component that **does nothing in `tick`**; _DO NOT_ attach to the headset.  
   * Panels/buttons live under `#commandDeck`.  
@@ -83,5 +83,9 @@ Violating any A‑rule blocks a merge.
 * **Entities at (Y < 1)_** → ensure Y matches sphere surface; use helper `placeOnSphere()`.
 
 ---
+
+## Changelog
+
+- T1.1 implemented: command deck now fixed at `(0 1 0)` using `world-stationary`.
 
 Happy hacking. The galaxy counts on your code!
