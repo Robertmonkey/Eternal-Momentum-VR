@@ -248,3 +248,15 @@ only appear on hover, are visible for the capture.
   background: #c0392b;
   border-color: #e74c3c;
 }
+
+/* Stage select panel */
+.stage-select-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+#stageSelectStage {
+  font-weight: bold;
+  padding: 0 5px;
+}

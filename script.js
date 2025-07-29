@@ -184,7 +184,6 @@ window.addEventListener('load', () => {
       await new Promise(r=>setTimeout(r,500));
     }
     sceneEl.enterVR();
-    initialiseStage();
     if(fadeOverlay){
       setTimeout(()=>fadeOverlay.classList.remove('visible'),500);
     }
@@ -1480,11 +1479,17 @@ window.addEventListener('load', () => {
       initialiseStage();
     }
   });
+  safeAddEventListener(sceneEl,'exit-vr',()=>{
+    vrState.isGameRunning = false;
+    if(crosshair) crosshair.setAttribute('visible', false);
+    if(holographicPanel) holographicPanel.setAttribute('visible', false);
+  });
 
   window.addEventListener('keydown', e => {
     if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
   });
   window.addEventListener('resize', updateUiScale);
+  document.addEventListener('visibilitychange', () => AudioManager.handleVisibilityChange());
 
   if(userSettings.telemetryEnabled) Telemetry.start(storeTelemetry);
   animate();
