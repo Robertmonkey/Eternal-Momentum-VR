@@ -87,5 +87,8 @@ Violating any A‑rule blocks a merge.
 ## Changelog
 
 - T1.1 implemented: command deck now fixed at `(0 1 0)` using `world-stationary`.
+- T2.1 implemented: wrap-around panels built via `vrCommandCluster.js`.
+- T2.2 implemented: emoji cylinder buttons using `console-button` mixin.
+- T2.3 implemented: holographic menus rendered with `html2canvas`.
 
 Happy hacking. The galaxy counts on your code!

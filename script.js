@@ -22,6 +22,7 @@ import { updateProjectiles3d } from './modules/projectilePhysics3d.js';
 import { AudioManager } from './modules/audio.js';
 import { STAGE_CONFIG } from './modules/config.js';
 import { Telemetry, storeTelemetry } from './modules/telemetry.js';
+import { build as buildVrHud, updateHud } from './modules/vrCommandCluster.js';
 
 // -----------------------------------------------------------------------------
 // A‑Frame helper: apply a live canvas as a texture to any mesh.
@@ -985,6 +986,14 @@ window.addEventListener('load', () => {
       : spherePosToUv(vrState.avatarPos,SPHERE_RADIUS);
     window.mousePosition = {x:cursorUv.u*canvas.width,y:cursorUv.v*canvas.height};
     gameTick(window.mousePosition.x,window.mousePosition.y);
+    updateHud({
+      score : state.score,
+      hp    : state.player.health,
+      maxHp : state.player.maxHealth,
+      off   : state.offensiveInventory[0],
+      def   : state.defensiveInventory[0],
+      core  : state.player.equippedAberrationCore
+    });
 
     // Move Nexus avatar toward cursor (Momentum)
     if(vrState.cursorPoint.length()){
@@ -1418,7 +1427,9 @@ window.addEventListener('load', () => {
 
   const onSceneLoaded = () => {
     anchorCommandDeck();
-    createCommandCluster();
+    // Legacy builder retained for reference but replaced by vrCommandCluster
+    // createCommandCluster();
+    buildVrHud(commandDeck);
     setupStageSelectPanel();
     AudioManager.setup(Array.from(document.querySelectorAll('.game-audio')), document.getElementById('soundOptionsToggle'));
     applySettings();
