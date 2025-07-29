@@ -9,10 +9,6 @@ import { uvToSpherePos, spherePosToUv } from './utils.js';
 import { moveTowards } from './movement3d.js';
 import { findPath, buildNavMesh } from './navmesh.js';
 
-
-// Build the navmesh once on module import
-buildNavMesh(2,1);
-
 export function addPathObstacle(u,v,radius=0.1){
   state.pathObstacles.push({u,v,radius});
 }

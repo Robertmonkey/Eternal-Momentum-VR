@@ -1093,6 +1093,10 @@ window.addEventListener('load', () => {
       el.removeAttribute('geometry');
       el.removeAttribute('material');
       el.removeAttribute('enemy-hitbox');
+      if(el._hitHandler){
+        el.removeEventListener('hit-player', el._hitHandler);
+        delete el._hitHandler;
+      }
       if(el.parentElement) el.parentElement.removeChild(el);
       enemyPool.push(el);
     }
@@ -1250,7 +1254,9 @@ window.addEventListener('load', () => {
       if(container===enemyContainer){
         const rad = (obj.r || 20) / canvas.width * SPHERE_RADIUS;
         el.setAttribute('enemy-hitbox', `radius:${rad}`);
-        el.addEventListener('hit-player', ()=>handleEnemyCollision(obj));
+        const listener = ()=>handleEnemyCollision(obj);
+        el._hitHandler = listener;
+        el.addEventListener('hit-player', listener);
       }
     }
 
