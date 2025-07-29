@@ -20,7 +20,7 @@ This document serves two critical functions:
 | **S01** | **Core Scene & VR Setup** | Initialize the `three.js` scene, renderer, and camera. Implement the WebXR session logic (`sessionstart`, `sessionend`). Create the player rig (a `Group` containing the camera and controllers) so that all subsequent player-relative objects (UI, etc.) can be parented to it. Set up basic `AmbientLight` and `DirectionalLight`. | **Done** |
 | **S02** | **Environment Implementation** | Build the static environment. Create a large `THREE.SphereGeometry` (radius: 500) with an inverted material (`THREE.BackSide`) to serve as the gameplay arena. At the scene origin `(0,0,0)`, create a static `THREE.CylinderGeometry` (radius: 10, height: 0.5) to act as the player's central platform. | **Done** |
 | **S03** | **Player Controller & Avatar** | Implement the `PlayerController`. It must manage the right controller's laser pointer/raycaster to determine a target point on the inner arena sphere. Create a `THREE.SphereGeometry` for the player avatar (radius: 5) and implement movement logic that smoothly moves it across the sphere's surface toward the target point. Map controller inputs: Trigger -> Offensive Power, Grip -> Defensive Power, Trigger+Grip -> Core Ability. | **Done** |
-| **S04** | **Application State Flow** | Implement the main application state machine based on `main.js`. This includes creating the visual states for the **Loading Screen** (`#loading-screen`) and **Home Screen** (`#home-screen`). The `index.html` file is the source of truth for the elements and buttons on these screens. These should be presented as the first views to the user upon starting the application. | Not Started |
+| **S04** | **Application State Flow** | Implement the main application state machine based on `main.js`. This includes creating the visual states for the **Loading Screen** (`#loading-screen`) and **Home Screen** (`#home-screen`). The `index.html` file is the source of truth for the elements and buttons on these screens. These should be presented as the first views to the user upon starting the application. | **Done** |
 | **S05** | **UI Manager & HUD Scaffolding** | Create the `UIManager`. All UI elements must be holographic 3D objects in the scene, parented to the player rig's camera. Implement the main HUD container (`.command-bar` from `index.html`) as a curved `THREE.PlaneGeometry` that floats at the bottom of the player's view. | Not Started |
 | **S06** | **HUD Implementation: Health & Resources** | Within the HUD container, implement the Health, Shield, Ascension, and Status Effects bars. This involves creating 3D planes that replicate `#health-bar-container`, `#shield-bar-overlay`, `#ascension-bar-container`, and `#status-effects-bar`. Their visuals (width, color, text) must be dynamically updatable by the `UIManager` based on the global `state` object. | Not Started |
 | **S07** | **HUD Implementation: Powers & Core** | Recreate the power-up slots (`.abilities` and `.ability-queue`) as hexagonal `THREE.ShapeGeometry` planes. The `UIManager` must update their textures to show the correct power-up emoji from `state.offensiveInventory` and `state.defensiveInventory`. Implement the `#aberration-core-socket` as a circular plane with a child plane for the cooldown overlay. | Not Started |
@@ -94,9 +94,10 @@ This document serves two critical functions:
 | 2025-07-29 | S01 |`scene.js` | Three.js WebXR scaffolding implemented. |
 | 2025-07-29 | S02 |`scene.js` | Static arena and platform created. |
 | 2025-07-30 | S03 |`PlayerController.js` | VR avatar, laser pointer, and input handling implemented. |
+| 2025-07-30 | S04 |`app.js`, `vrMain.js` | Loading and home screen flow implemented. |
 
 ### Next Steps
-1.  **Begin Task S04:** Application State Flow
+1.  **Begin Task S05:** UI Manager & HUD Scaffolding
 
 ---
 
