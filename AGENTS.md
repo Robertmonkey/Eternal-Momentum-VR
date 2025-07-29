@@ -44,14 +44,14 @@ Violating any A‑rule blocks a merge.
   * Create `#commandDeck` (**positioned once**) at `(0 1.0 0)`.  
   * Register `world-stationary` component that **does nothing in `tick`**; _DO NOT_ attach to the headset.  
   * Panels/buttons live under `#commandDeck`.  
-- **T1.2  Stage Start** – call `resetGame()` then `spawnBossesForStage()` on `enter-vr`.  
-- **T1.3  3‑D Momentum Movement** – port lines 401‑404 from 2‑D `gameLoop.js` with spherical maths.
+- **T1.2  Stage Start** ✅ – call `resetGame()` then `spawnBossesForStage()` on `enter-vr`.
+- **T1.3  3‑D Momentum Movement** ✅ – port lines 401‑404 from 2‑D `gameLoop.js` with spherical maths.
 
 ### 3.2 Priority 2 — Command Cluster & Menus
-- **T2.1 ** Wrap‑around panel layout (array‑driven builder).  
-- **T2.2 ** Emoji‑labelled cylinder buttons (mixin `console‑button`).  
-- **T2.3 ** Holographic menus via `html2canvas` → texture on `a-plane`.  
-- **T2.4 ** Procedural neon‑grid floor (`gridCanvas` → `a-plane` below deck).
+- **T2.1 ** ✅ Wrap‑around panel layout (array‑driven builder).
+- **T2.2 ** ✅ Emoji‑labelled cylinder buttons (mixin `console‑button`).
+- **T2.3 ** ✅ Holographic menus via `html2canvas` → texture on `a-plane`.
+- **T2.4 ** ✅ Procedural neon‑grid floor (`gridCanvas` → `a-plane` below deck).
 
 ---
 
@@ -87,8 +87,11 @@ Violating any A‑rule blocks a merge.
 ## Changelog
 
 - T1.1 implemented: command deck now fixed at `(0 1 0)` using `world-stationary`.
+- T1.2 implemented: stage resets on `enter-vr`.
+- T1.3 implemented: 3-D Momentum movement on the battle sphere.
 - T2.1 implemented: wrap-around panels built via `vrCommandCluster.js`.
 - T2.2 implemented: emoji cylinder buttons using `console-button` mixin.
 - T2.3 implemented: holographic menus rendered with `html2canvas`.
+- T2.4 implemented: neon grid floor drawn to `gridCanvas`.
 
 Happy hacking. The galaxy counts on your code!
