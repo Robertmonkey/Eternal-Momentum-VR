@@ -268,6 +268,7 @@ window.addEventListener('load', () => {
   const previousPositions = new Map(); // tracks last position for orientation
   const panelCache = new Map(); // caches html2canvas results
   const canvasPool = [];
+  let currentCanvas = null;
   const projectilePool = [];
   const enemyPool = [];
   const effectPool = [];
@@ -297,7 +298,8 @@ window.addEventListener('load', () => {
     stageSelectIndex: 1,
     lastCoreUse: -Infinity,
     leftTriggerDown: false,
-    rightTriggerDown: false
+    rightTriggerDown: false,
+    activeModal: null
   };
 
   const tutorial = { step:-1, el:null };
@@ -407,6 +409,17 @@ window.addEventListener('load', () => {
     // Fixed world position per design doc
     commandDeck.object3D.position.set(0, 1.0, 0);
     commandDeck.object3D.rotation.set(0, 0, 0);
+  }
+
+  function createDeckFloor(){
+    if(document.getElementById('deckFloor')) return;
+    const deckFloor=document.createElement('a-circle');
+    deckFloor.setAttribute('id','deckFloor');
+    deckFloor.setAttribute('radius',3);
+    deckFloor.setAttribute('rotation','-90 0 0');
+    deckFloor.setAttribute('material','shader:flat; transparent:true; opacity:0.6; side:double');
+    deckFloor.setAttribute('canvas-texture','#gridCanvas');
+    commandDeck.appendChild(deckFloor);
   }
 
   // ---------------------------------------------------------------------------
@@ -774,7 +787,6 @@ window.addEventListener('load', () => {
     // Ability slots
     const abilityGroup=document.createElement('a-entity');
     abilityGroup.object3D.position.set(0,-0.25,0);
-    abilityGroup.setAttribute('look-at','#camera');
 
     const defSlot3D=document.createElement('a-entity');
     defSlot3D.setAttribute('id','vrDefSlot');
@@ -864,7 +876,7 @@ window.addEventListener('load', () => {
     if(!target){
       target = obtainCanvas(canvasSel.substring(1));
     }
-    if(panelCache.has(modalSel)) return panelCache.get(modalSel);
+    if(panelCache.has(modalSel)) target = panelCache.get(modalSel);
     modal.classList.add('is-rendering');
     target.width = 1280;
     target.height = 960;
@@ -889,6 +901,8 @@ window.addEventListener('load', () => {
     holographicPanel.setAttribute('canvas-texture',`#${target.id}`);
     holographicPanel.setAttribute('visible',true);
     vrState.holographicPanelVisible=true;
+    vrState.activeModal = modalSel;
+    currentCanvas = target;
     AudioManager.playSfx('uiModalOpen');
   }
 
@@ -913,6 +927,12 @@ window.addEventListener('load', () => {
   safeAddEventListener(closeHoloBtn,'click',()=>{
     holographicPanel.setAttribute('visible',false);
     vrState.holographicPanelVisible=false;
+    if(currentCanvas){
+      releaseCanvas(currentCanvas);
+      if(vrState.activeModal) panelCache.delete(vrState.activeModal);
+      currentCanvas=null;
+      vrState.activeModal=null;
+    }
     AudioManager.playSfx('uiModalClose');
   });
 
@@ -945,7 +965,6 @@ window.addEventListener('load', () => {
     if(crosshair){
       crosshair.setAttribute('visible', true);
       crosshair.object3D.position.copy(vrState.avatarPos);
-      crosshair.object3D.lookAt(0, 0, 0);
       scaleCrosshair(vrState.avatarPos);
     }
 
@@ -1326,7 +1345,6 @@ window.addEventListener('load', () => {
         vrState.cursorPoint.copy(hit.point);
         if(crosshair){
           crosshair.object3D.position.copy(hit.point);
-          crosshair.object3D.lookAt(0,0,0);
           scaleCrosshair(hit.point);
           crosshair.setAttribute('visible', true);
         }
@@ -1335,10 +1353,7 @@ window.addEventListener('load', () => {
     battleSphere.addEventListener('raycaster-intersection-cleared',()=>{
       vrState.cursorPoint.set(0,0,0);
       if(crosshair){
-        crosshair.object3D.position.copy(vrState.avatarPos);
-        crosshair.object3D.lookAt(0,0,0);
-        crosshair.setAttribute('visible', true);
-        scaleCrosshair(vrState.avatarPos);
+        crosshair.setAttribute('visible', false);
       }
     });
   }
@@ -1433,6 +1448,7 @@ window.addEventListener('load', () => {
 
   const onSceneLoaded = () => {
     anchorCommandDeck();
+    createDeckFloor();
     // Legacy builder retained for reference but replaced by vrCommandCluster
     // createCommandCluster();
     buildVrHud(commandDeck);

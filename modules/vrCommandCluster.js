@@ -13,9 +13,11 @@ const PANEL_DEFS = [
   {id:'health', w:1.2, h:0.20, label:'HP'},
 ];
 
+const elements = {};
+
 export function build(deck){
   const R = 1.15;
-  const ARC = Math.PI * 1.2; // 216° sweep
+  const ARC = THREE.MathUtils.degToRad(210); // 210° sweep
   deck.innerHTML = '';
 
   PANEL_DEFS.forEach((cfg,i)=>{
@@ -29,7 +31,7 @@ export function build(deck){
     plane.setAttribute('height', cfg.h);
     plane.setAttribute('material',
       'color:#111; opacity:0.75; side:double; transparent:true');
-    plane.setAttribute('position', `${x} 1.2 ${z}`);
+    plane.setAttribute('position', `${x} 0.2 ${z}`);
     plane.setAttribute('rotation', `0 ${THREE.MathUtils.radToDeg(theta)} 0`);
 
     const header = document.createElement('a-text');
@@ -48,22 +50,17 @@ export function build(deck){
     plane.appendChild(dyn);
 
     deck.appendChild(plane);
+    elements[cfg.id] = {panel: plane, value: dyn};
   });
 }
 
 export function updateHud(s){
-  document.querySelector('#vr-score-value')?.setAttribute('value', s.score);
-  document.querySelector('#vr-health-value')?.setAttribute(
-      'value', `${Math.round(s.hp)}/${s.maxHp}`);
-  document.querySelector('#vr-health-panel')
-          ?.setAttribute('material', `color:${hpColor(s.hp/s.maxHp)}`);
-
-  document.querySelector('#vr-off-value')
-          ?.setAttribute('value', s.off ? powers[s.off].emoji : '–');
-  document.querySelector('#vr-def-value')
-          ?.setAttribute('value', s.def ? powers[s.def].emoji : '–');
-  document.querySelector('#vr-core-value')
-          ?.setAttribute('value', s.core ?? '◎');
+  elements.score?.value?.setAttribute('value', s.score);
+  elements.health?.value?.setAttribute('value', `${Math.round(s.hp)}/${s.maxHp}`);
+  elements.health?.panel?.setAttribute('material', 'color', hpColor(s.hp/s.maxHp));
+  elements.off?.value?.setAttribute('value', s.off ? powers[s.off].emoji : '–');
+  elements.def?.value?.setAttribute('value', s.def ? powers[s.def].emoji : '–');
+  elements.core?.value?.setAttribute('value', s.core ?? '◎');
 }
 
 function hpColor(pct){
