@@ -89,6 +89,7 @@ This document serves two critical functions:
 | 2025-07-29 | B4 |`GravityAI.js` | Gravity Tyrant gravitational pull implemented. |
 | 2025-07-29 | B5 |`SwarmLinkAI.js` | Shared health pool and minion logic implemented. |
 | 2025-07-29 | B6 |`MirrorMirageAI.js` | Clone swapping mechanics implemented. |
+| 2025-07-29 | Audit |Boss modules adjusted to match original mechanics.|
 
 ### Next Steps
 1.  **Begin Task B7:** Create `EMPOverloadAI.js` and implement its state machine.
