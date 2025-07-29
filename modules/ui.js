@@ -11,7 +11,6 @@ function isVr(){
          typeof document.querySelector === 'function' &&
          document.querySelector('a-scene')?.is('vr-mode');
 }
-const inVr = isVr();
 
 const ascensionFill = document.getElementById('ascension-bar-fill');
 const ascensionText = document.getElementById('ascension-bar-text');
@@ -202,7 +201,7 @@ function updateAberrationCoreUI() {
 
 
 export function updateUI() {
-    if(inVr) return;
+    if(isVr()) return;
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     document.querySelectorAll('.ability-key').forEach(el => { el.style.display = isTouchDevice ? 'none' : 'block'; });
 
@@ -359,7 +358,7 @@ export function updateUI() {
 }
 
 export function showBossInfo(bossIds, type) {
-    if(inVr) return;
+    if(isVr()) return;
     let title = '';
     let content = '';
 
@@ -410,7 +409,7 @@ if (closeBossInfoBtn3D) closeBossInfoBtn3D.addEventListener('click', () => {
 
 export function showBossBanner(boss){
     // If a traditional DOM banner exists (non-VR mode) update it.
-    if (!inVr && bossBannerEl) {
+    if (!isVr() && bossBannerEl) {
         bossBannerEl.innerText = "🚨 " + boss.name + " 🚨";
         bossBannerEl.style.opacity = 1;
         setTimeout(() => bossBannerEl.style.opacity = 0, 2500);
@@ -450,7 +449,7 @@ export function showUnlockNotification(text, subtext = '') {
     if (subtext) {
         content = `<span class="unlock-title">${subtext}</span>` + content;
     }
-    if (!inVr && notificationBanner) {
+    if (!isVr() && notificationBanner) {
         notificationBanner.innerHTML = content;
         notificationBanner.classList.add('show');
         setTimeout(() => {
