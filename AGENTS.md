@@ -23,7 +23,7 @@ This document serves two critical functions:
 | **S04** | **Application State Flow** | Implement the main application state machine based on `main.js`. This includes creating the visual states for the **Loading Screen** (`#loading-screen`) and **Home Screen** (`#home-screen`). The `index.html` file is the source of truth for the elements and buttons on these screens. These should be presented as the first views to the user upon starting the application. | **Done** |
 | **S05** | **UI Manager & HUD Scaffolding** | Create the `UIManager`. All UI elements must be holographic 3D objects in the scene, parented to the player rig's camera. Implement the main HUD container (`.command-bar` from `index.html`) as a curved `THREE.PlaneGeometry` that floats at the bottom of the player's view. | **Done** |
 | **S06** | **HUD Implementation: Health & Resources** | Within the HUD container, implement the Health, Shield, Ascension, and Status Effects bars. This involves creating 3D planes that replicate `#health-bar-container`, `#shield-bar-overlay`, `#ascension-bar-container`, and `#status-effects-bar`. Their visuals (width, color, text) must be dynamically updatable by the `UIManager` based on the global `state` object. | **Done** |
-| **S07** | **HUD Implementation: Powers & Core** | Recreate the power-up slots (`.abilities` and `.ability-queue`) as hexagonal `THREE.ShapeGeometry` planes. The `UIManager` must update their textures to show the correct power-up emoji from `state.offensiveInventory` and `state.defensiveInventory`. Implement the `#aberration-core-socket` as a circular plane with a child plane for the cooldown overlay. | Not Started |
+| **S07** | **HUD Implementation: Powers & Core** | Recreate the power-up slots (`.abilities` and `.ability-queue`) as hexagonal `THREE.ShapeGeometry` planes. The `UIManager` must update their textures to show the correct power-up emoji from `state.offensiveInventory` and `state.defensiveInventory`. Implement the `#aberration-core-socket` as a circular plane with a child plane for the cooldown overlay. | **Done** |
 | **S08** | **HUD Implementation: Boss UI** | Implement the `#bossHpContainer` and `#bossBanner` elements. The container should be a designated area in the UI (e.g., top-center) where individual boss health bars can be dynamically added and removed. The banner is a text element that appears and fades out when a boss spawns. | Not Started |
 | **S09** | **Modal UI Implementation** | Create the functionality to display the primary modal menus as large, floating holographic panels. This task covers the initial implementation for: `#gameOverMenu`, `#levelSelectModal`, `#ascensionGridModal`, and `#aberrationCoreModal`. Each modal should be populated with interactive elements that the player can target with the laser pointer. | Not Started |
 
@@ -99,7 +99,7 @@ This document serves two critical functions:
 | 2025-07-31 | S06 |`UIManager.js`, `vrMain.js` | Health, shield, ascension, and status bars implemented with dynamic updates. |
 
 ### Next Steps
-1.  **Begin Task S07:** HUD Implementation: Powers & Core
+1.  **Begin Task S08:** HUD Implementation: Boss UI
 
 ---
 
