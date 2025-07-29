@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 
 let scene, camera, renderer, playerRig;
+let arena, platform;
 let controllers = [];
 
 export function initScene(container = document.body) {
@@ -41,9 +42,23 @@ export function initScene(container = document.body) {
   dir.position.set(3, 3, 2);
   scene.add(dir);
 
+  // --- Environment Implementation (S02) ---
+  const arenaGeo = new THREE.SphereGeometry(500, 32, 32);
+  const arenaMat = new THREE.MeshBasicMaterial({ color: 0x080c18, side: THREE.BackSide });
+  arena = new THREE.Mesh(arenaGeo, arenaMat);
+  arena.name = 'arena';
+  scene.add(arena);
+
+  const platformGeo = new THREE.CylinderGeometry(10, 10, 0.5, 32);
+  const platformMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+  platform = new THREE.Mesh(platformGeo, platformMat);
+  platform.name = 'platform';
+  platform.position.set(0, 0, 0);
+  scene.add(platform);
+
   window.addEventListener('resize', onWindowResize);
 
-  return { scene, camera, renderer, playerRig };
+  return { scene, camera, renderer, playerRig, arena, platform };
 }
 
 function onWindowResize() {
@@ -58,3 +73,5 @@ export function getCamera() { return camera; }
 export function getRenderer() { return renderer; }
 export function getPlayerRig() { return playerRig; }
 export function getControllers() { return controllers; }
+export function getArena() { return arena; }
+export function getPlatform() { return platform; }
