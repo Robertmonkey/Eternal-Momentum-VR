@@ -44,7 +44,12 @@ AFRAME.registerComponent('canvas-texture', {
     const apply = m => { m.map = this.texture; m.needsUpdate = true; };
     Array.isArray(mesh.material) ? mesh.material.forEach(apply) : apply(mesh.material);
   },
-  tick() { if (this.texture) this.texture.needsUpdate = true; }
+  tick() {
+    if(this.texture && this.data._needsUpdate){
+      this.texture.needsUpdate = true;
+      this.data._needsUpdate = false;
+    }
+  }
 });
 
 // -----------------------------------------------------------------------------
@@ -239,7 +244,7 @@ window.addEventListener('load', () => {
     });
   }
 
-  const SPHERE_RADIUS = 8;
+  const SPHERE_RADIUS = 24;
   const BOSS_DAMAGE_MULTIPLIER = 0.75;
 
   const DEFAULT_SETTINGS = {
@@ -263,7 +268,8 @@ window.addEventListener('load', () => {
   };
 
   const CROSSHAIR_COLOR = '#00ffff';
-  let CROSSHAIR_SCALE_MULT = 0.08;
+  const CROSSHAIR_BASE_SCALE = 0.08 * (8 / SPHERE_RADIUS);
+  let CROSSHAIR_SCALE_MULT = CROSSHAIR_BASE_SCALE;
   const entityMap = new Map();  // maps game objects → A‑Frame entities
   const previousPositions = new Map(); // tracks last position for orientation
   const panelCache = new Map(); // caches html2canvas results
@@ -280,11 +286,13 @@ window.addEventListener('load', () => {
     c.width = 1280;
     c.height = 960;
     document.body.appendChild(c).style.display = 'none';
+    c._needsUpdate = true;
     return c;
   }
 
   function releaseCanvas(c){
     if(c.parentElement) c.parentElement.removeChild(c);
+    c._needsUpdate = false;
     canvasPool.push(c);
   }
 
@@ -350,7 +358,7 @@ window.addEventListener('load', () => {
     commandDeck.object3D.scale.set(s,s,s);
     // scale crosshair with deck so it remains proportionate
     // user cannot change size directly
-    CROSSHAIR_SCALE_MULT = 0.08 * s;
+    CROSSHAIR_SCALE_MULT = CROSSHAIR_BASE_SCALE * s;
   }
 
 
@@ -428,9 +436,11 @@ window.addEventListener('load', () => {
   // origin in room‑scale play.
   // ---------------------------------------------------------------------------
   function recenterCommandDeck(){
-    // command deck is now fixed; recentering no longer required
+    if(!commandDeck || !cameraEl) return;
+    cameraEl.object3D.getWorldPosition(_tempVec);
+    commandDeck.object3D.position.set(_tempVec.x, 1.0, _tempVec.z);
   }
-  // window.recenterCommandDeck = recenterCommandDeck;
+  window.recenterCommandDeck = recenterCommandDeck;
 
   // ---------------------------------------------------------------------------
   // Helper: draw the neon‑grid floor texture once at start‑up.
@@ -445,6 +455,7 @@ window.addEventListener('load', () => {
       g.beginPath(); g.moveTo(i*step,0); g.lineTo(i*step,s); g.stroke();
       g.beginPath(); g.moveTo(0,i*step); g.lineTo(s,i*step); g.stroke();
     }
+    c._needsUpdate = true;
   }
 
   function drawButtonTexture(c){
@@ -456,13 +467,14 @@ window.addEventListener('load', () => {
     grad.addColorStop(1,'#00ffff');
     g.fillStyle = grad;
     g.fillRect(0,0,s,s);
+    c._needsUpdate = true;
   }
 
+  const _tempVec = new THREE.Vector3();
   function scaleCrosshair(pos){
     if(!crosshair||!cameraEl) return;
-    const camPos = new THREE.Vector3();
-    cameraEl.object3D.getWorldPosition(camPos);
-    const dist = camPos.distanceTo(pos);
+    cameraEl.object3D.getWorldPosition(_tempVec);
+    const dist = _tempVec.distanceTo(pos);
     const s = dist * CROSSHAIR_SCALE_MULT;
     crosshair.object3D.scale.set(s,s,s);
   }
@@ -608,7 +620,7 @@ window.addEventListener('load', () => {
       resume:   {angle: 50, r:1.05, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
       sound:    {angle: 80, r:1.05, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()},
       settings: {angle:100, r:1.05, y:0.10, emoji:"⚙️", label:"Settings", action:openSettingsPanel},
-      // recenter: {angle:120, r:1.05, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck},
+      recenter: {angle:120, r:1.05, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck},
       telemetry:{angle:140, r:1.05, y:0.10, emoji:"📊", label:"Telemetry", action:openTelemetryPanel}
     };
 
@@ -889,6 +901,7 @@ window.addEventListener('load', () => {
       await render();
     }
     modal.classList.remove('is-rendering');
+    target._needsUpdate = true;
     panelCache.set(modalSel,target);
     return target;
   }
@@ -1468,10 +1481,9 @@ window.addEventListener('load', () => {
     }
   });
 
-  // R-key recentering disabled; deck remains fixed
-  // window.addEventListener('keydown', e => {
-  //   if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
-  // });
+  window.addEventListener('keydown', e => {
+    if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
+  });
   window.addEventListener('resize', updateUiScale);
 
   if(userSettings.telemetryEnabled) Telemetry.start(storeTelemetry);
