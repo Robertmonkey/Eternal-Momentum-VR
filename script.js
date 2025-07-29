@@ -579,7 +579,7 @@ window.addEventListener('load', () => {
     deckFloor.setAttribute('id','deckFloor');
     deckFloor.setAttribute('radius',3);
     deckFloor.setAttribute('rotation','-90 0 0');
-    deckFloor.setAttribute('material','transparent:true; opacity:0.6; side:double');
+    deckFloor.setAttribute('material','shader:flat; transparent:true; opacity:0.6; side:double');
     deckFloor.setAttribute('canvas-texture','#gridCanvas');
     commandDeck.appendChild(deckFloor);
 
