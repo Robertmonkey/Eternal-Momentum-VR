@@ -67,6 +67,14 @@ AFRAME.registerComponent('enemy-hitbox', {
   }
 });
 
+// ---------------------------------------------------------------------------
+// Component to keep entities fixed in world space. Does nothing each frame
+// but serves as a clear marker that the object should never follow the camera.
+// ---------------------------------------------------------------------------
+AFRAME.registerComponent('world-stationary', {
+  tick() {}
+});
+
 // -----------------------------------------------------------------------------
 // Main initialisation sequence – runs once DOM is ready.
 // -----------------------------------------------------------------------------
@@ -101,7 +109,7 @@ window.addEventListener('load', () => {
   const continueVrBtn   = document.getElementById('continueVrBtn');
   const eraseVrBtn      = document.getElementById('eraseVrBtn');
   const fadeOverlay     = document.getElementById('fadeOverlay');
-  let   recenterPrompt;
+  // let   recenterPrompt;
   const holographicPanel = document.getElementById('holographicPanel');
   const closeHoloBtn     = document.getElementById('closeHolographicPanelBtn');
   const gameOverPanel    = document.getElementById('gameOverPanel');
@@ -395,9 +403,9 @@ window.addEventListener('load', () => {
     if(commandDeck.parentElement !== sceneEl){
       sceneEl.appendChild(commandDeck);
     }
-    // Place the deck at the player's current position but detach it from
-    // headset movement so it stays fixed in the world.
-    recenterCommandDeck();
+    // Fixed world position per design doc
+    commandDeck.object3D.position.set(0, 1.0, 0);
+    commandDeck.object3D.rotation.set(0, 0, 0);
   }
 
   // ---------------------------------------------------------------------------
@@ -406,14 +414,9 @@ window.addEventListener('load', () => {
   // origin in room‑scale play.
   // ---------------------------------------------------------------------------
   function recenterCommandDeck(){
-    if(!cameraEl||!commandDeck) return;
-    const camPos = new THREE.Vector3();
-    cameraEl.object3D.getWorldPosition(camPos);
-    commandDeck.object3D.position.set(camPos.x, camPos.y - 0.5, camPos.z);
-    commandDeck.object3D.rotation.set(0,0,0);
-    if(tutorial.step===4) advanceTutorial();
+    // command deck is now fixed; recentering no longer required
   }
-  window.recenterCommandDeck = recenterCommandDeck;
+  // window.recenterCommandDeck = recenterCommandDeck;
 
   // ---------------------------------------------------------------------------
   // Helper: draw the neon‑grid floor texture once at start‑up.
@@ -591,7 +594,7 @@ window.addEventListener('load', () => {
       resume:   {angle: 50, r:1.05, y:0.15, emoji:"▶", label:"Resume",   action:()=>vrState.isGameRunning=true},
       sound:    {angle: 80, r:1.05, y:0.10, emoji:"🔊", label:"Sound",    action:()=>AudioManager.toggleMute()},
       settings: {angle:100, r:1.05, y:0.10, emoji:"⚙️", label:"Settings", action:openSettingsPanel},
-      recenter: {angle:120, r:1.05, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck},
+      // recenter: {angle:120, r:1.05, y:0.10, emoji:"📍", label:"Center",  action:recenterCommandDeck},
       telemetry:{angle:140, r:1.05, y:0.10, emoji:"📊", label:"Telemetry", action:openTelemetryPanel}
     };
 
@@ -649,16 +652,7 @@ window.addEventListener('load', () => {
       commandDeck.appendChild(wrapper);
     });
 
-    recenterPrompt = document.createElement('a-text');
-    recenterPrompt.setAttribute('id','recenterPrompt');
-    recenterPrompt.setAttribute('value','Press "Center" or R to recenter');
-    recenterPrompt.setAttribute('align','center');
-    recenterPrompt.setAttribute('width','2.5');
-    recenterPrompt.setAttribute('color','#ff8080');
-    recenterPrompt.setAttribute('position','0 0.5 0');
-    recenterPrompt.setAttribute('visible','false');
-    recenterPrompt.setAttribute('look-at','#camera');
-    commandDeck.appendChild(recenterPrompt);
+    // recenter prompt no longer needed
 
     // --- Command cluster panels ------------------------------------------
     const cluster=document.createElement('a-entity');
@@ -1009,14 +1003,7 @@ window.addEventListener('load', () => {
     if(crosshair && crosshair.getAttribute('visible')){
       scaleCrosshair(crosshair.object3D.position);
     }
-    if(recenterPrompt){
-      const camPos = new THREE.Vector3();
-      const deckPos = new THREE.Vector3();
-      cameraEl.object3D.getWorldPosition(camPos);
-      commandDeck.object3D.getWorldPosition(deckPos);
-      const dist = camPos.distanceTo(deckPos);
-      recenterPrompt.setAttribute('visible', dist > 1.5);
-    }
+    // recenter prompt obsolete with fixed deck
 
     // Spawn / update 3‑D representations of all dynamic objects
     const activeIds=new Set();
@@ -1448,9 +1435,10 @@ window.addEventListener('load', () => {
     }
   });
 
-  window.addEventListener('keydown', e => {
-    if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
-  });
+  // R-key recentering disabled; deck remains fixed
+  // window.addEventListener('keydown', e => {
+  //   if(e.key === 'r' || e.key === 'R') recenterCommandDeck();
+  // });
   window.addEventListener('resize', updateUiScale);
 
   if(userSettings.telemetryEnabled) Telemetry.start(storeTelemetry);
