@@ -74,6 +74,7 @@ Adherence to these constraints is crucial for a successful implementation.
 |   |-- ui.js
 |   |-- utils.js
 |-- styles.css        ← VR‑only CSS (comfort vignette, off‑screen modals)
+|-- package.json      ← Node dependencies and test scripts
 |-- AGENTS.md         ← **THIS FILE**
 |-- README.md         ← High‑level project brief + legacy overview
 |-- assets/           ← shared images, audio and cursor files
@@ -83,6 +84,7 @@ Adherence to these constraints is crucial for a successful implementation.
     |-- style.css     ← neon/space aesthetic, colour variables (uses ../assets/ paths)
     |-- main.js       ← entry point
     |-- modules/      ← state.js, gameLoop.js, powers.js, cores.js, ascension.js, ui.js, utils.js…
+|-- tests/            ← basic unit tests for movement and navmesh
 ```
 
 ## TODO
