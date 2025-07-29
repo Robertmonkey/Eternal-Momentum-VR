@@ -5,6 +5,8 @@ import { spherePosToUv, uvToSpherePos } from './utils.js';
 import { state } from './state.js';
 import { usePower } from './powers.js';
 import { activateCorePower } from './cores.js';
+import { getUIRoot } from './UIManager.js';
+import { getModalObjects } from './ModalManager.js';
 
 let avatar;
 let targetPoint = new THREE.Vector3();
@@ -87,6 +89,25 @@ export function updatePlayerController() {
   tempMatrix.identity().extractRotation(rightController.matrixWorld);
   raycaster.ray.origin.setFromMatrixPosition(rightController.matrixWorld);
   raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+  // Check UI interactions first
+  let uiHit = null;
+  const uiRoot = getUIRoot();
+  if (uiRoot) {
+    const uiHits = raycaster.intersectObjects(uiRoot.children, true);
+    if (uiHits.length) uiHit = uiHits[0];
+  }
+  if (!uiHit) {
+    const modalHits = raycaster.intersectObjects(getModalObjects(), true);
+    if (modalHits.length) uiHit = modalHits[0];
+  }
+
+  if (uiHit) {
+    if (triggerDown && uiHit.object.userData && typeof uiHit.object.userData.onSelect === 'function') {
+      uiHit.object.userData.onSelect();
+    }
+    return;
+  }
 
   const hit = raycaster.intersectObject(arena, false)[0];
   if (hit) {
