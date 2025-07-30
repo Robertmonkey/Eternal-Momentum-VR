@@ -44,7 +44,7 @@ export function initScene(container = document.body) {
 
   // --- Environment Implementation (S02) ---
   const arenaGeo = new THREE.SphereGeometry(500, 32, 32);
-  const arenaTexture = new THREE.TextureLoader().load('../assets/bg.png');
+  const arenaTexture = new THREE.TextureLoader().load('assets/bg.png');
   const arenaMat = new THREE.MeshStandardMaterial({
     map: arenaTexture,
     side: THREE.BackSide
