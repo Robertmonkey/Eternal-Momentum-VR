@@ -103,9 +103,13 @@ This document serves two critical functions:
 | 2025-08-02 | B8 |`ArchitectAI.js` | Wall summoning state machine implemented. |
 | 2025-08-02 | B9 |`AethelUmbraAI.js` | Twin boss roles and rage logic implemented. |
 | 2025-08-02 | B10 |`LoopingEyeAI.js` | Path recording and replay mechanic implemented. |
+| 2025-08-03 | B11 |`JuggernautAI.js` | Charge attack behavior implemented. |
+| 2025-08-03 | B12 |`PuppeteerAI.js` | Enemy conversion mechanic implemented. |
+| 2025-08-03 | B13 |`GlitchAI.js` | Teleportation and glitch zone mechanic implemented. |
+| 2025-08-03 | B14 |`SentinelPairAI.js` | Shared health and beam link implemented. |
 
 ### Next Steps
-1.  **Begin Task B11:** The Juggernaut
+1.  **Begin Task B15:** The Basilisk
 
 ---
 
