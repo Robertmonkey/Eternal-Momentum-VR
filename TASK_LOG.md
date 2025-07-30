@@ -83,3 +83,8 @@
   coordinate references. Player position is now read via sphere
   coordinates using getPlayerCoords(). Added epochEnderRewind unit test
   and updated package.json. All tests pass.
+
+## 2025-08-19
+- FP-04 cleanup: ModalManager now imports `holoMaterial` from UIManager
+  instead of defining a duplicate function. All unit tests continue to
+  pass.
