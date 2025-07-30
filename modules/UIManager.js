@@ -34,6 +34,7 @@ export function initUI() {
 
   uiGroup = new THREE.Group();
   uiGroup.name = 'uiGroup';
+  uiGroup.visible = false;
   camera.add(uiGroup);
 
   createCommandBar();
@@ -269,6 +270,10 @@ export function getUIRoot() {
 
 export function getHudMesh() {
   return hudMesh;
+}
+
+export function showHud() {
+  if (uiGroup) uiGroup.visible = true;
 }
 
 export function updateHud() {
