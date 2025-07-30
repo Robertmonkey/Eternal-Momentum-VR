@@ -31,6 +31,7 @@ export function initPlayerController() {
   );
   avatar.name = 'playerAvatar';
   avatar.position.copy(uvToSpherePos(0.5, 0, radius));
+  state.player.position.copy(avatar.position);
   scene.add(avatar);
 
   const chGeo = new THREE.RingGeometry(0.2, 0.25, 16);
@@ -143,9 +144,8 @@ export function updatePlayerController() {
     crosshair.visible = false;
   }
 
-  const uv = moveTowards(avatar.position, targetPoint, state.player.speed, radius);
-  state.player.x = uv.u * 2048;
-  state.player.y = uv.v * 1024;
+  moveTowards(avatar.position, targetPoint, state.player.speed, radius);
+  state.player.position.copy(avatar.position);
 }
 
 export function getAvatar() {
