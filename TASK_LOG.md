@@ -46,4 +46,6 @@
 
 ## 2025-08-08
 - Added FP-04 tests verifying loading progress updates DOM elements and Game Over modal buttons trigger the expected actions.
-- Updated `package.json` to include new tests.
+
+## 2025-08-09
+- Implemented FP-08 by refactoring AudioManager to use three.js AudioListener and PositionalAudio. Added listener setup in vrMain.js and updated main.js for new API. All tests pass.
