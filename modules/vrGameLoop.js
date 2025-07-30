@@ -2,10 +2,11 @@ import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { getScene, getArena } from './scene.js';
 import { updateEnemies3d } from './enemyAI3d.js';
-import { updateProjectiles3d } from './projectilePhysics3d.js';
+import { updateProjectiles3d, setProjectileGroup } from './projectilePhysics3d.js';
 import { uvToSpherePos } from './utils.js';
 
 let enemyGroup;
+let projectileGroup;
 
 export function initVrGameLoop() {
   const scene = getScene();
@@ -13,6 +14,15 @@ export function initVrGameLoop() {
   enemyGroup = new THREE.Group();
   enemyGroup.name = 'enemyGroup';
   scene.add(enemyGroup);
+
+  projectileGroup = new THREE.Group();
+  projectileGroup.name = 'projectileGroup';
+  scene.add(projectileGroup);
+  setProjectileGroup(projectileGroup);
+}
+
+export function getProjectileGroup(){
+  return projectileGroup;
 }
 
 export function updateVrGameLoop() {
