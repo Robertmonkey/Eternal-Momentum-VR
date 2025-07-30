@@ -63,7 +63,7 @@ This document serves two critical functions:
 | **B16**| The Annihilator | **Done** |
 | **B17**| The Parasite | **Done** |
 | **B18**| Quantum Shadow | **Done** |
-| **B19**| Time Eater | **To Do** |
+| **B19**| Time Eater | **Done** |
 | **B20**| The Singularity | **To Do** |
 | **B21**| The Miasma | **To Do** |
 | **B22**| The Temporal Paradox| **To Do** |
@@ -111,9 +111,10 @@ This document serves two critical functions:
 | 2025-08-04 | B16 |`AnnihilatorAI.js` | Beam and pillar mechanic implemented. |
 | 2025-08-04 | B17 |`ParasiteAI.js` | Infection spread mechanic implemented. |
 | 2025-08-04 | B18 |`QuantumShadowAI.js` | Phasing and echo collapse implemented. |
+| 2025-08-05 | B19 |`TimeEaterAI.js` | Temporal slow-zone mechanic implemented. |
 
 ### Next Steps
-1.  **Begin Task B19:** Time Eater
+1.  **Begin Task B20:** The Singularity
 
 ---
 
