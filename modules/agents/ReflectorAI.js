@@ -1,6 +1,11 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import { spherePosToUv } from '../utils.js';
 
+// ReflectorAI - Boss B02: Reflector Warden
+// Reimplementation of the original 2D behaviour. The boss cycles between
+// idle and moving phases. Every third movement cycle enables a reflecting
+// shield for 2 seconds which heals the boss when hit and damages the player.
 export class ReflectorAI extends BaseAgent {
   constructor(radius = 1) {
     const geom = new THREE.BoxGeometry(0.4 * radius, 0.4 * radius, 0.4 * radius);
@@ -8,68 +13,61 @@ export class ReflectorAI extends BaseAgent {
     const mesh = new THREE.Mesh(geom, mat);
     super({ health: 120, model: mesh });
 
-    const shieldGeom = new THREE.PlaneGeometry(0.6 * radius, 0.6 * radius);
+    const shieldGeom = new THREE.RingGeometry(0.35 * radius, 0.4 * radius, 32);
     const shieldMat = new THREE.MeshBasicMaterial({
-      color: 0x800080,
+      color: 0x2ecc71,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.2,
       side: THREE.DoubleSide
     });
-    this.shields = [];
-    for (let i = 0; i < 4; i++) {
-      const s = new THREE.Mesh(shieldGeom, shieldMat.clone());
-      switch (i) {
-        case 0:
-          s.position.z = 0.35 * radius;
-          break;
-        case 1:
-          s.position.z = -0.35 * radius;
-          s.rotation.y = Math.PI;
-          break;
-        case 2:
-          s.position.x = -0.35 * radius;
-          s.rotation.y = Math.PI / 2;
-          break;
-        case 3:
-          s.position.x = 0.35 * radius;
-          s.rotation.y = -Math.PI / 2;
-          break;
-      }
-      this.add(s);
-      this.shields.push(s);
-    }
+    this.shield = new THREE.Mesh(shieldGeom, shieldMat);
+    this.shield.rotation.x = Math.PI / 2;
+    this.add(this.shield);
+
     this.radius = radius;
-    this.state = 'DEFENSIVE';
-    this.stateTimer = 0;
+    this.phase = 'idle';
+    this.last = Date.now();
+    this.cycles = 0;
     this.reflecting = false;
   }
 
-  update(delta, playerObj, state, gameHelpers) {
+  update(delta, playerObj, gameState, gameHelpers) {
     if (!this.alive) return;
-    this.stateTimer += delta;
-
-    if (this.state === 'DEFENSIVE') {
-      this.rotation.y += delta * 0.2;
-      this.shields.forEach(s => (s.material.opacity = 0.5));
-      if (this.stateTimer >= 8) {
-        this.state = 'VULNERABLE';
-        this.stateTimer = 0;
-        gameHelpers?.play?.('shieldBreak');
-      }
-    } else if (this.state === 'VULNERABLE') {
-      this.shields.forEach(s => (s.material.opacity = 0.1));
-      if (this.stateTimer >= 4) {
-        this.state = 'DEFENSIVE';
-        this.stateTimer = 0;
+    const now = Date.now();
+    if (now - this.last > 2000) {
+      this.phase = this.phase === 'idle' ? 'moving' : 'idle';
+      this.last = now;
+      if (this.phase === 'moving') {
+        this.cycles++;
+        if (this.cycles % 3 === 0) {
+          this.reflecting = true;
+          if (gameHelpers?.spawnParticles) {
+            const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
+            gameHelpers.spawnParticles(
+              uv.u * 2048,
+              uv.v * 1024,
+              '#ffffff',
+              50,
+              4,
+              30
+            );
+          }
+          setTimeout(() => (this.reflecting = false), 2000);
+        }
       }
     }
+
+    this.shield.material.opacity = this.reflecting ? 0.6 : (this.phase === 'moving' ? 0.4 : 0.2);
   }
 
-  takeDamage(amount, playerObj) {
-    if (this.state === 'DEFENSIVE') {
+  takeDamage(amount, playerObj, gameState, gameHelpers) {
+    if (!this.alive) return;
+    if (this.phase !== 'idle') {
       this.health = Math.min(this.maxHealth, this.health + amount);
-      if (playerObj && typeof playerObj.health === 'number') {
+      if (this.reflecting && playerObj && typeof playerObj.health === 'number') {
         playerObj.health -= 10;
+        if (playerObj.health <= 0 && gameState) gameState.gameOver = true;
+        gameHelpers?.play?.('reflectorOnHit');
       }
     } else {
       super.takeDamage(amount);
