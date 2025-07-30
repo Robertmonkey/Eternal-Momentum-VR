@@ -54,3 +54,6 @@
 - Continued FP-07 by replacing the global `window.mousePosition` with
   `state.mousePosition`. Updated PlayerController, powers, cores and
   main.js to use the centralized cursor state. All tests continue to pass.
+
+## 2025-08-11
+- Reimplemented Reflector Warden boss AI using original logic and added unit test verifying reflection damage (FP-05).
