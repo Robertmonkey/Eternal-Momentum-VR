@@ -66,3 +66,6 @@
 - Improved menu clarity by capturing DOM modals at higher resolution.
   `captureElementToTexture` now scales html2canvas captures by the
   device pixel ratio for crisp UI textures (FP-04).
+
+## 2025-08-14
+- Reduced console noise by gating WebXR session logs behind NODE_ENV checks (CI-07).

@@ -27,11 +27,16 @@ export function initScene(container = document.body) {
   renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
 
+  // Avoid noisy console logs in production builds
   renderer.xr.addEventListener('sessionstart', () => {
-    console.log('WebXR session started');
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('WebXR session started');
+    }
   });
   renderer.xr.addEventListener('sessionend', () => {
-    console.log('WebXR session ended');
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('WebXR session ended');
+    }
   });
 
   playerRig = new THREE.Group();
