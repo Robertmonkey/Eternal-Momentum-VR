@@ -5,6 +5,9 @@ import * as Cores from './cores.js';
 import { spherePosToUv } from './utils.js';
 import { gameHelpers } from './gameHelpers.js';
 
+const SCREEN_WIDTH = 2048;
+const SCREEN_HEIGHT = 1024;
+
 // Helper function to check for core presence (equipped or via Pantheon)
 function playerHasCore(coreId) {
     if (state.player.equippedAberrationCore === coreId) return true;
@@ -56,7 +59,7 @@ export const powers={
   shockwave:{emoji:"💥",desc:"Expanding wave damages enemies.",apply:(utils, game, mx, my, options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options;
       let speed = 800;
-      let radius = Math.max(window.innerWidth, window.innerHeight);
+      let radius = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT);
       let damage = (((state.player.berserkUntil > Date.now()) ? 30 : 15) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
       const oPos = getCanvasPos(origin);
       state.effects.push({ type: 'shockwave', caster: origin, x: oPos.x, y: oPos.y, radius: 0, maxRadius: radius, speed: speed, startTime: Date.now(), hitEnemies: new Set(), damage: damage });
@@ -152,15 +155,15 @@ export const powers={
         game.play('gravitySound'); 
         state.gravityActive=true; 
         state.gravityEnd=Date.now()+1000; 
-        utils.spawnParticles(state.particles, window.innerWidth/2, window.innerHeight/2,"#9b59b6",100,4,40,5);
+        utils.spawnParticles(state.particles, SCREEN_WIDTH/2, SCREEN_HEIGHT/2,"#9b59b6",100,4,40,5);
         
         if (state.player.purchasedTalents.has('temporal-collapse')) {
             setTimeout(() => {
                 if(state.gameOver) return;
                 state.effects.push({ 
                     type: 'slow_zone', 
-                    x: window.innerWidth / 2,
-                    y: window.innerHeight / 2,
+                    x: SCREEN_WIDTH / 2,
+                    y: SCREEN_HEIGHT / 2,
                     r: 250, 
                     endTime: Date.now() + 4000 
                 });
@@ -396,11 +399,11 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
 
   // Apply the main power effect
   power.apply(...applyArgs);
-  if(window.pulseControllers) window.pulseControllers(60,0.6);
+  if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
   
   if (stackedEffect && power.name !== 'Stack') {
       power.apply(...applyArgs);
-      if(window.pulseControllers) window.pulseControllers(60,0.6);
+      if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
       if(state.stacked) {
           state.stacked = false;
           state.player.statusEffects = state.player.statusEffects.filter(e => e.name !== 'Stacked');
@@ -411,7 +414,7 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
       setTimeout(() => {
            if (state.gameOver) return;
            power.apply(...applyArgs);
-           if(window.pulseControllers) window.pulseControllers(60,0.6);
+           if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
            addStatusEffect('Duplicated', '✨', 2000);
            play('shaperAttune');
            const pos=getCanvasPos(state.player);
