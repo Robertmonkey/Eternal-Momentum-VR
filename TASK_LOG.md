@@ -8,3 +8,5 @@
 - Implemented FP-02 fix by syncing player UV coordinates to state and added corresponding unit test.
 - Improved UI modules (FP-04) by exporting `holoMaterial`, allowing modal injection and added tests for UI material and modal visibility.
 - Updated `showModal` to ignore null entries and added new tests to `package.json`.
+- Added noCanvas integration test verifying `gameTick` operates without a DOM canvas.
+
