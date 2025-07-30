@@ -9,6 +9,55 @@ let neighbors = [];
 let pathCache = new Map();
 let lastObsHash = '';
 
+class MinHeap {
+  constructor(compare) {
+    this.compare = compare;
+    this.heap = [];
+  }
+  push(value) {
+    this.heap.push(value);
+    this._bubbleUp(this.heap.length - 1);
+  }
+  pop() {
+    if (this.heap.length === 0) return undefined;
+    const top = this.heap[0];
+    const last = this.heap.pop();
+    if (this.heap.length > 0) {
+      this.heap[0] = last;
+      this._bubbleDown(0);
+    }
+    return top;
+  }
+  size() { return this.heap.length; }
+  _bubbleUp(index) {
+    const { heap, compare } = this;
+    while (index > 0) {
+      const parent = (index - 1) >> 1;
+      if (compare(heap[index], heap[parent]) >= 0) break;
+      [heap[index], heap[parent]] = [heap[parent], heap[index]];
+      index = parent;
+    }
+  }
+  _bubbleDown(index) {
+    const { heap, compare } = this;
+    const length = heap.length;
+    while (true) {
+      let left = index * 2 + 1;
+      let right = index * 2 + 2;
+      let smallest = index;
+      if (left < length && compare(heap[left], heap[smallest]) < 0) {
+        smallest = left;
+      }
+      if (right < length && compare(heap[right], heap[smallest]) < 0) {
+        smallest = right;
+      }
+      if (smallest === index) break;
+      [heap[index], heap[smallest]] = [heap[smallest], heap[index]];
+      index = smallest;
+    }
+  }
+}
+
 export function buildNavMesh(subdiv = 2, radius = 1){
   const geo = new THREE.IcosahedronGeometry(radius, subdiv);
   const pos = geo.getAttribute('position');
@@ -79,14 +128,17 @@ export function findPath(startUv,endUv){
   const goal  = closestNodeIdx(endPos);
   const cacheKey = `${start}-${goal}-${obsHash}`;
   if(pathCache.has(cacheKey)) return pathCache.get(cacheKey);
-  const open=[start];
-  const came=new Map();
-  const g=new Map([[start,0]]);
-  const f=new Map([[start,nodes[start].distanceTo(nodes[goal])]]);
-  const visited=new Set([start]);
-  while(open.length){
-    open.sort((a,b)=>f.get(a)-f.get(b));
-    const cur=open.shift();
+  const came = new Map();
+  const g = new Map([[start, 0]]);
+  const f = new Map([[start, nodes[start].distanceTo(nodes[goal])]]);
+  const open = new MinHeap((a, b) => f.get(a) - f.get(b));
+  const inOpen = new Set();
+  open.push(start);
+  inOpen.add(start);
+  const visited = new Set([start]);
+  while (open.size()) {
+    const cur = open.pop();
+    inOpen.delete(cur);
     if(cur===goal) break;
     for(const n of neighbors[cur]){
       if(isBlocked(n)) continue;
@@ -95,7 +147,10 @@ export function findPath(startUv,endUv){
         g.set(n,ng);
         f.set(n, ng + nodes[n].distanceTo(nodes[goal]));
         came.set(n,cur);
-        if(!visited.has(n)){ visited.add(n); open.push(n); }
+        if(!visited.has(n)){
+          visited.add(n);
+          if(!inOpen.has(n)){ open.push(n); inOpen.add(n); }
+        }
       }
     }
   }
