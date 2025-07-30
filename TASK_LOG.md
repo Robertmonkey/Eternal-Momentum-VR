@@ -43,3 +43,7 @@
   `vrGameLoop.js`, and `gameLoop.js` accordingly and added a new
   unit test `enemyAI3d.test.mjs` to ensure enemies move using the
   shared player position. All tests pass.
+
+## 2025-08-08
+- Added FP-04 tests verifying loading progress updates DOM elements and Game Over modal buttons trigger the expected actions.
+- Updated `package.json` to include new tests.
