@@ -70,11 +70,12 @@ function createCommandBar() {
 function createTextSprite(text, color = '#eaf2ff', size = 32) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = `${size}px sans-serif`;
+  const fontStack = "'Segoe UI','Roboto',sans-serif";
+  ctx.font = `${size}px ${fontStack}`;
   const width = Math.ceil(ctx.measureText(text).width);
   canvas.width = width;
   canvas.height = size * 1.2;
-  ctx.font = `${size}px sans-serif`;
+  ctx.font = `${size}px ${fontStack}`;
   ctx.fillStyle = color;
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 0, canvas.height / 2);
@@ -85,6 +86,7 @@ function createTextSprite(text, color = '#eaf2ff', size = 32) {
   sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
   sprite.userData.ctx = ctx;
   sprite.userData.canvas = canvas;
+  sprite.userData.font = `${size}px ${fontStack}`;
   return sprite;
 }
 
@@ -93,6 +95,9 @@ function updateTextSprite(sprite, text, color = '#eaf2ff') {
   const canvas = sprite.userData.canvas;
   if (!ctx || !canvas) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (sprite.userData.font) {
+    ctx.font = sprite.userData.font;
+  }
   ctx.fillStyle = color;
   ctx.fillText(text, 0, canvas.height / 2);
   sprite.material.map.needsUpdate = true;
