@@ -113,3 +113,8 @@
   Updated gameLoop spawnPickup, cores and VampireAI to push vector-based pickups
   and adjusted legacy bosses. Added new unit test `pickups3d.test.mjs` and
   updated package.json. All tests pass.
+
+## 2025-08-25
+- Continued FP-07 by converting ProjectileManager to operate on THREE.Vector3
+  positions and velocities. Updated AethelUmbraAI to use the new API and
+  refactored the projectileManager test for vector math. All tests pass.
