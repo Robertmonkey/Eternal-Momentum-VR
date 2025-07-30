@@ -10,3 +10,8 @@
 - Updated `showModal` to ignore null entries and added new tests to `package.json`.
 - Added noCanvas integration test verifying `gameTick` operates without a DOM canvas.
 
+## 2025-08-03
+- Implemented FP-06 step 2 by attaching projectile meshes to a `projectileGroup`
+  in `vrGameLoop.js` and updating them in `projectilePhysics3d.js`. Added cleanup
+  logic and ensured all tests pass.
+
