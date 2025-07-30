@@ -10,8 +10,10 @@
 // is reset the `resetGame` function reinitialises these fields so that
 // passive cooldowns and flags do not leak across runs.
 
+import * as THREE from '../vendor/three.module.js';
 import { LEVELING_CONFIG } from './config.js';
 import { offensivePowers } from './powers.js';
+import { uvToSpherePos } from './utils.js';
 
 // The central state object.  Most other modules import this to read or
 // mutate game state.  New fields can be safely added here as long as
@@ -21,8 +23,7 @@ export const state = {
   LMB_down: false,
   RMB_down: false,
   player: {
-    x: 0,
-    y: 0,
+    position: new THREE.Vector3(0, 0, 0),
     // Player hitbox radius.  Fractal Horror modifies this value on equip.
     r: 20,
     // Base movement speed multiplier.  Modified by talents and cores.
@@ -206,12 +207,10 @@ export function loadPlayerState() {
  * stage 1 regardless of the highest stage beaten.
  */
 export function resetGame(isArena = false) {
-  const width = 2048;  // legacy canvas width
-  const height = 1024; // legacy canvas height
+  const startPos = uvToSpherePos(0.5, 0, 1);
 
-  // Place the player at the centre of the screen and fully heal them.
-  state.player.x = width / 2;
-  state.player.y = height / 2;
+  // Place the player at the "top" of the sphere and fully heal them.
+  state.player.position.copy(startPos);
   state.player.health = state.player.maxHealth;
   state.player.statusEffects = [];
   state.player.activePantheonBuffs = [];

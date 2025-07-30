@@ -10,7 +10,6 @@ import * as Cores from './cores.js';
 import { getArena } from './scene.js';
 import { updateEnemies3d } from './enemyAI3d.js';
 import { updateProjectiles3d } from './projectilePhysics3d.js';
-import { uvToSpherePos } from './utils.js';
 
 const missingStageWarned = new Set();
 
@@ -1640,7 +1639,7 @@ export function gameTick() {
   const arena = getArena();
   if (!arena) return true;
   const radius = arena.geometry.parameters.radius;
-  const playerPos = uvToSpherePos(state.player.x / SCREEN_WIDTH, state.player.y / SCREEN_HEIGHT, radius);
+  const playerPos = state.player.position.clone();
   updateEnemies3d(playerPos, radius, SCREEN_WIDTH, SCREEN_HEIGHT);
   updateProjectiles3d(radius, SCREEN_WIDTH, SCREEN_HEIGHT);
   return true;

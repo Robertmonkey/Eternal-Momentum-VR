@@ -25,3 +25,9 @@
 - Finished FP-06 step 3 by removing the last A-Frame reference from `ui.js`.
   The unlock banner now relies solely on the Three.js UI. All tests pass.
 
+## 2025-08-05
+- Started FP-07 by replacing the player's `x` and `y` fields with a
+  `THREE.Vector3` position in `state.js`. Updated the player controller,
+  game loop and unit tests to use the new vector-based position. All tests
+  continue to pass.
+
