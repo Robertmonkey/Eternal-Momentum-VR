@@ -20,6 +20,8 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 | 2025-07-30 | FP-03 | PlayerController.js | Added laser pointer and cursor rendering |
 | 2025-07-30 | FP-04 | UIManager.js | Implemented loading bar and holographic UI materials |
 | 2025-07-30 | FP-05 | SplitterAI.js | Reimplemented Splitter Sentinel boss mechanics |
+| 2025-07-31 | FP-04 | ModalManager.js | Game Over modal buttons restart or open other menus |
+| 2025-07-31 | FP-04 | ModalManager.js | Game Over modal buttons restart or open other menus |
 | **FP-02** | **Player Avatar** | The player avatar is the wrong color, is not movable, and is positioned incorrectly. | 1. **Color:** In `PlayerController.js`, the avatar `THREE.SphereGeometry` MUST use a blue material. The correct hex color is **`#3498db`**. 2. **Position:** The avatar's initial position MUST be on the inner surface of the arena sphere. 3. **Movement:** The `PlayerController`'s `update` loop MUST be fixed to correctly move the avatar's position along the sphere's surface toward the laser pointer's target point. | The player avatar is **blue**, is always on the sphere's surface, and smoothly follows the laser pointer's target. |
 | 2025-07-30 | FP-03 | PlayerController.js | Added laser pointer and cursor rendering |
 | 2025-07-30 | FP-04 | UIManager.js | Implemented loading bar and holographic UI materials |
@@ -85,6 +87,7 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 | 2025-07-30 | FP-03 | PlayerController.js | Added laser pointer and cursor rendering |
 | 2025-07-30 | FP-04 | UIManager.js | Implemented loading bar and holographic UI materials |
 | 2025-07-30 | FP-05 | SplitterAI.js | Reimplemented Splitter Sentinel boss mechanics |
+| 2025-07-31 | FP-04 | ModalManager.js | Game Over modal buttons restart or open other menus |
 
 | 2025-07-31 | CI-02 | navmesh.js, utils.js | Removed global THREE dependency |
 | 2025-07-31 | CI-03 | vrCommandCluster.js | Removed obsolete A-Frame HUD module |

@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three.module.js';
 import { getCamera } from './scene.js';
+import { resetGame, state } from './state.js';
 
 let modalGroup;
 const modals = {};
@@ -78,20 +79,26 @@ function createModal(id, title, buttons) {
   return modal;
 }
 
+function restartStage() {
+  resetGame(false);
+  state.isPaused = false;
+  Object.values(modals).forEach(m => m.visible = false);
+}
+
 export function initModals() {
   const group = ensureGroup();
   if (!group || modals.gameOver) return;
 
   modals.gameOver = createModal('gameOver', 'TIMELINE COLLAPSED', [
-    { label: 'Restart Stage', onSelect: () => console.log('Retry') },
-    { label: 'Ascension', onSelect: () => console.log('Ascension') },
-    { label: 'Cores', onSelect: () => console.log('Cores') },
-    { label: 'Stage Select', onSelect: () => console.log('Stages') }
+    { label: 'Restart Stage', onSelect: restartStage },
+    { label: 'Ascension', onSelect: () => showModal('ascension') },
+    { label: 'Cores', onSelect: () => showModal('cores') },
+    { label: 'Stage Select', onSelect: () => showModal('levelSelect') }
   ]);
   group.add(modals.gameOver);
 
   modals.levelSelect = createModal('levelSelect', 'SELECT STAGE', [
-    { label: 'Start', onSelect: () => console.log('Start Stage') },
+    { label: 'Start', onSelect: restartStage },
     { label: 'Close', onSelect: () => hideModal('levelSelect') }
   ]);
   group.add(modals.levelSelect);
