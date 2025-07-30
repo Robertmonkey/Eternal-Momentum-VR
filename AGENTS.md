@@ -88,9 +88,11 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 
 | 2025-07-31 | CI-02 | navmesh.js, utils.js | Removed global THREE dependency |
 | 2025-07-31 | CI-03 | vrCommandCluster.js | Removed obsolete A-Frame HUD module |
+| 2025-07-31 | CI-04 | BaseAgent.js, AssetManager.js, projectilePhysics3d.js | Replaced global THREE with module imports |
 ### Next Steps
 1.  **Execute Fidelity Patch 1.0 sequentially and with absolute adherence to the fidelity requirements.**
-2.  **Halt for user verification and playtest after all FP tasks are complete.**
+2.  Continue removing legacy global dependencies and wiring UI interactions.
+3.  **Halt for user verification and playtest after all FP tasks are complete.**
 
 ## Code Audit & Bug Report (2025-07-30)
 The current repository contains both the original 2D game (under `Eternal-Momentum-OLD GAME/`) and a partial VR rewrite. Key modules and their interactions are:

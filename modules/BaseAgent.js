@@ -1,5 +1,6 @@
 // BaseAgent.js - foundational 3D agent class
-// Relies on global THREE namespace (provided by A-Frame or tests)
+// Import a local copy of three.js instead of relying on a global THREE
+import * as THREE from '../vendor/three.module.js';
 
 export class BaseAgent extends THREE.Group {
   constructor(options = {}) {

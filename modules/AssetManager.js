@@ -1,3 +1,5 @@
+import * as THREE from '../vendor/three.module.js';
+
 const modelCache = new Map();
 const textureCache = new Map();
 const audioCache = new Map();
@@ -7,7 +9,6 @@ let gltfLoader;
 let textureLoader;
 
 async function ensureLoaders() {
-  if (!globalThis.THREE) throw new Error('THREE global missing');
   if (!gltfLoader) {
     try {
       const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
@@ -18,8 +19,7 @@ async function ensureLoaders() {
     }
   }
   if (!textureLoader) {
-    const { TextureLoader } = globalThis.THREE;
-    textureLoader = new TextureLoader();
+    textureLoader = new THREE.TextureLoader();
   }
 }
 
