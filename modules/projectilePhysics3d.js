@@ -1,6 +1,6 @@
-// Access the global THREE instance supplied by A-Frame at runtime. Tests expose
-// the same namespace via the "three" npm package so we avoid importing it here
-// to keep the browser build working without a bundler.
+// Projectile physics helpers for the VR build.
+// Import three.js directly rather than relying on a global THREE namespace.
+import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
 import { VR_PROJECTILE_SPEED_SCALE } from './config.js';
