@@ -1639,8 +1639,7 @@ export function gameTick() {
   const arena = getArena();
   if (!arena) return true;
   const radius = arena.geometry.parameters.radius;
-  const playerPos = state.player.position.clone();
-  updateEnemies3d(playerPos, radius, SCREEN_WIDTH, SCREEN_HEIGHT);
+  updateEnemies3d(radius, SCREEN_WIDTH, SCREEN_HEIGHT);
   updateProjectiles3d(radius, SCREEN_WIDTH, SCREEN_HEIGHT);
   return true;
 }
