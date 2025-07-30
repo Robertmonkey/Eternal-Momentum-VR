@@ -143,7 +143,9 @@ export function updatePlayerController() {
     crosshair.visible = false;
   }
 
-  moveTowards(avatar.position, targetPoint, state.player.speed, radius);
+  const uv = moveTowards(avatar.position, targetPoint, state.player.speed, radius);
+  state.player.x = uv.u * 2048;
+  state.player.y = uv.v * 1024;
 }
 
 export function getAvatar() {
