@@ -4,6 +4,16 @@ import { getCamera } from './scene.js';
 let modalGroup;
 const modals = {};
 
+function holoMaterial(color = 0x141428, opacity = 0.85) {
+  return new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    transparent: true,
+    opacity,
+    side: THREE.DoubleSide
+  });
+}
+
 function ensureGroup() {
   if (!modalGroup) {
     const cam = getCamera();
@@ -38,7 +48,7 @@ function createButton(label, onSelect) {
   const group = new THREE.Group();
   const bg = new THREE.Mesh(
     new THREE.PlaneGeometry(0.5, 0.15),
-    new THREE.MeshBasicMaterial({ color: 0x111111, opacity: 0.8, transparent: true })
+    holoMaterial(0x111111, 0.8)
   );
   group.add(bg);
   const text = createTextSprite(label, 32);
@@ -53,7 +63,7 @@ function createModal(id, title, buttons) {
   modal.name = id;
   const bg = new THREE.Mesh(
     new THREE.PlaneGeometry(1.6, 1),
-    new THREE.MeshBasicMaterial({ color: 0x141428, opacity: 0.95, transparent: true, side: THREE.DoubleSide })
+    holoMaterial(0x141428, 0.95)
   );
   modal.add(bg);
   const header = createTextSprite(title, 64);

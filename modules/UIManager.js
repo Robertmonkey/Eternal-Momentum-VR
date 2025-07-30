@@ -18,6 +18,16 @@ let bossContainer;
 const bossBars = new Map();
 let bannerSprite, bannerTimeout;
 
+function holoMaterial(color = 0x141428, opacity = 0.85) {
+  return new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    transparent: true,
+    opacity,
+    side: THREE.DoubleSide
+  });
+}
+
 export function initUI() {
   const camera = getCamera();
   if (!camera || uiGroup) return;
@@ -49,12 +59,7 @@ function createCommandBar() {
   );
   geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(Math.PI / 2));
 
-  const material = new THREE.MeshBasicMaterial({
-    color: 0x141428,
-    opacity: 0.9,
-    transparent: true,
-    side: THREE.DoubleSide
-  });
+  const material = holoMaterial(0x141428, 0.9);
 
   hudMesh = new THREE.Mesh(geometry, material);
   hudMesh.name = 'hudContainer';
@@ -107,7 +112,7 @@ function createHexGeometry(size) {
 
 function createAbilitySlot(size) {
   const geo = createHexGeometry(size);
-  const mat = new THREE.MeshBasicMaterial({ color: 0x111111, opacity: 0.6, transparent: true });
+  const mat = holoMaterial(0x111111, 0.6);
   const mesh = new THREE.Mesh(geo, mat);
   const sprite = createTextSprite('');
   sprite.position.set(0, 0, 0.01);
@@ -117,10 +122,10 @@ function createAbilitySlot(size) {
 
 function createCoreSocket(size) {
   const group = new THREE.Group();
-  const socket = new THREE.Mesh(new THREE.CircleGeometry(size, 32), new THREE.MeshBasicMaterial({ color: 0x111111, opacity: 0.6, transparent: true }));
+  const socket = new THREE.Mesh(new THREE.CircleGeometry(size, 32), holoMaterial(0x111111, 0.6));
   const icon = createTextSprite('◎', '#eaf2ff', 48);
   icon.position.set(0, 0, 0.01);
-  const overlay = new THREE.Mesh(new THREE.PlaneGeometry(size * 2, size * 2), new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.7, transparent: true }));
+  const overlay = new THREE.Mesh(new THREE.PlaneGeometry(size * 2, size * 2), holoMaterial(0x000000, 0.7));
   overlay.position.set(0, 0, 0.015);
   overlay.scale.y = 0;
   group.add(socket);
@@ -135,20 +140,20 @@ function createHudElements() {
   hudMesh.add(group);
 
   // Health bar background
-  const bgMat = new THREE.MeshBasicMaterial({ color: 0x111111, opacity: 0.6, transparent: true });
+  const bgMat = holoMaterial(0x111111, 0.6);
   const barBg = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.08), bgMat);
   barBg.position.set(0, 0.08, 0.01);
   group.add(barBg);
 
   // Health fill
-  const hMat = new THREE.MeshBasicMaterial({ color: 0xff5555, transparent: true });
+  const hMat = holoMaterial(0xff5555, 1);
   healthFill = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.06), hMat);
   healthFill.position.set(0, 0.08, 0.015);
   healthFill.scale.x = 1;
   group.add(healthFill);
 
   // Shield overlay
-  const sMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, opacity: 0.5, transparent: true });
+  const sMat = holoMaterial(0x00ffff, 0.5);
   shieldFill = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.06), sMat);
   shieldFill.position.set(0, 0.08, 0.02);
   shieldFill.scale.x = 0;
@@ -164,7 +169,7 @@ function createHudElements() {
   ascBg.position.set(0, -0.05, 0.01);
   group.add(ascBg);
 
-  const aMat = new THREE.MeshBasicMaterial({ color: 0x8e44ad, transparent: true });
+  const aMat = holoMaterial(0x8e44ad, 1);
   ascFill = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.04), aMat);
   ascFill.position.set(0, -0.05, 0.015);
   ascFill.scale.x = 0;
@@ -234,11 +239,11 @@ function createBossUI() {
 
 function createBossBar(boss) {
   const group = new THREE.Group();
-  const bgMat = new THREE.MeshBasicMaterial({ color: 0x111111, opacity: 0.6, transparent: true });
+  const bgMat = holoMaterial(0x111111, 0.6);
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.05), bgMat);
   group.add(bg);
 
-  const fillMat = new THREE.MeshBasicMaterial({ color: boss.color || '#ff5555', transparent: true });
+  const fillMat = holoMaterial(boss.color || 0xff5555, 1);
   const fill = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.03), fillMat);
   fill.position.set(0, 0, 0.01);
   fill.scale.x = 1;
