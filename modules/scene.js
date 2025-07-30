@@ -17,6 +17,8 @@ export function initScene(container = document.body) {
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
   renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
 
@@ -45,6 +47,7 @@ export function initScene(container = document.body) {
   // --- Environment Implementation (S02) ---
   const arenaGeo = new THREE.SphereGeometry(500, 32, 32);
   const arenaTexture = new THREE.TextureLoader().load('assets/bg.png');
+  arenaTexture.colorSpace = THREE.SRGBColorSpace;
   const arenaMat = new THREE.MeshStandardMaterial({
     map: arenaTexture,
     side: THREE.BackSide
