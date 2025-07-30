@@ -6,6 +6,11 @@
 // aberration core system.  Having these helpers in one place keeps
 // rendering logic encapsulated and easier to maintain.
 
+// Previous versions relied on a global THREE namespace. The helpers now import
+// the bundled three.js module directly so they can be used in unit tests and in
+// builds without exposing THREE globally.
+import * as THREE from '../vendor/three.module.js';
+
 let screenShakeEnd = 0;
 let screenShakeMagnitude = 0;
 
@@ -229,8 +234,7 @@ export function drawFog(ctx, color, alpha) {
 
 /**
  * Convert a 2D UV coordinate from the canvas to a 3D point on the inner
- * surface of the gameplay sphere.  The returned vector uses the global
- * THREE namespace provided by A-Frame.
+ * surface of the gameplay sphere.
  *
  * @param {number} u - Horizontal coordinate in the range [0,1].
  * @param {number} v - Vertical coordinate in the range [0,1].

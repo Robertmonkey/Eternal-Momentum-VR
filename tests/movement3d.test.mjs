@@ -1,9 +1,6 @@
 import assert from 'assert';
 import * as THREE from 'three';
 
-// Provide global THREE for utils.js
-global.THREE = THREE;
-
 import { moveTowards } from '../modules/movement3d.js';
 
 const radius = 1;
