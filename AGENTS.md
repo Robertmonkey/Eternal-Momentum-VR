@@ -92,6 +92,7 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 | 2025-07-31 | CI-02 | navmesh.js, utils.js | Removed global THREE dependency |
 | 2025-07-31 | CI-03 | vrCommandCluster.js | Removed obsolete A-Frame HUD module |
 | 2025-07-31 | CI-04 | BaseAgent.js, AssetManager.js, projectilePhysics3d.js | Replaced global THREE with module imports |
+| 2025-07-31 | FP-06 | gameLoop.js, index.html | Started refactor removing canvas dependency |
 ### Next Steps
 1.  **Execute Fidelity Patch 1.0 sequentially and with absolute adherence to the fidelity requirements.**
 2.  Continue removing legacy global dependencies and wiring UI interactions.

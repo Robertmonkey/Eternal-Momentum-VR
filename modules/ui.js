@@ -8,9 +8,7 @@ import { AudioManager } from './audio.js';
 import { showBossBanner as showVrBossBanner } from './UIManager.js';
 
 function isVr(){
-  return typeof document !== 'undefined' &&
-         typeof document.querySelector === 'function' &&
-         document.querySelector('a-scene')?.is('vr-mode');
+  return typeof navigator !== 'undefined' && !!navigator.xr;
 }
 
 const ascensionFill = document.getElementById('ascension-bar-fill');

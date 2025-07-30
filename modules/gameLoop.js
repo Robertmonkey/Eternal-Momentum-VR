@@ -7,17 +7,15 @@ import { updateUI, showBossBanner, showUnlockNotification } from './ui.js';
 import * as utils from './utils.js';
 import { AudioManager } from './audio.js';
 import * as Cores from './cores.js';
+import { getArena } from './scene.js';
+import { updateEnemies3d } from './enemyAI3d.js';
+import { updateProjectiles3d } from './projectilePhysics3d.js';
+import { uvToSpherePos } from './utils.js';
 
 const missingStageWarned = new Set();
 
-let canvas = document.getElementById("gameCanvas");
-if (!canvas) {
-  canvas = document.createElement('canvas');
-  canvas.id = 'gameCanvas';
-  canvas.width = 2048;
-  canvas.height = 1024;
-}
-const ctx = canvas.getContext("2d");
+const canvas = { width: 2048, height: 1024 };
+const ctx = { save(){}, restore(){}, clearRect(){}, beginPath(){}, arc(){}, fill(){}, stroke(){}, fillRect(){}, moveTo(){}, lineTo(){}, closePath(){}, strokeStyle: '', lineWidth: 1, globalAlpha: 1, }; // dummy context
 
 // --- Helper Function ---
 function playerHasCore(coreId) {
@@ -300,7 +298,7 @@ export function spawnPickup() {
     });
 }
 
-export function gameTick(mx, my) {
+function legacyGameTick(mx, my) {
     if (state.isPaused) return true;
     const now = Date.now();
     
@@ -1635,4 +1633,14 @@ export function gameTick(mx, my) {
     updateUI();
     ctx.restore();
     return true;
+}
+
+export function gameTick() {
+  const arena = getArena();
+  if (!arena) return true;
+  const radius = arena.geometry.parameters.radius;
+  const playerPos = uvToSpherePos(state.player.x / canvas.width, state.player.y / canvas.height, radius);
+  updateEnemies3d(playerPos, radius, canvas.width, canvas.height);
+  updateProjectiles3d(radius, canvas.width, canvas.height);
+  return true;
 }
