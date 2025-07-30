@@ -83,9 +83,23 @@ async function createDomModal(domId) {
   const mesh = new THREE.Mesh(geom, mat);
   const group = new THREE.Group();
   group.name = domId;
+  group.userData.domId = domId;
   group.add(mesh);
   group.visible = false;
   return group;
+}
+
+export async function refreshDomModal(domId) {
+  const group = modals[domId];
+  if(!group) return;
+  const el = document.getElementById(domId);
+  if(!el) return;
+  const tex = await captureElementToTexture(el);
+  if(!tex) return;
+  const mesh = group.children[0];
+  if(mesh.material.map) mesh.material.map.dispose();
+  mesh.material.map = tex;
+  mesh.material.needsUpdate = true;
 }
 
 function restartStage() {
@@ -124,6 +138,9 @@ export function showModal(id) {
   ensureGroup();
   Object.values(modals).forEach(m => { if (m) m.visible = false; });
   if (modals[id]) {
+    if(modals[id].userData && modals[id].userData.domId){
+      refreshDomModal(modals[id].userData.domId);
+    }
     modals[id].visible = true;
     modals[id].position.set(0, 0, -1.5);
   }
