@@ -1164,8 +1164,8 @@ function legacyGameTick(mx, my) {
             utils.drawCircle(ctx, effect.x, effect.y, effect.r, '#7f8c8d');
         }
         else if (effect.type === 'teleport_locus') {
-            effect.x = window.mousePosition.x;
-            effect.y = window.mousePosition.y;
+            effect.x = state.mousePosition.x;
+            effect.y = state.mousePosition.y;
             const progress = (now - effect.startTime) / effect.duration;
             ctx.strokeStyle = `rgba(236, 240, 241, ${1 - progress})`;
             ctx.lineWidth = 5;
