@@ -51,7 +51,8 @@ export class UmbraAI extends BaseAgent {
     if (this.timer >= 2) {
       this.timer = 0;
       if (gameHelpers && typeof gameHelpers.spawnProjectile === 'function') {
-        gameHelpers.spawnProjectile(this.position.clone(), targetPos);
+        const velocity = targetPos.clone().sub(this.position).normalize();
+        gameHelpers.spawnProjectile({ position: this.position.clone(), velocity });
       }
     }
   }

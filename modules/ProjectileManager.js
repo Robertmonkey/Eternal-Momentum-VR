@@ -1,9 +1,18 @@
+import * as THREE from '../vendor/three.module.js';
+
 const pool = [];
 const active = [];
 
 export function spawnProjectile(props = {}) {
   const p = pool.pop() || {};
-  Object.assign(p, props);
+  p.position = (props.position instanceof THREE.Vector3)
+    ? props.position.clone()
+    : new THREE.Vector3(props.x || 0, props.y || 0, props.z || 0);
+  p.velocity = (props.velocity instanceof THREE.Vector3)
+    ? props.velocity.clone()
+    : new THREE.Vector3(props.dx || 0, props.dy || 0, props.dz || 0);
+  p.r = props.r || p.r || 0;
+  p.damage = props.damage || p.damage || 0;
   p.alive = true;
   active.push(p);
   return p;
