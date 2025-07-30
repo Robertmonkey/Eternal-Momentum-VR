@@ -18,7 +18,7 @@ let bossContainer;
 const bossBars = new Map();
 let bannerSprite, bannerTimeout;
 
-function holoMaterial(color = 0x141428, opacity = 0.85) {
+export function holoMaterial(color = 0x141428, opacity = 0.85) {
   return new THREE.MeshStandardMaterial({
     color,
     emissive: color,
