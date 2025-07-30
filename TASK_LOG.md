@@ -107,3 +107,9 @@
 
 ## 2025-08-23
 - Continued FP-07 by converting enemy objects to store THREE.Vector3 positions. Updated gameLoop spawnEnemy, enemyAI3d, cores logic and tests accordingly. All tests pass.
+
+## 2025-08-24
+- Continued FP-07 by migrating pickup objects to store THREE.Vector3 positions.
+  Updated gameLoop spawnPickup, cores and VampireAI to push vector-based pickups
+  and adjusted legacy bosses. Added new unit test `pickups3d.test.mjs` and
+  updated package.json. All tests pass.

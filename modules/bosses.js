@@ -1,6 +1,7 @@
 // modules/bosses.js
 import { STAGE_CONFIG } from './config.js';
 import * as utils from './utils.js';
+import * as THREE from '../vendor/three.module.js';
 
 const CANVAS_W = 2048;
 const CANVAS_H = 1024;
@@ -127,8 +128,7 @@ export const bossData = [{
         b.lastHit = Date.now();
         if (Math.random() < 0.3) {
             state.pickups.push({
-                x: b.x,
-                y: b.y,
+                position: new THREE.Vector3(b.x, b.y, b.z || 0),
                 r: 10,
                 type: 'heal',
                 emoji: '🩸',

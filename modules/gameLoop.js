@@ -298,10 +298,15 @@ export function spawnPickup() {
     let life = 10000;
     const anomalyRank = state.player.purchasedTalents.get('temporal-anomaly');
     if (anomalyRank) life *= (1 + [0.25, 0.5][anomalyRank - 1]);
+    const u = Math.random();
+    const v = Math.random();
+    const pos = uvToSpherePos(u, v, 1);
     state.pickups.push({
-        x: Math.random() * SCREEN_WIDTH,
-        y: Math.random() * SCREEN_HEIGHT,
-        r: 12, type, vx: 0, vy: 0,
+        position: pos,
+        r: 12,
+        type,
+        vx: 0,
+        vy: 0,
         lifeEnd: Date.now() + life
     });
 }

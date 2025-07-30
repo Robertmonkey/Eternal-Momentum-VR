@@ -544,10 +544,9 @@ export function handleCoreOnCollision(enemy, gameHelpers) {
 export function handleCoreOnDamageDealt(target, gameHelpers) {
   // Vampire: 10% chance to spawn a blood orb that heals for 20% of max HP.
   if (playerHasCore('vampire') && Math.random() < 0.10) {
-    const { u: tx, v: ty } = utils.spherePosToUv(target.position, 1);
+    const pos = target.position.clone();
     state.pickups.push({
-      x: tx * CANVAS_W,
-      y: ty * CANVAS_H,
+      position: pos,
       r: 10,
       type: 'custom',
       emoji: '🩸',
