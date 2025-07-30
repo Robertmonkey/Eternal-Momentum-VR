@@ -194,7 +194,7 @@ window.addEventListener('load', () => {
         const aberrationCoreMenuBtn = document.getElementById('aberrationCoreMenuBtn');
 
         let mx = 0, my = 0;
-        window.mousePosition = { x: 0, y: 0 };
+        state.mousePosition = { x: 0, y: 0 };
         const allAudioElements = Array.from(document.querySelectorAll('audio'));
         let gameLoopId = null;
 
@@ -279,8 +279,8 @@ window.addEventListener('load', () => {
                 const clientY = e.clientY ?? e.touches[0].clientY;
                 mx = clientX - rect.left;
                 my = clientY - rect.top;
-                window.mousePosition.x = mx;
-                window.mousePosition.y = my;
+                state.mousePosition.x = mx;
+                state.mousePosition.y = my;
             }
             
             canvas.addEventListener("mousemove", setPlayerTarget);

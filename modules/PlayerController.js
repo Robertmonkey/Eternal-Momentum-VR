@@ -72,14 +72,15 @@ export function initPlayerController() {
     });
   }
 
-  if (!window.mousePosition) {
-    window.mousePosition = { x: 0, y: 0 };
+  // Initialize shared cursor position in state if not already set
+  if (!state.mousePosition) {
+    state.mousePosition = { x: 0, y: 0 };
   }
 }
 
 function handleInput() {
   if (triggerDown && gripDown) {
-    activateCorePower(window.mousePosition.x, window.mousePosition.y, window.gameHelpers);
+    activateCorePower(state.mousePosition.x, state.mousePosition.y, window.gameHelpers);
     return;
   }
 
@@ -132,8 +133,8 @@ export function updatePlayerController() {
   if (hit) {
     targetPoint.copy(hit.point);
     const uv = spherePosToUv(targetPoint, radius);
-    window.mousePosition.x = uv.u * 2048;
-    window.mousePosition.y = uv.v * 1024;
+    state.mousePosition.x = uv.u * 2048;
+    state.mousePosition.y = uv.v * 1024;
     if (crosshair) {
       crosshair.visible = true;
       crosshair.position.copy(hit.point);
