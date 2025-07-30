@@ -99,3 +99,8 @@
 - Continued FP-06 cleanup by removing the obsolete `legacyGameTick` function and
   dummy canvas context from `gameLoop.js`. The VR loop now contains only
   Three.js-based logic. All tests pass.
+
+## 2025-08-22
+- Continued FP-07 by removing window dimension and haptic references.
+  `powers.js` now uses screen constants and `gameHelpers.pulseControllers`.
+  `cores.js` updated accordingly. All tests pass.
