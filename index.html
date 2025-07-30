@@ -7,13 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- A‑Frame + helper libs -->
-  <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-super-hands-component@5.0.0/dist/aframe-super-hands-component.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- Runtime -->
-  <script type="module" src="script.js"></script>
   <script type="module" src="vrMain.js"></script>
   <script type="module" src="app.js"></script>
 
@@ -67,164 +63,7 @@
     </div>
   </div>
 
-  <!-- ⇣⇣ VR SCENE ⇣⇣ -->
-  <a-scene embedded background="color: #000">
-    <!-- Ambient fill so player never starts in pitch black -->
-    <a-entity light="type: ambient; color: #555"></a-entity>
-
-    <!-- Reusable mix‑ins & audio assets -->
-    <a-assets>
-      <a-mixin id="console-button"
-               geometry="primitive: cylinder; radius:0.13; height:0.05"
-               material="shader: standard; color:#0b1020; opacity:0.95; transparent:true;
-                        emissive:#00ffff; emissiveIntensity:0.8; metalness:0.3; roughness:0.5"
-               animation__press="property: position; startEvents: mousedown; dir: alternate; dur: 100; to: 0 -0.02 0"
-               animation__release="property: position; startEvents: mouseup; dir: alternate; dur: 100; to: 0 0 0"
-               animation__hover="property: material.emissiveIntensity; startEvents: mouseenter; dir: alternate; dur: 200; to: 1.6">
-      </a-mixin>
-
-      <a-mixin id="console-panel"
-               geometry="primitive: plane; width:1; height:0.6"
-               material="color:#141428; opacity:0.9; transparent:true; emissive:#00ffff; emissiveIntensity:0.25">
-      </a-mixin>
-
-      <!-- UI sounds -->
-      <audio id="uiHoverSound"  class="game-audio" src="assets/uiHoverSound.mp3"  preload="auto"></audio>
-      <audio id="uiClickSound"  class="game-audio" src="assets/uiClickSound.mp3"  preload="auto"></audio>
-      <audio id="uiModalOpen"   class="game-audio" src="assets/uiModalOpen.mp3"   preload="auto"></audio>
-      <audio id="uiModalClose"  class="game-audio" src="assets/uiModalClose.mp3"  preload="auto"></audio>
-      <audio id="bgMusic_01" class="game-audio" src="assets/bgMusic_01.mp3" loop preload="auto"></audio>
-      <audio id="bgMusic_02" class="game-audio" src="assets/bgMusic_02.mp3" loop preload="auto"></audio>
-      <audio id="bgMusic_03" class="game-audio" src="assets/bgMusic_03.mp3" loop preload="auto"></audio>
-      <audio id="bgMusic_04" class="game-audio" src="assets/bgMusic_04.mp3" loop preload="auto"></audio>
-      <audio id="bgMusic_05" class="game-audio" src="assets/bgMusic_05.mp3" loop preload="auto"></audio>
-    </a-assets>
-
-    <a-sky color="#000"></a-sky>
-
-    <!-- Player rig -->
-    <a-entity id="rig" position="0 0 0">
-      <a-camera id="camera" wasd-controls-enabled="false">
-        <!-- Circular vignette for comfort -->
-        <a-entity id="vignette"
-                  geometry="primitive: plane; width: 4; height: 4"
-                  position="0 0 -0.1"
-                  material="shader: flat;
-                            src: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABdElEQVR42u2XwY7DIAwF8+s/dDS1u1t2/wvc7e7+r8ggYJBAkmmd4pA24UlIUhTrBXB4B/D49A8gT0ny8g9wDfjyC3BOkvy8gvJgXwB8SdLrf2i/f/wO8JckX/8DfC/Jg33+f/w+vH8f+NeS3gP8U5KnEPgvyb8ADkvSU4i/J/mH4DAkPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8n+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8Lck/y94DMlD4C8k+f8Ahif5n8B+Se5E8h8+DvBrSe8B/j/Jkwh8S/JrwLskPROI8wA/keTXPCf5n8B+SZ5H8t8APg/kTyA/Se5E8h8+DvBrSe8B/j/J0wj8l+RvAKcl6anE35L8Q3AYkj4TiPMAfyLJr3lO8j+B/ZJ8j+S/AfweuPsL8LckT6P5n5L83wAnJfkLZf8B/Jt+AVfTC2vKxGmdAAAAAElFTkSuQmCC);
-                  transparent: true; opacity: 0"
-                  visible="false">
-        </a-entity>
-      </a-camera>
-
-      <!-- VR controllers -->
-      <a-entity id="leftHand"
-                laser-controls="hand: left"
-                raycaster="objects: .interactive"
-                super-hands></a-entity>
-
-      <a-entity id="rightHand"
-                laser-controls="hand: right"
-                raycaster="objects: .interactive"
-                super-hands></a-entity>
-    </a-entity>
-
-    <!-- Command deck (anchored in script each frame) -->
-    <a-entity id="commandDeck" position="0 1 0" world-stationary></a-entity>
-
-    <!-- Holographic panel canvas target -->
-    <a-plane id="holographicPanel" class="interactive"
-             width="3.2" height="2.4"
-             position="0 1.6 -2.5"
-             visible="false">
-      <a-entity mixin="console-button"
-                id="closeHolographicPanelBtn"
-                position="0 -1.35 0.02"
-                class="interactive">
-        <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-
-    <!-- 3‑D Boss info panel -->
-    <a-plane id="bossInfoPanel" class="interactive"
-             width="3" height="2"
-             position="0 2.0 -2.4"
-             visible="false">
-      <a-entity mixin="console-button"
-                id="closeBossInfoBtn3D"
-                position="0 -0.95 0.02"
-                class="interactive">
-        <a-text value="Close" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-text id="bossInfoPanelTitle" align="center" width="2.8" color="#eaf2ff"
-              position="0 0.7 0.02"></a-text>
-      <a-text id="bossInfoPanelContent" align="left" width="2.8" wrap-count="50"
-              color="#eaf2ff" position="0 0 0.02"></a-text>
-    </a-plane>
-
-
-
-    <!-- Game over panel -->
-    <a-plane id="gameOverPanel" class="interactive"
-             width="2.5" height="1.6"
-             position="0 1.8 -2.3"
-             visible="false">
-      <a-text value="TIMELINE COLLAPSED" align="center" width="2.2" color="#ff8080" position="0 0.4 0.02"></a-text>
-      <a-entity mixin="console-button" id="retryBtn"
-                position="0 0.1 0.02" class="interactive">
-        <a-text value="Restart Stage" align="center" width="1" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity mixin="console-button" id="gameOverAscBtn"
-                position="-0.8 -0.3 0.02" class="interactive">
-        <a-text value="Ascension Conduit" align="center" width="1.8" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity mixin="console-button" id="gameOverCoreBtn"
-                position="0 -0.3 0.02" class="interactive">
-        <a-text value="Aberration Cores" align="center" width="1.8" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-      <a-entity mixin="console-button" id="gameOverStageBtn"
-                position="0.8 -0.3 0.02" class="interactive">
-        <a-text value="Stage Select" align="center" width="1.5" color="#eaf2ff" position="0 0 0.06"></a-text>
-      </a-entity>
-    </a-plane>
-
-
-
-    <!-- Gameplay battleground -->
-    <a-sphere id="battleSphere" radius="24"
-              segments-height="60" segments-width="60"
-              material="color:#080c18; side: double; opacity:0.8; transparent:true"
-              class="interactive"></a-sphere>
-
-    <!-- Dynamic containers -->
-    <a-entity id="gameplayContainer">
-      <a-entity id="enemyContainer"></a-entity>
-      <a-entity id="projectileContainer"></a-entity>
-      <a-entity id="pickupContainer"></a-entity>
-      <a-entity id="effectContainer"></a-entity>
-      <a-entity id="telegraphContainer"></a-entity>
-
-    <!-- 3‑D crosshair at controller hit point -->
-    <a-entity id="crosshair" visible="false" look-at="#camera">
-      <a-ring radius-inner="0.04" radius-outer="0.06"
-               material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.9; side:double"></a-ring>
-      <a-plane width="0.08" height="0.005"
-               material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
-               position="0 0 0.001"></a-plane>
-      <a-plane width="0.005" height="0.08"
-               material="color:#00ffff; emissive:#00ffff; emissiveIntensity:0.8; side:double"
-               position="0 0 0.001"></a-plane>
-    </a-entity>
-
-      <!-- Player avatar marker -->
-      <a-entity id="nexusAvatar">
-        <a-sphere radius="0.3"
-                  material="color:#00ff00; emissive:#00ff00; emissiveIntensity:0.5"></a-sphere>
-        <a-text id="nexusLabel" value="💠" align="center" width="0.6"
-                color="#eaf2ff" position="0 0 0.35" look-at="#camera"></a-text>
-      </a-entity>
-    </a-entity>
-  </a-scene>
-  <!-- ⇡⇡ END VR SCENE ⇡⇡ -->
+  <div id="vrContainer"></div>
 
   <!-- Off‑screen legacy UI modals – captured to canvas with html2canvas -->
   <div class="vr-source">
