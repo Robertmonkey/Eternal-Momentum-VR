@@ -74,3 +74,6 @@
 
 ## 2025-08-16
 - Added Gravity Tyrant AI unit test validating gravitational pull effect (FP-05).
+
+## 2025-08-17
+- Continued FP-07 by replacing remaining references to `state.player.x` and `state.player.y` in `powers.js` with 3D-aware helpers. All tests pass.
