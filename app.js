@@ -36,8 +36,10 @@ function preloadAssets() {
         texLoader.load(src, () => {});
       }
     });
-  });
+});
 }
+
+export { preloadAssets };
 
 function showLoading() {
   if (loadingEl) loadingEl.style.display = 'flex';

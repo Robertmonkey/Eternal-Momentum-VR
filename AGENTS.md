@@ -98,6 +98,7 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 1.  **Execute Fidelity Patch 1.0 sequentially and with absolute adherence to the fidelity requirements.**
 2.  Continue removing legacy global dependencies and wiring UI interactions.
 3.  **Halt for user verification and playtest after all FP tasks are complete.**
+4.  **After completing each task, create a brief entry in `TASK_LOG.md` summarizing the work performed and marking the task as complete.** This log ensures future sessions know exactly which step was finished and what remains.
 
 ## Code Audit & Bug Report (2025-07-30)
 The current repository contains both the original 2D game (under `Eternal-Momentum-OLD GAME/`) and a partial VR rewrite. Key modules and their interactions are:
