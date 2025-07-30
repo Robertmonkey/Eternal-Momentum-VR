@@ -90,7 +90,12 @@
   pass.
 
 ## 2025-08-20
-- Continued FP-07 by eliminating the global `window.gameHelpers`. Introduced a
-  `gameHelpers` module and initialized it from `gameLoop.js`. Updated
-  `PlayerController.js`, `powers.js`, and `main.js` to import this helper object
-  directly. All tests pass.
+  - Continued FP-07 by eliminating the global `window.gameHelpers`. Introduced a
+    `gameHelpers` module and initialized it from `gameLoop.js`. Updated
+    `PlayerController.js`, `powers.js`, and `main.js` to import this helper object
+    directly. All tests pass.
+
+## 2025-08-21
+- Continued FP-06 cleanup by removing the obsolete `legacyGameTick` function and
+  dummy canvas context from `gameLoop.js`. The VR loop now contains only
+  Three.js-based logic. All tests pass.
