@@ -77,3 +77,9 @@
 
 ## 2025-08-17
 - Continued FP-07 by replacing remaining references to `state.player.x` and `state.player.y` in `powers.js` with 3D-aware helpers. All tests pass.
+
+## 2025-08-18
+- Continued FP-07 by refactoring cores.js to remove remaining 2D player
+  coordinate references. Player position is now read via sphere
+  coordinates using getPlayerCoords(). Added epochEnderRewind unit test
+  and updated package.json. All tests pass.

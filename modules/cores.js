@@ -16,6 +16,14 @@ import { bossData } from './bosses.js';
 import { showUnlockNotification, updateUI } from './ui.js';
 import { usePower } from './powers.js';
 
+const CANVAS_W = 2048;
+const CANVAS_H = 1024;
+
+function getPlayerCoords() {
+  const uv = utils.spherePosToUv(state.player.position.clone().normalize(), 1);
+  return { x: uv.u * CANVAS_W, y: uv.v * CANVAS_H };
+}
+
 /**
  * Returns true if the player currently has the specified core equipped or
  * temporarily granted through the Pantheon core.  This helper centralises
@@ -42,6 +50,7 @@ export function activateCorePower(mx, my, gameHelpers) {
     gameHelpers.play('talentError');
     return;
   }
+  const { x: playerX, y: playerY } = getPlayerCoords();
   let abilityTriggered = false;
   switch (coreId) {
     // Juggernaut: after a 1 second charge the player dashes at high speed.
@@ -67,7 +76,7 @@ export function activateCorePower(mx, my, gameHelpers) {
       setTimeout(() => {
         if (state.gameOver) return;
         const { x: cursorX, y: cursorY } = state.mousePosition;
-        const angle = Math.atan2(cursorY - state.player.y, cursorX - state.player.x);
+        const angle = Math.atan2(cursorY - playerY, cursorX - playerX);
         state.effects.push({
           type: 'juggernaut_player_charge',
           startTime: Date.now(),
@@ -91,8 +100,8 @@ export function activateCorePower(mx, my, gameHelpers) {
         const pAngle = (i / pillarCount) * 2 * Math.PI;
         state.effects.push({
           type: 'architect_pillar',
-          x: state.player.x + ringRadius * Math.cos(pAngle),
-          y: state.player.y + ringRadius * Math.sin(pAngle),
+          x: playerX + ringRadius * Math.cos(pAngle),
+          y: playerY + ringRadius * Math.sin(pAngle),
           r: 20,
           endTime: now + 10000,
         });
@@ -208,7 +217,10 @@ export function applyCoreTickEffects(gameHelpers) {
   // --- Miasma passive ---
   if (playerHasCore('miasma')) {
       const miasmaState = state.player.talent_states.core_states.miasma;
-      const moveDist = Math.hypot(state.mousePosition.x - state.player.x, state.mousePosition.y - state.player.y);
+      const moveDist = Math.hypot(
+        state.mousePosition.x - playerX,
+        state.mousePosition.y - playerY
+      );
       const isStationary = moveDist < state.player.r;
       
       if (isStationary) {
@@ -240,7 +252,7 @@ export function applyCoreTickEffects(gameHelpers) {
       let maxDist = 0;
       state.enemies.forEach(e => {
         if (!e.boss && !e.isFriendly) {
-          const d = Math.hypot(state.player.x - e.x, state.player.y - e.y);
+          const d = Math.hypot(playerX - e.x, playerY - e.y);
           if (d > maxDist) {
             maxDist = d;
             farthestEnemy = e;
@@ -258,7 +270,15 @@ export function applyCoreTickEffects(gameHelpers) {
         farthestEnemy.maxHP = 104;
         farthestEnemy.dx *= 1.5;
         farthestEnemy.dy *= 1.5;
-        state.effects.push({ type: 'transient_lightning', x1: state.player.x, y1: state.player.y, x2: farthestEnemy.x, y2: farthestEnemy.y, color: '#a29bfe', endTime: now + 200 });
+        state.effects.push({
+          type: 'transient_lightning',
+          x1: playerX,
+          y1: playerY,
+          x2: farthestEnemy.x,
+          y2: farthestEnemy.y,
+          color: '#a29bfe',
+          endTime: now + 200
+        });
       }
     }
   }
@@ -267,11 +287,23 @@ export function applyCoreTickEffects(gameHelpers) {
   if (playerHasCore('helix_weaver')) {
     const helixState = state.player.talent_states.core_states.helix_weaver;
     // Only spawn bolts when the player is stationary; movement cancels the effect.
-    const moveDist = Math.hypot(state.mousePosition.x - state.player.x, state.mousePosition.y - state.player.y);
+    const moveDist = Math.hypot(
+      state.mousePosition.x - playerX,
+      state.mousePosition.y - playerY
+    );
     if (moveDist < state.player.r) {
       if (now > (helixState.lastBolt || 0) + 1000) {
         helixState.lastBolt = now;
-        state.effects.push({ type: 'helix_bolt', x: state.player.x, y: state.player.y, r: 8, speed: 2, angle: Math.random() * 2 * Math.PI, lifeEnd: now + 10000, caster: state.player });
+        state.effects.push({
+          type: 'helix_bolt',
+          x: playerX,
+          y: playerY,
+          r: 8,
+          speed: 2,
+          angle: Math.random() * 2 * Math.PI,
+          lifeEnd: now + 10000,
+          caster: state.player
+        });
         play('weaverCast');
       }
     }
@@ -284,7 +316,14 @@ export function applyCoreTickEffects(gameHelpers) {
       gravityState.lastPulseTime = now;
       // Spawn an expanding ring that repels enemies and pulls pickups.  The
       // rendering logic in gameLoop.js handles motion and drawing.
-      state.effects.push({ type: 'player_pull_pulse', x: state.player.x, y: state.player.y, maxRadius: 600, startTime: now, duration: 500 });
+      state.effects.push({
+        type: 'player_pull_pulse',
+        x: playerX,
+        y: playerY,
+        maxRadius: 600,
+        startTime: now,
+        duration: 500
+      });
       play('gravitySound');
     }
   }
@@ -316,7 +355,7 @@ export function applyCoreTickEffects(gameHelpers) {
     // multiple frames in quick succession do not push too many entries.
     if (!epochState.lastSnapshotTime || now > epochState.lastSnapshotTime + 200) {
       epochState.lastSnapshotTime = now;
-      epochState.history.unshift({ x: state.player.x, y: state.player.y, health: state.player.health });
+      epochState.history.unshift({ x: playerX, y: playerY, health: state.player.health });
       if (epochState.history.length > 30) epochState.history.pop();
     }
   }
@@ -409,7 +448,19 @@ export function handleCoreOnPlayerDamage(damage, enemy, gameHelpers) {
         state.player.statusEffects = state.player.statusEffects.filter(e => e.name !== 'Conduit Charge');
       }
       gameHelpers.play('conduitShatter');
-      state.effects.push({ type: 'shockwave', caster: state.player, x: state.player.x, y: state.player.y, radius: 0, maxRadius: 200, speed: 1000, startTime: now, hitEnemies: new Set(), damage: 0, color: 'rgba(44, 62, 80, 0.7)' });
+      state.effects.push({
+        type: 'shockwave',
+        caster: state.player,
+        x: playerX,
+        y: playerY,
+        radius: 0,
+        maxRadius: 200,
+        speed: 1000,
+        startTime: now,
+        hitEnemies: new Set(),
+        damage: 0,
+        color: 'rgba(44, 62, 80, 0.7)'
+      });
     }
   }
   if (damageTaken > 0) {
@@ -425,8 +476,8 @@ export function handleCoreOnPlayerDamage(damage, enemy, gameHelpers) {
         }
       }
       const decoy = {
-        x: state.player.x,
-        y: state.player.y,
+        x: playerX,
+        y: playerY,
         r: 20,
         hp: 1,
         fromCore: true,
@@ -439,7 +490,7 @@ export function handleCoreOnPlayerDamage(damage, enemy, gameHelpers) {
       };
       state.decoys.push(decoy);
       gameHelpers.play('mirrorSwap');
-      utils.spawnParticles(state.particles, state.player.x, state.player.y, '#ff00ff', 40, 4, 30, 5);
+      utils.spawnParticles(state.particles, playerX, playerY, '#ff00ff', 40, 4, 30, 5);
     }
   }
   return damageTaken;
@@ -499,7 +550,7 @@ export function handleCoreOnDamageDealt(target, gameHelpers) {
       isSeeking: true,
       customApply: () => {
         state.player.health = Math.min(state.player.maxHealth, state.player.health + (state.player.maxHealth * 0.20));
-        utils.spawnParticles(state.particles, state.player.x, state.player.y, '#800020', 20, 3, 30, 5);
+        utils.spawnParticles(state.particles, playerX, playerY, '#800020', 20, 3, 30, 5);
         gameHelpers?.play?.('vampireHeal');
       },
     });
@@ -522,7 +573,8 @@ export function handleCoreOnDamageDealt(target, gameHelpers) {
 export function handleCoreOnShieldBreak(gameHelpers) {
   if (playerHasCore('emp')) {
     state.effects = state.effects.filter(ef => ef.type !== 'nova_bullet' && ef.type !== 'helix_bolt');
-    utils.spawnParticles(state.particles, state.player.x, state.player.y, '#3498db', 50, 4, 30, 5);
+    const { x: playerX, y: playerY } = getPlayerCoords();
+    utils.spawnParticles(state.particles, playerX, playerY, '#3498db', 50, 4, 30, 5);
     gameHelpers?.play?.('empDischarge');
   }
 }
@@ -544,12 +596,14 @@ export function handleCoreOnFatalDamage(enemy, gameHelpers) {
       // unshift snapshots in applyCoreTickEffects.
       const rewindState = history[0];
       if (rewindState) {
-        state.player.x = rewindState.x;
-        state.player.y = rewindState.y;
+        state.player.position.copy(
+          utils.uvToSpherePos(rewindState.x / 2048, rewindState.y / 1024, 1)
+        );
         state.player.health = rewindState.health;
         epochState.cooldownUntil = now + 120000; // 120 second cooldown
+        const { x: playerX, y: playerY } = getPlayerCoords();
         gameHelpers.play('timeRewind');
-        utils.spawnParticles(state.particles, state.player.x, state.player.y, '#bdc3c7', 80, 6, 40, 5);
+        utils.spawnParticles(state.particles, playerX, playerY, '#bdc3c7', 80, 6, 40, 5);
         return true;
       }
     }
@@ -579,12 +633,13 @@ export function handleCoreOnPickup(gameHelpers) {
  */
 export function handleCoreOnEmptySlot(mx, my, gameHelpers) {
   const now = Date.now();
+  const { x: playerX, y: playerY } = getPlayerCoords();
   // Syphon: fire a cone vacuum on empty slot if off cooldown.
   if (playerHasCore('syphon')) {
     const syphonState = state.player.talent_states.core_states.syphon;
     if (now < (syphonState.cooldownUntil || 0)) return false;
     syphonState.cooldownUntil = now + 1000; // 1 second cooldown
-    const angle = Math.atan2(my - state.player.y, mx - state.player.x);
+    const angle = Math.atan2(my - playerY, mx - playerX);
     state.effects.push({
       type: 'syphon_cone',
       startTime: now,
