@@ -302,7 +302,11 @@ export async function captureElementToTexture(el){
 
   if(renderCanvas) renderCanvas.style.display = prevDisplay || '';
   el.classList.remove('is-rendering');
+  if(!canvas || canvas.width === 0 || canvas.height === 0) return null;
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = false;
   return tex;
 }

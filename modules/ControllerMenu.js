@@ -22,7 +22,7 @@ function createTextSprite(text, size = 48, color = '#eaf2ff') {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   ctx.font = `${size}px sans-serif`;
-  const width = Math.ceil(ctx.measureText(text).width);
+  const width = Math.ceil(ctx.measureText(text).width) || 1;
   canvas.width = width;
   canvas.height = size * 1.2;
   ctx.font = `${size}px sans-serif`;
@@ -30,6 +30,9 @@ function createTextSprite(text, size = 48, color = '#eaf2ff') {
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 0, canvas.height / 2);
   const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
   const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
   const sprite = new THREE.Sprite(material);
   const scale = 0.001;
