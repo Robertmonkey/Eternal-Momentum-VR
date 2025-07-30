@@ -1,5 +1,6 @@
 import { start as startVR } from './vrMain.js';
 import * as THREE from './vendor/three.module.js';
+import { getRenderer } from './modules/scene.js';
 
 const loadingEl = document.getElementById('loadingScreen');
 const homeEl = document.getElementById('homeScreen');
@@ -53,7 +54,7 @@ function showHome() {
   if (eraseBtn) eraseBtn.style.display = saveExists ? 'block' : 'none';
 }
 
-function startGame(resetSave = false) {
+async function startGame(resetSave = false) {
   if (resetSave) localStorage.removeItem('eternalMomentumSave');
   if (homeEl) {
     homeEl.classList.remove('visible');
@@ -62,6 +63,16 @@ function startGame(resetSave = false) {
     }, { once: true });
   }
   startVR();
+
+  if (navigator.xr) {
+    try {
+      const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
+      const session = await navigator.xr.requestSession('immersive-vr', sessionInit);
+      getRenderer().xr.setSession(session);
+    } catch (err) {
+      console.warn('Unable to start WebXR session', err);
+    }
+  }
 }
 
 window.addEventListener('load', async () => {
