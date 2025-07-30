@@ -15,3 +15,9 @@
   in `vrGameLoop.js` and updating them in `projectilePhysics3d.js`. Added cleanup
   logic and ensured all tests pass.
 
+## 2025-08-03
+- Completed FP-06 step 1 by removing the legacy `canvas` object from
+  `gameLoop.js`. Replaced all references with `SCREEN_WIDTH` and
+  `SCREEN_HEIGHT` constants to decouple the VR loop from DOM canvas
+  dimensions. All tests continue to pass.
+

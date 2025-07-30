@@ -14,7 +14,8 @@ import { uvToSpherePos } from './utils.js';
 
 const missingStageWarned = new Set();
 
-const canvas = { width: 2048, height: 1024 };
+const SCREEN_WIDTH = 2048;
+const SCREEN_HEIGHT = 1024;
 const ctx = { save(){}, restore(){}, clearRect(){}, beginPath(){}, arc(){}, fill(){}, stroke(){}, fillRect(){}, moveTo(){}, lineTo(){}, closePath(){}, strokeStyle: '', lineWidth: 1, globalAlpha: 1, }; // dummy context
 
 // --- Helper Function ---
@@ -153,10 +154,10 @@ function getSafeSpawnLocation() {
     let x, y;
     const side = Math.floor(Math.random() * 4);
     switch (side) {
-        case 0: x = Math.random() * canvas.width; y = -edgeMargin; break;
-        case 1: x = Math.random() * canvas.width; y = canvas.height + edgeMargin; break;
-        case 2: x = -edgeMargin; y = Math.random() * canvas.height; break;
-        case 3: x = canvas.width + edgeMargin; y = Math.random() * canvas.height; break;
+        case 0: x = Math.random() * SCREEN_WIDTH; y = -edgeMargin; break;
+        case 1: x = Math.random() * SCREEN_WIDTH; y = SCREEN_HEIGHT + edgeMargin; break;
+        case 2: x = -edgeMargin; y = Math.random() * SCREEN_HEIGHT; break;
+        case 3: x = SCREEN_WIDTH + edgeMargin; y = Math.random() * SCREEN_HEIGHT; break;
     }
     return { x, y };
 }
@@ -219,8 +220,8 @@ export function spawnBossesForStage(stageNum) {
         });
         if (playerHasCore('centurion')) {
             const corners = [
-                {x: 100, y: 100}, {x: canvas.width - 100, y: 100},
-                {x: 100, y: canvas.height - 100}, {x: canvas.width - 100, y: canvas.height - 100}
+                {x: 100, y: 100}, {x: SCREEN_WIDTH - 100, y: 100},
+                {x: 100, y: SCREEN_HEIGHT - 100}, {x: SCREEN_WIDTH - 100, y: SCREEN_HEIGHT - 100}
             ];
             corners.forEach(pos => {
                 state.effects.push({ type: 'containment_pylon', x: pos.x, y: pos.y, r: 25, endTime: Infinity });
@@ -237,8 +238,8 @@ export function spawnBossesForStage(stageNum) {
 
 export function spawnEnemy(isBoss = false, bossId = null, location = null) {
     const e = {
-        x: location ? location.x : Math.random() * canvas.width,
-        y: location ? location.y : Math.random() * canvas.height,
+        x: location ? location.x : Math.random() * SCREEN_WIDTH,
+        y: location ? location.y : Math.random() * SCREEN_HEIGHT,
         dx: (Math.random() - 0.5) * 0.75,
         dy: (Math.random() - 0.5) * 0.75,
         r: isBoss ? 50 : 15,
@@ -262,7 +263,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         e.maxHP = Math.round(finalHp);
         e.hp = e.maxHP;
         state.enemies.push(e);
-        if (bd.init) bd.init(e, state, spawnEnemy, canvas);
+        if (bd.init) bd.init(e, state, spawnEnemy, { width: SCREEN_WIDTH, height: SCREEN_HEIGHT });
         if (!state.bossActive) {
             const stageInfo = STAGE_CONFIG.find(s => s.stage === state.currentStage);
             let bannerName = state.arenaMode ? "Forged Timeline" : (stageInfo?.displayName || e.name || "Custom Encounter");
@@ -291,8 +292,8 @@ export function spawnPickup() {
     const anomalyRank = state.player.purchasedTalents.get('temporal-anomaly');
     if (anomalyRank) life *= (1 + [0.25, 0.5][anomalyRank - 1]);
     state.pickups.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * SCREEN_WIDTH,
+        y: Math.random() * SCREEN_HEIGHT,
         r: 12, type, vx: 0, vy: 0,
         lifeEnd: Date.now() + life
     });
@@ -333,8 +334,8 @@ function legacyGameTick(mx, my) {
                 if (playerHasCore('shaper_of_fate') && !state.player.talent_states.core_states.shaper_of_fate.isDisabled) {
                      for(let i=0; i < 3; i++) {
                          state.pickups.push({
-                            x: Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
-                            y: Math.random() * canvas.height * 0.8 + canvas.height * 0.1,
+                            x: Math.random() * SCREEN_WIDTH * 0.8 + SCREEN_WIDTH * 0.1,
+                            y: Math.random() * SCREEN_HEIGHT * 0.8 + SCREEN_HEIGHT * 0.1,
                             r: 12, type: 'rune_of_fate', lifeEnd: now + 999999
                          });
                     }
@@ -365,7 +366,7 @@ function legacyGameTick(mx, my) {
     }
 
     ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     utils.applyScreenShake(ctx);
     
     let finalMx = mx;
@@ -418,8 +419,8 @@ function legacyGameTick(mx, my) {
         }
     }
     
-    state.player.x = Math.max(state.player.r, Math.min(canvas.width - state.player.r, state.player.x));
-    state.player.y = Math.max(state.player.r, Math.min(canvas.height - state.player.r, state.player.y));
+    state.player.x = Math.max(state.player.r, Math.min(SCREEN_WIDTH - state.player.r, state.player.x));
+    state.player.y = Math.max(state.player.r, Math.min(SCREEN_HEIGHT - state.player.r, state.player.y));
 
     if (playerHasCore('epoch_ender') && now > (state.player.talent_states.core_states.epoch_ender.cooldownUntil || 0)) {
         const history = state.player.talent_states.core_states.epoch_ender.history;
@@ -476,7 +477,7 @@ function legacyGameTick(mx, my) {
     if (state.gravityActive && now > state.gravityEnd) {
         state.gravityActive = false;
         if (state.player.purchasedTalents.has('temporal-collapse')) {
-            state.effects.push({ type: 'slow_zone', x: canvas.width / 2, y: canvas.height / 2, r: 250, endTime: Date.now() + 4000 });
+            state.effects.push({ type: 'slow_zone', x: SCREEN_WIDTH / 2, y: SCREEN_HEIGHT / 2, r: 250, endTime: Date.now() + 4000 });
         }
     }
 
@@ -655,11 +656,11 @@ function legacyGameTick(mx, my) {
         } else if (e.knockbackUntil && e.knockbackUntil > now) {
             e.x += e.knockbackDx; e.y += e.knockbackDy;
             e.knockbackDx *= 0.98; e.knockbackDy *= 0.98;
-            if (e.x < e.r || e.x > canvas.width - e.r) {
-                e.x = Math.max(e.r, Math.min(canvas.width - e.r, e.x)); e.knockbackDx *= -0.8;
+            if (e.x < e.r || e.x > SCREEN_WIDTH - e.r) {
+                e.x = Math.max(e.r, Math.min(SCREEN_WIDTH - e.r, e.x)); e.knockbackDx *= -0.8;
             }
-            if (e.y < e.r || e.y > canvas.height - e.r) {
-                e.y = Math.max(e.r, Math.min(canvas.height - e.r, e.y)); e.knockbackDy *= -0.8;
+            if (e.y < e.r || e.y > SCREEN_HEIGHT - e.r) {
+                e.y = Math.max(e.r, Math.min(SCREEN_HEIGHT - e.r, e.y)); e.knockbackDy *= -0.8;
             }
         } else if(!e.frozen && !e.hasCustomMovement){ 
              let tgt = null;
@@ -686,7 +687,7 @@ function legacyGameTick(mx, my) {
             let enemySpeedMultiplier = 1;
             let isInSlowZone = false;
             if (state.gravityActive && now < state.gravityEnd && !e.boss) {
-                e.x += ((canvas.width / 2) - e.x) * 0.05; e.y += ((canvas.height / 2) - e.y) * 0.05;
+                e.x += ((SCREEN_WIDTH / 2) - e.x) * 0.05; e.y += ((SCREEN_HEIGHT / 2) - e.y) * 0.05;
             }
             allSlowZones.forEach(zone => {
                 if(Math.hypot(e.x - zone.x, e.y - zone.y) < zone.r) {
@@ -740,8 +741,8 @@ function legacyGameTick(mx, my) {
                   e.x += vx; e.y += vy; 
                 }
                 e.x += e.dx * enemySpeedMultiplier; e.y += e.dy * enemySpeedMultiplier;
-                if(e.x<e.r || e.x>canvas.width-e.r) e.dx*=-1; 
-                if(e.y<e.r || e.y>canvas.height-e.r) e.dy*=-1;
+                if(e.x<e.r || e.x>SCREEN_WIDTH-e.r) e.dx*=-1; 
+                if(e.y<e.r || e.y>SCREEN_HEIGHT-e.r) e.dy*=-1;
             }
         }
         
@@ -1030,8 +1031,8 @@ function legacyGameTick(mx, my) {
             const hasPayload = state.player.purchasedTalents.has('unstable-payload');
             if(hasPayload) { const bouncesSoFar = effect.initialBounces - effect.bounces; effect.r = 8 + bouncesSoFar * 2; effect.damage = 10 + bouncesSoFar * 5; }
             utils.drawCircle(ctx, effect.x, effect.y, effect.r, effect.color || '#f1c40f'); 
-            if(effect.x < effect.r || effect.x > canvas.width - effect.r) { effect.dx *= -1; effect.bounces--; } 
-            if(effect.y < effect.r || effect.y > canvas.height - effect.r) { effect.dy *= -1; effect.bounces--; } 
+            if(effect.x < effect.r || effect.x > SCREEN_WIDTH - effect.r) { effect.dx *= -1; effect.bounces--; } 
+            if(effect.y < effect.r || effect.y > SCREEN_HEIGHT - effect.r) { effect.dy *= -1; effect.bounces--; } 
             if (effect.caster === state.player || effect.caster === 'reflected') {
                 state.enemies.forEach(e => { if (!e.isFriendly && !effect.hitEnemies.has(e) && Math.hypot(e.x - effect.x, e.y - effect.y) < e.r + effect.r) { let damage = ((state.player.berserkUntil > now) ? effect.damage * 2 : effect.damage) * dynamicDamageMultiplier; e.hp -= damage; Cores.handleCoreOnDamageDealt(e); effect.bounces--; const angle = Math.atan2(e.y - effect.y, e.x - effect.x); effect.dx = -Math.cos(angle) * 10; effect.dy = -Math.sin(angle) * 10; effect.hitEnemies.add(e); setTimeout(()=>effect.hitEnemies.delete(e), 200); } }); 
             }
@@ -1053,7 +1054,7 @@ function legacyGameTick(mx, my) {
         }
         else if (effect.type === 'nova_bullet') { 
             utils.drawCircle(ctx, effect.x, effect.y, effect.r, effect.color || '#fff'); 
-            if(effect.x < 0 || effect.x > canvas.width || effect.y < 0 || effect.y > canvas.height) { state.effects.splice(i, 1); continue; }
+            if(effect.x < 0 || effect.x > SCREEN_WIDTH || effect.y < 0 || effect.y > SCREEN_HEIGHT) { state.effects.splice(i, 1); continue; }
             if (effect.caster === state.player || effect.caster === 'reflected') {
                 state.enemies.forEach(e => { if (e !== effect.caster && !e.isFriendly && Math.hypot(e.x - effect.x, e.y - effect.y) < e.r + effect.r) { let damage = ((state.player.berserkUntil > now) ? 6 : 3) * state.player.talent_modifiers.damage_multiplier * dynamicDamageMultiplier; e.hp -= damage; Cores.handleCoreOnDamageDealt(e); state.effects.splice(i, 1); } }); 
             } else {
@@ -1204,13 +1205,13 @@ function legacyGameTick(mx, my) {
             if (progress < 0.75) {
                 const pulse = Math.abs(Math.sin(progress * Math.PI * 4));
                 ctx.fillStyle = `rgba(255, 0, 0, ${pulse * 0.1})`;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
                 state.enemies.filter(e => e.boss).forEach(e => {
                     utils.drawShadowCone(ctx, state.player.x, state.player.y, e, 'rgba(0,0,0,0.1)');
                 });
             } else {
                 ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
                 ctx.save();
                 ctx.globalCompositeOperation = 'destination-out';
                 state.enemies.filter(e => e.boss).forEach(e => {
@@ -1297,7 +1298,7 @@ function legacyGameTick(mx, my) {
             
             ctx.save();
             ctx.fillStyle = `rgba(214, 48, 49, ${alpha * 0.7})`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
             
             const distToPillar = Math.hypot(pillar.x - source.x, pillar.y - source.y);
             if (distToPillar > pillar.r) {
@@ -1312,7 +1313,7 @@ function legacyGameTick(mx, my) {
                 const t2x = source.x + distToTangentPoint * Math.cos(angle2);
                 const t2y = source.y + distToTangentPoint * Math.sin(angle2);
 
-                const maxDist = Math.hypot(canvas.width, canvas.height) * 2;
+                const maxDist = Math.hypot(SCREEN_WIDTH, SCREEN_HEIGHT) * 2;
                 const p1x = t1x + maxDist * Math.cos(angle1);
                 const p1y = t1y + maxDist * Math.sin(angle1);
                 const p2x = t2x + maxDist * Math.cos(angle2);
@@ -1384,7 +1385,7 @@ function legacyGameTick(mx, my) {
                 const progress = Math.min(1, elapsed / 5000);
                 ctx.globalAlpha = 0.25 * progress;
                 ctx.fillStyle = '#6ab04c';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
                 ctx.globalAlpha = 1.0;
                 const delta = 30 / 60;
                 state.player.health = Math.min(state.player.maxHealth, state.player.health + delta);
@@ -1394,7 +1395,7 @@ function legacyGameTick(mx, my) {
             } else {
                 ctx.globalAlpha = 0.25;
                 ctx.fillStyle = '#6ab04c';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
                 ctx.globalAlpha = 1.0;
                 if (!playerHasCore('miasma') && !state.player.shield && !isImmune) {
                     state.player.health -= 0.25;
@@ -1457,7 +1458,7 @@ function legacyGameTick(mx, my) {
             const { source, endTime } = effect;
             const remainingTime = endTime - now;
             const coneAngle = effect.coneAngle || Math.PI / 4; 
-            const coneLength = canvas.height * 1.5;
+            const coneLength = SCREEN_HEIGHT * 1.5;
 
             if (remainingTime > 0) {
                 if (source.boss) { 
@@ -1498,7 +1499,7 @@ function legacyGameTick(mx, my) {
                         const dx = state.player.x - p.x;
                         const dy = state.player.y - p.y;
                         const dist = Math.hypot(dx, dy);
-                        if (dist < canvas.height * 0.4) {
+                        if (dist < SCREEN_HEIGHT * 0.4) {
                             p.vx += (dx / dist) * 2.5;
                             p.vy += (dy / dist) * 2.5;
                         }
@@ -1639,8 +1640,8 @@ export function gameTick() {
   const arena = getArena();
   if (!arena) return true;
   const radius = arena.geometry.parameters.radius;
-  const playerPos = uvToSpherePos(state.player.x / canvas.width, state.player.y / canvas.height, radius);
-  updateEnemies3d(playerPos, radius, canvas.width, canvas.height);
-  updateProjectiles3d(radius, canvas.width, canvas.height);
+  const playerPos = uvToSpherePos(state.player.x / SCREEN_WIDTH, state.player.y / SCREEN_HEIGHT, radius);
+  updateEnemies3d(playerPos, radius, SCREEN_WIDTH, SCREEN_HEIGHT);
+  updateProjectiles3d(radius, SCREEN_WIDTH, SCREEN_HEIGHT);
   return true;
 }
