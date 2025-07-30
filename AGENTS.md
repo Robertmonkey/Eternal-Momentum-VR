@@ -34,7 +34,34 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 | :--- | :--- | :--- |
 | **B01** | Splitter Sentinel | **Needs Rework** |
 | **B02** | Reflector Warden | **Needs Rework** |
-| ... | *(all 30 bosses)* | **Needs Rework** |
+| **B3** | Vampire Veil | **Needs Rework** |
+| **B4** | Gravity Tyrant | **Needs Rework** |
+| **B5** | Swarm Link | **Needs Rework** |
+| **B6** | Mirror Mirage | **Needs Rework** |
+| **B7** | EMP Overload | **Needs Rework** |
+| **B8** | The Architect | **Needs Rework** |
+| **B9** | Aethel & Umbra | **Needs Rework** |
+| **B10**| Looping Eye | **Needs Rework** |
+| **B11**| The Juggernaut | **Needs Rework** |
+| **B12**| The Puppeteer | **Needs Rework** |
+| **B13**| The Glitch | **Needs Rework** |
+| **B14**| Sentinel Pair | **Needs Rework** |
+| **B15**| The Basilisk | **Needs Rework** |
+| **B16**| The Annihilator | **Needs Rework** |
+| **B17**| The Parasite | **Needs Rework** |
+| **B18**| Quantum Shadow | **Needs Rework** |
+| **B19**| Time Eater | **Needs Rework** |
+| **B20**| The Singularity | **Needs Rework** |
+| **B21**| The Miasma | **Needs Rework** |
+| **B22**| The Temporal Paradox| **Needs Rework** |
+| **B23**| The Syphon | **Needs Rework** |
+| **B24**| The Centurion | **Needs Rework** |
+| **B25**| The Fractal Horror | **Needs Rework** |
+| **B26**| The Obelisk | **Needs Rework** |
+| **B27**| The Helix Weaver | **Needs Rework** |
+| **B28**| The Epoch-Ender | **Needs Rework** |
+| **B29**| The Shaper of Fate | **Needs Rework** |
+| **B30**| The Pantheon | **Needs Rework** |
 
 ---
 
