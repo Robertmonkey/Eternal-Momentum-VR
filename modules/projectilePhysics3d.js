@@ -16,7 +16,9 @@ export function setProjectileGroup(group){
   projectileGroup = group;
 }
 
-const dataMap = new WeakMap();
+// Use a standard Map so we can iterate over stored data when cleaning up.
+// WeakMap would prevent iteration and caused runtime errors.
+const dataMap = new Map();
 const projectileTypes = new Set([
   'nova_bullet',
   'ricochet_projectile',

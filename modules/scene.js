@@ -14,7 +14,12 @@ export function initScene(container = document.body) {
     1000
   );
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  // Enable preserveDrawingBuffer so html2canvas can capture the WebGL canvas
+  // without throwing a warning.
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true
+  });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
