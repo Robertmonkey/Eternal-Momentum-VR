@@ -88,3 +88,9 @@
 - FP-04 cleanup: ModalManager now imports `holoMaterial` from UIManager
   instead of defining a duplicate function. All unit tests continue to
   pass.
+
+## 2025-08-20
+- Continued FP-07 by eliminating the global `window.gameHelpers`. Introduced a
+  `gameHelpers` module and initialized it from `gameLoop.js`. Updated
+  `PlayerController.js`, `powers.js`, and `main.js` to import this helper object
+  directly. All tests pass.

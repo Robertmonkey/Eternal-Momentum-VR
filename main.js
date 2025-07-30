@@ -4,6 +4,7 @@ import { bossData } from './modules/bosses.js';
 import { AudioManager } from './modules/audio.js';
 import { updateUI, populateLevelSelect, showCustomConfirm, populateOrreryMenu, populateAberrationCoreMenu, showUnlockNotification } from './modules/ui.js';
 import { gameTick, spawnBossesForStage, addStatusEffect, addEssence } from './modules/gameLoop.js';
+import { gameHelpers } from './modules/gameHelpers.js';
 import { usePower } from './modules/powers.js';
 import * as utils from './modules/utils.js';
 import { renderAscensionGrid, applyAllTalentEffects } from './modules/ascension.js';
@@ -307,7 +308,7 @@ window.addEventListener('load', () => {
                 if (e.button === 2) state.RMB_down = true;
 
                 if (state.LMB_down && state.RMB_down) {
-                    Cores.activateCorePower(mx, my, window.gameHelpers);
+                    Cores.activateCorePower(mx, my, gameHelpers);
                     coreActivationTimeout = setTimeout(() => {
                         coreActivationTimeout = null;
                     }, 100);

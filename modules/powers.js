@@ -3,6 +3,7 @@ import { state } from './state.js';
 import * as utils from './utils.js';
 import * as Cores from './cores.js';
 import { spherePosToUv } from './utils.js';
+import { gameHelpers } from './gameHelpers.js';
 
 // Helper function to check for core presence (equipped or via Pantheon)
 function playerHasCore(coreId) {
@@ -50,7 +51,7 @@ export const powers={
   },
   heal:{emoji:"❤️",desc:"+30 HP",apply:()=>{
       state.player.health=Math.min(state.player.maxHealth,state.player.health+30);
-      window.gameHelpers.play('pickupSound');
+      gameHelpers.play('pickupSound');
   }},
   shockwave:{emoji:"💥",desc:"Expanding wave damages enemies.",apply:(utils, game, mx, my, options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options;
@@ -332,7 +333,7 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   const power = powers[powerKey];
   if (!power) return;
   
-  const { play, addStatusEffect } = window.gameHelpers;
+  const { play, addStatusEffect } = gameHelpers;
   const queueType = offensivePowers.includes(powerKey) ? 'offensive' : 'defensive';
   const slotId = queueType === 'offensive' ? 'slot-off-0' : 'slot-def-0';
   const slotEl = document.getElementById(slotId);
@@ -367,7 +368,7 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   const mx = state.mousePosition.x;
   const my = state.mousePosition.y;
   
-  const applyArgs = [utils, window.gameHelpers, mx, my, options];
+  const applyArgs = [utils, gameHelpers, mx, my, options];
   
   if (power.type === 'offensive' && playerHasCore('temporal_paradox')) {
       const pos=getCanvasPos(state.player);
@@ -383,7 +384,7 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   }
 
   if (power.type === 'defensive') {
-      Cores.handleCoreOnDefensivePower(powerKey, mx, my, window.gameHelpers);
+      Cores.handleCoreOnDefensivePower(powerKey, mx, my, gameHelpers);
   }
 
   let stackedEffect = state.stacked;

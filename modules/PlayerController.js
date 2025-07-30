@@ -8,6 +8,7 @@ import { activateCorePower } from './cores.js';
 import { getUIRoot } from './UIManager.js';
 import { getModalObjects } from './ModalManager.js';
 import { getControllerMenu } from './ControllerMenu.js';
+import { gameHelpers } from './gameHelpers.js';
 
 let avatar;
 let targetPoint = new THREE.Vector3();
@@ -80,7 +81,7 @@ export function initPlayerController() {
 
 function handleInput() {
   if (triggerDown && gripDown) {
-    activateCorePower(state.mousePosition.x, state.mousePosition.y, window.gameHelpers);
+    activateCorePower(state.mousePosition.x, state.mousePosition.y, gameHelpers);
     return;
   }
 
