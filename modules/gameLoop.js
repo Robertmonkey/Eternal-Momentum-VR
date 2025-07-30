@@ -5,6 +5,8 @@ import { powers, offensivePowers, usePower } from './powers.js';
 import { bossData } from './bosses.js';
 import { updateUI, showBossBanner, showUnlockNotification } from './ui.js';
 import * as utils from './utils.js';
+import { uvToSpherePos } from './utils.js';
+import * as THREE from '../vendor/three.module.js';
 import { AudioManager } from './audio.js';
 import * as Cores from './cores.js';
 import { getArena } from './scene.js';
@@ -242,11 +244,11 @@ export function spawnBossesForStage(stageNum) {
 }
 
 export function spawnEnemy(isBoss = false, bossId = null, location = null) {
+    const u = (location ? location.x : Math.random() * SCREEN_WIDTH) / SCREEN_WIDTH;
+    const v = (location ? location.y : Math.random() * SCREEN_HEIGHT) / SCREEN_HEIGHT;
+    const pos = uvToSpherePos(u, v, 1);
     const e = {
-        x: location ? location.x : Math.random() * SCREEN_WIDTH,
-        y: location ? location.y : Math.random() * SCREEN_HEIGHT,
-        dx: (Math.random() - 0.5) * 0.75,
-        dy: (Math.random() - 0.5) * 0.75,
+        position: pos.clone(),
         r: isBoss ? 50 : 15,
         hp: isBoss ? 200 : 1,
         maxHP: isBoss ? 200 : 1,

@@ -378,7 +378,8 @@ export function handleCoreOnEnemyDeath(enemy, gameHelpers) {
       splitterState.cooldownUntil = now + 500;
       for (let i = 0; i < 3; i++) {
         const angle = Math.random() * Math.PI * 2;
-        state.effects.push({ type: 'player_fragment', x: enemy.x, y: enemy.y, dx: Math.cos(angle) * 4, dy: Math.sin(angle) * 4, r: 10, speed: 5, damage: 8 * state.player.talent_modifiers.damage_multiplier, life: 4000, startTime: now, targetIndex: i });
+        const { u, v } = utils.spherePosToUv(enemy.position, 1);
+        state.effects.push({ type: 'player_fragment', x: u * CANVAS_W, y: v * CANVAS_H, dx: Math.cos(angle) * 4, dy: Math.sin(angle) * 4, r: 10, speed: 5, damage: 8 * state.player.talent_modifiers.damage_multiplier, life: 4000, startTime: now, targetIndex: i });
       }
       gameHelpers.play('splitterOnDeath');
     }
@@ -389,8 +390,10 @@ export function handleCoreOnEnemyDeath(enemy, gameHelpers) {
     swarmState.enemiesForNextSegment = (swarmState.enemiesForNextSegment || 0) + 1;
     if (swarmState.enemiesForNextSegment >= 2 && swarmState.tail.length < 50) {
       swarmState.enemiesForNextSegment = 0;
-      const lastSegment = swarmState.tail.length > 0 ? swarmState.tail[swarmState.tail.length - 1] : state.player;
-      swarmState.tail.push({ x: lastSegment.x, y: lastSegment.y });
+      const lastSeg = swarmState.tail.length > 0 ? swarmState.tail[swarmState.tail.length - 1] : state.player;
+      const segPos = lastSeg.position ? lastSeg.position : uvToSpherePos(lastSeg.x / CANVAS_W, lastSeg.y / CANVAS_H, 1);
+      const { u: su, v: sv } = utils.spherePosToUv(segPos, 1);
+      swarmState.tail.push({ x: su * CANVAS_W, y: sv * CANVAS_H });
     }
   }
   // Fractal Horror: every ten kills split into three friendly bits.
@@ -400,8 +403,9 @@ export function handleCoreOnEnemyDeath(enemy, gameHelpers) {
     if (fractalState.killCount >= 10) {
       fractalState.killCount = 0;
       gameHelpers.play('fractalSplit');
+      const { u: ex, v: ey } = utils.spherePosToUv(enemy.position, 1);
       for (let k = 0; k < 3; k++) {
-        const bit = spawnEnemy(false, null, { x: enemy.x, y: enemy.y });
+        const bit = spawnEnemy(false, null, { x: ex * CANVAS_W, y: ey * CANVAS_H });
         if (bit) {
           bit.isFriendly = true;
           bit.customColor = '#be2edd';
@@ -415,7 +419,8 @@ export function handleCoreOnEnemyDeath(enemy, gameHelpers) {
   // Parasite: infected enemies spawn friendly spores on death.
   if (playerHasCore('parasite')) {
     if (enemy.isInfected) {
-      const spore = spawnEnemy(false, null, { x: enemy.x, y: enemy.y });
+      const { u: sx, v: sy } = utils.spherePosToUv(enemy.position, 1);
+      const spore = spawnEnemy(false, null, { x: sx * CANVAS_W, y: sy * CANVAS_H });
       if (spore) {
         spore.isFriendly = true;
         spore.customColor = '#55efc4';
@@ -522,9 +527,10 @@ export function handleCoreOnCollision(enemy, gameHelpers) {
       // Spawn a random pickup using the built‑in helper.  Note that this
       // spawns the pickup at a random location; if proximity to the player
       // is desired a custom pickup could be pushed to state.pickups.
-      gameHelpers.spawnPickup();
-      // Flashy glitch particles.
-      utils.spawnParticles(state.particles, enemy.x, enemy.y, '#fd79a8', 30, 3, 30, 5);
+    gameHelpers.spawnPickup();
+    // Flashy glitch particles.
+    const { u: gx, v: gy } = utils.spherePosToUv(enemy.position, 1);
+    utils.spawnParticles(state.particles, gx * CANVAS_W, gy * CANVAS_H, '#fd79a8', 30, 3, 30, 5);
       gameHelpers.play('glitchSound');
     }
   }
@@ -538,9 +544,10 @@ export function handleCoreOnCollision(enemy, gameHelpers) {
 export function handleCoreOnDamageDealt(target, gameHelpers) {
   // Vampire: 10% chance to spawn a blood orb that heals for 20% of max HP.
   if (playerHasCore('vampire') && Math.random() < 0.10) {
+    const { u: tx, v: ty } = utils.spherePosToUv(target.position, 1);
     state.pickups.push({
-      x: target.x,
-      y: target.y,
+      x: tx * CANVAS_W,
+      y: ty * CANVAS_H,
       r: 10,
       type: 'custom',
       emoji: '🩸',

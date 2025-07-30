@@ -125,6 +125,7 @@ export const state = {
   // Global collections for all active enemies, pickups, visual effects, and
   // transient particle systems.  Modules like powers.js or cores.js push
   // objects into these arrays to be rendered or processed by gameLoop.js.
+  // Each enemy stores a `position` Vector3 on the arena surface
   enemies: [],
   pickups: [],
   effects: [],

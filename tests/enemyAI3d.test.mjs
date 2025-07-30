@@ -18,11 +18,12 @@ const width = 2048;
 const height = 1024;
 
 state.player.position.copy(uvToSpherePos(0.5, 0, radius));
-state.enemies.push({ x: 0, y: 0, speed: 1 });
+const startPos = uvToSpherePos(0, 0.25, radius);
+state.enemies.push({ position: startPos.clone(), speed: 1 });
 
 updateEnemies3d(radius, width, height);
 
 const enemy = state.enemies[0];
-assert(enemy.x !== 0 || enemy.y !== 0, 'enemy position updated');
+assert(!enemy.position.equals(startPos), 'enemy position updated');
 
 console.log('enemyAI3d test passed');
