@@ -57,3 +57,7 @@
 
 ## 2025-08-11
 - Reimplemented Reflector Warden boss AI using original logic and added unit test verifying reflection damage (FP-05).
+
+## 2025-08-12
+- Reimplemented Vampire Veil boss AI with healing and pickup mechanics and added
+  unit test verifying behaviour (FP-05).

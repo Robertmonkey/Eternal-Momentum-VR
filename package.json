@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "node tests/movement3d.test.mjs && node tests/navmesh.test.mjs && node tests/projectileManager.test.mjs && node tests/playerState.test.mjs && node tests/uiMaterial.test.mjs && node tests/modalVisibility.test.mjs && node tests/loadingProgress.test.mjs && node tests/gameOverModal.test.mjs && node tests/noCanvas.test.mjs && node tests/reflectorAI.test.mjs && node tests/enemyAI3d.test.mjs"
+    "test": "node tests/movement3d.test.mjs && node tests/navmesh.test.mjs && node tests/projectileManager.test.mjs && node tests/playerState.test.mjs && node tests/uiMaterial.test.mjs && node tests/modalVisibility.test.mjs && node tests/loadingProgress.test.mjs && node tests/gameOverModal.test.mjs && node tests/noCanvas.test.mjs && node tests/reflectorAI.test.mjs && node tests/enemyAI3d.test.mjs && node tests/vampireAI.test.mjs"
   },
   "keywords": [],
   "author": "",
