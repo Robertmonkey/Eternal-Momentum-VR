@@ -36,3 +36,10 @@
 - Continued FP-07 by updating `vrGameLoop.js` to read the player's
   3D `position` vector from state. Enemy updates now use this value
   directly. All tests continue to pass.
+
+## 2025-08-07
+- Continued FP-07 by making enemy AI read the centralized
+  `state.player.position` directly. Updated `enemyAI3d.js`,
+  `vrGameLoop.js`, and `gameLoop.js` accordingly and added a new
+  unit test `enemyAI3d.test.mjs` to ensure enemies move using the
+  shared player position. All tests pass.

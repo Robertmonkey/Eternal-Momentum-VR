@@ -22,12 +22,12 @@ export function clearPathObstacles(){
  * sphere's surface. This preserves existing 2-D behaviour while ensuring
  * enemies respect the 3-D battlefield.
  *
- * @param {THREE.Vector3} playerPos - Player position on the sphere.
  * @param {number} radius - Sphere radius.
  * @param {number} width  - Legacy canvas width.
  * @param {number} height - Legacy canvas height.
  */
-export function updateEnemies3d(playerPos, radius, width, height){
+export function updateEnemies3d(radius, width, height){
+  const playerPos = state.player.position.clone();
   const targetUv = spherePosToUv(playerPos, radius);
   state.enemies.forEach(e => {
     const startUv = {u:e.x/width, v:e.y/height};

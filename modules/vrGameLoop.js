@@ -34,9 +34,7 @@ export function updateVrGameLoop() {
   const width = 2048; // legacy canvas width
   const height = 1024; // legacy canvas height
 
-  const playerPos = state.player.position.clone();
-
-  updateEnemies3d(playerPos, radius, width, height);
+  updateEnemies3d(radius, width, height);
   updateProjectiles3d(radius, width, height);
 
   state.enemies.forEach(e => {
