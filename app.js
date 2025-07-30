@@ -1,6 +1,7 @@
 import { start as startVR } from './vrMain.js';
 import * as THREE from './vendor/three.module.js';
 import { getRenderer } from './modules/scene.js';
+import { showHud } from './modules/UIManager.js';
 
 const loadingEl = document.getElementById('loadingScreen');
 const homeEl = document.getElementById('homeScreen');
@@ -63,6 +64,7 @@ async function startGame(resetSave = false) {
     }, { once: true });
   }
   startVR();
+  showHud();
 
   if (navigator.xr) {
     try {
