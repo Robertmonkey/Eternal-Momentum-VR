@@ -40,7 +40,7 @@ export function initScene(container = document.body) {
   playerRig.add(controllers[1]);
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
   dir.position.set(3, 3, 2);
   scene.add(dir);
 
@@ -57,7 +57,7 @@ export function initScene(container = document.body) {
   scene.add(arena);
 
   const platformGeo = new THREE.CylinderGeometry(10, 10, 0.5, 32);
-  const platformMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+  const platformMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
   platform = new THREE.Mesh(platformGeo, platformMat);
   platform.name = 'platform';
   platform.position.set(0, 0, 0);
