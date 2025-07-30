@@ -42,8 +42,7 @@ export class VampireAI extends BaseAgent {
     this.lastHit = Date.now();
     if (Math.random() < 0.3 && gameState) {
       gameState.pickups.push({
-        x: this.position.x,
-        y: this.position.y,
+        position: this.position.clone(),
         r: 10,
         type: 'heal',
         emoji: '🩸',
