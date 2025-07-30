@@ -120,3 +120,38 @@ The current repository contains both the original 2D game (under `Eternal-Moment
 8. **Pathfinding Performance** – `findPath` sorts the open list each iteration, leading to O(n²) behaviour on complex nav meshes【F:modules/navmesh.js†L82-L99】.
 
 These issues must be addressed alongside the existing `FP-XX` tasks before a stable VR build is possible.
+
+## Task Completion Audit (2025-08-01)
+
+The following review covers every item marked as completed in the implementation log. Several tasks remain partially finished and require further work.
+
+### FP-02 – Player Avatar *(Partial)*
+- Avatar mesh moves correctly but `state.player.x` and `state.player.y` are never updated.
+- **Fix Steps**:
+  1. Update `updatePlayerController()` to store the UV coordinates returned by `moveTowards` back into `state.player`.
+  2. Add a unit test verifying state coordinates change when the avatar moves.
+
+### FP-04 – UI Rendering & Functionality *(Incomplete)*
+- Loading progress now updates, but the HUD does not mirror the old `.command-bar` and Game Over buttons only log to the console.
+- **Fix Steps**:
+  1. Use `html2canvas` to capture DOM fragments from the legacy UI and map them to VR planes.
+  2. Replace placeholder callbacks in `ModalManager.js` with real game-state actions such as `resetGame` and `showModal`.
+  3. Ensure `UIManager.js` exposes a `showHud()` method and invoke it after loading completes.
+  4. Create tests covering loading progress and Game Over modal behaviour.
+
+### FP-05 – Boss Mechanics Fidelity Audit *(Incomplete)*
+- Only `SplitterAI` has been converted. All other bosses still use placeholder scripts.
+- **Breakdown Plan**:
+  - **Phase 1 – Core Conversion**: Reimplement bosses `B02`–`B10` using logic from `/Eternal-Momentum-OLD GAME/modules/bosses.js`.
+  - **Phase 2 – Advanced Bosses**: Recreate `B11`–`B20` following the same process.
+  - **Phase 3 – Endgame Bosses**: Recreate `B21`–`B30` and verify each with unit tests.
+
+### FP-06 – Architectural Refactor *(Incomplete)*
+- Canvas-based code remains in `gameLoop.js` and `state.js`.
+- **Step Plan**:
+  1. Remove the canvas creation from `state.resetGame` and all references to `canvas` in `gameLoop.js`.
+  2. Refactor `gameTick` so entities update their `THREE.Object3D` instances directly.
+  3. Delete mirroring logic from `script.js` and manage all scene objects through the Three.js graph in `vrMain.js`.
+  4. Add integration tests ensuring the game runs without a canvas element present.
+
+All other tasks remain pending until these corrections are fully verified.
