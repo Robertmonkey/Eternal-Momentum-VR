@@ -121,3 +121,9 @@
 
 ## 2025-08-26
 - Audited Fidelity Patch progress and updated documentation. Marked boss implementations as complete and summarized remaining work.
+
+## 2025-08-27
+- Completed FP-04 by enabling dynamic DOM modal refresh so stage select and ascension menus display current content in VR.
+- Completed FP-05 by adding unit tests for ArchitectAI and SwarmLinkAI behaviours.
+- Completed FP-06 by removing legacy main.js entry and switching package.json to use vrMain.js.
+- Completed FP-07 final cleanup with modal refresh and added tests. All tests pass.
