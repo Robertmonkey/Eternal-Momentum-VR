@@ -10,6 +10,7 @@ import * as Cores from './cores.js';
 import { getArena } from './scene.js';
 import { updateEnemies3d } from './enemyAI3d.js';
 import { updateProjectiles3d } from './projectilePhysics3d.js';
+import { initGameHelpers } from './gameHelpers.js';
 
 const missingStageWarned = new Set();
 
@@ -38,9 +39,15 @@ function stopAllLoopingSounds() {
 // --- Game Logic Helpers ---
 const spawnParticlesCallback = (x, y, c, n, spd, life, r) => utils.spawnParticles(state.particles, x, y, c, n, spd, life, r);
 const gameHelpers = {
-    addStatusEffect, spawnEnemy, spawnPickup, play, stopLoopingSfx, playLooping, addEssence,
+    addStatusEffect,
+    spawnEnemy,
+    spawnPickup,
+    play,
+    stopLoopingSfx,
+    playLooping,
+    addEssence,
 };
-window.gameHelpers = gameHelpers;
+initGameHelpers(gameHelpers);
 
 
 export function addStatusEffect(name, emoji, duration) {
