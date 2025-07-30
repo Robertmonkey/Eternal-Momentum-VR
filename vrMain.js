@@ -3,6 +3,7 @@ import { initPlayerController, updatePlayerController } from './modules/PlayerCo
 import { initUI, updateHud } from './modules/UIManager.js';
 import { initModals } from './modules/ModalManager.js';
 import { initVrGameLoop, updateVrGameLoop } from './modules/vrGameLoop.js';
+import { initControllerMenu, updateControllerMenu } from './modules/ControllerMenu.js';
 
 let initialized = false;
 
@@ -13,12 +14,14 @@ export function start() {
   initVrGameLoop();
   initUI();
   initModals();
+  initControllerMenu();
   initialized = true;
   // Show level select on first launch as placeholder
   import('./modules/ModalManager.js').then(m => m.showModal('levelSelect'));
   getRenderer().setAnimationLoop(() => {
     updatePlayerController();
     updateVrGameLoop();
+    updateControllerMenu();
     updateHud();
     getRenderer().render(getScene(), getCamera());
   });

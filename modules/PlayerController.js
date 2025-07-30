@@ -7,6 +7,7 @@ import { usePower } from './powers.js';
 import { activateCorePower } from './cores.js';
 import { getUIRoot } from './UIManager.js';
 import { getModalObjects } from './ModalManager.js';
+import { getControllerMenu } from './ControllerMenu.js';
 
 let avatar;
 let targetPoint = new THREE.Vector3();
@@ -106,6 +107,13 @@ export function updatePlayerController() {
   if (uiRoot) {
     const uiHits = raycaster.intersectObjects(uiRoot.children, true);
     if (uiHits.length) uiHit = uiHits[0];
+  }
+  if (!uiHit) {
+    const menu = getControllerMenu();
+    if (menu) {
+      const menuHits = raycaster.intersectObjects(menu.children, true);
+      if (menuHits.length) uiHit = menuHits[0];
+    }
   }
   if (!uiHit) {
     const modalHits = raycaster.intersectObjects(getModalObjects(), true);
