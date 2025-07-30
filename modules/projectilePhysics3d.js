@@ -59,12 +59,12 @@ export function updateProjectiles3d(radius, width, height){
   });
 
   // Clean up meshes for any projectiles that no longer exist
-  for(const [p, d] of dataMap.entries()){
+  dataMap.forEach((d, p) => {
     if(!state.effects.includes(p)){
       if(d.mesh && projectileGroup) projectileGroup.remove(d.mesh);
       if(d.mesh) d.mesh.geometry.dispose();
       if(d.mesh) d.mesh.material.dispose();
       dataMap.delete(p);
     }
-  }
+  });
 }

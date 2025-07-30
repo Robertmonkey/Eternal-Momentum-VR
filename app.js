@@ -68,8 +68,13 @@ async function startGame(resetSave = false) {
   await startVR();
   showHud();
 
-  if (navigator.xr) {
+  if (navigator.xr && navigator.xr.isSessionSupported) {
     try {
+      const supported = await navigator.xr.isSessionSupported('immersive-vr');
+      if (!supported) {
+        console.warn('WebXR immersive-vr session not supported');
+        return;
+      }
       const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
       const session = await navigator.xr.requestSession('immersive-vr', sessionInit);
       getRenderer().xr.setSession(session);

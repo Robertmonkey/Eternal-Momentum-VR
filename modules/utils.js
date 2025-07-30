@@ -10,6 +10,7 @@
 // the bundled three.js module directly so they can be used in unit tests and in
 // builds without exposing THREE globally.
 import * as THREE from '../vendor/three.module.js';
+import { getRenderer } from './scene.js';
 
 let screenShakeEnd = 0;
 let screenShakeMagnitude = 0;
@@ -288,7 +289,16 @@ export function safeAddEventListener(el, type, handler, options){
 export async function captureElementToTexture(el){
   if(!el || typeof html2canvas === 'undefined') return null;
   el.classList.add('is-rendering');
+
+  // Hide the WebGL canvas during capture to avoid html2canvas warnings
+  const renderer = getRenderer && getRenderer();
+  const renderCanvas = renderer ? renderer.domElement : null;
+  const prevDisplay = renderCanvas ? renderCanvas.style.display : null;
+  if(renderCanvas) renderCanvas.style.display = 'none';
+
   const canvas = await html2canvas(el);
+
+  if(renderCanvas) renderCanvas.style.display = prevDisplay || '';
   el.classList.remove('is-rendering');
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
