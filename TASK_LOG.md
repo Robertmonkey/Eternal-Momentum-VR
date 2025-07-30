@@ -21,3 +21,7 @@
   `SCREEN_HEIGHT` constants to decouple the VR loop from DOM canvas
   dimensions. All tests continue to pass.
 
+## 2025-08-04
+- Finished FP-06 step 3 by removing the last A-Frame reference from `ui.js`.
+  The unlock banner now relies solely on the Three.js UI. All tests pass.
+
