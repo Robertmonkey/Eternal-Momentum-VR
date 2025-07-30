@@ -19,7 +19,7 @@ import { usePower } from './powers.js';
 const CANVAS_W = 2048;
 const CANVAS_H = 1024;
 
-function getPlayerCoords() {
+export function getPlayerCoords() {
   const uv = utils.spherePosToUv(state.player.position.clone().normalize(), 1);
   return { x: uv.u * CANVAS_W, y: uv.v * CANVAS_H };
 }
