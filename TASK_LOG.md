@@ -31,3 +31,8 @@
   game loop and unit tests to use the new vector-based position. All tests
   continue to pass.
 
+
+## 2025-08-06
+- Continued FP-07 by updating `vrGameLoop.js` to read the player's
+  3D `position` vector from state. Enemy updates now use this value
+  directly. All tests continue to pass.
