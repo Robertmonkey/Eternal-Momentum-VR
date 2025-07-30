@@ -16,9 +16,9 @@ function holoMaterial(color = 0x141428, opacity = 0.85) {
   });
 }
 
-function ensureGroup() {
+function ensureGroup(camOverride) {
   if (!modalGroup) {
-    const cam = getCamera();
+    const cam = camOverride || getCamera();
     if (!cam) return null;
     modalGroup = new THREE.Group();
     modalGroup.name = 'modalGroup';
@@ -100,8 +100,8 @@ function restartStage() {
   Object.values(modals).forEach(m => m.visible = false);
 }
 
-export async function initModals() {
-  const group = ensureGroup();
+export async function initModals(cam = getCamera()) {
+  const group = ensureGroup(cam);
   if (!group || modals.gameOver) return;
 
   modals.gameOver = createModal('gameOver', 'TIMELINE COLLAPSED', [
@@ -128,7 +128,7 @@ export async function initModals() {
 
 export function showModal(id) {
   ensureGroup();
-  Object.values(modals).forEach(m => m.visible = false);
+  Object.values(modals).forEach(m => { if (m) m.visible = false; });
   if (modals[id]) {
     modals[id].visible = true;
     modals[id].position.set(0, 0, -1.5);

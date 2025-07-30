@@ -94,6 +94,9 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 | 2025-07-31 | CI-04 | BaseAgent.js, AssetManager.js, projectilePhysics3d.js | Replaced global THREE with module imports |
 | 2025-07-31 | FP-06 | gameLoop.js, index.html | Started refactor removing canvas dependency |
 | 2025-07-31 | CI-05 | PlayerController.js | Fixed raycaster camera initialization to prevent sprite errors |
+| 2025-08-02 | FP-02 | PlayerController.js, playerState.test.mjs | Synced UV coordinates back to state and added unit test |
+| 2025-08-02 | FP-04 | UIManager.js, ModalManager.js | Exposed holoMaterial, enabled modal injection and added UI tests |
+| 2025-08-02 | CI-06 | ModalManager.js | showModal now ignores null modals |
 ### Next Steps
 1.  **Execute Fidelity Patch 1.0 sequentially and with absolute adherence to the fidelity requirements.**
 2.  Continue removing legacy global dependencies and wiring UI interactions.
