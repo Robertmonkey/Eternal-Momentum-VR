@@ -38,42 +38,40 @@ export class ReflectorAI extends BaseAgent {
       this.shields.push(s);
     }
     this.radius = radius;
-    this.phase = 'idle';
-    this.last = Date.now();
-    this.cycles = 0;
+    this.state = 'DEFENSIVE';
+    this.stateTimer = 0;
     this.reflecting = false;
   }
 
-  update(delta) {
+  update(delta, playerObj, state, gameHelpers) {
     if (!this.alive) return;
-    if (Date.now() - this.last > 2000) {
-      this.phase = this.phase === 'idle' ? 'moving' : 'idle';
-      this.last = Date.now();
-      if (this.phase === 'moving') {
-        this.cycles++;
-        if (this.cycles % 3 === 0) {
-          this.reflecting = true;
-          setTimeout(() => (this.reflecting = false), 2000);
-        }
-      }
-    }
-    if (this.phase === 'moving') {
-      this.rotation.y += delta * 0.5;
+    this.stateTimer += delta;
+
+    if (this.state === 'DEFENSIVE') {
+      this.rotation.y += delta * 0.2;
       this.shields.forEach(s => (s.material.opacity = 0.5));
-    } else {
-      this.shields.forEach(s => (s.material.opacity = 0.2));
+      if (this.stateTimer >= 8) {
+        this.state = 'VULNERABLE';
+        this.stateTimer = 0;
+        gameHelpers?.play?.('shieldBreak');
+      }
+    } else if (this.state === 'VULNERABLE') {
+      this.shields.forEach(s => (s.material.opacity = 0.1));
+      if (this.stateTimer >= 4) {
+        this.state = 'DEFENSIVE';
+        this.stateTimer = 0;
+      }
     }
   }
 
   takeDamage(amount, playerObj) {
-    if (this.phase !== 'idle') {
-      // heals instead of taking damage when not idle
+    if (this.state === 'DEFENSIVE') {
       this.health = Math.min(this.maxHealth, this.health + amount);
-      if (this.reflecting && playerObj && typeof playerObj.health === 'number') {
+      if (playerObj && typeof playerObj.health === 'number') {
         playerObj.health -= 10;
       }
-      return;
+    } else {
+      super.takeDamage(amount);
     }
-    super.takeDamage(amount);
   }
 }

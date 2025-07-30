@@ -1,5 +1,5 @@
 import { BaseAgent } from '../BaseAgent.js';
-import { spherePosToUv } from '../utils.js';
+import { uvToSpherePos, spherePosToUv } from '../utils.js';
 
 export class SwarmLinkAI extends BaseAgent {
   constructor(radius = 1) {
@@ -7,36 +7,43 @@ export class SwarmLinkAI extends BaseAgent {
     this.radius = radius;
     const geom = new THREE.IcosahedronGeometry(0.25 * radius, 0);
     const mat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const mesh = new THREE.Mesh(geom, mat);
-    this.add(mesh);
-    this.head = mesh;
-    this.chain = [];
-    for (let i = 0; i < 150; i++) {
-      const pos = this.head.position.clone();
-      this.chain.push(pos.clone());
+    this.minions = [];
+    for (let i = 0; i < 3; i++) {
+      const mesh = new THREE.Mesh(geom.clone(), mat.clone());
+      mesh.position.copy(this.randomPos());
+      this.add(mesh);
+      this.minions.push({ mesh, lastShot: Date.now() });
     }
   }
 
-  update() {
+  randomPos() {
+    const u = Math.random();
+    const v = Math.random();
+    return uvToSpherePos(u, v, this.radius);
+  }
+
+  update(delta, playerObj, state) {
     if (!this.alive) return;
-    let prev = this.head.position;
-    this.chain.forEach(seg => {
-      seg.lerp(prev, 0.2);
-      prev = seg;
+    this.minions.forEach(m => {
+      if (playerObj) m.mesh.lookAt(playerObj.position);
+      if (playerObj && Date.now() - m.lastShot > 4000) {
+        m.lastShot = Date.now();
+        const fromUv = spherePosToUv(m.mesh.position.clone().normalize(), this.radius);
+        const toUv = spherePosToUv(playerObj.position.clone().normalize(), this.radius);
+        const dx = (toUv.u - fromUv.u) * 2048 * 0.25;
+        const dy = (toUv.v - fromUv.v) * 1024 * 0.25;
+        state?.effects?.push({ type: 'nova_bullet', caster: this, x: fromUv.u * 2048, y: fromUv.v * 1024, r: 4, dx, dy, color: '#ffff00', damage: 6 });
+      }
     });
   }
 
   checkCollision(playerObj, width, height) {
-    const uvHead = spherePosToUv(this.head.position.clone().normalize(), this.radius);
-    const playerPos = { x: playerObj.x, y: playerObj.y };
-    this.chain.forEach(seg => {
-      const uv = spherePosToUv(seg.clone().normalize(), this.radius);
-      const dx = playerPos.x - uv.u * width;
-      const dy = playerPos.y - uv.v * height;
-      if (Math.hypot(dx, dy) < (playerObj.r || 0) + 8) {
-        if (!playerObj.shield) {
-          playerObj.health -= 0.25;
-        }
+    this.minions.forEach(m => {
+      const uv = spherePosToUv(m.mesh.position.clone().normalize(), this.radius);
+      const dx = playerObj.x - uv.u * width;
+      const dy = playerObj.y - uv.v * height;
+      if (Math.hypot(dx, dy) < (playerObj.r || 0) + 8 && !playerObj.shield) {
+        playerObj.health -= 0.25;
       }
     });
   }
