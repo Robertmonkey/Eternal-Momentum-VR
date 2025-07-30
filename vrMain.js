@@ -7,13 +7,13 @@ import { initControllerMenu, updateControllerMenu } from './modules/ControllerMe
 
 let initialized = false;
 
-export function start() {
+export async function start() {
   if (initialized) return;
   initScene(document.body);
   initPlayerController();
   initVrGameLoop();
   initUI();
-  initModals();
+  await initModals();
   initControllerMenu();
   initialized = true;
   // Show level select on first launch as placeholder

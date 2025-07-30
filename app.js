@@ -63,7 +63,7 @@ async function startGame(resetSave = false) {
       homeEl.style.display = 'none';
     }, { once: true });
   }
-  startVR();
+  await startVR();
   showHud();
 
   if (navigator.xr) {
