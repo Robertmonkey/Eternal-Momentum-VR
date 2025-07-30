@@ -44,36 +44,36 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 
 | ID | Task (Boss Name) | Status |
 | :--- | :--- | :--- |
-| **B01** | Splitter Sentinel | **Implemented** |
-| **B02** | Reflector Warden | **Implemented** |
-| **B3** | Vampire Veil | **Implemented** |
-| **B4** | Gravity Tyrant | **Implemented** |
-| **B5** | Swarm Link | **Implemented** |
-| **B6** | Mirror Mirage | **Implemented** |
-| **B7** | EMP Overload | **Implemented** |
-| **B8** | The Architect | **Implemented** |
-| **B9** | Aethel & Umbra | **Implemented** |
-| **B10**| Looping Eye | **Implemented** |
-| **B11**| The Juggernaut | **Implemented** |
-| **B12**| The Puppeteer | **Implemented** |
-| **B13**| The Glitch | **Implemented** |
-| **B14**| Sentinel Pair | **Implemented** |
-| **B15**| The Basilisk | **Implemented** |
-| **B16**| The Annihilator | **Implemented** |
-| **B17**| The Parasite | **Implemented** |
-| **B18**| Quantum Shadow | **Implemented** |
-| **B19**| Time Eater | **Implemented** |
-| **B20**| The Singularity | **Implemented** |
-| **B21**| The Miasma | **Implemented** |
-| **B22**| The Temporal Paradox| **Implemented** |
-| **B23**| The Syphon | **Implemented** |
-| **B24**| The Centurion | **Implemented** |
-| **B25**| The Fractal Horror | **Implemented** |
-| **B26**| The Obelisk | **Implemented** |
-| **B27**| The Helix Weaver | **Implemented** |
-| **B28**| The Epoch-Ender | **Implemented** |
-| **B29**| The Shaper of Fate | **Implemented** |
-| **B30**| The Pantheon | **Implemented** |
+| **B01** | Splitter Sentinel | **Needs Rework** |
+| **B02** | Reflector Warden | **Needs Rework** |
+| **B3** | Vampire Veil | **Needs Rework** |
+| **B4** | Gravity Tyrant | **Needs Rework** |
+| **B5** | Swarm Link | **Needs Rework** |
+| **B6** | Mirror Mirage | **Needs Rework** |
+| **B7** | EMP Overload | **Needs Rework** |
+| **B8** | The Architect | **Needs Rework** |
+| **B9** | Aethel & Umbra | **Needs Rework** |
+| **B10**| Looping Eye | **Needs Rework** |
+| **B11**| The Juggernaut | **Needs Rework** |
+| **B12**| The Puppeteer | **Needs Rework** |
+| **B13**| The Glitch | **Needs Rework** |
+| **B14**| Sentinel Pair | **Needs Rework** |
+| **B15**| The Basilisk | **Needs Rework** |
+| **B16**| The Annihilator | **Needs Rework** |
+| **B17**| The Parasite | **Needs Rework** |
+| **B18**| Quantum Shadow | **Needs Rework** |
+| **B19**| Time Eater | **Needs Rework** |
+| **B20**| The Singularity | **Needs Rework** |
+| **B21**| The Miasma | **Needs Rework** |
+| **B22**| The Temporal Paradox| **Needs Rework** |
+| **B23**| The Syphon | **Needs Rework** |
+| **B24**| The Centurion | **Needs Rework** |
+| **B25**| The Fractal Horror | **Needs Rework** |
+| **B26**| The Obelisk | **Needs Rework** |
+| **B27**| The Helix Weaver | **Needs Rework** |
+| **B28**| The Epoch-Ender | **Needs Rework** |
+| **B29**| The Shaper of Fate | **Needs Rework** |
+| **B30**| The Pantheon | **Needs Rework** |
 
 ---
 
