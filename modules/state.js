@@ -206,16 +206,12 @@ export function loadPlayerState() {
  * stage 1 regardless of the highest stage beaten.
  */
 export function resetGame(isArena = false) {
-  let canvas = document.getElementById('gameCanvas');
-  if (!canvas) {
-    canvas = document.createElement('canvas');
-    canvas.id = 'gameCanvas';
-    canvas.width = 2048;
-    canvas.height = 1024;
-  }
+  const width = 2048;  // legacy canvas width
+  const height = 1024; // legacy canvas height
+
   // Place the player at the centre of the screen and fully heal them.
-  state.player.x = canvas.width / 2;
-  state.player.y = canvas.height / 2;
+  state.player.x = width / 2;
+  state.player.y = height / 2;
   state.player.health = state.player.maxHealth;
   state.player.statusEffects = [];
   state.player.activePantheonBuffs = [];
