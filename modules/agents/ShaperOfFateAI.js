@@ -1,3 +1,4 @@
+import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 
 // ShaperOfFateAI - Implements boss B29: The Shaper of Fate

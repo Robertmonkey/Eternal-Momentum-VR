@@ -1,3 +1,4 @@
+import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 
 // AnnihilatorAI - Implements boss B16: The Annihilator

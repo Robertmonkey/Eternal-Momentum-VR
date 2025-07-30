@@ -1,3 +1,4 @@
+import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 
 // TemporalParadoxAI - Implements boss B22: The Temporal Paradox
