@@ -1,4 +1,5 @@
 import { start as startVR } from './vrMain.js';
+import * as THREE from './vendor/three.module.js';
 
 const loadingEl = document.getElementById('loadingScreen');
 const homeEl = document.getElementById('homeScreen');
@@ -11,28 +12,28 @@ const assetsToLoad = ['assets/bg.png'];
 function preloadAssets() {
   const fill = document.getElementById('loadingProgressFill');
   const status = document.getElementById('loadingStatusText');
-  let loaded = 0;
-  const total = assetsToLoad.length;
-
-  const update = () => {
-    const pct = Math.round((loaded / total) * 100);
-    if (fill) fill.style.width = pct + '%';
-    if (status) status.textContent = `Loading ${pct}%`;
-  };
-
-  update();
-  return Promise.all(assetsToLoad.map(src => new Promise(res => {
-    if (src.endsWith('.mp3')) {
-      const a = new Audio();
-      a.src = src;
-      a.addEventListener('canplaythrough', () => { loaded++; update(); res(); });
-    } else {
-      const img = new Image();
-      img.src = src;
-      img.addEventListener('load', () => { loaded++; update(); res(); });
-    }
-  }))).then(() => {
-    if (status) status.textContent = 'Loading Complete';
+  return new Promise(resolve => {
+    const manager = new THREE.LoadingManager();
+    manager.onProgress = (_url, loaded, total) => {
+      const pct = Math.round((loaded / total) * 100);
+      if (fill) fill.style.width = pct + '%';
+      if (status) status.textContent = `Loading ${pct}%`;
+    };
+    manager.onLoad = () => {
+      if (status) status.textContent = 'Loading Complete';
+      resolve();
+    };
+    const texLoader = new THREE.TextureLoader(manager);
+    assetsToLoad.forEach(src => {
+      if (src.endsWith('.mp3')) {
+        const audio = new Audio();
+        audio.src = src;
+        audio.addEventListener('canplaythrough', () => manager.itemEnd(src), { once: true });
+        manager.itemStart(src);
+      } else {
+        texLoader.load(src, () => {});
+      }
+    });
   });
 }
 
