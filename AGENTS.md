@@ -64,16 +64,16 @@ This document serves two critical functions:
 | **B17**| The Parasite | **Done** |
 | **B18**| Quantum Shadow | **Done** |
 | **B19**| Time Eater | **Done** |
-| **B20**| The Singularity | **To Do** |
-| **B21**| The Miasma | **To Do** |
-| **B22**| The Temporal Paradox| **To Do** |
-| **B23**| The Syphon | **To Do** |
-| **B24**| The Centurion | **To Do** |
-| **B25**| The Fractal Horror | **To Do** |
-| **B26**| The Obelisk | **To Do** |
-| **B27**| The Helix Weaver | **To Do** |
-| **B28**| The Epoch-Ender | **To Do** |
-| **B29**| The Shaper of Fate | **To Do** |
+| **B20**| The Singularity | **Done** |
+| **B21**| The Miasma | **Done** |
+| **B22**| The Temporal Paradox| **Done** |
+| **B23**| The Syphon | **Done** |
+| **B24**| The Centurion | **Done** |
+| **B25**| The Fractal Horror | **Done** |
+| **B26**| The Obelisk | **Done** |
+| **B27**| The Helix Weaver | **Done** |
+| **B28**| The Epoch-Ender | **Done** |
+| **B29**| The Shaper of Fate | **Done** |
 | **B30**| The Pantheon | **To Do** |
 
 ## 3. AI Development Workflow Log
@@ -112,9 +112,19 @@ This document serves two critical functions:
 | 2025-08-04 | B17 |`ParasiteAI.js` | Infection spread mechanic implemented. |
 | 2025-08-04 | B18 |`QuantumShadowAI.js` | Phasing and echo collapse implemented. |
 | 2025-08-05 | B19 |`TimeEaterAI.js` | Temporal slow-zone mechanic implemented. |
+| 2025-08-06 | B20 |`SingularityAI.js` | Multi-phase boss with gravity wells and teleportation. |
+| 2025-08-06 | B21 |`MiasmaAI.js` | Toxic gas mechanic implemented. |
+| 2025-08-06 | B22 |`TemporalParadoxAI.js` | Paradox echo replay mechanic implemented. |
+| 2025-08-06 | B23 |`SyphonAI.js` | Cone attack steals offensive power. |
+| 2025-08-06 | B24 |`CenturionAI.js` | Shrinking energy box mechanic implemented. |
+| 2025-08-06 | B25 |`FractalHorrorAI.js` | Splitting fractal swarm logic implemented. |
+| 2025-08-06 | B26 |`ObeliskAI.js` | Conduit vulnerability phase added. |
+| 2025-08-06 | B27 |`HelixWeaverAI.js` | Spiral projectile pattern implemented. |
+| 2025-08-06 | B28 |`EpochEnderAI.js` | Timeline rewind mechanic implemented. |
+| 2025-08-06 | B29 |`ShaperOfFateAI.js` | Rune prophecy system implemented. |
 
 ### Next Steps
-1.  **Begin Task B20:** The Singularity
+1.  **Begin Task B30:** The Pantheon
 
 ---
 
