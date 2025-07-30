@@ -16,6 +16,11 @@ The core VR vision is as follows:
 
 ---
 
+## Development Progress
+
+The Fidelity Patch is underway. The VR scene now renders correctly with lighting and textures, and the avatar moves using vector-based coordinates. A basic holographic HUD and interactive modals are functional, and most bosses now have dedicated 3D AI. Remaining tasks include mirroring the legacy HUD, stripping the last canvas code and finalizing the state refactor. See **AGENTS.md** for full status.
+
+
 ## Player Experience & Game Flow
 
 The application follows a distinct set of states, from initial loading to gameplay and menu interaction.

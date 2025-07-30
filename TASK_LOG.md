@@ -118,3 +118,6 @@
 - Continued FP-07 by converting ProjectileManager to operate on THREE.Vector3
   positions and velocities. Updated AethelUmbraAI to use the new API and
   refactored the projectileManager test for vector math. All tests pass.
+
+## 2025-08-26
+- Audited Fidelity Patch progress and updated documentation. Marked boss implementations as complete and summarized remaining work.

@@ -44,36 +44,36 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 
 | ID | Task (Boss Name) | Status |
 | :--- | :--- | :--- |
-| **B01** | Splitter Sentinel | **Needs Rework** |
-| **B02** | Reflector Warden | **Needs Rework** |
-| **B3** | Vampire Veil | **Needs Rework** |
-| **B4** | Gravity Tyrant | **Needs Rework** |
-| **B5** | Swarm Link | **Needs Rework** |
-| **B6** | Mirror Mirage | **Needs Rework** |
-| **B7** | EMP Overload | **Needs Rework** |
-| **B8** | The Architect | **Needs Rework** |
-| **B9** | Aethel & Umbra | **Needs Rework** |
-| **B10**| Looping Eye | **Needs Rework** |
-| **B11**| The Juggernaut | **Needs Rework** |
-| **B12**| The Puppeteer | **Needs Rework** |
-| **B13**| The Glitch | **Needs Rework** |
-| **B14**| Sentinel Pair | **Needs Rework** |
-| **B15**| The Basilisk | **Needs Rework** |
-| **B16**| The Annihilator | **Needs Rework** |
-| **B17**| The Parasite | **Needs Rework** |
-| **B18**| Quantum Shadow | **Needs Rework** |
-| **B19**| Time Eater | **Needs Rework** |
-| **B20**| The Singularity | **Needs Rework** |
-| **B21**| The Miasma | **Needs Rework** |
-| **B22**| The Temporal Paradox| **Needs Rework** |
-| **B23**| The Syphon | **Needs Rework** |
-| **B24**| The Centurion | **Needs Rework** |
-| **B25**| The Fractal Horror | **Needs Rework** |
-| **B26**| The Obelisk | **Needs Rework** |
-| **B27**| The Helix Weaver | **Needs Rework** |
-| **B28**| The Epoch-Ender | **Needs Rework** |
-| **B29**| The Shaper of Fate | **Needs Rework** |
-| **B30**| The Pantheon | **Needs Rework** |
+| **B01** | Splitter Sentinel | **Implemented** |
+| **B02** | Reflector Warden | **Implemented** |
+| **B3** | Vampire Veil | **Implemented** |
+| **B4** | Gravity Tyrant | **Implemented** |
+| **B5** | Swarm Link | **Implemented** |
+| **B6** | Mirror Mirage | **Implemented** |
+| **B7** | EMP Overload | **Implemented** |
+| **B8** | The Architect | **Implemented** |
+| **B9** | Aethel & Umbra | **Implemented** |
+| **B10**| Looping Eye | **Implemented** |
+| **B11**| The Juggernaut | **Implemented** |
+| **B12**| The Puppeteer | **Implemented** |
+| **B13**| The Glitch | **Implemented** |
+| **B14**| Sentinel Pair | **Implemented** |
+| **B15**| The Basilisk | **Implemented** |
+| **B16**| The Annihilator | **Implemented** |
+| **B17**| The Parasite | **Implemented** |
+| **B18**| Quantum Shadow | **Implemented** |
+| **B19**| Time Eater | **Implemented** |
+| **B20**| The Singularity | **Implemented** |
+| **B21**| The Miasma | **Implemented** |
+| **B22**| The Temporal Paradox| **Implemented** |
+| **B23**| The Syphon | **Implemented** |
+| **B24**| The Centurion | **Implemented** |
+| **B25**| The Fractal Horror | **Implemented** |
+| **B26**| The Obelisk | **Implemented** |
+| **B27**| The Helix Weaver | **Implemented** |
+| **B28**| The Epoch-Ender | **Implemented** |
+| **B29**| The Shaper of Fate | **Implemented** |
+| **B30**| The Pantheon | **Implemented** |
 
 ---
 
@@ -126,37 +126,32 @@ The current repository contains both the original 2D game (under `Eternal-Moment
 
 These issues must be addressed alongside the existing `FP-XX` tasks before a stable VR build is possible.
 
-## Task Completion Audit (2025-08-01)
+## Task Completion Audit (2025-08-25)
 
-The following review covers every item marked as completed in the implementation log. Several tasks remain partially finished and require further work.
+Summary of the Fidelity Patch progress.
 
-### FP-02 – Player Avatar *(Partial)*
-- Avatar mesh moves correctly but `state.player.x` and `state.player.y` are never updated.
-- **Fix Steps**:
-  1. Update `updatePlayerController()` to store the UV coordinates returned by `moveTowards` back into `state.player`.
-  2. Add a unit test verifying state coordinates change when the avatar moves.
+### FP-01 – Scene Rendering & Lighting
+- **Complete.** `scene.js` now uses `MeshStandardMaterial` and proper lighting. The arena texture loads correctly.
 
-### FP-04 – UI Rendering & Functionality *(Incomplete)*
-- Loading progress now updates, but the HUD does not mirror the old `.command-bar` and Game Over buttons only log to the console.
-- **Fix Steps**:
-  1. Use `html2canvas` to capture DOM fragments from the legacy UI and map them to VR planes.
-  2. Replace placeholder callbacks in `ModalManager.js` with real game-state actions such as `resetGame` and `showModal`.
-  3. Ensure `UIManager.js` exposes a `showHud()` method and invoke it after loading completes.
-  4. Create tests covering loading progress and Game Over modal behaviour.
+### FP-02 – Player Avatar
+- **Complete.** Avatar uses the correct blue material and spawns on the sphere surface. `state.player.position` is a `THREE.Vector3` updated every frame (validated by `playerState.test.mjs`).
 
-### FP-05 – Boss Mechanics Fidelity Audit *(Incomplete)*
-- Only `SplitterAI` has been converted. All other bosses still use placeholder scripts.
-- **Breakdown Plan**:
-  - **Phase 1 – Core Conversion**: Reimplement bosses `B02`–`B10` using logic from `/Eternal-Momentum-OLD GAME/modules/bosses.js`.
-  - **Phase 2 – Advanced Bosses**: Recreate `B11`–`B20` following the same process.
-  - **Phase 3 – Endgame Bosses**: Recreate `B21`–`B30` and verify each with unit tests.
+### FP-03 – Player Controls
+- **Complete.** Visible laser pointer and crosshair render from the right controller.
 
-### FP-06 – Architectural Refactor *(Incomplete)*
-- Canvas-based code remains in `gameLoop.js` and `state.js`.
-- **Step Plan**:
-  1. Remove the canvas creation from `state.resetGame` and all references to `canvas` in `gameLoop.js`.
-  2. Refactor `gameTick` so entities update their `THREE.Object3D` instances directly.
-  3. Delete mirroring logic from `script.js` and manage all scene objects through the Three.js graph in `vrMain.js`.
-  4. Add integration tests ensuring the game runs without a canvas element present.
+### FP-04 – UI Rendering & Functionality
+- **In Progress.** Loading bar, HUD visibility and Game Over modal actions are implemented. Stage Select and Ascension menus render via `html2canvas`, but remaining HUD elements are not yet matched to the 2D version.
 
-All other tasks remain pending until these corrections are fully verified.
+### FP-05 – Boss Mechanics Fidelity Audit
+- **In Progress.** All thirty boss scripts have been rewritten in `modules/agents/`. Unit tests cover Splitter, Reflector, Vampire and Gravity bosses. Additional tests are required to verify the remaining implementations.
+
+### FP-06 – Architectural Refactor
+- **In Progress.** Canvas dependencies were removed from `gameLoop.js` and `state.js`; `vrGameLoop.js` now updates Three.js objects. The legacy canvas loop in `main.js` still exists and some helpers rely on 2D coordinates.
+
+### FP-07 – State Management Unification
+- **In Progress.** Player, enemy, pickup and projectile states now store `THREE.Vector3` positions. `bosses.js` and several power scripts still reference `x`/`y` coordinates and must be migrated.
+
+### FP-08 – Audio System Integration
+- **Complete.** `AudioManager` uses `AudioListener` attached to the VR camera and plays positional audio.
+
+Further work should focus on finishing FP‑04, FP‑06 and FP‑07 while expanding boss test coverage.
