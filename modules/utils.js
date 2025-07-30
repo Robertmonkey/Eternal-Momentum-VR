@@ -278,3 +278,19 @@ export function safeAddEventListener(el, type, handler, options){
   if(!el) return;
   el.addEventListener(type, handler, options);
 }
+
+/**
+ * Capture a DOM element to a THREE.CanvasTexture using html2canvas.
+ * The element is temporarily styled for rendering via the 'is-rendering' class.
+ * @param {HTMLElement} el
+ * @returns {Promise<THREE.CanvasTexture|null>}
+ */
+export async function captureElementToTexture(el){
+  if(!el || typeof html2canvas === 'undefined') return null;
+  el.classList.add('is-rendering');
+  const canvas = await html2canvas(el);
+  el.classList.remove('is-rendering');
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}

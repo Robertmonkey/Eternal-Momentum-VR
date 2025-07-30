@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { getCamera } from './scene.js';
 import { resetGame, state } from './state.js';
+import { captureElementToTexture } from './utils.js';
 
 let modalGroup;
 const modals = {};
@@ -79,13 +80,27 @@ function createModal(id, title, buttons) {
   return modal;
 }
 
+async function createDomModal(domId) {
+  const el = document.getElementById(domId);
+  const tex = await captureElementToTexture(el);
+  if(!tex) return null;
+  const geom = new THREE.PlaneGeometry(1.6, 1);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+  const mesh = new THREE.Mesh(geom, mat);
+  const group = new THREE.Group();
+  group.name = domId;
+  group.add(mesh);
+  group.visible = false;
+  return group;
+}
+
 function restartStage() {
   resetGame(false);
   state.isPaused = false;
   Object.values(modals).forEach(m => m.visible = false);
 }
 
-export function initModals() {
+export async function initModals() {
   const group = ensureGroup();
   if (!group || modals.gameOver) return;
 
@@ -97,11 +112,8 @@ export function initModals() {
   ]);
   group.add(modals.gameOver);
 
-  modals.levelSelect = createModal('levelSelect', 'SELECT STAGE', [
-    { label: 'Start', onSelect: restartStage },
-    { label: 'Close', onSelect: () => hideModal('levelSelect') }
-  ]);
-  group.add(modals.levelSelect);
+  modals.levelSelect = await createDomModal('levelSelectModal');
+  if (modals.levelSelect) group.add(modals.levelSelect);
 
   modals.ascension = createModal('ascension', 'ASCENSION CONDUIT', [
     { label: 'Close', onSelect: () => hideModal('ascension') }
