@@ -61,3 +61,8 @@
 ## 2025-08-12
 - Reimplemented Vampire Veil boss AI with healing and pickup mechanics and added
   unit test verifying behaviour (FP-05).
+
+## 2025-08-13
+- Improved menu clarity by capturing DOM modals at higher resolution.
+  `captureElementToTexture` now scales html2canvas captures by the
+  device pixel ratio for crisp UI textures (FP-04).

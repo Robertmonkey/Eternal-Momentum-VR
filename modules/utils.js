@@ -296,7 +296,9 @@ export async function captureElementToTexture(el){
   const prevDisplay = renderCanvas ? renderCanvas.style.display : null;
   if(renderCanvas) renderCanvas.style.display = 'none';
 
-  const canvas = await html2canvas(el);
+  const ratio = (typeof window !== 'undefined' && window.devicePixelRatio) ?
+    window.devicePixelRatio : 2;
+  const canvas = await html2canvas(el, { scale: ratio });
 
   if(renderCanvas) renderCanvas.style.display = prevDisplay || '';
   el.classList.remove('is-rendering');
