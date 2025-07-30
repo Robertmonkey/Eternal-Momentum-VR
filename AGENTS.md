@@ -97,6 +97,7 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 | 2025-08-02 | FP-02 | PlayerController.js, playerState.test.mjs | Synced UV coordinates back to state and added unit test |
 | 2025-08-02 | FP-04 | UIManager.js, ModalManager.js | Exposed holoMaterial, enabled modal injection and added UI tests |
 | 2025-08-02 | CI-06 | ModalManager.js | showModal now ignores null modals |
+| 2025-08-02 | FP-06 | noCanvas.test.mjs | Added integration test ensuring gameTick runs without a canvas |
 ### Next Steps
 1.  **Execute Fidelity Patch 1.0 sequentially and with absolute adherence to the fidelity requirements.**
 2.  Continue removing legacy global dependencies and wiring UI interactions.
