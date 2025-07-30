@@ -51,10 +51,10 @@ This document serves two critical functions:
 | **B4** | Gravity Tyrant | **Done** |
 | **B5** | Swarm Link | **Done** |
 | **B6** | Mirror Mirage | **Done** |
-| **B7** | EMP Overload | **To Do** |
-| **B8** | The Architect | **To Do** |
-| **B9** | Aethel & Umbra | **To Do** |
-| **B10**| Looping Eye | **To Do** |
+| **B7** | EMP Overload | **Done** |
+| **B8** | The Architect | **Done** |
+| **B9** | Aethel & Umbra | **Done** |
+| **B10**| Looping Eye | **Done** |
 | **B11**| The Juggernaut | **To Do** |
 | **B12**| The Puppeteer | **To Do** |
 | **B13**| The Glitch | **To Do** |
@@ -100,9 +100,12 @@ This document serves two critical functions:
 | 2025-07-31 | S08 |`UIManager.js`, `ui.js` | Boss health bars and spawn banner added to VR HUD. |
 | 2025-07-31 | S09 |`ModalManager.js`, `PlayerController.js`, `vrMain.js` | Initial holographic modal system implemented. |
 | 2025-08-01 | B6 |`MirrorMirageAI.js` | Updated to 3-clone design and timed teleportation. |
+| 2025-08-02 | B8 |`ArchitectAI.js` | Wall summoning state machine implemented. |
+| 2025-08-02 | B9 |`AethelUmbraAI.js` | Twin boss roles and rage logic implemented. |
+| 2025-08-02 | B10 |`LoopingEyeAI.js` | Path recording and replay mechanic implemented. |
 
 ### Next Steps
-1.  **Begin Task B7:** EMP Overload
+1.  **Begin Task B11:** The Juggernaut
 
 ---
 
