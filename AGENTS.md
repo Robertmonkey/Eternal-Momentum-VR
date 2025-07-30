@@ -120,3 +120,41 @@ The current repository contains both the original 2D game (under `Eternal-Moment
 8. **Pathfinding Performance** – `findPath` sorts the open list each iteration, leading to O(n²) behaviour on complex nav meshes【F:modules/navmesh.js†L82-L99】.
 
 These issues must be addressed alongside the existing `FP-XX` tasks before a stable VR build is possible.
+
+## Completed Task Verification (2025-08-07)
+The following review audits each task marked as completed in the log above.
+
+### Verified as Complete
+* **FP-01** – Arena uses `MeshStandardMaterial`, lights are present and the background texture loads in `scene.js`.
+* **FP-02** – `PlayerController.js` creates a blue avatar positioned on the sphere surface and movement stays constrained along the arena.
+* **FP-03** – Visible laser pointer and crosshair implemented with unlit materials.
+* **FP-04** – Loading bar, holographic UI material and Game Over modal are functional.
+
+### Incomplete Items
+* **FP-05** – Only `SplitterAI.js` has been reimplemented. All other boss scripts still contain placeholder behaviours.
+* **FP-06** – The 2D canvas loop (`main.js`, `gameLoop.js`) is still active and `state.js` references `gameCanvas`.
+* **FP-07** – `state.js` stores player coordinates as `x` and `y` instead of `THREE.Vector3`. Modules still read/write pixel values.
+* **FP-08** – `AudioManager` relies on HTML `<audio>` tags rather than Three.js audio objects.
+
+## Remediation Steps
+The remaining work must be broken into smaller, sequential actions.
+
+### FP-05 Boss Mechanics
+1. For each boss in `/modules/agents/`, delete the current file and reference its logic from `Eternal-Momentum-OLD GAME/modules/bosses.js`.
+2. Reimplement bosses in groups of five (B01–B05, B06–B10, etc.), fully matching their original `init`, `logic`, `onDamage` and `onDeath` behaviour.
+3. After each group, run unit tests and verify behaviour in VR before proceeding.
+
+### FP-06 Architectural Refactor
+1. Remove all remaining canvas elements and event hooks from `index.html`, `main.js` and `gameLoop.js`.
+2. Refactor `gameTick` and related helpers so entities are updated directly as `THREE.Object3D` instances.
+3. Delete obsolete spawn mirroring logic in `script.js`; there should only be a single Three.js scene.
+
+### FP-07 State Management Unification
+1. Replace `state.player.x`/`y` with `state.player.position` (`THREE.Vector3`).
+2. Update every module to read/write this vector rather than pixel coordinates.
+3. Remove leftover 2D-only properties from the state object.
+
+### FP-08 Audio System Integration
+1. Attach a `THREE.AudioListener` to the VR camera on scene initialization.
+2. Convert `AudioManager` to create `PositionalAudio` objects for sound effects and `Audio` for music.
+3. Attach each sound to its corresponding entity so audio emanates from the correct location.
