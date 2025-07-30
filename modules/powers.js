@@ -340,9 +340,9 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   slotEl.classList.add('activated');
   setTimeout(()=> slotEl.classList.remove('activated'), 200);
 
-  // Use mouse position from window scope
-  const mx = window.mousePosition.x;
-  const my = window.mousePosition.y;
+  // Use mouse position stored in state
+  const mx = state.mousePosition.x;
+  const my = state.mousePosition.y;
   
   const applyArgs = [utils, window.gameHelpers, mx, my, options];
   

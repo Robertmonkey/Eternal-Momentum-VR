@@ -49,3 +49,8 @@
 
 ## 2025-08-09
 - Implemented FP-08 by refactoring AudioManager to use three.js AudioListener and PositionalAudio. Added listener setup in vrMain.js and updated main.js for new API. All tests pass.
+
+## 2025-08-10
+- Continued FP-07 by replacing the global `window.mousePosition` with
+  `state.mousePosition`. Updated PlayerController, powers, cores and
+  main.js to use the centralized cursor state. All tests continue to pass.

@@ -66,7 +66,7 @@ export function activateCorePower(mx, my, gameHelpers) {
       // here to capture the cursor coordinates at the moment of activation.
       setTimeout(() => {
         if (state.gameOver) return;
-        const { x: cursorX, y: cursorY } = window.mousePosition;
+        const { x: cursorX, y: cursorY } = state.mousePosition;
         const angle = Math.atan2(cursorY - state.player.y, cursorX - state.player.x);
         state.effects.push({
           type: 'juggernaut_player_charge',
@@ -208,7 +208,7 @@ export function applyCoreTickEffects(gameHelpers) {
   // --- Miasma passive ---
   if (playerHasCore('miasma')) {
       const miasmaState = state.player.talent_states.core_states.miasma;
-      const moveDist = Math.hypot(window.mousePosition.x - state.player.x, window.mousePosition.y - state.player.y);
+      const moveDist = Math.hypot(state.mousePosition.x - state.player.x, state.mousePosition.y - state.player.y);
       const isStationary = moveDist < state.player.r;
       
       if (isStationary) {
@@ -267,7 +267,7 @@ export function applyCoreTickEffects(gameHelpers) {
   if (playerHasCore('helix_weaver')) {
     const helixState = state.player.talent_states.core_states.helix_weaver;
     // Only spawn bolts when the player is stationary; movement cancels the effect.
-    const moveDist = Math.hypot(window.mousePosition.x - state.player.x, window.mousePosition.y - state.player.y);
+    const moveDist = Math.hypot(state.mousePosition.x - state.player.x, state.mousePosition.y - state.player.y);
     if (moveDist < state.player.r) {
       if (now > (helixState.lastBolt || 0) + 1000) {
         helixState.lastBolt = now;
@@ -484,7 +484,7 @@ export function handleCoreOnCollision(enemy, gameHelpers) {
  * Vampire healing orb and Parasite infection.  The Vampire orb now
  * heals 20% of max HP instead of 2%.
  */
-export function handleCoreOnDamageDealt(target) {
+export function handleCoreOnDamageDealt(target, gameHelpers) {
   // Vampire: 10% chance to spawn a blood orb that heals for 20% of max HP.
   if (playerHasCore('vampire') && Math.random() < 0.10) {
     state.pickups.push({
@@ -500,7 +500,7 @@ export function handleCoreOnDamageDealt(target) {
       customApply: () => {
         state.player.health = Math.min(state.player.maxHealth, state.player.health + (state.player.maxHealth * 0.20));
         utils.spawnParticles(state.particles, state.player.x, state.player.y, '#800020', 20, 3, 30, 5);
-        window.gameHelpers.play('vampireHeal');
+        gameHelpers?.play?.('vampireHeal');
       },
     });
   }
@@ -519,11 +519,11 @@ export function handleCoreOnDamageDealt(target) {
  * core to clear certain projectile effects.  Left unmodified from the
  * original implementation as its behaviour is unchanged by the redesign.
  */
-export function handleCoreOnShieldBreak() {
+export function handleCoreOnShieldBreak(gameHelpers) {
   if (playerHasCore('emp')) {
     state.effects = state.effects.filter(ef => ef.type !== 'nova_bullet' && ef.type !== 'helix_bolt');
     utils.spawnParticles(state.particles, state.player.x, state.player.y, '#3498db', 50, 4, 30, 5);
-    window.gameHelpers.play('empDischarge');
+    gameHelpers?.play?.('empDischarge');
   }
 }
 

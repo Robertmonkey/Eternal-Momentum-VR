@@ -22,6 +22,9 @@ export const state = {
   // Track mouse buttons for detecting LMB/RMB combos when activating cores
   LMB_down: false,
   RMB_down: false,
+  // Cursor location mapped from the player's raycast hit on the arena sphere.
+  // Stored in screen-space pixels for compatibility with legacy systems.
+  mousePosition: { x: 0, y: 0 },
   player: {
     position: new THREE.Vector3(0, 0, 0),
     // Player hitbox radius.  Fractal Horror modifies this value on equip.
@@ -225,6 +228,8 @@ export function resetGame(isArena = false) {
   state.player.lastSpore = 0;
   state.player.contingencyUsed = false;
   state.player.preordinanceUsed = false;
+  state.mousePosition.x = 0;
+  state.mousePosition.y = 0;
   // Recreate the core state container to wipe out any lingering cooldowns.
   state.player.talent_states.core_states = {
     architect: { lastPillarTime: 0 },
