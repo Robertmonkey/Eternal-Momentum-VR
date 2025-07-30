@@ -40,6 +40,7 @@ export function initPlayerController() {
   scene.add(crosshair);
 
   raycaster = new THREE.Raycaster();
+  raycaster.camera = getCamera();
   rightController = getControllers()[0];
 
   if (rightController) {
@@ -91,6 +92,7 @@ function handleInput() {
 
 export function updatePlayerController() {
   if (!rightController || !raycaster) return;
+  raycaster.camera = getCamera();
   const arena = getArena();
   const radius = arena.geometry.parameters.radius;
 
