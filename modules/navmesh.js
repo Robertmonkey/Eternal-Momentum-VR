@@ -1,6 +1,9 @@
-// Use global THREE provided by A-Frame in the browser. Tests provide it via node
-// "three" package, so no import is required here to avoid an unresolved module
-// specifier error in browsers.
+// Three.js utilities for building and traversing the spherical navigation mesh.
+// The previous implementation relied on a global THREE namespace which broke
+// bundling and unit tests. The module now imports the bundled three.js copy
+// directly so it works consistently in both the browser and Node test
+// environment.
+import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
 

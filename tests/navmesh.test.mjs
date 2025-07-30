@@ -8,8 +8,6 @@ global.document = {
   createElement: () => ({ getContext: () => ({}) })
 };
 
-// provide global THREE for navmesh module
-global.THREE = THREE;
 
 const { buildNavMesh, findPath } = await import('../modules/navmesh.js');
 

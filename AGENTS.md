@@ -86,6 +86,8 @@ The following task list is a **mandatory patch and refactoring directive**. You 
 | 2025-07-30 | FP-04 | UIManager.js | Implemented loading bar and holographic UI materials |
 | 2025-07-30 | FP-05 | SplitterAI.js | Reimplemented Splitter Sentinel boss mechanics |
 
+| 2025-07-31 | CI-02 | navmesh.js, utils.js | Removed global THREE dependency |
+| 2025-07-31 | CI-03 | vrCommandCluster.js | Removed obsolete A-Frame HUD module |
 ### Next Steps
 1.  **Execute Fidelity Patch 1.0 sequentially and with absolute adherence to the fidelity requirements.**
 2.  **Halt for user verification and playtest after all FP tasks are complete.**
@@ -102,11 +104,11 @@ The current repository contains both the original 2D game (under `Eternal-Moment
 
 ### Critical Issues
 1. **Hybrid Architecture** – `vrMain.js` renders the VR scene while `main.js` maintains the old canvas loop. This split causes duplicated state and inconsistent updates. `state.resetGame` still references a `gameCanvas` DOM element【F:modules/state.js†L208-L219】.
-2. **Global Dependencies** – Several modules rely on `window` or global `THREE` (e.g. `navmesh.js` comments)【F:modules/navmesh.js†L1-L5】, which complicates bundling and testing.
+2. **Global Dependencies** – Several modules relied on `window` or a global `THREE` instance (e.g. `navmesh.js` comments)【F:modules/navmesh.js†L1-L5】, complicating bundling and testing. *(Corrected: `navmesh.js` and `utils.js` now import Three.js directly.)*
 3. **2D Position Data** – Player coordinates are managed in pixels (`state.player.x`, `state.player.y`) instead of `THREE.Vector3`, preventing native 3D movement logic【F:modules/state.js†L208-L219】.
 4. **Audio System** – `AudioManager` manipulates `<audio>` elements rather than Three.js audio objects, so sounds cannot be positioned in 3D space【F:modules/audio.js†L1-L19】.
 5. **Boss AI Stubs** – Each file under `modules/agents/` implements placeholder behaviours. The root directive notes these must be reimplemented based on the old game's `bosses.js` logic.
-6. **Obsolete A‑Frame Artifacts** – Files such as `vrCommandCluster.js` still generate `<a-plane>` elements and were designed for A‑Frame. They are unused in the current scene and should be removed or rewritten.
+6. **Obsolete A‑Frame Artifacts** – Files such as `vrCommandCluster.js` still generated `<a-plane>` elements and were designed for A‑Frame. *(Corrected: `vrCommandCluster.js` removed.)*
 7. **UI and Modal Functionality** – The Three.js HUD renders correctly but many modal buttons only log to the console instead of manipulating game state【F:modules/ModalManager.js†L53-L74】.
 8. **Pathfinding Performance** – `findPath` sorts the open list each iteration, leading to O(n²) behaviour on complex nav meshes【F:modules/navmesh.js†L82-L99】.
 
