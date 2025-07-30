@@ -104,3 +104,6 @@
 - Continued FP-07 by removing window dimension and haptic references.
   `powers.js` now uses screen constants and `gameHelpers.pulseControllers`.
   `cores.js` updated accordingly. All tests pass.
+
+## 2025-08-23
+- Continued FP-07 by converting enemy objects to store THREE.Vector3 positions. Updated gameLoop spawnEnemy, enemyAI3d, cores logic and tests accordingly. All tests pass.

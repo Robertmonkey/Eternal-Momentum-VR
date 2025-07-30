@@ -30,7 +30,7 @@ export function updateEnemies3d(radius, width, height){
   const playerPos = state.player.position.clone();
   const targetUv = spherePosToUv(playerPos, radius);
   state.enemies.forEach(e => {
-    const startUv = {u:e.x/width, v:e.y/height};
+    const startUv = spherePosToUv(e.position, radius);
 
     // Recalculate the full path periodically or when we reach the end
     if(!e.path || !e.path.length || e.pathIndex >= e.path.length || (e.lastPathCalc && Date.now()-e.lastPathCalc>500)){
@@ -40,12 +40,10 @@ export function updateEnemies3d(radius, width, height){
     }
 
     const nextUv = e.path[e.pathIndex] || targetUv;
-    const pos3d = uvToSpherePos(startUv.u, startUv.v, radius);
+    const pos3d = e.position.clone();
     const target3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
     moveTowards(pos3d, target3d, e.speed || 1, radius);
-    const {u,v} = spherePosToUv(pos3d, radius);
-    e.x = u * width;
-    e.y = v * height;
+    e.position.copy(pos3d);
 
     // Advance along the path when close to the next waypoint
     const dest3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
