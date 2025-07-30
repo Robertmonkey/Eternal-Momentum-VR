@@ -55,14 +55,14 @@ This document serves two critical functions:
 | **B8** | The Architect | **Done** |
 | **B9** | Aethel & Umbra | **Done** |
 | **B10**| Looping Eye | **Done** |
-| **B11**| The Juggernaut | **To Do** |
-| **B12**| The Puppeteer | **To Do** |
-| **B13**| The Glitch | **To Do** |
-| **B14**| Sentinel Pair | **To Do** |
-| **B15**| The Basilisk | **To Do** |
-| **B16**| The Annihilator | **To Do** |
-| **B17**| The Parasite | **To Do** |
-| **B18**| Quantum Shadow | **To Do** |
+| **B11**| The Juggernaut | **Done** |
+| **B12**| The Puppeteer | **Done** |
+| **B13**| The Glitch | **Done** |
+| **B14**| Sentinel Pair | **Done** |
+| **B15**| The Basilisk | **Done** |
+| **B16**| The Annihilator | **Done** |
+| **B17**| The Parasite | **Done** |
+| **B18**| Quantum Shadow | **Done** |
 | **B19**| Time Eater | **To Do** |
 | **B20**| The Singularity | **To Do** |
 | **B21**| The Miasma | **To Do** |
@@ -107,9 +107,13 @@ This document serves two critical functions:
 | 2025-08-03 | B12 |`PuppeteerAI.js` | Enemy conversion mechanic implemented. |
 | 2025-08-03 | B13 |`GlitchAI.js` | Teleportation and glitch zone mechanic implemented. |
 | 2025-08-03 | B14 |`SentinelPairAI.js` | Shared health and beam link implemented. |
+| 2025-08-04 | B15 |`BasiliskAI.js` | Petrify zone logic implemented. |
+| 2025-08-04 | B16 |`AnnihilatorAI.js` | Beam and pillar mechanic implemented. |
+| 2025-08-04 | B17 |`ParasiteAI.js` | Infection spread mechanic implemented. |
+| 2025-08-04 | B18 |`QuantumShadowAI.js` | Phasing and echo collapse implemented. |
 
 ### Next Steps
-1.  **Begin Task B15:** The Basilisk
+1.  **Begin Task B19:** Time Eater
 
 ---
 
