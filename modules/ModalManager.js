@@ -2,19 +2,10 @@ import * as THREE from '../vendor/three.module.js';
 import { getCamera } from './scene.js';
 import { resetGame, state } from './state.js';
 import { captureElementToTexture } from './utils.js';
+import { holoMaterial } from './UIManager.js';
 
 let modalGroup;
 const modals = {};
-
-function holoMaterial(color = 0x141428, opacity = 0.85) {
-  return new THREE.MeshStandardMaterial({
-    color,
-    emissive: color,
-    transparent: true,
-    opacity,
-    side: THREE.DoubleSide
-  });
-}
 
 function ensureGroup(camOverride) {
   if (!modalGroup) {
