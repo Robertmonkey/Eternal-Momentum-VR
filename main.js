@@ -541,7 +541,7 @@ window.addEventListener('load', () => {
             function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
             window.addEventListener("resize", resize);
             resize();
-            AudioManager.setup(allAudioElements, soundBtn);
+            AudioManager.setup(null, soundBtn);
             setupEventListeners();
             setupHomeScreen();
         }

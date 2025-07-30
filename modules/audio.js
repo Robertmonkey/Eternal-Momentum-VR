@@ -1,231 +1,119 @@
-// modules/audio.js
+import * as THREE from '../vendor/three.module.js';
 
 export const AudioManager = {
-    unlocked: false,
-    userMuted: false,
-    sfxVolume: 0.75,
-    musicVolume: 0.40,
-    soundElements: {},
-    musicPlaylist: [],
-    currentTrackIndex: -1,
-    currentMusic: null,
-  isFading: false,
-  stageMusicMap: [
-    {min:1,  max:5,  track:'bgMusic_01'},
-    {min:6,  max:10, track:'bgMusic_02'},
-    {min:11, max:15, track:'bgMusic_03'},
-    {min:16, max:20, track:'bgMusic_04'},
-    {min:21, max:Infinity, track:'bgMusic_05'}
-  ],
-    
-    setup(audioElements, soundBtn) {
-        audioElements.forEach(el => {
-            this.soundElements[el.id] = el;
-            if (el.id.startsWith('bgMusic')) {
-                this.musicPlaylist.push(el);
-            }
-        });
-        this.musicPlaylist.sort(() => Math.random() - 0.5);
-        this.soundBtn = soundBtn;
-        this.normalizeVolumes();
-        this.updateButtonIcon();
-    },
+  listener: null,
+  loader: new THREE.AudioLoader(),
+  unlocked: false,
+  userMuted: false,
+  sfxVolume: 0.75,
+  musicVolume: 0.4,
+  soundBuffers: {},
+  loopingSounds: {},
+  musicPlaylist: ['bgMusic_01', 'bgMusic_02', 'bgMusic_03', 'bgMusic_04', 'bgMusic_05'],
+  currentTrackIndex: -1,
+  currentMusic: null,
+  soundBtn: null,
 
-    normalizeVolumes() {
-        Object.values(this.soundElements).forEach(el => {
-            if (el.id && el.id.startsWith('bgMusic')) {
-                el.volume = this.musicVolume;
-            } else if (el.loop) {
-                el.volume = this.sfxVolume;
-            } else {
-                el.volume = Math.min(el.volume, this.sfxVolume);
-            }
-        });
-    },
-    
-    unlockAudio() {
-        if (this.unlocked) return;
-        this.unlocked = true;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        const audioCtx = new AudioContext();
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        this.playMusic();
-    },
-    
-    toggleMute() {
-        if (!this.unlocked) this.unlockAudio();
-        this.userMuted = !this.userMuted;
-        
-        Object.values(this.soundElements).forEach(el => {
-            if (el.loop) el.muted = this.userMuted;
-        });
-        
-        if (this.userMuted) {
-            if(this.currentMusic) this.currentMusic.pause();
-        } else {
-            if(this.currentMusic) this.currentMusic.play().catch(e => {});
-        }
-        
-        this.updateButtonIcon();
-    },
+  attachListener(camera) {
+    if (this.listener || !camera) return;
+    this.listener = new THREE.AudioListener();
+    camera.add(this.listener);
+  },
 
-    updateButtonIcon() {
-        if(!this.soundBtn) return;
-        if(this.soundBtn.tagName && this.soundBtn.tagName.toLowerCase() === 'a-text') {
-            this.soundBtn.setAttribute('value', this.userMuted ? '🔇' : '🔊');
-        } else {
-            this.soundBtn.innerText = this.userMuted ? '🔇' : '🔊';
-        }
-    },
+  setup(camera, soundBtn) {
+    this.attachListener(camera);
+    this.soundBtn = soundBtn;
+    this.updateButtonIcon();
+  },
 
-    setMusicVolume(vol) {
-        this.musicVolume = Math.min(1, Math.max(0, vol));
-        Object.values(this.soundElements).forEach(el => {
-            if (el.id && el.id.startsWith('bgMusic')) {
-                el.volume = this.musicVolume;
-            }
-        });
-        if (this.currentMusic) this.currentMusic.volume = this.musicVolume;
-    },
-    setSfxVolume(vol) {
-        this.sfxVolume = Math.min(1, Math.max(0, vol));
-        this.normalizeVolumes();
-    },
-    playSfx(soundId) {
-        if (!this.unlocked || this.userMuted) return;
-        const originalSfx = this.soundElements[soundId];
-        if (originalSfx) {
-            const sfxInstance = originalSfx.cloneNode();
-            sfxInstance.volume = this.sfxVolume;
-            sfxInstance.addEventListener('ended', () => sfxInstance.remove());
-            document.body.appendChild(sfxInstance);
-            sfxInstance.play().catch(e => console.warn(`SFX instance for ${soundId} failed to play.`, e));
-        } else {
-            console.warn(`Sound with ID "${soundId}" not found.`);
-        }
-    },
+  unlockAudio() {
+    this.unlocked = true;
+    this.playMusic();
+  },
 
-  playLoopingSfx(soundId) {
-        if (!this.unlocked || this.userMuted) return;
-        const sfx = this.soundElements[soundId];
-        if (sfx && sfx.paused) {
-            sfx.volume = this.sfxVolume;
-            sfx.play().catch(e => console.warn(`Looping SFX failed for: ${soundId}`, e));
-        }
-    },
+  toggleMute() {
+    if (!this.unlocked) this.unlockAudio();
+    this.userMuted = !this.userMuted;
+    if (this.currentMusic) this.currentMusic.setVolume(this.userMuted ? 0 : this.musicVolume);
+    Object.values(this.loopingSounds).forEach(sound => sound.setVolume(this.userMuted ? 0 : this.sfxVolume));
+    this.updateButtonIcon();
+  },
 
-    stopLoopingSfx(soundId) {
-        const sfx = this.soundElements[soundId];
-        if (sfx && !sfx.paused) {
-            sfx.pause();
-        }
-    },
-
-    getTrackForStage(stage){
-        for(const m of this.stageMusicMap){
-            if(stage >= m.min && stage <= m.max) return m.track;
-        }
-        return 'bgMusic_01';
-    },
-
-    playMusicForStage(stage){
-        if(!this.unlocked) this.unlockAudio();
-        const id = this.getTrackForStage(stage);
-        const track = this.soundElements[id];
-        if(!track) return;
-        this.musicPlaylist = [track];
-        this.currentTrackIndex = -1;
-        this.currentMusic = null;
-        this.playMusic();
-    },
-    
-    handleVisibilityChange() {
-        if (!this.unlocked) return;
-
-        if (document.hidden) {
-            if (this.currentMusic && !this.currentMusic.paused) {
-                this.currentMusic.pause();
-            }
-            Object.entries(this.soundElements).forEach(([id, el]) => {
-                if (el.loop && !el.paused) el.pause();
-            });
-        } else {
-            if (!this.userMuted && this.currentMusic && this.currentMusic.paused) {
-                this.currentMusic.play().catch(e => {});
-            }
-        }
-    },
-
-    _fade(audioElement, startVol, endVol, duration, onComplete) {
-        if (duration <= 0) {
-            audioElement.volume = endVol;
-            if(onComplete) onComplete();
-            return;
-        }
-        this.isFading = true;
-        let currentVol = startVol;
-        audioElement.volume = currentVol;
-        const interval = 50;
-        const step = (endVol - startVol) / (duration / interval);
-        const fade = setInterval(() => {
-            currentVol += step;
-            if ((step > 0 && currentVol >= endVol) || (step < 0 && currentVol <= endVol)) {
-                currentVol = endVol;
-            }
-            audioElement.muted = false; 
-            audioElement.volume = currentVol;
-            if (currentVol === endVol) {
-                clearInterval(fade);
-                this.isFading = false;
-                if(onComplete) onComplete();
-            }
-        }, interval);
-    },
-
-    fadeOutMusic(duration = 2000) {
-        if (this.currentMusic) {
-            const trackToFade = this.currentMusic;
-            this._fade(trackToFade, trackToFade.volume, 0, duration, () => {
-                trackToFade.pause();
-                if (this.currentMusic === trackToFade) {
-                    this.currentMusic = null;
-                }
-            });
-        }
-    },
-
-    crossfadeToNextTrack(duration = 3000) {
-        if (this.isFading || this.userMuted) return;
-        if (this.musicPlaylist.length === 0) return;
-
-        const startNext = () => {
-            this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicPlaylist.length;
-            const nextTrack = this.musicPlaylist[this.currentTrackIndex];
-            if (!nextTrack) return;
-            this.currentMusic = nextTrack;
-            nextTrack.currentTime = 0;
-            nextTrack.play().catch(() => {});
-            this._fade(nextTrack, 0, this.musicVolume, duration);
-        };
-
-        if (this.currentMusic) {
-            const trackToFade = this.currentMusic;
-            this._fade(trackToFade, trackToFade.volume, 0, duration, () => {
-                trackToFade.pause();
-                if (this.currentMusic === trackToFade) {
-                    this.currentMusic = null;
-                }
-                startNext();
-            });
-        } else {
-            startNext();
-        }
-    },
-    
-    playMusic() {
-        if (this.currentMusic || this.musicPlaylist.length === 0 || this.userMuted) return;
-        this.crossfadeToNextTrack(1000); 
+  updateButtonIcon() {
+    if (!this.soundBtn) return;
+    if (this.soundBtn.tagName && this.soundBtn.tagName.toLowerCase() === 'a-text') {
+      this.soundBtn.setAttribute('value', this.userMuted ? '🔇' : '🔊');
+    } else {
+      this.soundBtn.innerText = this.userMuted ? '🔇' : '🔊';
     }
+  },
+
+  _loadBuffer(id, cb) {
+    if (this.soundBuffers[id]) { cb(this.soundBuffers[id]); return; }
+    this.loader.load(`assets/${id}.mp3`, buffer => {
+      this.soundBuffers[id] = buffer;
+      cb(buffer);
+    });
+  },
+
+  playSfx(id, object3d = null) {
+    if (!this.unlocked || this.userMuted || !this.listener) return;
+    this._loadBuffer(id, buffer => {
+      const sound = object3d ? new THREE.PositionalAudio(this.listener) : new THREE.Audio(this.listener);
+      sound.setBuffer(buffer);
+      sound.setVolume(this.sfxVolume);
+      if (object3d) {
+        object3d.add(sound);
+      }
+      sound.play();
+    });
+  },
+
+  playLoopingSfx(id, object3d = null) {
+    if (!this.unlocked || this.userMuted || !this.listener) return;
+    if (this.loopingSounds[id]) return;
+    this._loadBuffer(id, buffer => {
+      const sound = object3d ? new THREE.PositionalAudio(this.listener) : new THREE.Audio(this.listener);
+      sound.setBuffer(buffer);
+      sound.setLoop(true);
+      sound.setVolume(this.sfxVolume);
+      if (object3d) object3d.add(sound);
+      sound.play();
+      this.loopingSounds[id] = sound;
+    });
+  },
+
+  stopLoopingSfx(id) {
+    const sound = this.loopingSounds[id];
+    if (sound) {
+      sound.stop();
+      if (sound.parent) sound.parent.remove(sound);
+      delete this.loopingSounds[id];
+    }
+  },
+
+  _playMusicTrack(id) {
+    this._loadBuffer(id, buffer => {
+      const sound = new THREE.Audio(this.listener);
+      sound.setBuffer(buffer);
+      sound.setLoop(true);
+      sound.setVolume(this.userMuted ? 0 : this.musicVolume);
+      sound.play();
+      this.currentMusic = sound;
+    });
+  },
+
+  playMusicForStage(stage) {
+    if (!this.unlocked) this.unlockAudio();
+    const trackIndex = this.musicPlaylist.findIndex((t, i) => stage <= (i + 1) * 5);
+    this.currentTrackIndex = trackIndex >= 0 ? trackIndex : 0;
+    if (this.currentMusic) this.currentMusic.stop();
+    this._playMusicTrack(this.musicPlaylist[this.currentTrackIndex]);
+  },
+
+  playMusic() {
+    if (this.musicPlaylist.length === 0 || this.currentMusic) return;
+    this.currentTrackIndex = 0;
+    this._playMusicTrack(this.musicPlaylist[0]);
+  }
 };

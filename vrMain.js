@@ -4,6 +4,7 @@ import { initUI, updateHud } from './modules/UIManager.js';
 import { initModals } from './modules/ModalManager.js';
 import { initVrGameLoop, updateVrGameLoop } from './modules/vrGameLoop.js';
 import { initControllerMenu, updateControllerMenu } from './modules/ControllerMenu.js';
+import { AudioManager } from './modules/audio.js';
 
 let initialized = false;
 
@@ -13,6 +14,7 @@ export async function start() {
   initPlayerController();
   initVrGameLoop();
   initUI();
+  AudioManager.setup(getCamera(), null);
   await initModals();
   initControllerMenu();
   initialized = true;
