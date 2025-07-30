@@ -14,6 +14,14 @@ export class GravityAI extends BaseAgent {
     for (let i = 0; i < 8; i++) {
       this.wells.push({ angle: i * (Math.PI / 4), dist: 150, r: 30 });
     }
+    this.target = this.randomPos();
+    this.lastShot = Date.now();
+  }
+
+  randomPos() {
+    const u = Math.random();
+    const v = Math.random();
+    return uvToSpherePos(u, v, this.radius);
   }
 
   applyGravity(playerObj, playerPos2d, width, height, delta) {
@@ -27,9 +35,25 @@ export class GravityAI extends BaseAgent {
     playerObj.y += dy * this.pullStrength * delta;
   }
 
-  update(delta, playerPos2d, width, height, playerObj) {
+  update(delta, playerPos2d, width, height, playerObj, state) {
     if (!this.alive) return;
     this.applyGravity(playerObj, playerPos2d, width, height, delta);
+
+    // slow roaming movement
+    this.position.lerp(this.target, delta * 0.05);
+    if (this.position.distanceTo(this.target) < 0.05 * this.radius) {
+      this.target = this.randomPos();
+    }
+
+    // fire projectile every 6 seconds
+    if (playerObj && Date.now() - this.lastShot > 6000) {
+      this.lastShot = Date.now();
+      const fromUv = spherePosToUv(this.position.clone().normalize(), this.radius);
+      const toUv = spherePosToUv(playerObj.position.clone().normalize(), this.radius);
+      const dx = (toUv.u - fromUv.u) * width * 0.2;
+      const dy = (toUv.v - fromUv.v) * height * 0.2;
+      state?.effects?.push({ type: 'nova_bullet', caster: this, x: fromUv.u * width, y: fromUv.v * height, r: 5, dx, dy, color: '#00008b', damage: 12 });
+    }
 
     const cu = this.position.clone().normalize();
     const centerVec = cu;
