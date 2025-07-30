@@ -71,3 +71,6 @@
 - Reduced console noise by gating WebXR session logs behind NODE_ENV checks (CI-07).
 ## 2025-08-15
 - Continued FP-07 by removing remaining window.mousePosition references in gameLoop.js to use state.mousePosition.
+
+## 2025-08-16
+- Added Gravity Tyrant AI unit test validating gravitational pull effect (FP-05).
