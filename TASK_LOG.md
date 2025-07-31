@@ -127,3 +127,8 @@
 - Completed FP-05 by adding unit tests for ArchitectAI and SwarmLinkAI behaviours.
 - Completed FP-06 by removing legacy main.js entry and switching package.json to use vrMain.js.
 - Completed FP-07 final cleanup with modal refresh and added tests. All tests pass.
+
+2025-08-28 – FR-01 – Scene & Lighting improvements
+Summary: Replaced cylinder platform with transparent neon grid ring. Added grid helper and ensured ambient + directional lights illuminate bg texture.
+Verification: Ran npm test; all suites passed.
+Next Steps: Continue FR-01 by tweaking arena lighting brightness if needed, then begin FR-02 settings panel.
