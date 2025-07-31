@@ -30,14 +30,29 @@ export function applyCorePassives(gameHelpers) {
   Cores.applyCoreTickEffects(gameHelpers);
 }
 
-// Re-export other core hooks for convenience so modules can import
-// from CoreManager instead of cores.js directly.
-export const onEnemyDeath = Cores.handleCoreOnEnemyDeath;
-export const onPlayerDamage = Cores.handleCoreOnPlayerDamage;
-export const onCollision = Cores.handleCoreOnCollision;
-export const onDamageDealt = Cores.handleCoreOnDamageDealt;
-export const onShieldBreak = Cores.handleCoreOnShieldBreak;
-export const onFatalDamage = Cores.handleCoreOnFatalDamage;
-export const onPickup = Cores.handleCoreOnPickup;
-export const onEmptySlot = Cores.handleCoreOnEmptySlot;
-export const onDefensivePower = Cores.handleCoreOnDefensivePower;
+// Allow tests to override hook functions by updating this object.
+const hooks = {
+  onEnemyDeath: Cores.handleCoreOnEnemyDeath,
+  onPlayerDamage: Cores.handleCoreOnPlayerDamage,
+  onCollision: Cores.handleCoreOnCollision,
+  onDamageDealt: Cores.handleCoreOnDamageDealt,
+  onShieldBreak: Cores.handleCoreOnShieldBreak,
+  onFatalDamage: Cores.handleCoreOnFatalDamage,
+  onPickup: Cores.handleCoreOnPickup,
+  onEmptySlot: Cores.handleCoreOnEmptySlot,
+  onDefensivePower: Cores.handleCoreOnDefensivePower,
+};
+
+export function _setTestHooks(overrides = {}) {
+  Object.assign(hooks, overrides);
+}
+
+export const onEnemyDeath = (...args) => hooks.onEnemyDeath(...args);
+export const onPlayerDamage = (...args) => hooks.onPlayerDamage(...args);
+export const onCollision = (...args) => hooks.onCollision(...args);
+export const onDamageDealt = (...args) => hooks.onDamageDealt(...args);
+export const onShieldBreak = (...args) => hooks.onShieldBreak(...args);
+export const onFatalDamage = (...args) => hooks.onFatalDamage(...args);
+export const onPickup = (...args) => hooks.onPickup(...args);
+export const onEmptySlot = (...args) => hooks.onEmptySlot(...args);
+export const onDefensivePower = (...args) => hooks.onDefensivePower(...args);

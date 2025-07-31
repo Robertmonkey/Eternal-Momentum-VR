@@ -1,5 +1,6 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import * as CoreManager from '../CoreManager.js';
 
 // AnnihilatorAI - Implements boss B16: The Annihilator
 // Periodically charges and fires a devastating beam. The player must
@@ -44,6 +45,7 @@ export class AnnihilatorAI extends BaseAgent {
       if (!this.inShadow(playerObj.position)) {
         if (typeof playerObj.health === 'number') {
           playerObj.health -= 1000;
+          CoreManager.onPlayerDamage(1000, this, gameHelpers);
           if (playerObj.health <= 0) playerObj.alive = false;
         }
       }

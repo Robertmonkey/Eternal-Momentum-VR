@@ -1,6 +1,12 @@
 import assert from 'assert';
 import * as THREE from '../vendor/three.module.js';
 
+global.window = { gameHelpers: {} };
+global.document = {
+  getElementById: () => null,
+  createElement: () => ({ getContext: () => ({}) })
+};
+
 const { ArchitectAI } = await import('../modules/agents/ArchitectAI.js');
 
 const boss = new ArchitectAI(1);

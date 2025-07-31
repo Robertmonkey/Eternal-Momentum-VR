@@ -1,5 +1,6 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import * as CoreManager from '../CoreManager.js';
 
 // MiasmaAI - Implements boss B21: The Miasma
 // Periodically fills the arena with toxic gas that damages the player
@@ -30,7 +31,9 @@ export class MiasmaAI extends BaseAgent {
     if (this.isGasActive) {
       if (playerObj.position.distanceTo(this.position) < this.radius * 2) {
         if (typeof playerObj.health === 'number') {
-          playerObj.health -= 0.2 * delta;
+          const dmg = 0.2 * delta;
+          playerObj.health -= dmg;
+          CoreManager.onPlayerDamage(dmg, this, gameHelpers);
         }
       }
       if (Date.now() - this.lastGas > 6000) {

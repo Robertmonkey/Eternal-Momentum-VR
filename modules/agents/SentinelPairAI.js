@@ -45,8 +45,8 @@ export class SentinelPairAI extends BaseAgent {
     }
   }
 
-  takeDamage(amount) {
-    super.takeDamage(amount);
+  takeDamage(amount, gameHelpers) {
+    super.takeDamage(amount, true, gameHelpers);
     if (this.partner) this.partner.health = this.health;
   }
 
