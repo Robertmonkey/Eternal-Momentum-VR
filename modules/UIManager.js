@@ -373,9 +373,12 @@ export function updateHud() {
     if (coreGroup.visible) {
       const coreId = state.player.equippedAberrationCore;
       const coreData = coreId ? bossData.find(b => b.id === coreId) : null;
-      updateTextSprite(coreIcon, coreData ? '◎' : '◎');
       const color = coreData ? coreData.color : '#eaf2ff';
+      updateTextSprite(coreIcon, '◎', color);
       coreIcon.material.map.needsUpdate = true;
+      if (coreIcon.material.color) {
+        coreIcon.material.color.setStyle(color);
+      }
       coreGroup.children[0].material.color.setStyle(color);
 
       if (coreCooldown) {
