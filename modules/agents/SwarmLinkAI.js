@@ -30,11 +30,10 @@ export class SwarmLinkAI extends BaseAgent {
       if (playerObj) m.mesh.lookAt(playerObj.position);
       if (playerObj && Date.now() - m.lastShot > 4000) {
         m.lastShot = Date.now();
-        const fromUv = spherePosToUv(m.mesh.position.clone().normalize(), this.radius);
-        const toUv = spherePosToUv(playerObj.position.clone().normalize(), this.radius);
-        const dx = (toUv.u - fromUv.u) * 2048 * 0.25;
-        const dy = (toUv.v - fromUv.v) * 1024 * 0.25;
-        state?.effects?.push({ type: 'nova_bullet', caster: this, x: fromUv.u * 2048, y: fromUv.v * 1024, r: 4, dx, dy, color: '#ffff00', damage: 6 });
+        const fromPos = m.mesh.position.clone();
+        const toPos = playerObj.position.clone();
+        const vel = toPos.sub(fromPos).normalize().multiplyScalar(0.25);
+        state?.effects?.push({ type: 'nova_bullet', caster: this, position: fromPos.clone(), velocity: vel, r: 4, color: '#ffff00', damage: 6 });
       }
     });
   }

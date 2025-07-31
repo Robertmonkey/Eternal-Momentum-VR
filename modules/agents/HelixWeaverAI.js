@@ -25,7 +25,8 @@ export class HelixWeaverAI extends BaseAgent {
       const totalArms = 4;
       for (let i = 0; i < this.activeArms; i++) {
         const ang = this.angle + (i * (2 * Math.PI / totalArms));
-        state?.effects?.push({ type: 'nova_bullet', caster: this, x: this.position.x, y: this.position.y, z: this.position.z, angle: ang });
+        const dir = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)).normalize().multiplyScalar(0.2);
+        state?.effects?.push({ type: 'nova_bullet', caster: this, position: this.position.clone(), velocity: dir });
       }
       this.angle += 0.2;
     }

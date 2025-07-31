@@ -98,14 +98,17 @@ export const powers={
           for(let i = 0; i < 3; i++) {
               const angleOffset = (i - 1) * 0.5;
               const finalAngle = initialAngle + angleOffset;
+              const originVec = state.player.position.clone();
+              const nextUv = {
+                u: (oPos.x + Math.cos(finalAngle) * 4) / SCREEN_WIDTH,
+                v: (oPos.y + Math.sin(finalAngle) * 4) / SCREEN_HEIGHT
+              };
+              const targetVec = utils.uvToSpherePos(nextUv.u, nextUv.v, 1);
               state.effects.push({
                   type: 'seeking_shrapnel',
-                  x: oPos.x,
-                  y: oPos.y,
-                  dx: Math.cos(finalAngle) * 4,
-                  dy: Math.sin(finalAngle) * 4,
+                  position: originVec.clone(),
+                  velocity: targetVec.sub(originVec),
                   r: 6,
-                  speed: 4,
                   damage: 5 * state.player.talent_modifiers.damage_multiplier,
                   life: 3000,
                   startTime: Date.now(),
@@ -318,12 +321,16 @@ export const powers={
       const angle = Math.atan2(my - oPos.y, mx - oPos.x);
       const speed = 10;
       const damage = 10 * damageModifier;
+      const originVec = origin.position ? origin.position.clone() : utils.uvToSpherePos(oPos.x/SCREEN_WIDTH, oPos.y/SCREEN_HEIGHT, 1);
+      const nextUv = {
+        u: (oPos.x + Math.cos(angle) * speed) / SCREEN_WIDTH,
+        v: (oPos.y + Math.sin(angle) * speed) / SCREEN_HEIGHT
+      };
+      const targetVec = utils.uvToSpherePos(nextUv.u, nextUv.v, 1);
       state.effects.push({
           type: 'ricochet_projectile',
-          x: oPos.x,
-          y: oPos.y,
-          dx: Math.cos(angle) * speed,
-          dy: Math.sin(angle) * speed,
+          position: originVec.clone(),
+          velocity: targetVec.sub(originVec),
           r: 8,
           damage: damage,
           bounces: bounceCount,

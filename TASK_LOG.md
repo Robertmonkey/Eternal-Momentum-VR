@@ -296,3 +296,7 @@ Next Steps: Complete FR-12 by auditing other modules for legacy coordinates.
 Summary: Replaced remaining 2D coordinate references in powers.js and cores.js. Chain lightning and orbital strike now use 3D positions and decoys store Vector3 positions. Added THREE import.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Begin FR-13 projectile physics refactor.
+2025-09-24 – FR-13 – Projectile physics vectors
+Summary: Updated projectilePhysics3d to store Vector3 position and velocity for projectiles, converting legacy x/y fields. Powers and AIs now spawn nova bullets, shrapnel and helix bolts using 3D vectors. Added projectilePhysics3d.test.mjs verifying movement.
+Verification: npm test – all 61 suites including new projectile physics test pass.
+Next Steps: Continue FR-13 by refining homing behaviour and converting remaining projectiles.
