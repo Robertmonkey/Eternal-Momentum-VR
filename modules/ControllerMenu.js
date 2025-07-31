@@ -21,11 +21,12 @@ function holoMaterial(color = 0x141428, opacity = 0.85) {
 function createTextSprite(text, size = 48, color = '#eaf2ff') {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = `${size}px sans-serif`;
+  const fontStack = "'Segoe UI','Roboto',sans-serif";
+  ctx.font = `${size}px ${fontStack}`;
   const width = Math.ceil(ctx.measureText(text).width) || 1;
   canvas.width = width;
   canvas.height = size * 1.2;
-  ctx.font = `${size}px sans-serif`;
+  ctx.font = `${size}px ${fontStack}`;
   ctx.fillStyle = color;
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 0, canvas.height / 2);
@@ -84,6 +85,10 @@ export function initControllerMenu() {
   coreButton = createButton('◎', () => showModal('cores'));
   coreButton.position.set(0, -0.2, 0);
   menuGroup.add(coreButton);
+
+  const settingsBtn = createButton('⚙', () => showModal('settings'));
+  settingsBtn.position.set(0, -0.28, 0);
+  menuGroup.add(settingsBtn);
 
   leftController.add(menuGroup);
 }
