@@ -767,9 +767,10 @@ export const bossData = [{
     },
     logic: (b, ctx, state, utils, gameHelpers) => {
         if (b.partner && b.partner.hp > 0) {
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
             const P_VEC = {
-                x: state.player.x - b.x,
-                y: state.player.y - b.y
+                x: playerX - b.x,
+                y: playerY - b.y
             };
             const PERP_VEC = {
                 x: -P_VEC.y,
@@ -780,8 +781,8 @@ export const bossData = [{
             PERP_VEC.y /= dist;
             const offset = 200;
             const targetPos = {
-                x: state.player.x + PERP_VEC.x * offset,
-                y: state.player.y + PERP_VEC.y * offset
+                x: playerX + PERP_VEC.x * offset,
+                y: playerY + PERP_VEC.y * offset
             };
             b.dx = (targetPos.x - b.x) * 0.01;
             b.dy = (targetPos.y - b.y) * 0.01;
@@ -800,7 +801,7 @@ export const bossData = [{
                 utils.drawLightning(ctx, p1.x, p1.y, p2.x, p2.y, b.color, 5);
                 const L2 = Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2);
                 if (L2 !== 0) {
-                    let t = ((state.player.x - p1.x) * (p2.x - p1.x) + (state.player.y - p1.y) * (p2.y - p1.y)) / L2;
+                    let t = ((playerX - p1.x) * (p2.x - p1.x) + (playerY - p1.y) * (p2.y - p1.y)) / L2;
                     t = Math.max(0, Math.min(1, t));
                     const closestX = p1.x + t * (p2.x - p1.x);
                     const closestY = p1.y + t * (p2.y - p1.y);
@@ -973,13 +974,15 @@ export const bossData = [{
         }
         if (b.pillar) {
             utils.drawCircle(ctx, b.pillar.x, b.pillar.y, b.pillar.r, "#2d3436");
-            
+
             // Player collision with pillar
-            const playerDist = Math.hypot(state.player.x - b.pillar.x, state.player.y - b.pillar.y);
-             if (playerDist < state.player.r + b.pillar.r) {
-                const angle = Math.atan2(state.player.y - b.pillar.y, state.player.x - b.pillar.x);
-                state.player.x = b.pillar.x + Math.cos(angle) * (state.player.r + b.pillar.r);
-                state.player.y = b.pillar.y + Math.sin(angle) * (state.player.r + b.pillar.r);
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            const playerDist = Math.hypot(playerX - b.pillar.x, playerY - b.pillar.y);
+            if (playerDist < state.player.r + b.pillar.r) {
+                const angle = Math.atan2(playerY - b.pillar.y, playerX - b.pillar.x);
+                const newX = b.pillar.x + Math.cos(angle) * (state.player.r + b.pillar.r);
+                const newY = b.pillar.y + Math.sin(angle) * (state.player.r + b.pillar.r);
+                setPlayerCanvasPos(newX, newY);
             }
 
             // Boss collision with pillar
@@ -1223,11 +1226,13 @@ export const bossData = [{
                 b.wells.forEach(w => {
                     if (Date.now() < w.endTime) {
                         utils.drawCircle(ctx, w.x, w.y, w.r, "rgba(155, 89, 182, 0.3)");
-                        const dx = state.player.x - w.x,
-                            dy = state.player.y - w.y;
+                        const { x: playerX, y: playerY } = getPlayerCanvasPos();
+                        const dx = playerX - w.x,
+                              dy = playerY - w.y;
                         if (Math.hypot(dx, dy) < w.r + state.player.r) {
-                            state.player.x -= dx * 0.08;
-                            state.player.y -= dy * 0.08;
+                            const newX = playerX - dx * 0.08;
+                            const newY = playerY - dy * 0.08;
+                            setPlayerCanvasPos(newX, newY);
                         }
                     }
                 });
@@ -1393,7 +1398,8 @@ export const bossData = [{
     },
     logic: (b, ctx, state, utils, gameHelpers) => {
         if (state.player) {
-            b.playerHistory.push({x: state.player.x, y: state.player.y, time: Date.now()});
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            b.playerHistory.push({x: playerX, y: playerY, time: Date.now()});
             b.playerHistory = b.playerHistory.filter(p => Date.now() - p.time < 5000);
         }
         if (Date.now() - b.lastEcho > 8000) {
@@ -1435,7 +1441,8 @@ export const bossData = [{
             b.isCharging = true;
             b.lastSyphon = Date.now();
             gameHelpers.play('chargeUpSound');
-            const targetAngle = Math.atan2(state.player.y - b.y, state.player.x - b.x);
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            const targetAngle = Math.atan2(playerY - b.y, playerX - b.x);
             state.effects.push({ type: 'syphon_cone', source: b, angle: targetAngle, endTime: Date.now() + 2500 });
             setTimeout(() => {
                 if (b.hp <= 0) return;
@@ -1463,12 +1470,13 @@ export const bossData = [{
             b.lastWallSummon = Date.now();
             gameHelpers.play('wallSummon');
             const boxSize = Math.min(ctx.canvas.width, ctx.canvas.height) * 0.8;
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
             const warn = {
                 type: 'shrinking_box_warning',
                 startTime: Date.now(),
                 duration: 1500,
-                x: state.player.x,
-                y: state.player.y,
+                x: playerX,
+                y: playerY,
                 size: boxSize
             };
             state.effects.push(warn);
@@ -1624,7 +1632,8 @@ export const bossData = [{
                 }
             }
 
-            const distToPlayer = Math.hypot(b.x - state.player.x, b.y - state.player.y);
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            const distToPlayer = Math.hypot(b.x - playerX, b.y - playerY);
             const safetyRadius = 600;
             let slowingMultiplier = 1.0;
 
@@ -1782,7 +1791,8 @@ export const bossData = [{
         
         switch (b.conduitType) {
             case 'lightning':
-                const distToPlayer = Math.hypot(state.player.x - b.x, state.player.y - b.y);
+                const { x: playerX, y: playerY } = getPlayerCanvasPos();
+                const distToPlayer = Math.hypot(playerX - b.x, playerY - b.y);
                 const auraRadius = 250;
                 if (distToPlayer < auraRadius) {
                      for(let i = 0; i < 5; i++) {
@@ -1809,10 +1819,12 @@ export const bossData = [{
                     ctx.arc(b.x, b.y, 250 * pulse, 0, 2 * Math.PI);
                     ctx.stroke();
                 }
-                 if (Math.hypot(state.player.x - b.x, state.player.y - b.y) < 250) {
+                const distPlayer = Math.hypot(playerX - b.x, playerY - b.y);
+                if (distPlayer < 250) {
                     const pullStrength = 0.04;
-                    state.player.x += (b.x - state.player.x) * pullStrength;
-                    state.player.y += (b.y - state.player.y) * pullStrength;
+                    const newX = playerX + (b.x - playerX) * pullStrength;
+                    const newY = playerY + (b.y - playerY) * pullStrength;
+                    setPlayerCanvasPos(newX, newY);
                 }
                 break;
             case 'explosion':
@@ -1911,7 +1923,8 @@ export const bossData = [{
         b.dilationFieldEffect = null;
     },
     logic: (b, ctx, state, utils, gameHelpers) => {
-        const angleToPlayer = Math.atan2(state.player.y - b.y, state.player.x - b.x);
+        const { x: playerX, y: playerY } = getPlayerCanvasPos();
+        const angleToPlayer = Math.atan2(playerY - b.y, playerX - b.x);
         const fieldAngle = angleToPlayer + Math.PI;
 
         if (!b.dilationFieldEffect || !state.effects.includes(b.dilationFieldEffect)) {
@@ -1933,9 +1946,9 @@ export const bossData = [{
             b.dilationFieldEffect.angle = fieldAngle;
         }
 
-        const playerDist = Math.hypot(state.player.x - b.x, state.player.y - b.y);
+        const playerDist = Math.hypot(playerX - b.x, playerY - b.y);
         if (playerDist < 300) {
-            let playerAngle = Math.atan2(state.player.y - b.y, state.player.x - b.x);
+            let playerAngle = Math.atan2(playerY - b.y, playerX - b.x);
             let targetAngle = b.dilationFieldEffect.angle;
             let diff = Math.atan2(Math.sin(playerAngle - targetAngle), Math.cos(playerAngle - targetAngle));
             
@@ -2038,8 +2051,9 @@ export const bossData = [{
             let closestRune = null;
             let minPlayerDist = Infinity;
             
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
             b.activeRunes.forEach(rune => {
-                const dist = Math.hypot(state.player.x - rune.x, state.player.y - rune.y);
+                const dist = Math.hypot(playerX - rune.x, playerY - rune.y);
                 if (dist < minPlayerDist) {
                     minPlayerDist = dist;
                     closestRune = rune;
@@ -2062,9 +2076,10 @@ export const bossData = [{
                      state.effects.push({ type: 'shockwave', caster: b, x: b.x, y: b.y, radius: 0, maxRadius: Math.max(ctx.canvas.width, ctx.canvas.height), speed: 1000, startTime: now, hitEnemies: new Set(), damage: 90, color: 'rgba(241, 196, 15, 0.7)' });
                     break;
                 case 'lasers':
+                    const { x: playerX, y: playerY } = getPlayerCanvasPos();
                     for(let i = 0; i < 5; i++) {
                         setTimeout(() => {
-                           if (b.hp > 0) state.effects.push({ type: 'orbital_target', x: state.player.x, y: state.player.y, startTime: Date.now(), caster: b, damage: 45, radius: 100, color: 'rgba(241, 196, 15, 0.8)' });
+                           if (b.hp > 0) state.effects.push({ type: 'orbital_target', x: playerX, y: playerY, startTime: Date.now(), caster: b, damage: 45, radius: 100, color: 'rgba(241, 196, 15, 0.8)' });
                         }, i * 400);
                     }
                     break;
@@ -2196,8 +2211,9 @@ export const bossData = [{
 
         // --- Pantheon Movement ---
         if (!b.activeAspects.has('juggernaut')) {
-             b.dx = (state.player.x - b.x) * 0.005;
-             b.dy = (state.player.y - b.y) * 0.005;
+             const { x: playerX, y: playerY } = getPlayerCanvasPos();
+             b.dx = (playerX - b.x) * 0.005;
+             b.dy = (playerY - b.y) * 0.005;
              b.x += b.dx;
              b.y += b.dy;
         } else { // Juggernaut aspect handles its own movement

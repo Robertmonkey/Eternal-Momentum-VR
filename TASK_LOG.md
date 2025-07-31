@@ -160,3 +160,7 @@ Next Steps: Continue FR-03 by refining layout details and begin FR-04 state unif
 Summary: Converted `state.mousePosition` to a `THREE.Vector3` and updated PlayerController, powers, cores, gameLoop and bosses to read the vector and convert to canvas coords when needed. Added helper functions in bosses.js.
 Verification: `npm test` – all suites pass after the refactor.
 Next Steps: Continue FR-04 by replacing all remaining `state.player.x`/`y` references in bosses.js.
+2025-09-02 – FR-04 – Boss player position refactor
+Summary: Replaced all uses of `state.player.x`/`y` in `modules/bosses.js` with helper functions that read and write the 3D `state.player.position`. Added conversions via `getPlayerCanvasPos` and `setPlayerCanvasPos` for canvas-based calculations.
+Verification: Ran `npm test` after refactor; all test suites passed.
+Next Steps: Proceed with FR-04 by auditing remaining modules for any stray 2D references.
