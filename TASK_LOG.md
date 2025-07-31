@@ -216,6 +216,11 @@ Summary: Added mirrorMirageAI.test.mjs validating teleport behaviour and damage 
 Verification: npm install && npm test – all suites including mirrorMirageAI pass.
 Next Steps: Continue implementing remaining bosses.
 
+2025-09-15 – FR-09 – EMP Overload test
+Summary: Created empOverloadAI.test.mjs verifying EMP discharge clears inventories and bolts expire. Added test to package.json and updated boss table.
+Verification: npm test – all suites including empOverloadAI pass.
+Next Steps: Write tests for the Aethel & Umbra boss.
+
 ### Master Boss Task List
 | Boss ID | Name | Status | Script | Test |
 | :--- | :--- | :--- | :--- | :--- |
@@ -225,4 +230,6 @@ Next Steps: Continue implementing remaining bosses.
 | B04 | Gravity Tyrant | ✅ Implemented | modules/agents/GravityAI.js | tests/gravityAI.test.mjs |
 | B05 | Swarm Link | ✅ Implemented | modules/agents/SwarmLinkAI.js | tests/swarmLinkAI.test.mjs |
 | B06 | Mirror Mirage | ✅ Implemented | modules/agents/MirrorMirageAI.js | tests/mirrorMirageAI.test.mjs |
-| B07–B30 | – | Pending | – | – |
+| B07 | EMP Overload | ✅ Implemented | modules/agents/EMPOverloadAI.js | tests/empOverloadAI.test.mjs |
+| B08 | The Architect | ✅ Implemented | modules/agents/ArchitectAI.js | tests/architectAI.test.mjs |
+| B09–B30 | – | Pending | – | – |
