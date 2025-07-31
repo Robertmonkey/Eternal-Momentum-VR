@@ -15,6 +15,7 @@ import * as utils from './utils.js';
 import { bossData } from './bosses.js';
 import { showUnlockNotification, updateUI } from './ui.js';
 import { usePower } from './powers.js';
+import * as THREE from '../vendor/three.module.js';
 
 const CANVAS_W = 2048;
 const CANVAS_H = 1024;
@@ -401,8 +402,20 @@ export function handleCoreOnEnemyDeath(enemy, gameHelpers) {
       splitterState.cooldownUntil = now + 500;
       for (let i = 0; i < 3; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const { u, v } = utils.spherePosToUv(enemy.position, 1);
-        state.effects.push({ type: 'player_fragment', x: u * CANVAS_W, y: v * CANVAS_H, dx: Math.cos(angle) * 4, dy: Math.sin(angle) * 4, r: 10, speed: 5, damage: 8 * state.player.talent_modifiers.damage_multiplier, life: 4000, startTime: now, targetIndex: i });
+        const originVec = enemy.position.clone();
+        const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle))
+          .normalize()
+          .multiplyScalar(0.2);
+        state.effects.push({
+          type: 'player_fragment',
+          position: originVec.clone(),
+          velocity: dir,
+          r: 10,
+          damage: 8 * state.player.talent_modifiers.damage_multiplier,
+          life: 4000,
+          startTime: now,
+          targetIndex: i
+        });
       }
       gameHelpers.play('splitterOnDeath');
     }

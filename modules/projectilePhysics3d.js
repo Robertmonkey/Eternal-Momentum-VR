@@ -52,6 +52,22 @@ export function updateProjectiles3d(radius, width, height){
       dataMap.set(p, mesh);
     }
 
+    if(p.type === 'seeking_shrapnel' || p.type === 'player_fragment'){
+      const enemies = state.enemies.filter(e => !e.isFriendly && e.position);
+      if(enemies.length){
+        const sorted = enemies.slice().sort((a,b)=>
+          a.position.distanceTo(p.position) - b.position.distanceTo(p.position));
+        const target = sorted[p.targetIndex] || sorted[0];
+        if(target){
+          const desired = target.position.clone().sub(p.position).normalize();
+          const tangent = new THREE.Vector3().crossVectors(p.position, desired)
+            .cross(p.position).normalize();
+          const speed = p.velocity.length();
+          p.velocity.lerp(tangent.multiplyScalar(speed), 0.1);
+        }
+      }
+    }
+
     p.position.add(p.velocity).normalize().multiplyScalar(radius);
     const uv = spherePosToUv(p.position, radius);
     p.x = uv.u * width;

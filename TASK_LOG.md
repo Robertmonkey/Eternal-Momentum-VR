@@ -300,3 +300,7 @@ Next Steps: Begin FR-13 projectile physics refactor.
 Summary: Updated projectilePhysics3d to store Vector3 position and velocity for projectiles, converting legacy x/y fields. Powers and AIs now spawn nova bullets, shrapnel and helix bolts using 3D vectors. Added projectilePhysics3d.test.mjs verifying movement.
 Verification: npm test – all 61 suites including new projectile physics test pass.
 Next Steps: Continue FR-13 by refining homing behaviour and converting remaining projectiles.
+2025-07-31 – FR-13 – Homing projectile update
+Summary: Implemented 3D homing logic for seeking_shrapnel and player_fragment projectiles. Spawned fragments using Vector3 data and added homingProjectile.test.mjs.
+Verification: npm install && npm test – all 62 suites including new homing test pass.
+Next Steps: Continue FR-13 by auditing other powers for remaining 2D calculations.
