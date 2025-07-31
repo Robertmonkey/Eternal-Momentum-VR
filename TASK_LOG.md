@@ -189,3 +189,8 @@ Next Steps: Proceed with FR-07 by integrating hooks into remaining AI modules an
 Summary: Added playerDamageHooks.test.mjs to ensure all AIs that damage the player invoke CoreManager.onPlayerDamage. Added hudCooldown.test.mjs verifying UIManager updates the core cooldown overlay. Updated package.json to run new tests.
 Verification: Ran npm test after installing dependencies; all suites including new tests passed.
 Next Steps: Continue FR-07 by ensuring HUD displays equipped core icon accurately during gameplay.
+
+2025-09-09 – FR-07 – HUD core icon
+Summary: Updated UIManager updateHud to color core icon based on equipped core. Added coreIconDisplay.test.mjs and included in package.json.
+Verification: npm test – all suites including new test pass.
+Next Steps: Review overall FR-07 implementation and begin FR-08 talent tree.
