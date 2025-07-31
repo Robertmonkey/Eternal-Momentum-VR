@@ -221,6 +221,11 @@ Summary: Created empOverloadAI.test.mjs verifying EMP discharge clears inventori
 Verification: npm test – all suites including empOverloadAI pass.
 Next Steps: Write tests for the Aethel & Umbra boss.
 
+2025-09-16 – FR-09 – Aethel & Umbra test
+Summary: Added aethelUmbraAI.test.mjs covering healing zone, projectile and dual death behaviour. Updated package.json to run the test.
+Verification: npm install && npm test – all suites including aethelUmbraAI pass.
+Next Steps: Continue implementing remaining bosses.
+
 ### Master Boss Task List
 | Boss ID | Name | Status | Script | Test |
 | :--- | :--- | :--- | :--- | :--- |
@@ -232,4 +237,5 @@ Next Steps: Write tests for the Aethel & Umbra boss.
 | B06 | Mirror Mirage | ✅ Implemented | modules/agents/MirrorMirageAI.js | tests/mirrorMirageAI.test.mjs |
 | B07 | EMP Overload | ✅ Implemented | modules/agents/EMPOverloadAI.js | tests/empOverloadAI.test.mjs |
 | B08 | The Architect | ✅ Implemented | modules/agents/ArchitectAI.js | tests/architectAI.test.mjs |
-| B09–B30 | – | Pending | – | – |
+| B09 | Aethel & Umbra | ✅ Implemented | modules/agents/AethelUmbraAI.js | tests/aethelUmbraAI.test.mjs |
+| B10–B30 | – | Pending | – | – |
