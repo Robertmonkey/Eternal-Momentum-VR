@@ -347,3 +347,10 @@ Next Steps: Continue recreating remaining menus using the original phrasing.
 Summary: Added Boss Info modal and integrated mechanics/lore buttons in the stage select menu. Updated tests accordingly.
 Verification: npm test – all suites including updated stage select test pass.
 Next Steps: Continue rebuilding remaining menus for parity.
+
+2025-10-03 – FR-03 – Game over screen parity
+Summary: Updated game over modal button text to match the original UI and added
+logic in vrMain to automatically display the modal when `state.gameOver` is
+set. The game over screen now appears upon player death with accurate wording.
+Verification: Ran `npm test`; all suites pass.
+Next Steps: Continue auditing menus for any remaining discrepancies.

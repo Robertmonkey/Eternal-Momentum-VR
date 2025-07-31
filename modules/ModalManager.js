@@ -578,8 +578,8 @@ export async function initModals(cam = getCamera()) {
 
   modals.gameOver = createModal('gameOver', 'TIMELINE COLLAPSED', [
     { label: 'Restart Stage', onSelect: () => startStage(state.currentStage) },
-    { label: 'Ascension', onSelect: () => showModal('ascension') },
-    { label: 'Cores', onSelect: () => showModal('cores') },
+    { label: 'Ascension Conduit', onSelect: () => showModal('ascension') },
+    { label: 'Aberration Cores', onSelect: () => showModal('cores') },
     { label: 'Stage Select', onSelect: () => showModal('levelSelect') }
   ]);
   group.add(modals.gameOver);
