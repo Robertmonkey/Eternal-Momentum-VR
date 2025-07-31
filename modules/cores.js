@@ -315,13 +315,15 @@ export function applyCoreTickEffects(gameHelpers) {
     if (moveDist < state.player.r) {
       if (now > (helixState.lastBolt || 0) + 1000) {
         helixState.lastBolt = now;
+        const originVec = state.player.position.clone();
+        const ang = Math.random() * 2 * Math.PI;
+        const dir = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)).normalize().multiplyScalar(0.2);
         state.effects.push({
           type: 'helix_bolt',
-          x: playerX,
-          y: playerY,
+          position: originVec.clone(),
+          velocity: dir,
           r: 8,
           speed: 2,
-          angle: Math.random() * 2 * Math.PI,
           lifeEnd: now + 10000,
           caster: state.player
         });

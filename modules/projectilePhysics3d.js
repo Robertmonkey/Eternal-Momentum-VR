@@ -30,31 +30,34 @@ const projectileTypes = new Set([
 export function updateProjectiles3d(radius, width, height){
   state.effects.forEach(p=>{
     if(!projectileTypes.has(p.type)) return;
-    let d = dataMap.get(p);
-    if(!d){
-      const pos = uvToSpherePos(p.x/width, p.y/height, radius);
-      // Apply VR speed scale once when the projectile is first seen
-      p.dx *= VR_PROJECTILE_SPEED_SCALE;
-      p.dy *= VR_PROJECTILE_SPEED_SCALE;
+    let mesh = dataMap.get(p);
+
+    if(!p.position){
+      const pos = uvToSpherePos((p.x || 0)/width, (p.y || 0)/height, radius);
+      p.position = pos;
+      const next = uvToSpherePos(
+        ((p.x || 0) + (p.dx || 0)) / width,
+        ((p.y || 0) + (p.dy || 0)) / height,
+        radius
+      );
+      p.velocity = next.sub(pos).multiplyScalar(VR_PROJECTILE_SPEED_SCALE);
+      delete p.dx; delete p.dy;
+    }
+
+    if(!mesh){
       const geom = new THREE.SphereGeometry(radius * 0.02, 6, 6);
       const mat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
-      const mesh = new THREE.Mesh(geom, mat);
+      mesh = new THREE.Mesh(geom, mat);
       if(projectileGroup) projectileGroup.add(mesh);
-      d = { pos, mesh };
-      dataMap.set(p,d);
+      dataMap.set(p, mesh);
     }
-    const nextPos = uvToSpherePos(
-      (p.x + p.dx) / width,
-      (p.y + p.dy) / height,
-      radius
-    );
-    const vel = nextPos.clone().sub(d.pos);
-    d.pos.add(vel).normalize().multiplyScalar(radius);
-    const uv = spherePosToUv(d.pos, radius);
+
+    p.position.add(p.velocity).normalize().multiplyScalar(radius);
+    const uv = spherePosToUv(p.position, radius);
     p.x = uv.u * width;
     p.y = uv.v * height;
-    if(d.mesh){
-      d.mesh.position.copy(d.pos);
+    if(mesh){
+      mesh.position.copy(p.position);
     }
   });
 

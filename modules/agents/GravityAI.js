@@ -53,11 +53,10 @@ export class GravityAI extends BaseAgent {
     // fire projectile every 6 seconds
     if (playerObj && Date.now() - this.lastShot > 6000) {
       this.lastShot = Date.now();
-      const fromUv = spherePosToUv(this.position.clone().normalize(), this.radius);
-      const toUv = spherePosToUv(playerObj.position.clone().normalize(), this.radius);
-      const dx = (toUv.u - fromUv.u) * width * 0.2;
-      const dy = (toUv.v - fromUv.v) * height * 0.2;
-      state?.effects?.push({ type: 'nova_bullet', caster: this, x: fromUv.u * width, y: fromUv.v * height, r: 5, dx, dy, color: '#00008b', damage: 12 });
+      const fromPos = this.position.clone();
+      const toPos = playerObj.position.clone();
+      const vel = toPos.sub(fromPos).normalize().multiplyScalar(0.2);
+      state?.effects?.push({ type: 'nova_bullet', caster: this, position: fromPos.clone(), velocity: vel, r: 5, color: '#00008b', damage: 12 });
     }
 
     const cu = this.position.clone().normalize();
