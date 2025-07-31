@@ -333,3 +333,8 @@ Next Steps: Continue auditing remaining menus for parity.
 Summary: Added home screen modal as a THREE.Group with dynamic button visibility and created showHomeMenu helper. Updated app.js to expose startGame globally and trigger the VR home menu when returning home. Added unit test homeModal.test.mjs.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Continue auditing remaining menus for parity.
+
+2025-09-30 – FR-03 – Menu text parity
+Summary: Updated modal button labels to match exact wording from old game (ERASE TIMELINE, UNEQUIP CORE, CLOSE).
+Verification: npm install && npm test – all suites pass.
+Next Steps: Continue auditing menus for any remaining text discrepancies.

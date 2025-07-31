@@ -344,7 +344,7 @@ function createAscensionModal() {
     showInfo(nodes['core-nexus'].talent);
   }
 
-  const clearBtn = createButton('Erase Timeline', () => {
+  const clearBtn = createButton('ERASE TIMELINE', () => {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('eternalMomentumSave');
     }
@@ -352,7 +352,7 @@ function createAscensionModal() {
   clearBtn.position.set(0, 0.05, 0.02);
   modal.add(clearBtn);
 
-  const closeBtn = createButton('Close', () => hideModal('ascension'));
+  const closeBtn = createButton('CLOSE', () => hideModal('ascension'));
   closeBtn.position.set(0, -0.25, 0.02);
   modal.add(closeBtn);
 
@@ -387,11 +387,11 @@ function createCoresModal() {
   });
   modal.add(list);
 
-  const unequipBtn = createButton('Unequip', () => equipCore(null));
+  const unequipBtn = createButton('UNEQUIP CORE', () => equipCore(null));
   unequipBtn.position.set(0, -0.5, 0.02);
   modal.add(unequipBtn);
 
-  const closeBtn2 = createButton('Close', () => hideModal('cores'));
+  const closeBtn2 = createButton('CLOSE', () => hideModal('cores'));
   closeBtn2.position.set(0, -0.75, 0.02);
   modal.add(closeBtn2);
 
@@ -437,7 +437,7 @@ function createOrreryModal() {
   startBtn.position.set(0, -0.65, 0.02);
   modal.add(startBtn);
 
-  const closeBtn = createButton('Close', () => hideModal('orrery'));
+  const closeBtn = createButton('CLOSE', () => hideModal('orrery'));
   closeBtn.position.set(0, -0.85, 0.02);
   modal.add(closeBtn);
 
