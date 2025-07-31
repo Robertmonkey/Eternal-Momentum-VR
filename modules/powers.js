@@ -368,8 +368,9 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   setTimeout(()=> slotEl.classList.remove('activated'), 200);
 
   // Use mouse position stored in state
-  const mx = state.mousePosition.x;
-  const my = state.mousePosition.y;
+  const uv = spherePosToUv(state.mousePosition.clone().normalize(), 1);
+  const mx = uv.u * SCREEN_WIDTH;
+  const my = uv.v * SCREEN_HEIGHT;
   
   const applyArgs = [utils, gameHelpers, mx, my, options];
   

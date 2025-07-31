@@ -155,3 +155,8 @@ Next Steps: Expand FR-03 to rebuild remaining menus (ascension, cores, lore) wit
 Summary: Implemented createAscensionModal, createCoresModal, and createLoreModal with interactive buttons. Added tests for each modal and updated package.json.
 Verification: npm test – all suites including new modal tests pass.
 Next Steps: Continue FR-03 by refining layout details and begin FR-04 state unification.
+
+2025-09-01 – FR-04 – Begin state unification
+Summary: Converted `state.mousePosition` to a `THREE.Vector3` and updated PlayerController, powers, cores, gameLoop and bosses to read the vector and convert to canvas coords when needed. Added helper functions in bosses.js.
+Verification: `npm test` – all suites pass after the refactor.
+Next Steps: Continue FR-04 by replacing all remaining `state.player.x`/`y` references in bosses.js.
