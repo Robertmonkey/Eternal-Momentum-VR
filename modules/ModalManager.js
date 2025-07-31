@@ -209,6 +209,25 @@ function createAscensionModal() {
   const nodes = {};
   const width = 1.4;
   const height = 1.0;
+  const infoGroup = new THREE.Group();
+  infoGroup.position.set(0, -0.05, 0.02);
+  const infoName = createTextSprite('', 36);
+  infoName.position.set(0, 0.12, 0.01);
+  const infoDesc = createTextSprite('', 24);
+  infoDesc.position.set(0, 0, 0.01);
+  const infoCost = createTextSprite('', 24);
+  infoCost.position.set(0, -0.12, 0.01);
+  infoGroup.add(infoName, infoDesc, infoCost);
+  modal.add(infoGroup);
+
+  function showInfo(talent) {
+    const rank = state.player.purchasedTalents.get(talent.id) || 0;
+    const isMax = rank >= talent.maxRanks;
+    const cost = isMax ? 'MAXED' : `${talent.costPerRank[talent.isInfinite ? 0 : rank]} AP`;
+    updateTextSprite(infoName, talent.name);
+    updateTextSprite(infoDesc, talent.description(rank + 1, isMax));
+    updateTextSprite(infoCost, `Rank ${rank}/${talent.isInfinite ? '∞' : talent.maxRanks} - Cost: ${cost}`);
+  }
   Object.values(TALENT_GRID_CONFIG).forEach(constellation => {
     Object.keys(constellation).forEach(key => {
       if (key === 'color') return;
@@ -217,7 +236,12 @@ function createAscensionModal() {
         purchaseTalent(t.id);
         updateTextSprite(apDisplay, `AP: ${state.player.ascensionPoints}`);
         updateNode(t.id);
+        showInfo(t);
       });
+      const bgMesh = btn.children[0];
+      if (bgMesh) {
+        bgMesh.userData.onHover = () => showInfo(t);
+      }
       const rank = createTextSprite(`0/${t.isInfinite ? '∞' : t.maxRanks}`, 24);
       rank.position.set(0.18, 0, 0.01);
       btn.add(rank);
@@ -238,6 +262,9 @@ function createAscensionModal() {
   }
 
   Object.keys(nodes).forEach(updateNode);
+  if (nodes['core-nexus']) {
+    showInfo(nodes['core-nexus'].talent);
+  }
 
   const clearBtn = createButton('Erase Timeline', () => {
     if (typeof localStorage !== 'undefined') {
