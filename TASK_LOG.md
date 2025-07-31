@@ -243,8 +243,22 @@ Next Steps: Continue implementing remaining bosses.
 | B12 | The Puppeteer | ✅ Implemented | modules/agents/PuppeteerAI.js | tests/puppeteerAI.test.mjs |
 | B13 | The Glitch | ✅ Implemented | modules/agents/GlitchAI.js | tests/glitchAI.test.mjs |
 | B14 | Sentinel Pair | ✅ Implemented | modules/agents/SentinelPairAI.js | tests/sentinelPairAI.test.mjs |
-| B15–B30 | – | Pending | – | – |
+| B15 | The Basilisk | ✅ Implemented | modules/agents/BasiliskAI.js | tests/basiliskAI.test.mjs |
+| B16 | The Annihilator | ✅ Implemented | modules/agents/AnnihilatorAI.js | tests/annihilatorAI.test.mjs |
+| B17 | The Parasite | ✅ Implemented | modules/agents/ParasiteAI.js | tests/parasiteAI.test.mjs |
+| B18 | Quantum Shadow | ✅ Implemented | modules/agents/QuantumShadowAI.js | tests/quantumShadowAI.test.mjs |
+| B19 | Time Eater | ✅ Implemented | modules/agents/TimeEaterAI.js | tests/timeEaterAI.test.mjs |
+| B20 | The Singularity | ✅ Implemented | modules/agents/SingularityAI.js | tests/singularityAI.test.mjs |
+| B21 | The Miasma | ✅ Implemented | modules/agents/MiasmaAI.js | tests/miasmaAI.test.mjs |
+| B22 | The Temporal Paradox | ✅ Implemented | modules/agents/TemporalParadoxAI.js | tests/temporalParadoxAI.test.mjs |
+| B23 | The Syphon | ✅ Implemented | modules/agents/SyphonAI.js | tests/syphonAI.test.mjs |
+| B24 | The Centurion | ✅ Implemented | modules/agents/CenturionAI.js | tests/centurionAI.test.mjs |
+| B25–B30 | – | Pending | – | – |
 2025-09-17 – FR-09 – Bosses B10-B14
 Summary: Implemented Looping Eye, Juggernaut, Puppeteer, Glitch and Sentinel Pair bosses with full mechanics and added corresponding tests.
 Verification: npm test – all suites including new boss tests pass.
 Next Steps: Continue implementing bosses B15-B30.
+2025-09-18 – FR-09 – Bosses B15-B24
+Summary: Implemented Basilisk through Centurion bosses based on original game logic and added unit tests for each. Updated package.json and master boss table.
+Verification: Ran npm test and all suites including new boss tests pass.
+Next Steps: Finish remaining bosses B25-B30 and begin FR-10 testing infrastructure.
