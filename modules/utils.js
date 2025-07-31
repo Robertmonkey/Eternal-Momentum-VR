@@ -282,6 +282,31 @@ export function toCanvasPos(vec, width = 2048, height = 1024) {
 }
 
 /**
+ * Rotate a direction vector around a normal by the given angle.
+ *
+ * @param {THREE.Vector3} dir - Tangent direction to rotate.
+ * @param {THREE.Vector3} normal - Normal vector defining the rotation axis.
+ * @param {number} angle - Angle in radians.
+ * @returns {THREE.Vector3} Rotated direction vector.
+ */
+export function rotateAroundNormal(dir, normal, angle){
+  const q = new THREE.Quaternion();
+  q.setFromAxisAngle(normal.clone().normalize(), angle);
+  return dir.clone().applyQuaternion(q);
+}
+
+/**
+ * Convert a distance in screen pixels to an angular arc length on the sphere.
+ *
+ * @param {number} pixels - Pixel distance.
+ * @param {number} [width=2048] - Canvas width in pixels.
+ * @returns {number} Angle in radians representing the same arc on the sphere.
+ */
+export function pixelsToArc(pixels, width = 2048){
+  return (pixels / width) * 2 * Math.PI;
+}
+
+/**
  * Safely add an event listener if the element exists.
  * @param {EventTarget|null} el
  * @param {string} type

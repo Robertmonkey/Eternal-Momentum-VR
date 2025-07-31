@@ -304,3 +304,7 @@ Next Steps: Continue FR-13 by refining homing behaviour and converting remaining
 Summary: Implemented 3D homing logic for seeking_shrapnel and player_fragment projectiles. Spawned fragments using Vector3 data and added homingProjectile.test.mjs.
 Verification: npm install && npm test – all 62 suites including new homing test pass.
 Next Steps: Continue FR-13 by auditing other powers for remaining 2D calculations.
+2025-09-25 – FR-13 – Power angle conversion
+Summary: Replaced Math.atan2 usage in powers.js with rotateAroundNormal and 3D vectors. Added rotateAroundNormal and pixelsToArc helpers.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Begin FR-14 icon and UI polish.
