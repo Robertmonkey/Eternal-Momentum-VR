@@ -320,3 +320,7 @@ Next Steps: Proceed with FR-15 helper deduplication.
 Summary: Updated AGENTS and README to specify emoji-based UI icons with cursor exceptions using assets/cursors. Revised FR‑14 task description accordingly.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Continue with FR-15 helper deduplication.
+2025-09-28 – FR-03 – Menu parity direction update
+Summary: Added explicit notes in AGENTS and README clarifying that UI reconstruction is an ongoing task until all menus match the original game's fonts, colors and behaviours.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Complete FR-03 by implementing remaining menu features and backgrounds.
