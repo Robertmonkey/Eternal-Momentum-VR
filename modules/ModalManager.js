@@ -165,6 +165,60 @@ function createSettingsModal() {
   return modal;
 }
 
+function createHomeModal() {
+  const modal = new THREE.Group();
+  modal.name = 'home';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.8, 1.2),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const title = createTextSprite('ETERNAL MOMENTUM', 64);
+  title.position.set(0, 0.45, 0.01);
+  modal.add(title);
+
+  const startBtn = createButton('AWAKEN', () => {
+    if (typeof window !== 'undefined' && window.startGame) {
+      window.startGame(true);
+    }
+  });
+  startBtn.name = 'startBtn';
+  startBtn.position.set(0, 0.15, 0.02);
+  modal.add(startBtn);
+
+  const continueBtn = createButton('CONTINUE MOMENTUM', () => {
+    if (typeof window !== 'undefined' && window.startGame) {
+      window.startGame(false);
+    }
+  });
+  continueBtn.name = 'continueBtn';
+  continueBtn.position.set(0, -0.1, 0.02);
+  modal.add(continueBtn);
+
+  const eraseBtn = createButton('SEVER TIMELINE', () => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('eternalMomentumSave');
+      if (typeof window !== 'undefined' && window.location) {
+        window.location.reload();
+      }
+    }
+  });
+  eraseBtn.name = 'eraseBtn';
+  eraseBtn.position.set(0, -0.35, 0.02);
+  modal.add(eraseBtn);
+
+  modal.userData.updateButtons = () => {
+    const hasSave = typeof localStorage !== 'undefined' &&
+      !!localStorage.getItem('eternalMomentumSave');
+    startBtn.visible = !hasSave;
+    continueBtn.visible = hasSave;
+    eraseBtn.visible = hasSave;
+  };
+
+  modal.visible = false;
+  return modal;
+}
+
 function createStageSelectModal() {
   const modal = new THREE.Group();
   modal.name = 'levelSelect';
@@ -497,6 +551,9 @@ export async function initModals(cam = getCamera()) {
   modals.settings = createSettingsModal();
   group.add(modals.settings);
 
+  modals.home = createHomeModal();
+  group.add(modals.home);
+
   modals.confirm = createConfirmModal();
   group.add(modals.confirm);
 }
@@ -512,6 +569,18 @@ export function showModal(id) {
 
 export function hideModal(id) {
   if (modals[id]) modals[id].visible = false;
+}
+
+export function showHomeMenu() {
+  ensureGroup();
+  if (!modals.home) {
+    modals.home = createHomeModal();
+    modalGroup.add(modals.home);
+  }
+  if (modals.home.userData.updateButtons) {
+    modals.home.userData.updateButtons();
+  }
+  showModal('home');
 }
 
 export function showConfirm(title, text, onConfirm) {
@@ -530,4 +599,8 @@ export function showConfirm(title, text, onConfirm) {
 
 export function getModalObjects() {
   return Object.values(modals);
+}
+
+if (typeof window !== 'undefined') {
+  window.showHomeMenu = showHomeMenu;
 }

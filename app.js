@@ -53,6 +53,9 @@ function showHome() {
     requestAnimationFrame(() => homeEl.classList.add('visible'));
   }
   stopVR();
+  if (typeof window !== 'undefined' && window.showHomeMenu) {
+    window.showHomeMenu();
+  }
   const saveExists = !!localStorage.getItem('eternalMomentumSave');
   if (continueBtn) continueBtn.style.display = saveExists ? 'block' : 'none';
   if (eraseBtn) eraseBtn.style.display = saveExists ? 'block' : 'none';
@@ -61,6 +64,7 @@ function showHome() {
 
 if (typeof window !== 'undefined') {
   window.showHome = showHome;
+  window.startGame = startGame;
 }
 
 async function startGame(resetSave = false) {
