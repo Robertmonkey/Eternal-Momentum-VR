@@ -194,3 +194,7 @@ Next Steps: Continue FR-07 by ensuring HUD displays equipped core icon accuratel
 Summary: Updated UIManager updateHud to color core icon based on equipped core. Added coreIconDisplay.test.mjs and included in package.json.
 Verification: npm test – all suites including new test pass.
 Next Steps: Review overall FR-07 implementation and begin FR-08 talent tree.
+2025-09-10 – FR-08 – Begin talent tree UI
+Summary: Implemented 3D talent grid in createAscensionModal using TALENT_GRID_CONFIG. Talent nodes are interactive buttons that call purchaseTalent. Added purchase talent export and new unit test ascensionPurchase.test.mjs. Updated package.json.
+Verification: Ran npm test to ensure all suites including the new ascensionPurchase test pass.
+Next Steps: Polish talent layout and integrate descriptions.

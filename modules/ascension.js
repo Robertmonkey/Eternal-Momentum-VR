@@ -201,7 +201,7 @@ function createTalentNode(talent, constellationColor) {
     gridContainer.appendChild(node);
 }
 
-function purchaseTalent(talentId) {
+export function purchaseTalent(talentId) {
     const talent = allTalents[talentId];
     if (!talent) return;
 
@@ -232,9 +232,15 @@ function purchaseTalent(talentId) {
         applyAllTalentEffects();
         savePlayerState();
 
-        renderAscensionGrid();
-        document.getElementById("ap-total-asc-grid").innerText = state.player.ascensionPoints;
-        updateUI();
+        if (typeof renderAscensionGrid === 'function') {
+            renderAscensionGrid();
+        }
+        const apEl = typeof document !== 'undefined' && document.getElementById
+            ? document.getElementById("ap-total-asc-grid") : null;
+        if (apEl) apEl.innerText = state.player.ascensionPoints;
+        if (typeof updateUI === 'function' && typeof navigator !== 'undefined') {
+            updateUI();
+        }
 
     } else {
         AudioManager.playSfx('talentError');
