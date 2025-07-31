@@ -18,7 +18,7 @@ const SCREEN_HEIGHT = 1024;
  * when the player presses both trigger and grip.
  */
 export function useCoreActive(gameHelpers) {
-  const uv = spherePosToUv(state.mousePosition.clone().normalize(), 1);
+  const uv = spherePosToUv(state.cursorDir.clone().normalize(), 1);
   Cores.activateCorePower(uv.u * SCREEN_WIDTH, uv.v * SCREEN_HEIGHT, gameHelpers);
 }
 

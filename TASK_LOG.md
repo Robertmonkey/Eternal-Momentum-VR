@@ -284,3 +284,7 @@ screen. startStage is now exported for external use.
 Verification: `npm test` – all suites pass.
 Next Steps: Review stage flow to ensure progress persists and continue with
 remaining FR tasks.
+2025-09-22 – FR-12 – Coordinate system overhaul initial step
+Summary: Added cursorDir vector in state and refactored controller input, powers and cores to use it. Implemented utils.toCanvasPos helper and new test.
+Verification: npm install && npm test – all suites including new toCanvasPos test pass.
+Next Steps: Continue FR-12 by replacing remaining x/y references and updating enemy AI distance calculations.

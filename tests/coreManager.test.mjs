@@ -41,7 +41,7 @@ global.spherePosToUv = utils.spherePosToUv;
 resetGame(false);
 
 state.player.equippedAberrationCore = 'juggernaut';
-state.mousePosition = new THREE.Vector3(1, 0, 0);
+state.cursorDir = new THREE.Vector3(1, 0, 0);
 
 const beforeCount = state.effects.length;
 useCoreActive(gameHelpers);

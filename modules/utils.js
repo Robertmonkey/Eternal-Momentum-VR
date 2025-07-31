@@ -269,6 +269,19 @@ export function spherePosToUv(vec, radius = 1) {
 }
 
 /**
+ * Convert a 3D position on the gameplay sphere to pixel coordinates.
+ *
+ * @param {THREE.Vector3} vec - Vector on the sphere's surface.
+ * @param {number} [width=2048] - Canvas width in pixels.
+ * @param {number} [height=1024] - Canvas height in pixels.
+ * @returns {{x:number,y:number}}
+ */
+export function toCanvasPos(vec, width = 2048, height = 1024) {
+  const { u, v } = spherePosToUv(vec.clone().normalize(), 1);
+  return { x: u * width, y: v * height };
+}
+
+/**
  * Safely add an event listener if the element exists.
  * @param {EventTarget|null} el
  * @param {string} type
