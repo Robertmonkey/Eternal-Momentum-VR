@@ -35,12 +35,13 @@ export function initPlayerController() {
   avatar.position.copy(uvToSpherePos(0.5, 0, radius));
   state.player.position.copy(avatar.position);
   scene.add(avatar);
-
-  const chGeo = new THREE.RingGeometry(0.2, 0.25, 16);
-  const chMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide });
-  crosshair = new THREE.Mesh(chGeo, chMat);
+  const chTex = new THREE.TextureLoader().load("assets/cursors/crosshair.cur");
+  chTex.magFilter = THREE.NearestFilter;
+  const chMat = new THREE.SpriteMaterial({ map: chTex, depthTest: false });
+  crosshair = new THREE.Sprite(chMat);
+  crosshair.scale.set(0.5, 0.5, 1);
   crosshair.visible = false;
-  crosshair.name = 'crosshair';
+  crosshair.name = "crosshair";
   scene.add(crosshair);
 
   raycaster = new THREE.Raycaster();
