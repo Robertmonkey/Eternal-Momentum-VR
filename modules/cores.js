@@ -19,6 +19,31 @@ import { usePower } from './powers.js';
 const CANVAS_W = 2048;
 const CANVAS_H = 1024;
 
+// Minimal offscreen canvas to avoid DOM dependencies. Three.js creates one
+// internally when needed, but core logic still draws to a 2D context for
+// particle calculations. Provide a stub so tests run in Node without a DOM.
+const offscreenCanvas = {
+  width: CANVAS_W,
+  height: CANVAS_H,
+  getContext: () => ({
+    fillStyle: '',
+    globalAlpha: 1,
+    beginPath() {},
+    arc() {},
+    fill() {},
+    fillRect() {},
+    moveTo() {},
+    lineTo() {},
+    closePath() {},
+    translate() {},
+    save() {},
+    restore() {},
+    strokeStyle: '',
+    lineWidth: 1,
+    stroke() {}
+  })
+};
+
 export function getPlayerCoords() {
   const uv = utils.spherePosToUv(state.player.position.clone().normalize(), 1);
   return { x: uv.u * CANVAS_W, y: uv.v * CANVAS_H };
@@ -156,13 +181,7 @@ export function activateCorePower(mx, my, gameHelpers) {
 export function applyCoreTickEffects(gameHelpers) {
   const now = Date.now();
   const { play } = gameHelpers;
-  let canvas = document.getElementById('gameCanvas');
-  if (!canvas) {
-    canvas = document.createElement('canvas');
-    canvas.width = 2048;
-    canvas.height = 1024;
-  }
-  const ctx = canvas.getContext('2d');
+  const ctx = offscreenCanvas.getContext('2d');
   // --- Pantheon rotation ---
   if (state.player.equippedAberrationCore === 'pantheon') {
     const pantheonState = state.player.talent_states.core_states.pantheon;

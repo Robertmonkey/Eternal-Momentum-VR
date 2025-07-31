@@ -164,3 +164,7 @@ Next Steps: Continue FR-04 by replacing all remaining `state.player.x`/`y` refer
 Summary: Replaced all uses of `state.player.x`/`y` in `modules/bosses.js` with helper functions that read and write the 3D `state.player.position`. Added conversions via `getPlayerCanvasPos` and `setPlayerCanvasPos` for canvas-based calculations.
 Verification: Ran `npm test` after refactor; all test suites passed.
 Next Steps: Proceed with FR-04 by auditing remaining modules for any stray 2D references.
+2025-09-03 – FR-04 – Final state cleanup
+Summary: Removed remaining 2D references. Boss petrify zone logic now uses getPlayerCanvasPos instead of player.x/y. Audio core tick effects use an offscreen canvas stub rather than querying #gameCanvas.
+Verification: `npm test` – all suites pass.
+Next Steps: Begin FR-05 audio integration updates.

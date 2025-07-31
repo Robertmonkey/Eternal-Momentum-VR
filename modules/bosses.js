@@ -890,8 +890,9 @@ export const bossData = [{
             ctx.fillStyle = onCooldown ? `rgba(0, 184, 148, 0.05)` : `rgba(0, 184, 148, 0.2)`;
             ctx.fillRect(zoneX, zoneY, zone.sizeW, zone.sizeH);
 
-            const player = state.player;
-            const isPlayerInside = player.x > zoneX && player.x < zoneX + zone.sizeW && player.y > zoneY && player.y < zoneY + zone.sizeH;
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            const isPlayerInside = playerX > zoneX && playerX < zoneX + zone.sizeW &&
+                                   playerY > zoneY && playerY < zoneY + zone.sizeH;
 
             if (isPlayerInside && !onCooldown) {
                 if (!zone.playerInsideTime) zone.playerInsideTime = Date.now();
