@@ -2,7 +2,6 @@
 import { state } from './state.js';
 import * as utils from './utils.js';
 import * as Cores from './cores.js';
-import { toCanvasPos } from './utils.js';
 import { gameHelpers } from './gameHelpers.js';
 import * as THREE from '../vendor/three.module.js';
 
@@ -17,7 +16,7 @@ function playerHasCore(coreId) {
 
 function getCanvasPos(obj) {
   if (obj.position && obj.position.isVector3) {
-    return toCanvasPos(obj.position);
+    return utils.toCanvasPos(obj.position);
   }
   return { x: obj.x, y: obj.y };
 }
@@ -93,21 +92,17 @@ export const powers={
       utils.triggerScreenShake(200, 8);
 
       if(state.player.purchasedTalents.has('homing-shrapnel')){
-          const oPos = getCanvasPos(origin);
-          const initialAngle = Math.atan2(my - oPos.y, mx - oPos.x);
+          const baseDir = state.cursorDir.clone().normalize();
+          const normal = state.player.position.clone().normalize();
+          const step = utils.pixelsToArc(4, SCREEN_WIDTH);
           for(let i = 0; i < 3; i++) {
               const angleOffset = (i - 1) * 0.5;
-              const finalAngle = initialAngle + angleOffset;
+              const finalDir = utils.rotateAroundNormal(baseDir, normal, angleOffset);
               const originVec = state.player.position.clone();
-              const nextUv = {
-                u: (oPos.x + Math.cos(finalAngle) * 4) / SCREEN_WIDTH,
-                v: (oPos.y + Math.sin(finalAngle) * 4) / SCREEN_HEIGHT
-              };
-              const targetVec = utils.uvToSpherePos(nextUv.u, nextUv.v, 1);
               state.effects.push({
                   type: 'seeking_shrapnel',
                   position: originVec.clone(),
-                  velocity: targetVec.sub(originVec),
+                  velocity: finalDir.multiplyScalar(step),
                   r: 6,
                   damage: 5 * state.player.talent_modifiers.damage_multiplier,
                   life: 3000,
@@ -318,19 +313,14 @@ export const powers={
       const { damageModifier = 1.0, origin = state.player } = options;
       let bounceCount = 6;
       const oPos = getCanvasPos(origin);
-      const angle = Math.atan2(my - oPos.y, mx - oPos.x);
-      const speed = 10;
       const damage = 10 * damageModifier;
       const originVec = origin.position ? origin.position.clone() : utils.uvToSpherePos(oPos.x/SCREEN_WIDTH, oPos.y/SCREEN_HEIGHT, 1);
-      const nextUv = {
-        u: (oPos.x + Math.cos(angle) * speed) / SCREEN_WIDTH,
-        v: (oPos.y + Math.sin(angle) * speed) / SCREEN_HEIGHT
-      };
-      const targetVec = utils.uvToSpherePos(nextUv.u, nextUv.v, 1);
+      const baseDir = state.cursorDir.clone().normalize();
+      const step = utils.pixelsToArc(10, SCREEN_WIDTH);
       state.effects.push({
           type: 'ricochet_projectile',
           position: originVec.clone(),
-          velocity: targetVec.sub(originVec),
+          velocity: baseDir.multiplyScalar(step),
           r: 8,
           damage: damage,
           bounces: bounceCount,
