@@ -56,7 +56,6 @@ function showHome() {
   const saveExists = !!localStorage.getItem('eternalMomentumSave');
   if (continueBtn) continueBtn.style.display = saveExists ? 'block' : 'none';
   if (eraseBtn) eraseBtn.style.display = saveExists ? 'block' : 'none';
-  if (startBtn) startBtn.style.display = saveExists ? 'none' : 'block';
 }
 
 if (typeof window !== 'undefined') {
