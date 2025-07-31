@@ -4,6 +4,7 @@ import * as utils from './utils.js';
 import * as Cores from './cores.js';
 import { toCanvasPos } from './utils.js';
 import { gameHelpers } from './gameHelpers.js';
+import * as THREE from '../vendor/three.module.js';
 
 const SCREEN_WIDTH = 2048;
 const SCREEN_HEIGHT = 1024;
@@ -131,7 +132,7 @@ export const powers={
           let minDist = Infinity;
           state.enemies.forEach(e => {
               if (!e.isFriendly && !targets.includes(e)) {
-                  const dist = Math.hypot(e.x - currentTarget.x, e.y - currentTarget.y);
+                  const dist = e.position.distanceTo(currentTarget.position);
                   if (dist < minDist) {
                       minDist = dist;
                       closest = e;
@@ -141,7 +142,9 @@ export const powers={
           if (closest) {
               targets.push(closest);
               currentTarget = closest;
-          } else { break; }
+          } else {
+              break;
+          }
       }
       let damage = (((state.player.berserkUntil > Date.now()) ? 30 : 15) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
       state.effects.push({ type: 'chain_lightning', targets: targets, links: [], startTime: Date.now(), durationPerLink: 80, damage: damage, caster: origin });
@@ -222,10 +225,15 @@ export const powers={
     
     // This creates a decoy specifically from the power-up
     const rand = (min, max) => Math.random() * (max - min) + min;
-    const base = getCanvasPos(state.player);
+    const baseVec = state.player.position.clone();
+    const offset = new THREE.Vector3(
+        (Math.random() - 0.5) * 200,
+        0,
+        (Math.random() - 0.5) * 200
+    ).normalize().multiplyScalar(0.1);
+    const pos = baseVec.clone().add(offset);
     state.decoys.push({
-        x: base.x + rand(-100, 100),
-        y: base.y + rand(-100, 100),
+        position: pos,
         r: 20,
         expires: Date.now() + 5000,
         isTaunting: true,
@@ -261,11 +269,12 @@ export const powers={
           if (availableTargets.length > 0) {
               const targetIndex = Math.floor(Math.random() * availableTargets.length);
               const target = availableTargets.splice(targetIndex, 1)[0];
+              const tPos = getCanvasPos(target);
               state.effects.push({
                   type: 'orbital_target',
                   target: target,
-                  x: target.x,
-                  y: target.y,
+                  x: tPos.x,
+                  y: tPos.y,
                   startTime: Date.now(),
                   caster: origin,
                   damageModifier: damageModifier

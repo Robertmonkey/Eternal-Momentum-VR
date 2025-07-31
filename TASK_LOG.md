@@ -292,3 +292,7 @@ Next Steps: Continue FR-12 by replacing remaining x/y references and updating en
 Summary: Updated GravityAI and SwarmLinkAI to derive player canvas coordinates from position vectors and removed remaining x/y references. Modified gravityAI test accordingly.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Complete FR-12 by auditing other modules for legacy coordinates.
+2025-09-23 – FR-12 – Final coordinate cleanup
+Summary: Replaced remaining 2D coordinate references in powers.js and cores.js. Chain lightning and orbital strike now use 3D positions and decoys store Vector3 positions. Added THREE import.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Begin FR-13 projectile physics refactor.
