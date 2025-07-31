@@ -3,6 +3,7 @@ import { getCamera } from './scene.js';
 import { resetGame, state, savePlayerState } from './state.js';
 import { AudioManager } from './audio.js';
 import { STAGE_CONFIG } from './config.js';
+import { bossData } from './bosses.js';
 import { applyAllTalentEffects } from './ascension.js';
 import { holoMaterial } from './UIManager.js';
 
@@ -187,6 +188,114 @@ function createStageSelectModal() {
   return modal;
 }
 
+function createAscensionModal() {
+  const modal = new THREE.Group();
+  modal.name = 'ascension';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 1.4),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const header = createTextSprite('ASCENSION CONDUIT', 64);
+  header.position.set(0, 0.55, 0.01);
+  modal.add(header);
+
+  const apDisplay = createTextSprite(`AP: ${state.player.ascensionPoints}`, 32);
+  apDisplay.position.set(0, 0.35, 0.01);
+  modal.add(apDisplay);
+
+  const clearBtn = createButton('Erase Timeline', () => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('eternalMomentumSave');
+    }
+  });
+  clearBtn.position.set(0, 0.05, 0.02);
+  modal.add(clearBtn);
+
+  const closeBtn = createButton('Close', () => hideModal('ascension'));
+  closeBtn.position.set(0, -0.25, 0.02);
+  modal.add(closeBtn);
+
+  modal.visible = false;
+  return modal;
+}
+
+function createCoresModal() {
+  const modal = new THREE.Group();
+  modal.name = 'cores';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 1.6),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const header = createTextSprite('ABERRATION CORES', 64);
+  header.position.set(0, 0.65, 0.01);
+  modal.add(header);
+
+  const equippedText = createTextSprite('Equipped: None', 32);
+  equippedText.position.set(0, 0.45, 0.01);
+  modal.add(equippedText);
+
+  const list = new THREE.Group();
+  list.position.set(0, 0.3, 0.02);
+  let index = 0;
+  bossData.forEach(core => {
+    if (!core.core_desc) return;
+    const btn = createButton(core.name, () => equipCore(core.id));
+    btn.position.set(0, -0.2 * index++, 0);
+    list.add(btn);
+  });
+  modal.add(list);
+
+  const unequipBtn = createButton('Unequip', () => equipCore(null));
+  unequipBtn.position.set(0, -0.5, 0.02);
+  modal.add(unequipBtn);
+
+  const closeBtn2 = createButton('Close', () => hideModal('cores'));
+  closeBtn2.position.set(0, -0.75, 0.02);
+  modal.add(closeBtn2);
+
+  function equipCore(id) {
+    state.player.equippedAberrationCore = id;
+    const core = bossData.find(b => b.id === id);
+    updateTextSprite(
+      equippedText,
+      `Equipped: ${core ? core.name : 'None'}`
+    );
+    savePlayerState();
+  }
+
+  modal.visible = false;
+  return modal;
+}
+
+const storyContent =
+  'Reality is fraying. You are the Conduit, last anchor against the Unraveling.';
+
+function createLoreModal() {
+  const modal = new THREE.Group();
+  modal.name = 'lore';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 1.2),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const header = createTextSprite('LORE CODEX', 64);
+  header.position.set(0, 0.45, 0.01);
+  modal.add(header);
+
+  const body = createTextSprite(storyContent, 24);
+  body.position.set(0, 0.15, 0.01);
+  modal.add(body);
+
+  const closeBtn = createButton('Close', () => hideModal('lore'));
+  closeBtn.position.set(0, -0.35, 0.02);
+  modal.add(closeBtn);
+
+  modal.visible = false;
+  return modal;
+}
+
 
 function startStage(stage) {
   applyAllTalentEffects();
@@ -213,15 +322,14 @@ export async function initModals(cam = getCamera()) {
   modals.levelSelect = createStageSelectModal();
   group.add(modals.levelSelect);
 
-  modals.ascension = createModal('ascension', 'ASCENSION CONDUIT', [
-    { label: 'Close', onSelect: () => hideModal('ascension') }
-  ]);
+  modals.ascension = createAscensionModal();
   group.add(modals.ascension);
 
-  modals.cores = createModal('cores', 'ABERRATION CORES', [
-    { label: 'Close', onSelect: () => hideModal('cores') }
-  ]);
+  modals.cores = createCoresModal();
   group.add(modals.cores);
+
+  modals.lore = createLoreModal();
+  group.add(modals.lore);
 
   modals.settings = createSettingsModal();
   group.add(modals.settings);
