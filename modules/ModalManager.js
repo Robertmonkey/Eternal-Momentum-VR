@@ -136,12 +136,9 @@ function createSettingsModal() {
       state.settings[settingKey] = v;
       updateTextSprite(display, `${label}: ${v}%`);
       if (settingKey === 'musicVolume') {
-        AudioManager.musicVolume = v / 100;
-        if (AudioManager.currentMusic) {
-          AudioManager.currentMusic.setVolume(AudioManager.userMuted ? 0 : AudioManager.musicVolume);
-        }
+        AudioManager.setMusicVolume(v / 100);
       } else if (settingKey === 'sfxVolume') {
-        AudioManager.sfxVolume = v / 100;
+        AudioManager.setSfxVolume(v / 100);
       }
       savePlayerState();
     }

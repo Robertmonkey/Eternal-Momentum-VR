@@ -168,3 +168,7 @@ Next Steps: Proceed with FR-04 by auditing remaining modules for any stray 2D re
 Summary: Removed remaining 2D references. Boss petrify zone logic now uses getPlayerCanvasPos instead of player.x/y. Audio core tick effects use an offscreen canvas stub rather than querying #gameCanvas.
 Verification: `npm test` – all suites pass.
 Next Steps: Begin FR-05 audio integration updates.
+2025-09-04 – FR-05 – Audio gain nodes
+Summary: Added global music and sfx gain nodes in AudioManager. Updated play functions to route audio through these gains and implemented setMusicVolume/setSfxVolume helpers. Settings panel and vrMain now use these helpers. Added audioGain.test.mjs and updated package.json.
+Verification: Ran `npm test`; all suites including the new audio gain test pass.
+Next Steps: Continue with FR-06 power-up system implementation.

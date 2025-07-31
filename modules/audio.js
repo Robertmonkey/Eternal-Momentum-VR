@@ -7,6 +7,8 @@ export const AudioManager = {
   userMuted: false,
   sfxVolume: 0.75,
   musicVolume: 0.4,
+  sfxGain: null,
+  musicGain: null,
   soundBuffers: {},
   loopingSounds: {},
   musicPlaylist: ['bgMusic_01', 'bgMusic_02', 'bgMusic_03', 'bgMusic_04', 'bgMusic_05'],
@@ -18,6 +20,13 @@ export const AudioManager = {
     if (this.listener || !camera) return;
     this.listener = new THREE.AudioListener();
     camera.add(this.listener);
+    const ctx = this.listener.context;
+    this.musicGain = ctx.createGain();
+    this.sfxGain = ctx.createGain();
+    this.musicGain.gain.value = this.musicVolume;
+    this.sfxGain.gain.value = this.sfxVolume;
+    this.musicGain.connect(this.listener.getInput());
+    this.sfxGain.connect(this.listener.getInput());
   },
 
   setup(camera, soundBtn) {
@@ -34,8 +43,8 @@ export const AudioManager = {
   toggleMute() {
     if (!this.unlocked) this.unlockAudio();
     this.userMuted = !this.userMuted;
-    if (this.currentMusic) this.currentMusic.setVolume(this.userMuted ? 0 : this.musicVolume);
-    Object.values(this.loopingSounds).forEach(sound => sound.setVolume(this.userMuted ? 0 : this.sfxVolume));
+    if (this.musicGain) this.musicGain.gain.value = this.userMuted ? 0 : this.musicVolume;
+    if (this.sfxGain) this.sfxGain.gain.value = this.userMuted ? 0 : this.sfxVolume;
     this.updateButtonIcon();
   },
 
@@ -61,7 +70,9 @@ export const AudioManager = {
     this._loadBuffer(id, buffer => {
       const sound = object3d ? new THREE.PositionalAudio(this.listener) : new THREE.Audio(this.listener);
       sound.setBuffer(buffer);
-      sound.setVolume(this.sfxVolume);
+      sound.setVolume(1);
+      sound.gain.disconnect();
+      if (this.sfxGain) sound.gain.connect(this.sfxGain);
       if (object3d) {
         object3d.add(sound);
       }
@@ -76,7 +87,9 @@ export const AudioManager = {
       const sound = object3d ? new THREE.PositionalAudio(this.listener) : new THREE.Audio(this.listener);
       sound.setBuffer(buffer);
       sound.setLoop(true);
-      sound.setVolume(this.sfxVolume);
+      sound.setVolume(1);
+      sound.gain.disconnect();
+      if (this.sfxGain) sound.gain.connect(this.sfxGain);
       if (object3d) object3d.add(sound);
       sound.play();
       this.loopingSounds[id] = sound;
@@ -97,7 +110,9 @@ export const AudioManager = {
       const sound = new THREE.Audio(this.listener);
       sound.setBuffer(buffer);
       sound.setLoop(true);
-      sound.setVolume(this.userMuted ? 0 : this.musicVolume);
+      sound.setVolume(1);
+      sound.gain.disconnect();
+      if (this.musicGain) sound.gain.connect(this.musicGain);
       sound.play();
       this.currentMusic = sound;
     });
@@ -115,5 +130,15 @@ export const AudioManager = {
     if (this.musicPlaylist.length === 0 || this.currentMusic) return;
     this.currentTrackIndex = 0;
     this._playMusicTrack(this.musicPlaylist[0]);
+  },
+
+  setMusicVolume(v) {
+    this.musicVolume = v;
+    if (this.musicGain) this.musicGain.gain.value = this.userMuted ? 0 : v;
+  },
+
+  setSfxVolume(v) {
+    this.sfxVolume = v;
+    if (this.sfxGain) this.sfxGain.gain.value = this.userMuted ? 0 : v;
   }
 };

@@ -16,8 +16,8 @@ export async function start() {
   initPlayerController();
   initVrGameLoop();
   initUI();
-  AudioManager.sfxVolume = state.settings.sfxVolume / 100;
-  AudioManager.musicVolume = state.settings.musicVolume / 100;
+  AudioManager.setSfxVolume(state.settings.sfxVolume / 100);
+  AudioManager.setMusicVolume(state.settings.musicVolume / 100);
   AudioManager.setup(getCamera(), null);
   await initModals();
   initControllerMenu();
