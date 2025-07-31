@@ -241,9 +241,18 @@ function createStageSelectModal() {
   for (let i = 1; i <= maxStage; i++) {
     const stageInfo = STAGE_CONFIG.find(s => s.stage === i);
     if (!stageInfo) continue;
+    const row = new THREE.Group();
+    row.name = `stage${i}`;
     const btn = createButton(`STAGE ${i}: ${stageInfo.displayName}`, () => startStage(i));
-    btn.position.set(0, -0.25 * (i - 1), 0);
-    list.add(btn);
+    row.add(btn);
+    const mech = createButton('❔', () => showBossInfoModal(stageInfo.bosses, 'mechanics'));
+    mech.position.set(0.6, 0, 0);
+    row.add(mech);
+    const lore = createButton('ℹ️', () => showBossInfoModal(stageInfo.bosses, 'lore'));
+    lore.position.set(0.8, 0, 0);
+    row.add(lore);
+    row.position.set(0, -0.25 * (i - 1), 0);
+    list.add(row);
   }
   modal.add(list);
 
@@ -472,6 +481,48 @@ function createLoreModal() {
   return modal;
 }
 
+function createBossInfoModal() {
+  const modal = new THREE.Group();
+  modal.name = 'bossInfo';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 1.2),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const title = createTextSprite('BOSS INFO', 64);
+  title.position.set(0, 0.45, 0.01);
+  modal.add(title);
+
+  const body = createTextSprite('', 24);
+  body.position.set(0, 0.15, 0.01);
+  modal.add(body);
+
+  const closeBtn = createButton('CLOSE', () => hideModal('bossInfo'));
+  closeBtn.position.set(0, -0.35, 0.02);
+  modal.add(closeBtn);
+
+  modal.userData.title = title;
+  modal.userData.body = body;
+
+  modal.visible = false;
+  return modal;
+}
+
+function showBossInfoModal(ids, type) {
+  const bosses = ids.map(id => bossData.find(b => b.id === id)).filter(b => b);
+  if (!bosses.length) return;
+  let title = bosses.length > 1 ? bosses.map(b => b.name).join(' & ') : bosses[0].name;
+  if (type === 'lore') {
+    title += ' - Lore ℹ️';
+  } else {
+    title += ' - Mechanics ❔';
+  }
+  const bodyText = bosses.map(b => type === 'lore' ? b.lore : b.mechanics_desc).join('\n\n');
+  updateTextSprite(modals.bossInfo.userData.title, title);
+  updateTextSprite(modals.bossInfo.userData.body, bodyText);
+  showModal('bossInfo');
+}
+
 let confirmCallback;
 
 function createConfirmModal() {
@@ -548,6 +599,9 @@ export async function initModals(cam = getCamera()) {
   modals.lore = createLoreModal();
   group.add(modals.lore);
 
+  modals.bossInfo = createBossInfoModal();
+  group.add(modals.bossInfo);
+
   modals.settings = createSettingsModal();
   group.add(modals.settings);
 
@@ -595,6 +649,10 @@ export function showConfirm(title, text, onConfirm) {
     updateTextSprite(modals.confirm.userData.body, text);
   }
   showModal('confirm');
+}
+
+export function showBossInfo(ids, type) {
+  showBossInfoModal(ids, type);
 }
 
 export function getModalObjects() {

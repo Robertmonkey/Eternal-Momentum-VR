@@ -342,3 +342,8 @@ Next Steps: Continue auditing menus for any remaining text discrepancies.
 Summary: Clarified README and AGENTS instructions that all menu wording must match the old game's text exactly.
 Verification: npm test – all suites pass.
 Next Steps: Continue recreating remaining menus using the original phrasing.
+
+2025-10-02 – FR-03 – Stage manager menu info buttons
+Summary: Added Boss Info modal and integrated mechanics/lore buttons in the stage select menu. Updated tests accordingly.
+Verification: npm test – all suites including updated stage select test pass.
+Next Steps: Continue rebuilding remaining menus for parity.
