@@ -502,8 +502,7 @@ export function handleCoreOnPlayerDamage(damage, enemy, gameHelpers) {
         }
       }
       const decoy = {
-        x: playerX,
-        y: playerY,
+        position: state.player.position.clone(),
         r: 20,
         hp: 1,
         fromCore: true,
