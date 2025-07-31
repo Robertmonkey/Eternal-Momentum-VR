@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "node tests/movement3d.test.mjs && node tests/navmesh.test.mjs && node tests/projectileManager.test.mjs && node tests/playerState.test.mjs && node tests/uiMaterial.test.mjs && node tests/modalVisibility.test.mjs && node tests/loadingProgress.test.mjs && node tests/gameOverModal.test.mjs && node tests/noCanvas.test.mjs && node tests/reflectorAI.test.mjs && node tests/enemyAI3d.test.mjs && node tests/vampireAI.test.mjs && node tests/gravityAI.test.mjs && node tests/epochEnderRewind.test.mjs && node tests/pickups3d.test.mjs && node tests/architectAI.test.mjs && node tests/empOverloadAI.test.mjs && node tests/swarmLinkAI.test.mjs && node tests/splitterAI.test.mjs && node tests/mirrorMirageAI.test.mjs && node tests/aethelUmbraAI.test.mjs && node tests/arenaSphere.test.mjs && node tests/settingsSave.test.mjs && node tests/stageSelectModal.test.mjs && node tests/coresModal.test.mjs && node tests/ascensionModal.test.mjs && node tests/loreModal.test.mjs && node tests/audioGain.test.mjs && node tests/powerManager.test.mjs && node tests/coreManager.test.mjs && node tests/coreHooks.test.mjs && node tests/playerDamageHooks.test.mjs && node tests/hudCooldown.test.mjs && node tests/coreIconDisplay.test.mjs && node tests/ascensionPurchase.test.mjs && node tests/ascensionInfo.test.mjs && node tests/ascensionInfoPurchase.test.mjs && node tests/loopingEyeAI.test.mjs && node tests/juggernautAI.test.mjs && node tests/puppeteerAI.test.mjs && node tests/glitchAI.test.mjs && node tests/sentinelPairAI.test.mjs && node tests/basiliskAI.test.mjs && node tests/annihilatorAI.test.mjs && node tests/parasiteAI.test.mjs && node tests/quantumShadowAI.test.mjs && node tests/timeEaterAI.test.mjs && node tests/singularityAI.test.mjs && node tests/miasmaAI.test.mjs && node tests/temporalParadoxAI.test.mjs && node tests/syphonAI.test.mjs && node tests/centurionAI.test.mjs && node tests/fractalHorrorAI.test.mjs && node tests/obeliskAI.test.mjs && node tests/helixWeaverAI.test.mjs && node tests/epochEnderAI.test.mjs && node tests/shaperOfFateAI.test.mjs && node tests/pantheonAI.test.mjs"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +15,8 @@
   "type": "module",
   "dependencies": {
     "three": "^0.156.1"
+  },
+  "devDependencies": {
+    "jest": "^30.0.5"
   }
 }
