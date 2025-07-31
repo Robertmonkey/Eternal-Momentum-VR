@@ -1,4 +1,4 @@
-import { start as startVR } from './vrMain.js';
+import { start as startVR, stop as stopVR } from './vrMain.js';
 import * as THREE from './vendor/three.module.js';
 import { getRenderer } from './modules/scene.js';
 import { showHud } from './modules/UIManager.js';
@@ -39,7 +39,7 @@ function preloadAssets() {
 });
 }
 
-export { preloadAssets };
+export { preloadAssets, showHome, startGame };
 
 function showLoading() {
   if (loadingEl) loadingEl.style.display = 'flex';
@@ -52,9 +52,14 @@ function showHome() {
     homeEl.style.display = 'flex';
     requestAnimationFrame(() => homeEl.classList.add('visible'));
   }
+  stopVR();
   const saveExists = !!localStorage.getItem('eternalMomentumSave');
   if (continueBtn) continueBtn.style.display = saveExists ? 'block' : 'none';
   if (eraseBtn) eraseBtn.style.display = saveExists ? 'block' : 'none';
+}
+
+if (typeof window !== 'undefined') {
+  window.showHome = showHome;
 }
 
 async function startGame(resetSave = false) {
@@ -65,7 +70,17 @@ async function startGame(resetSave = false) {
       homeEl.style.display = 'none';
     }, { once: true });
   }
-  await startVR();
+  const saved = localStorage.getItem('eternalMomentumSave');
+  let stage = 1;
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (typeof data.highestStageBeaten === 'number' && data.highestStageBeaten > 0) {
+        stage = data.highestStageBeaten + 1;
+      }
+    } catch(e) {}
+  }
+  await startVR(stage);
   showHud();
 
   if (navigator.xr && navigator.xr.isSessionSupported) {
@@ -87,7 +102,7 @@ async function startGame(resetSave = false) {
 window.addEventListener('load', async () => {
   showLoading();
   await preloadAssets();
-  setTimeout(showHome, 500);
+  startGame(false);
   startBtn?.addEventListener('click', () => startGame(true));
   continueBtn?.addEventListener('click', () => startGame(false));
   eraseBtn?.addEventListener('click', () => {

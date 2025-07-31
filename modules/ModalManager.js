@@ -152,6 +152,14 @@ function createSettingsModal() {
   modal.add(createVolumeControl('Music', 'musicVolume', -0.1));
   modal.add(createVolumeControl('SFX', 'sfxVolume', -0.35));
 
+  const homeBtn = createButton('Home', () => {
+    if (typeof window !== 'undefined' && window.showHome) {
+      window.showHome();
+    }
+  });
+  homeBtn.position.set(0, -0.6, 0.02);
+  modal.add(homeBtn);
+
   modal.visible = false;
   return modal;
 }
@@ -359,7 +367,7 @@ function createLoreModal() {
 }
 
 
-function startStage(stage) {
+export function startStage(stage) {
   applyAllTalentEffects();
   resetGame(false);
   if (typeof stage === 'number') {
