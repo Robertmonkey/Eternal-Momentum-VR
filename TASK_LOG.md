@@ -308,3 +308,15 @@ Next Steps: Continue FR-13 by auditing other powers for remaining 2D calculation
 Summary: Replaced Math.atan2 usage in powers.js with rotateAroundNormal and 3D vectors. Added rotateAroundNormal and pixelsToArc helpers.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Begin FR-14 icon and UI polish.
+2025-09-26 – FR-14 – Icon and UI polish reverted
+Summary: Removed PNG icon textures and restored emoji-based text sprites for all UI icons, including the crosshair. Updated AudioManager and related modules accordingly and added guideline to AGENTS.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Continue with FR-15 helper deduplication.
+2025-09-27 – FR-14 – Crosshair sprite update
+Summary: Switched the crosshair to a sprite using assets/cursors/crosshair.cur instead of a ring mesh.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Proceed with FR-15 helper deduplication.
+2025-09-27 – FR-14 – Icon guideline clarification
+Summary: Updated AGENTS and README to specify emoji-based UI icons with cursor exceptions using assets/cursors. Revised FR‑14 task description accordingly.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Continue with FR-15 helper deduplication.
