@@ -354,3 +354,8 @@ logic in vrMain to automatically display the modal when `state.gameOver` is
 set. The game over screen now appears upon player death with accurate wording.
 Verification: Ran `npm test`; all suites pass.
 Next Steps: Continue auditing menus for any remaining discrepancies.
+
+2025-10-04 – FR-11 – Automatic home screen after loading
+Summary: Modified app.js to display the VR home screen panel after assets finish loading. Updated README and AGENTS text to clarify that the game should enter VR and show the home menu before gameplay begins.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Continue UI reconstruction and stage flow improvements.
