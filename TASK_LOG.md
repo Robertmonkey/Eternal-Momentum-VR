@@ -176,3 +176,8 @@ Next Steps: Continue with FR-06 power-up system implementation.
 Summary: Created PowerManager module with useOffensivePower and useDefensivePower helpers. PlayerController now uses these functions. Added powerManager.test.mjs and updated package.json. Updated README and AGENTS docs.
 Verification: Ran `npm test`; all suites including new power manager test pass.
 Next Steps: Begin FR-07 core management implementation.
+2025-09-06 – FR-07 – CoreManager integration
+Summary: Implemented CoreManager module wrapping cores.js logic. PlayerController
+ now calls useCoreActive and gameLoop triggers applyCorePassives each frame.
+Added coreManager.test.mjs and updated package.json to run it. All tests pass.
+Next Steps: Continue FR-07 by wiring core hooks (damage, death) into game loop.
