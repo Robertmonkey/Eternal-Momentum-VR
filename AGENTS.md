@@ -18,6 +18,7 @@ Next Steps: Identify the next task to work on, including any dependencies or ope
 
 
 5. **Scrutinise Your Work** – Always compare your implementation against the original game.  Ask yourself: *Does this feel and function exactly like the 2D version?*  If not, document the discrepancy and fix it or flag it for later investigation.
+6. **Ongoing UI Parity** – Task **FR‑03: UI Reconstruction** remains in progress. Continue rebuilding each menu to match the 2D design exactly—fonts, colours, backgrounds and conditional button visibility—until all menus are identical.
 
 ## Fidelity Refactor Tasks
 

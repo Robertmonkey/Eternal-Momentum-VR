@@ -25,11 +25,12 @@ function ensureGroup(camOverride) {
 function createTextSprite(text, size = 48, color = '#eaf2ff') {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = `${size}px sans-serif`;
+  const fontStack = "'Segoe UI','Roboto',sans-serif";
+  ctx.font = `${size}px ${fontStack}`;
   const width = Math.ceil(ctx.measureText(text).width) || 1;
   canvas.width = width;
   canvas.height = size * 1.2;
-  ctx.font = `${size}px sans-serif`;
+  ctx.font = `${size}px ${fontStack}`;
   ctx.fillStyle = color;
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 0, canvas.height / 2);
@@ -43,7 +44,7 @@ function createTextSprite(text, size = 48, color = '#eaf2ff') {
   sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
   sprite.userData.ctx = ctx;
   sprite.userData.canvas = canvas;
-  sprite.userData.font = `${size}px sans-serif`;
+  sprite.userData.font = `${size}px ${fontStack}`;
   return sprite;
 }
 
@@ -176,6 +177,10 @@ function createStageSelectModal() {
   header.position.set(0, 0.55, 0.01);
   modal.add(header);
 
+  const loreBtn = createButton('LORE CODEX', () => showModal('lore'));
+  loreBtn.position.set(0.55, 0.55, 0.02);
+  modal.add(loreBtn);
+
   const list = new THREE.Group();
   list.position.set(0, 0.35, 0.02);
   const maxStage = STAGE_CONFIG.length;
@@ -188,8 +193,19 @@ function createStageSelectModal() {
   }
   modal.add(list);
 
+  const orreryBtn = createButton("WEAVER'S ORRERY", () => showModal('orrery'));
+  orreryBtn.position.set(0, -0.35, 0.02);
+  modal.add(orreryBtn);
+
+  const jumpBtn = createButton('JUMP TO FRONTIER', () => {
+    const frontier = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
+    startStage(frontier);
+  });
+  jumpBtn.position.set(0, -0.55, 0.02);
+  modal.add(jumpBtn);
+
   const closeBtn = createButton('Close', () => hideModal('levelSelect'));
-  closeBtn.position.set(0, -0.55, 0.02);
+  closeBtn.position.set(0, -0.75, 0.02);
   modal.add(closeBtn);
 
   modal.visible = false;
@@ -339,6 +355,42 @@ function createCoresModal() {
   return modal;
 }
 
+function createOrreryModal() {
+  const modal = new THREE.Group();
+  modal.name = 'orrery';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 1.6),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const header = createTextSprite("THE WEAVER'S ORRERY", 64);
+  header.position.set(0, 0.65, 0.01);
+  modal.add(header);
+
+  const points = createTextSprite(`ECHOES: ${state.player.orreryPoints || 0}`, 32);
+  points.position.set(0, 0.45, 0.01);
+  modal.add(points);
+
+  const placeholder = createTextSprite('Feature in progress', 28);
+  placeholder.position.set(0, 0, 0.01);
+  modal.add(placeholder);
+
+  const clearBtn = createButton('CLEAR ROSTER', () => {});
+  clearBtn.position.set(0, -0.45, 0.02);
+  modal.add(clearBtn);
+
+  const startBtn = createButton('FORGE TIMELINE', () => {});
+  startBtn.position.set(0, -0.65, 0.02);
+  modal.add(startBtn);
+
+  const closeBtn = createButton('Close', () => hideModal('orrery'));
+  closeBtn.position.set(0, -0.85, 0.02);
+  modal.add(closeBtn);
+
+  modal.visible = false;
+  return modal;
+}
+
 const storyContent =
   'Reality is fraying. You are the Conduit, last anchor against the Unraveling.';
 
@@ -397,6 +449,9 @@ export async function initModals(cam = getCamera()) {
 
   modals.cores = createCoresModal();
   group.add(modals.cores);
+
+  modals.orrery = createOrreryModal();
+  group.add(modals.orrery);
 
   modals.lore = createLoreModal();
   group.add(modals.lore);
