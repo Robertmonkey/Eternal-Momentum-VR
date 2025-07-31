@@ -4,7 +4,9 @@ import { TALENT_GRID_CONFIG } from './talents.js';
 import { updateUI } from './ui.js';
 import { AudioManager } from './audio.js';
 
-const gridContainer = document.querySelector("#ascensionGridModal .ascension-content");
+const gridContainer = typeof document !== 'undefined' && document.querySelector
+  ? document.querySelector("#ascensionGridModal .ascension-content")
+  : null;
 
 const allTalents = {};
 Object.values(TALENT_GRID_CONFIG).forEach(constellation => {

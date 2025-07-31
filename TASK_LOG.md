@@ -147,3 +147,7 @@ Next Steps: Proceed with FR-02 settings panel implementation.
 Summary: Added settings modal with handedness toggle and volume sliders. Created cog button on HUD to open the panel. Preferences saved via savePlayerState and applied on startup. Controllers now use primary/secondary roles based on handedness.
 Verification: Ran npm test after adding new settingsSave test; all suites passed.
 Next Steps: Begin FR-03 UI reconstruction using Three.js panels.
+2025-08-31 – FR-03 – Stage select UI reconstruction
+Summary: Removed html2canvas dependency and legacy DOM modals. Implemented `createStageSelectModal` in ModalManager using Three.js planes and text sprites. Added `startStage` helper and new test `stageSelectModal.test.mjs`. Updated package.json and ascension.js for DOM-less execution.
+Verification: `npm test` runs all suites including new stage select test successfully.
+Next Steps: Expand FR-03 to rebuild remaining menus (ascension, cores, lore) with interactive panels.

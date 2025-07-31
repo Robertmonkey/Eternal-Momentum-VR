@@ -2,7 +2,8 @@ import * as THREE from '../vendor/three.module.js';
 import { getCamera } from './scene.js';
 import { resetGame, state, savePlayerState } from './state.js';
 import { AudioManager } from './audio.js';
-import { captureElementToTexture } from './utils.js';
+import { STAGE_CONFIG } from './config.js';
+import { applyAllTalentEffects } from './ascension.js';
 import { holoMaterial } from './UIManager.js';
 
 let modalGroup;
@@ -154,36 +155,45 @@ function createSettingsModal() {
   return modal;
 }
 
-async function createDomModal(domId) {
-  const el = document.getElementById(domId);
-  const tex = await captureElementToTexture(el);
-  if(!tex) return null;
-  const geom = new THREE.PlaneGeometry(1.6, 1);
-  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
-  const mesh = new THREE.Mesh(geom, mat);
-  const group = new THREE.Group();
-  group.name = domId;
-  group.userData.domId = domId;
-  group.add(mesh);
-  group.visible = false;
-  return group;
+function createStageSelectModal() {
+  const modal = new THREE.Group();
+  modal.name = 'levelSelect';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 1.4),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const header = createTextSprite('SELECT STAGE', 64);
+  header.position.set(0, 0.55, 0.01);
+  modal.add(header);
+
+  const list = new THREE.Group();
+  list.position.set(0, 0.35, 0.02);
+  const maxStage = STAGE_CONFIG.length;
+  for (let i = 1; i <= maxStage; i++) {
+    const stageInfo = STAGE_CONFIG.find(s => s.stage === i);
+    if (!stageInfo) continue;
+    const btn = createButton(`STAGE ${i}: ${stageInfo.displayName}`, () => startStage(i));
+    btn.position.set(0, -0.25 * (i - 1), 0);
+    list.add(btn);
+  }
+  modal.add(list);
+
+  const closeBtn = createButton('Close', () => hideModal('levelSelect'));
+  closeBtn.position.set(0, -0.55, 0.02);
+  modal.add(closeBtn);
+
+  modal.visible = false;
+  return modal;
 }
 
-export async function refreshDomModal(domId) {
-  const group = modals[domId];
-  if(!group) return;
-  const el = document.getElementById(domId);
-  if(!el) return;
-  const tex = await captureElementToTexture(el);
-  if(!tex) return;
-  const mesh = group.children[0];
-  if(mesh.material.map) mesh.material.map.dispose();
-  mesh.material.map = tex;
-  mesh.material.needsUpdate = true;
-}
 
-function restartStage() {
+function startStage(stage) {
+  applyAllTalentEffects();
   resetGame(false);
+  if (typeof stage === 'number') {
+    state.currentStage = stage;
+  }
   state.isPaused = false;
   Object.values(modals).forEach(m => m.visible = false);
 }
@@ -193,15 +203,15 @@ export async function initModals(cam = getCamera()) {
   if (!group || modals.gameOver) return;
 
   modals.gameOver = createModal('gameOver', 'TIMELINE COLLAPSED', [
-    { label: 'Restart Stage', onSelect: restartStage },
+    { label: 'Restart Stage', onSelect: () => startStage(state.currentStage) },
     { label: 'Ascension', onSelect: () => showModal('ascension') },
     { label: 'Cores', onSelect: () => showModal('cores') },
     { label: 'Stage Select', onSelect: () => showModal('levelSelect') }
   ]);
   group.add(modals.gameOver);
 
-  modals.levelSelect = await createDomModal('levelSelectModal');
-  if (modals.levelSelect) group.add(modals.levelSelect);
+  modals.levelSelect = createStageSelectModal();
+  group.add(modals.levelSelect);
 
   modals.ascension = createModal('ascension', 'ASCENSION CONDUIT', [
     { label: 'Close', onSelect: () => hideModal('ascension') }
@@ -221,9 +231,6 @@ export function showModal(id) {
   ensureGroup();
   Object.values(modals).forEach(m => { if (m) m.visible = false; });
   if (modals[id]) {
-    if(modals[id].userData && modals[id].userData.domId){
-      refreshDomModal(modals[id].userData.domId);
-    }
     modals[id].visible = true;
     modals[id].position.set(0, 0, -1.5);
   }
