@@ -1,6 +1,12 @@
 import assert from 'assert';
 import * as THREE from '../vendor/three.module.js';
 
+global.window = {};
+global.document = {
+  getElementById: () => null,
+  createElement: () => ({ getContext: () => ({}) })
+};
+
 const { SwarmLinkAI } = await import('../modules/agents/SwarmLinkAI.js');
 
 const boss = new SwarmLinkAI(1);

@@ -122,6 +122,11 @@ export const state = {
       },
     },
   },
+  settings: {
+    handedness: 'right',
+    musicVolume: 100,
+    sfxVolume: 100
+  },
   // Global collections for all active enemies, pickups, visual effects, and
   // transient particle systems.  Modules like powers.js or cores.js push
   // objects into these arrays to be rendered or processed by gameLoop.js.
@@ -176,6 +181,7 @@ export function savePlayerState() {
     unlockedDefensiveSlots: state.player.unlockedDefensiveSlots,
     unlockedAberrationCores: [...state.player.unlockedAberrationCores],
     equippedAberrationCore: state.player.equippedAberrationCore,
+    settings: state.settings
   };
   localStorage.setItem('eternalMomentumSave', JSON.stringify(persistentData));
 }
@@ -200,6 +206,11 @@ export function loadPlayerState() {
       equippedAberrationCore: parsedData.equippedAberrationCore || null,
     };
     Object.assign(state.player, playerData);
+    if (parsedData.settings) {
+      state.settings.handedness = parsedData.settings.handedness || 'right';
+      state.settings.musicVolume = parsedData.settings.musicVolume ?? 100;
+      state.settings.sfxVolume = parsedData.settings.sfxVolume ?? 100;
+    }
   }
 }
 

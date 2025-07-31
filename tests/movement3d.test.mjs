@@ -1,7 +1,13 @@
 import assert from 'assert';
 import * as THREE from 'three';
 
-import { moveTowards } from '../modules/movement3d.js';
+global.window = {};
+global.document = {
+  getElementById: () => null,
+  createElement: () => ({ getContext: () => ({}) })
+};
+
+const { moveTowards } = await import('../modules/movement3d.js');
 
 const radius = 1;
 let pos = new THREE.Vector3(0, radius, 0);

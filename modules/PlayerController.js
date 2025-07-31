@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
-import { getScene, getArena, getControllers, getCamera } from './scene.js';
+import { getScene, getArena, getPrimaryController, getCamera } from './scene.js';
 import { moveTowards } from './movement3d.js';
 import { spherePosToUv, uvToSpherePos } from './utils.js';
 import { state } from './state.js';
@@ -15,7 +15,7 @@ let targetPoint = new THREE.Vector3();
 let raycaster;
 let laser;
 let crosshair;
-let rightController;
+let primaryController;
 let triggerDown = false;
 let gripDown = false;
 const tempMatrix = new THREE.Matrix4();
@@ -44,9 +44,9 @@ export function initPlayerController() {
 
   raycaster = new THREE.Raycaster();
   raycaster.camera = getCamera();
-  rightController = getControllers()[0];
+  primaryController = getPrimaryController();
 
-  if (rightController) {
+  if (primaryController) {
     const material = new THREE.LineBasicMaterial({ color: 0x00ffff });
     const geometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
@@ -55,20 +55,20 @@ export function initPlayerController() {
     laser = new THREE.Line(geometry, material);
     laser.name = 'laserPointer';
     laser.scale.z = radius * 2;
-    rightController.add(laser);
+    primaryController.add(laser);
 
-    rightController.addEventListener('selectstart', () => {
+    primaryController.addEventListener('selectstart', () => {
       triggerDown = true;
       handleInput();
     });
-    rightController.addEventListener('selectend', () => {
+    primaryController.addEventListener('selectend', () => {
       triggerDown = false;
     });
-    rightController.addEventListener('squeezestart', () => {
+    primaryController.addEventListener('squeezestart', () => {
       gripDown = true;
       handleInput();
     });
-    rightController.addEventListener('squeezeend', () => {
+    primaryController.addEventListener('squeezeend', () => {
       gripDown = false;
     });
   }
@@ -95,13 +95,13 @@ function handleInput() {
 }
 
 export function updatePlayerController() {
-  if (!rightController || !raycaster) return;
+  if (!primaryController || !raycaster) return;
   raycaster.camera = getCamera();
   const arena = getArena();
   const radius = arena.geometry.parameters.radius;
 
-  tempMatrix.identity().extractRotation(rightController.matrixWorld);
-  raycaster.ray.origin.setFromMatrixPosition(rightController.matrixWorld);
+  tempMatrix.identity().extractRotation(primaryController.matrixWorld);
+  raycaster.ray.origin.setFromMatrixPosition(primaryController.matrixWorld);
   raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
   // Check UI interactions first
