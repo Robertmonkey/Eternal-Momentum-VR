@@ -185,3 +185,7 @@ Next Steps: Continue FR-07 by wiring core hooks (damage, death) into game loop.
 Summary: Added hook invocations for core effects. BaseAgent now triggers CoreManager.onDamageDealt and onEnemyDeath. Boss AIs call onPlayerDamage when harming player. Added _setTestHooks to CoreManager and new coreHooks.test.mjs.
 Verification: npm test runs all suites including new coreHooks test.
 Next Steps: Proceed with FR-07 by integrating hooks into remaining AI modules and verifying HUD cooldown display.
+2025-09-08 – FR-07 – Hook verification tests
+Summary: Added playerDamageHooks.test.mjs to ensure all AIs that damage the player invoke CoreManager.onPlayerDamage. Added hudCooldown.test.mjs verifying UIManager updates the core cooldown overlay. Updated package.json to run new tests.
+Verification: Ran npm test after installing dependencies; all suites including new tests passed.
+Next Steps: Continue FR-07 by ensuring HUD displays equipped core icon accurately during gameplay.
