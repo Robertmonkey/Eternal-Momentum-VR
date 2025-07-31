@@ -253,7 +253,12 @@ Next Steps: Continue implementing remaining bosses.
 | B22 | The Temporal Paradox | ✅ Implemented | modules/agents/TemporalParadoxAI.js | tests/temporalParadoxAI.test.mjs |
 | B23 | The Syphon | ✅ Implemented | modules/agents/SyphonAI.js | tests/syphonAI.test.mjs |
 | B24 | The Centurion | ✅ Implemented | modules/agents/CenturionAI.js | tests/centurionAI.test.mjs |
-| B25–B30 | – | Pending | – | – |
+| B25 | The Fractal Horror | ✅ Implemented | modules/agents/FractalHorrorAI.js | tests/fractalHorrorAI.test.mjs
+| B26 | The Obelisk | ✅ Implemented | modules/agents/ObeliskAI.js | tests/obeliskAI.test.mjs
+| B27 | The Helix Weaver | ✅ Implemented | modules/agents/HelixWeaverAI.js | tests/helixWeaverAI.test.mjs
+| B28 | The Epoch-Ender | ✅ Implemented | modules/agents/EpochEnderAI.js | tests/epochEnderAI.test.mjs
+| B29 | The Shaper of Fate | ✅ Implemented | modules/agents/ShaperOfFateAI.js | tests/shaperOfFateAI.test.mjs
+| B30 | The Pantheon | ✅ Implemented | modules/agents/PantheonAI.js | tests/pantheonAI.test.mjs
 2025-09-17 – FR-09 – Bosses B10-B14
 Summary: Implemented Looping Eye, Juggernaut, Puppeteer, Glitch and Sentinel Pair bosses with full mechanics and added corresponding tests.
 Verification: npm test – all suites including new boss tests pass.
@@ -262,3 +267,7 @@ Next Steps: Continue implementing bosses B15-B30.
 Summary: Implemented Basilisk through Centurion bosses based on original game logic and added unit tests for each. Updated package.json and master boss table.
 Verification: Ran npm test and all suites including new boss tests pass.
 Next Steps: Finish remaining bosses B25-B30 and begin FR-10 testing infrastructure.
+2025-09-19 – FR-09 – Bosses B25-B30
+Summary: Implemented final six bosses with tests verifying key mechanics. Updated master boss table.
+Verification: npm install && npm test – all suites including new boss tests pass.
+Next Steps: Begin FR-10 testing infrastructure.
