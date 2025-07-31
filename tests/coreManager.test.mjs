@@ -3,7 +3,10 @@ import * as THREE from 'three';
 
 // minimal DOM stubs
 global.window = { gameHelpers: {}, navigator: {} };
-global.navigator = { xr: true };
+Object.defineProperty(global, 'navigator', {
+  value: { xr: true },
+  configurable: true
+});
 function stubEl() {
   return {
     style: {},

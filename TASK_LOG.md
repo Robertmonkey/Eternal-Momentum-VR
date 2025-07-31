@@ -206,3 +206,7 @@ Next Steps: Finalise FR-08 by refining layout and ensure talent descriptions upd
 Summary: Added ascensionInfoPurchase.test.mjs verifying talent info panel refreshes after buying a talent. Updated package.json test script.
 Verification: Ran npm test; all suites including new test pass.
 Next Steps: Begin FR-09 boss fidelity audit.
+2025-09-13 – FR-09 – Boss audit begins
+Summary: Added SplitterAI unit test verifying minion spawns and patched coreManager.test for Node 22 navigator immutability.
+Verification: npm install && npm test pass with new tests.
+Next Steps: Continue FR-09 by updating boss status table and adding tests for additional bosses.
