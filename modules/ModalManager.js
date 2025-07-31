@@ -4,7 +4,8 @@ import { resetGame, state, savePlayerState } from './state.js';
 import { AudioManager } from './audio.js';
 import { STAGE_CONFIG } from './config.js';
 import { bossData } from './bosses.js';
-import { applyAllTalentEffects } from './ascension.js';
+import { applyAllTalentEffects, purchaseTalent } from './ascension.js';
+import { TALENT_GRID_CONFIG } from './talents.js';
 import { holoMaterial } from './UIManager.js';
 
 let modalGroup;
@@ -50,7 +51,9 @@ function updateTextSprite(sprite, text) {
   const ctx = sprite.userData.ctx;
   const canvas = sprite.userData.canvas;
   if (!ctx || !canvas) return;
-  ctx.clearRect(0,0,canvas.width, canvas.height);
+  if (typeof ctx.clearRect === 'function') {
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+  }
   if (sprite.userData.font) ctx.font = sprite.userData.font;
   ctx.fillStyle = '#eaf2ff';
   ctx.textBaseline = 'middle';
@@ -200,6 +203,41 @@ function createAscensionModal() {
   const apDisplay = createTextSprite(`AP: ${state.player.ascensionPoints}`, 32);
   apDisplay.position.set(0, 0.35, 0.01);
   modal.add(apDisplay);
+
+  const grid = new THREE.Group();
+  grid.position.set(0, 0.1, 0.02);
+  const nodes = {};
+  const width = 1.4;
+  const height = 1.0;
+  Object.values(TALENT_GRID_CONFIG).forEach(constellation => {
+    Object.keys(constellation).forEach(key => {
+      if (key === 'color') return;
+      const t = constellation[key];
+      const btn = createButton(t.icon, () => {
+        purchaseTalent(t.id);
+        updateTextSprite(apDisplay, `AP: ${state.player.ascensionPoints}`);
+        updateNode(t.id);
+      });
+      const rank = createTextSprite(`0/${t.isInfinite ? '∞' : t.maxRanks}`, 24);
+      rank.position.set(0.18, 0, 0.01);
+      btn.add(rank);
+      const x = (t.position.x / 100 - 0.5) * width;
+      const y = (0.5 - t.position.y / 100) * height;
+      btn.position.set(x, y, 0);
+      grid.add(btn);
+      nodes[t.id] = { rank, talent: t };
+    });
+  });
+  modal.add(grid);
+
+  function updateNode(id) {
+    const info = nodes[id];
+    if (!info) return;
+    const r = state.player.purchasedTalents.get(id) || 0;
+    updateTextSprite(info.rank, `${r}/${info.talent.isInfinite ? '∞' : info.talent.maxRanks}`);
+  }
+
+  Object.keys(nodes).forEach(updateNode);
 
   const clearBtn = createButton('Erase Timeline', () => {
     if (typeof localStorage !== 'undefined') {
