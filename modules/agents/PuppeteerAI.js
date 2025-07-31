@@ -45,8 +45,16 @@ export class PuppeteerAI extends BaseAgent {
       });
       if (farthest) {
         farthest.isPuppet = true;
-        if (gameHelpers && typeof gameHelpers.play === 'function') {
-          gameHelpers.play('puppeteerConvert');
+        farthest.customColor = '#a29bfe';
+        if (farthest.scale) farthest.scale.multiplyScalar(1.5);
+        if (typeof farthest.health === 'number') {
+          farthest.health = 104;
+          farthest.maxHealth = 104;
+        }
+        if (farthest.velocity) farthest.velocity.multiplyScalar(2);
+        gameHelpers?.play?.('puppeteerConvert');
+        if (gameHelpers?.spawnLightning) {
+          gameHelpers.spawnLightning(this.position.clone(), farthest.position.clone(), '#a29bfe');
         }
       }
     }

@@ -27,15 +27,26 @@ export class SentinelPairAI extends BaseAgent {
     );
   }
 
-  update(delta, playerPos, gameHelpers) {
+  update(delta, playerObj, gameHelpers) {
     if (!this.alive) return;
-    if (this.partner && this.partner.alive) {
+    if (this.partner && this.partner.alive && playerObj) {
+      const playerPos = playerObj.position;
       const pVec = playerPos.clone().sub(this.position).normalize();
       const perp = new THREE.Vector3().crossVectors(pVec, this.partner.position.clone().sub(this.position)).normalize();
       const target = playerPos.clone().add(perp.multiplyScalar(0.2 * this.radius));
       moveTowards(this.position, target, 0.5, this.radius);
-      if (gameHelpers && typeof gameHelpers.drawBeam === 'function') {
-        gameHelpers.drawBeam(this.position, this.partner.position);
+      const beamFn = gameHelpers?.drawBeam;
+      if (beamFn) beamFn(this.position, this.partner.position);
+
+      // damage when player crosses beam
+      const a = this.position;
+      const b = this.partner.position;
+      const ap = playerPos.clone().sub(a);
+      const ab = b.clone().sub(a);
+      const t = Math.max(0, Math.min(1, ap.dot(ab) / ab.lengthSq()));
+      const closest = a.clone().add(ab.multiplyScalar(t));
+      if (closest.distanceTo(playerPos) < (playerObj.r || 0.05) + 0.05) {
+        if (typeof playerObj.health === 'number') playerObj.health -= 1;
       }
     } else {
       moveTowards(this.position, this.moveTarget, 0.3, this.radius);
