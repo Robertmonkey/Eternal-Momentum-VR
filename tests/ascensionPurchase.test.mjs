@@ -3,8 +3,23 @@ import * as THREE from 'three';
 
 // stub DOM and storage
 global.window = {};
-function stubEl(){return { getContext: () => ({ measureText: () => ({ width: 0 }), fillText: () => {}, clearRect: () => {} }) };}
-global.document = { createElement: () => stubEl(), getElementById: () => null };
+function stubEl(){
+  return {
+    classList: { add() {}, remove() {}, toggle() {} },
+    style: {},
+    addEventListener() {},
+    removeEventListener() {},
+    setAttribute() {},
+    object3D: { scale: { x: 0, y: 0, z: 0 } },
+    children: [],
+    getContext: () => ({ measureText: () => ({ width: 0 }), fillText: () => {}, clearRect: () => {} })
+  };
+}
+global.document = {
+  createElement: () => stubEl(),
+  getElementById: () => stubEl(),
+  querySelectorAll: () => ({ forEach() {} })
+};
 const store = {};
 global.localStorage = { getItem: k => store[k] || null, setItem: (k,v)=>{store[k]=v;}, removeItem:k=>{delete store[k];} };
 

@@ -5,7 +5,8 @@ import * as THREE from '../vendor/three.module.js';
 global.window = { gameHelpers: {} };
 global.document = {
   getElementById: () => null,
-  createElement: () => ({ getContext: () => ({}) })
+  createElement: () => ({ getContext: () => ({}) }),
+  querySelectorAll: () => ({ forEach() {} })
 };
 
 const CoreManager = await import('../modules/CoreManager.js');
