@@ -8,7 +8,7 @@ This document lays out the **step‑by‑step tasks** and architectural guidelin
 
 ### Key Design Differences from the 2D Game
 
-- **Player Platform** – In VR, the player should stand on a small, semi‑transparent **neon deck** suspended in the centre of the arena sphere.  The deck should be visually striking but never obstruct the player’s view.  The current opaque platform blocks half the action; replace it with a narrow ring or disc that the avatar stands on.  The laser pointer’s ray and the cursor must be able to pass through the platform.  This change preserves the “floating in the void” feeling of the original while working in 3D space.
+- **Player Platform** – In VR, the player should stand on a small, semi‑transparent **glowing neon grid deck** suspended in the centre of the arena sphere.  The deck should be visually striking but never obstruct the player’s view.  The current opaque platform blocks half the action; replace it with a narrow ring or disc that the avatar stands on.  The laser pointer’s ray and the cursor must be able to pass through the platform.  This change preserves the “floating in the void” feeling of the original while working in 3D space.
 
 - **Control Mapping** – The original rewrite hard‑coded the laser pointer to the right controller.  Implement a **handedness setting** so that left‑handed players can swap controls.  Add a small cog icon to the HUD; clicking it opens a Settings panel where players can toggle “Swap Primary/Offhand” and adjust **Music** and **SFX** volume sliders.  Save these preferences to persistent state (e.g. localStorage) and honour them when spawning controllers.
 
