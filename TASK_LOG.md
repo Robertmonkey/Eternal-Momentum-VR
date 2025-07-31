@@ -271,3 +271,7 @@ Next Steps: Finish remaining bosses B25-B30 and begin FR-10 testing infrastructu
 Summary: Implemented final six bosses with tests verifying key mechanics. Updated master boss table.
 Verification: npm install && npm test – all suites including new boss tests pass.
 Next Steps: Begin FR-10 testing infrastructure.
+2025-09-20 – FR-10 – Testing infrastructure
+Summary: Set up Jest to run all existing .mjs tests via a wrapper and added a WebXR integration test. Updated package.json test script and added GitHub Actions workflow for CI. Added jest configuration and ensured all tests pass under Jest.
+Verification: npm install && npm test – both unit and integration tests pass.
+Next Steps: Proceed to FR-11 auto start and stage flow refactor.
