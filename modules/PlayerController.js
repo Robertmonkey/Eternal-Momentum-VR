@@ -3,7 +3,7 @@ import { getScene, getArena, getPrimaryController, getCamera } from './scene.js'
 import { moveTowards } from './movement3d.js';
 import { spherePosToUv, uvToSpherePos } from './utils.js';
 import { state } from './state.js';
-import { usePower } from './powers.js';
+import { useOffensivePower, useDefensivePower } from './PowerManager.js';
 import { activateCorePower } from './cores.js';
 import { getUIRoot } from './UIManager.js';
 import { getModalObjects } from './ModalManager.js';
@@ -87,11 +87,9 @@ function handleInput() {
   }
 
   if (triggerDown) {
-    const key = state.offensiveInventory[0];
-    if (key) usePower(key);
+    useOffensivePower();
   } else if (gripDown) {
-    const key = state.defensiveInventory[0];
-    if (key) usePower(key);
+    useDefensivePower();
   }
 }
 

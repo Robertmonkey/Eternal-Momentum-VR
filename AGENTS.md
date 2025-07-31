@@ -73,4 +73,6 @@ Keep this table updated in `TASK_LOG.md` as you implement each boss.  Include li
 
 4. **Documentation** – When introducing new systems (e.g. Settings panel, PowerManager), update README and this AGENTS file to reflect their purpose and usage.
 
+5. **PowerManager Usage** – Offensive powers should be triggered via `useOffensivePower()` and defensive powers via `useDefensivePower()` from `modules/PowerManager.js`.
+
 By following the structured tasks and workflow above, Codex (and any future developers) will have clear, actionable steps to recreate Eternal Momentum faithfully in VR while improving usability and performance.  Remember to consult the original game for mechanical accuracy, verify your work against the acceptance criteria and leave detailed notes after every task.
