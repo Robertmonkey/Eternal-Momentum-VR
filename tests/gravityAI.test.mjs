@@ -16,13 +16,12 @@ resetGame(false);
 const boss = new GravityAI(1);
 boss.position.copy(uvToSpherePos(0.5, 0.5, 1));
 
-const playerObj = { x: 1024, y: 512, r: 10, position: uvToSpherePos(0.5, 0, 1) };
-const player2d = { x: 1024, y: 512 };
+const playerObj = { r: 10, position: uvToSpherePos(0.5, 0, 1) };
 
-const beforeX = playerObj.x;
+const before = playerObj.position.clone();
 
-boss.update(1, player2d, 2048, 1024, playerObj, state);
+boss.update(1, 2048, 1024, playerObj, state);
 
-assert.notStrictEqual(playerObj.x, beforeX, 'player moved by gravity');
+assert.ok(!playerObj.position.equals(before), 'player moved by gravity');
 
 console.log('gravity AI test passed');

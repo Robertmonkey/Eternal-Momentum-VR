@@ -288,3 +288,7 @@ remaining FR tasks.
 Summary: Added cursorDir vector in state and refactored controller input, powers and cores to use it. Implemented utils.toCanvasPos helper and new test.
 Verification: npm install && npm test – all suites including new toCanvasPos test pass.
 Next Steps: Continue FR-12 by replacing remaining x/y references and updating enemy AI distance calculations.
+2025-09-22 – FR-12 – Vectorized enemy AI
+Summary: Updated GravityAI and SwarmLinkAI to derive player canvas coordinates from position vectors and removed remaining x/y references. Modified gravityAI test accordingly.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Complete FR-12 by auditing other modules for legacy coordinates.

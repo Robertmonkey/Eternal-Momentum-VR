@@ -1,6 +1,6 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { uvToSpherePos, spherePosToUv } from '../utils.js';
+import { uvToSpherePos, spherePosToUv, toCanvasPos } from '../utils.js';
 
 export class GravityAI extends BaseAgent {
   constructor(radius = 1) {
@@ -25,20 +25,24 @@ export class GravityAI extends BaseAgent {
     return uvToSpherePos(u, v, this.radius);
   }
 
-  applyGravity(playerObj, playerPos2d, width, height, delta) {
+  applyGravity(playerObj, width, height, delta) {
     if (!playerObj) return;
     const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
     const px = uv.u * width;
     const py = uv.v * height;
-    const dx = px - playerPos2d.x;
-    const dy = py - playerPos2d.y;
-    playerObj.x += dx * this.pullStrength * delta;
-    playerObj.y += dy * this.pullStrength * delta;
+    const player2d = toCanvasPos(playerObj.position.clone().normalize(), width, height);
+    const dx = px - player2d.x;
+    const dy = py - player2d.y;
+    player2d.x += dx * this.pullStrength * delta;
+    player2d.y += dy * this.pullStrength * delta;
+    playerObj.position.copy(
+      uvToSpherePos(player2d.x / width, player2d.y / height, this.radius)
+    );
   }
 
-  update(delta, playerPos2d, width, height, playerObj, state) {
+  update(delta, width, height, playerObj, state) {
     if (!this.alive) return;
-    this.applyGravity(playerObj, playerPos2d, width, height, delta);
+    this.applyGravity(playerObj, width, height, delta);
 
     // slow roaming movement
     this.position.lerp(this.target, delta * 0.05);
@@ -61,6 +65,7 @@ export class GravityAI extends BaseAgent {
     const basisA = new THREE.Vector3(centerVec.z, 0, -centerVec.x).normalize();
     const basisB = new THREE.Vector3().crossVectors(centerVec, basisA).normalize();
 
+    let playerPos2d = toCanvasPos(playerObj.position.clone().normalize(), width, height);
     this.wells.forEach(w => {
       const angRadius = (w.dist / width) * 2 * Math.PI;
       const offset = basisA.clone().multiplyScalar(Math.cos(w.angle) * angRadius)
@@ -72,9 +77,12 @@ export class GravityAI extends BaseAgent {
       const dx = playerPos2d.x - wellX;
       const dy = playerPos2d.y - wellY;
       if (Math.hypot(dx, dy) < w.r + (playerObj?.r || 0)) {
-        playerObj.x -= dx * 0.05;
-        playerObj.y -= dy * 0.05;
+        playerPos2d.x -= dx * 0.05;
+        playerPos2d.y -= dy * 0.05;
       }
     });
+    playerObj.position.copy(
+      uvToSpherePos(playerPos2d.x / width, playerPos2d.y / height, this.radius)
+    );
   }
 }

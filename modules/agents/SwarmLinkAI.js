@@ -1,6 +1,6 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { uvToSpherePos, spherePosToUv } from '../utils.js';
+import { uvToSpherePos, spherePosToUv, toCanvasPos } from '../utils.js';
 import * as CoreManager from '../CoreManager.js';
 
 export class SwarmLinkAI extends BaseAgent {
@@ -42,8 +42,9 @@ export class SwarmLinkAI extends BaseAgent {
   checkCollision(playerObj, width, height) {
     this.minions.forEach(m => {
       const uv = spherePosToUv(m.mesh.position.clone().normalize(), this.radius);
-      const dx = playerObj.x - uv.u * width;
-      const dy = playerObj.y - uv.v * height;
+      const playerPos = toCanvasPos(playerObj.position.clone().normalize(), width, height);
+      const dx = playerPos.x - uv.u * width;
+      const dy = playerPos.y - uv.v * height;
       if (Math.hypot(dx, dy) < (playerObj.r || 0) + 8 && !playerObj.shield) {
         playerObj.health -= 0.25;
         CoreManager.onPlayerDamage(0.25, this, null);
