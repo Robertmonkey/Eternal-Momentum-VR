@@ -338,3 +338,7 @@ Next Steps: Continue auditing remaining menus for parity.
 Summary: Updated modal button labels to match exact wording from old game (ERASE TIMELINE, UNEQUIP CORE, CLOSE).
 Verification: npm install && npm test – all suites pass.
 Next Steps: Continue auditing menus for any remaining text discrepancies.
+2025-10-01 – FR-03 – Documentation wording update
+Summary: Clarified README and AGENTS instructions that all menu wording must match the old game's text exactly.
+Verification: npm test – all suites pass.
+Next Steps: Continue recreating remaining menus using the original phrasing.
