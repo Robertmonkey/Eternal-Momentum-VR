@@ -172,3 +172,7 @@ Next Steps: Begin FR-05 audio integration updates.
 Summary: Added global music and sfx gain nodes in AudioManager. Updated play functions to route audio through these gains and implemented setMusicVolume/setSfxVolume helpers. Settings panel and vrMain now use these helpers. Added audioGain.test.mjs and updated package.json.
 Verification: Ran `npm test`; all suites including the new audio gain test pass.
 Next Steps: Continue with FR-06 power-up system implementation.
+2025-09-05 – FR-06 – PowerManager wrapper
+Summary: Created PowerManager module with useOffensivePower and useDefensivePower helpers. PlayerController now uses these functions. Added powerManager.test.mjs and updated package.json. Updated README and AGENTS docs.
+Verification: Ran `npm test`; all suites including new power manager test pass.
+Next Steps: Begin FR-07 core management implementation.

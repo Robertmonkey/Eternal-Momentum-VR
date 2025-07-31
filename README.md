@@ -49,6 +49,7 @@ This document lays out the **step‑by‑step tasks** and architectural guidelin
 ### Game Logic
 
 1. **Power‑Ups and Cores** – Implement the **PowerManager** to handle offensive and defensive power use.  Map the trigger button to the offensive power and the grip button to the defensive power.  Pressing both simultaneously should activate the attuned aberration core.  Each effect must be ported exactly from `powers.js` and `cores.js`.  For example, the **Shield** power should set a `shieldActiveUntil` timestamp and create a 3D shield mesh around the avatar; the **Chain Lightning** power should cast lightning bolts between enemies using Three.js line segments.  See **FEATURES.md** for complete behaviour definitions.
+   The manager exposes `useOffensivePower()` and `useDefensivePower()` helpers which consume the first slot in the corresponding inventory and call `usePower()` from `powers.js`.
 
 2. **Ascension Talents** – Recreate the Ascension Conduit UI as a holographic talent tree.  When the player opens this menu, display the current AP total and available talents.  Purchasing a talent should immediately modify the global state (`state.player.damageMultiplier`, `state.gravityActiveDuration`, etc.) as described in `ascension.js`.  Persist the unlocked talents to localStorage.
 
