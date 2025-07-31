@@ -181,3 +181,7 @@ Summary: Implemented CoreManager module wrapping cores.js logic. PlayerControlle
  now calls useCoreActive and gameLoop triggers applyCorePassives each frame.
 Added coreManager.test.mjs and updated package.json to run it. All tests pass.
 Next Steps: Continue FR-07 by wiring core hooks (damage, death) into game loop.
+2025-09-07 – FR-07 – Core hook wiring
+Summary: Added hook invocations for core effects. BaseAgent now triggers CoreManager.onDamageDealt and onEnemyDeath. Boss AIs call onPlayerDamage when harming player. Added _setTestHooks to CoreManager and new coreHooks.test.mjs.
+Verification: npm test runs all suites including new coreHooks test.
+Next Steps: Proceed with FR-07 by integrating hooks into remaining AI modules and verifying HUD cooldown display.

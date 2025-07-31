@@ -1,6 +1,7 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { spherePosToUv } from '../utils.js';
+import * as CoreManager from '../CoreManager.js';
 
 // ReflectorAI - Boss B02: Reflector Warden
 // Reimplementation of the original 2D behaviour. The boss cycles between
@@ -66,11 +67,12 @@ export class ReflectorAI extends BaseAgent {
       this.health = Math.min(this.maxHealth, this.health + amount);
       if (this.reflecting && playerObj && typeof playerObj.health === 'number') {
         playerObj.health -= 10;
+        CoreManager.onPlayerDamage(10, this, gameHelpers);
         if (playerObj.health <= 0 && gameState) gameState.gameOver = true;
         gameHelpers?.play?.('reflectorOnHit');
       }
     } else {
-      super.takeDamage(amount);
+      super.takeDamage(amount, true, gameHelpers);
     }
   }
 }

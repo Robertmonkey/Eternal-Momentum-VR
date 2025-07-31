@@ -56,7 +56,7 @@ export class MirrorMirageAI extends BaseAgent {
     const index = this.clones.indexOf(mesh);
     if (index === -1) return;
     if (index === this.realIndex) {
-      super.takeDamage(damage);
+      super.takeDamage(damage, true, gameHelpers);
     } else {
       mesh.visible = false;
       setTimeout(() => {

@@ -50,8 +50,8 @@ export class QuantumShadowAI extends BaseAgent {
     }
   }
 
-  takeDamage(amount) {
+  takeDamage(amount, gameHelpers) {
     if (this.invulnerable) return;
-    super.takeDamage(amount);
+    super.takeDamage(amount, true, gameHelpers);
   }
 }

@@ -1,6 +1,7 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { uvToSpherePos, spherePosToUv } from '../utils.js';
+import * as CoreManager from '../CoreManager.js';
 
 export class SwarmLinkAI extends BaseAgent {
   constructor(radius = 1) {
@@ -45,6 +46,7 @@ export class SwarmLinkAI extends BaseAgent {
       const dy = playerObj.y - uv.v * height;
       if (Math.hypot(dx, dy) < (playerObj.r || 0) + 8 && !playerObj.shield) {
         playerObj.health -= 0.25;
+        CoreManager.onPlayerDamage(0.25, this, null);
       }
     });
   }

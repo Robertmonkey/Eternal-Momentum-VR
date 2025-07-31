@@ -1,5 +1,6 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import * as CoreManager from '../CoreManager.js';
 
 // CenturionAI - Implements boss B24: The Centurion
 // Summons a shrinking energy box around the player.
@@ -35,7 +36,9 @@ export class CenturionAI extends BaseAgent {
         return;
       }
       if (typeof playerObj.health === 'number') {
-        playerObj.health -= 0.3 * delta;
+        const dmg = 0.3 * delta;
+        playerObj.health -= dmg;
+        CoreManager.onPlayerDamage(dmg, this, gameHelpers);
       }
     });
   }
