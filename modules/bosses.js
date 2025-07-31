@@ -2,9 +2,20 @@
 import { STAGE_CONFIG } from './config.js';
 import * as utils from './utils.js';
 import * as THREE from '../vendor/three.module.js';
+import { state } from './state.js';
 
 const CANVAS_W = 2048;
 const CANVAS_H = 1024;
+
+function getPlayerCanvasPos() {
+    const uv = utils.spherePosToUv(state.player.position.clone().normalize(), 1);
+    return { x: uv.u * CANVAS_W, y: uv.v * CANVAS_H };
+}
+
+function setPlayerCanvasPos(x, y) {
+    const pos = utils.uvToSpherePos(x / CANVAS_W, y / CANVAS_H, 1);
+    state.player.position.copy(pos);
+}
 
 export const bossData = [{
     id: "splitter",
@@ -179,11 +190,11 @@ export const bossData = [{
             const wellX = uv.u * CANVAS_W;
             const wellY = uv.v * CANVAS_H;
             utils.drawCircle(ctx, wellX, wellY, w.r, "rgba(155, 89, 182, 0.3)");
-            const dx = state.player.x - wellX,
-                  dy = state.player.y - wellY;
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            const dx = playerX - wellX,
+                  dy = playerY - wellY;
             if (Math.hypot(dx, dy) < w.r + state.player.r) {
-                state.player.x -= dx * 0.05;
-                state.player.y -= dy * 0.05;
+                setPlayerCanvasPos(playerX - dx * 0.05, playerY - dy * 0.05);
             }
         });
     }
@@ -214,7 +225,8 @@ export const bossData = [{
             utils.drawCircle(ctx, c.x, c.y, 8, "orange");
             prev = c;
             
-            const pDist = Math.hypot(state.player.x - c.x, state.player.y - c.y);
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            const pDist = Math.hypot(playerX - c.x, playerY - c.y);
             if (pDist < state.player.r + 8) { 
                 state.player.talent_states.phaseMomentum.lastDamageTime = Date.now();
                 state.player.talent_states.phaseMomentum.active = false;
@@ -370,11 +382,14 @@ export const bossData = [{
         
         b.pillars.forEach(p => {
             utils.drawCircle(ctx, p.x, p.y, p.r, "#444");
-            const dist = Math.hypot(state.player.x - p.x, state.player.y - p.y);
+            const { x: playerX, y: playerY } = getPlayerCanvasPos();
+            const dist = Math.hypot(playerX - p.x, playerY - p.y);
             if (dist < state.player.r + p.r) {
-                const angle = Math.atan2(state.player.y - p.y, state.player.x - p.x);
-                state.player.x = p.x + Math.cos(angle) * (state.player.r + p.r);
-                state.player.y = p.y + Math.sin(angle) * (state.player.r + p.r);
+                const angle = Math.atan2(playerY - p.y, playerX - p.x);
+                setPlayerCanvasPos(
+                  p.x + Math.cos(angle) * (state.player.r + p.r),
+                  p.y + Math.sin(angle) * (state.player.r + p.r)
+                );
             }
         });
     },

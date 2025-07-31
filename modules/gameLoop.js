@@ -120,7 +120,17 @@ function levelUp() {
     state.player.essenceToNextLevel = LEVELING_CONFIG.BASE_XP + (state.player.level - 1) * LEVELING_CONFIG.ADDITIONAL_XP_PER_LEVEL;
 
     state.player.ascensionPoints += 1;
-    utils.spawnParticles(state.particles, state.player.x, state.player.y, '#00ffff', 80, 6, 50, 5);
+    const pUv = utils.spherePosToUv(state.player.position.clone().normalize(), 1);
+    utils.spawnParticles(
+      state.particles,
+      pUv.u * SCREEN_WIDTH,
+      pUv.v * SCREEN_HEIGHT,
+      '#00ffff',
+      80,
+      6,
+      50,
+      5
+    );
     showUnlockNotification(`Level ${state.player.level}`, 'Level Up!');
     if (state.player.level === 10 && state.player.unlockedAberrationCores.size === 0) {
         showUnlockNotification("SYSTEM ONLINE", "Aberration Core Socket Unlocked");

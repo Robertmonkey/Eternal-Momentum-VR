@@ -74,14 +74,15 @@ export function initPlayerController() {
   }
 
   // Initialize shared cursor position in state if not already set
-  if (!state.mousePosition) {
-    state.mousePosition = { x: 0, y: 0 };
+  if (!state.mousePosition || !state.mousePosition.isVector3) {
+    state.mousePosition = new THREE.Vector3();
   }
 }
 
 function handleInput() {
   if (triggerDown && gripDown) {
-    activateCorePower(state.mousePosition.x, state.mousePosition.y, gameHelpers);
+    const uv = spherePosToUv(state.mousePosition.clone().normalize(), 1);
+    activateCorePower(uv.u * 2048, uv.v * 1024, gameHelpers);
     return;
   }
 
@@ -133,9 +134,7 @@ export function updatePlayerController() {
   const hit = raycaster.intersectObject(arena, false)[0];
   if (hit) {
     targetPoint.copy(hit.point);
-    const uv = spherePosToUv(targetPoint, radius);
-    state.mousePosition.x = uv.u * 2048;
-    state.mousePosition.y = uv.v * 1024;
+    state.mousePosition.copy(hit.point);
     if (crosshair) {
       crosshair.visible = true;
       crosshair.position.copy(hit.point);
