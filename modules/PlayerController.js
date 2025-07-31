@@ -4,7 +4,7 @@ import { moveTowards } from './movement3d.js';
 import { spherePosToUv, uvToSpherePos } from './utils.js';
 import { state } from './state.js';
 import { useOffensivePower, useDefensivePower } from './PowerManager.js';
-import { activateCorePower } from './cores.js';
+import { useCoreActive } from './CoreManager.js';
 import { getUIRoot } from './UIManager.js';
 import { getModalObjects } from './ModalManager.js';
 import { getControllerMenu } from './ControllerMenu.js';
@@ -81,8 +81,7 @@ export function initPlayerController() {
 
 function handleInput() {
   if (triggerDown && gripDown) {
-    const uv = spherePosToUv(state.mousePosition.clone().normalize(), 1);
-    activateCorePower(uv.u * 2048, uv.v * 1024, gameHelpers);
+    useCoreActive(gameHelpers);
     return;
   }
 

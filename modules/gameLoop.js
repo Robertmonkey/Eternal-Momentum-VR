@@ -8,7 +8,7 @@ import * as utils from './utils.js';
 import { uvToSpherePos } from './utils.js';
 import * as THREE from '../vendor/three.module.js';
 import { AudioManager } from './audio.js';
-import * as Cores from './cores.js';
+import * as CoreManager from './CoreManager.js';
 import { getArena } from './scene.js';
 import { updateEnemies3d } from './enemyAI3d.js';
 import { updateProjectiles3d } from './projectilePhysics3d.js';
@@ -325,6 +325,7 @@ export function gameTick() {
   const arena = getArena();
   if (!arena) return true;
   const radius = arena.geometry.parameters.radius;
+  CoreManager.applyCorePassives(gameHelpers);
   updateEnemies3d(radius, SCREEN_WIDTH, SCREEN_HEIGHT);
   updateProjectiles3d(radius, SCREEN_WIDTH, SCREEN_HEIGHT);
   return true;
