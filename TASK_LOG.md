@@ -151,3 +151,7 @@ Next Steps: Begin FR-03 UI reconstruction using Three.js panels.
 Summary: Removed html2canvas dependency and legacy DOM modals. Implemented `createStageSelectModal` in ModalManager using Three.js planes and text sprites. Added `startStage` helper and new test `stageSelectModal.test.mjs`. Updated package.json and ascension.js for DOM-less execution.
 Verification: `npm test` runs all suites including new stage select test successfully.
 Next Steps: Expand FR-03 to rebuild remaining menus (ascension, cores, lore) with interactive panels.
+2025-07-31 – FR-03 – Additional menu reconstruction
+Summary: Implemented createAscensionModal, createCoresModal, and createLoreModal with interactive buttons. Added tests for each modal and updated package.json.
+Verification: npm test – all suites including new modal tests pass.
+Next Steps: Continue FR-03 by refining layout details and begin FR-04 state unification.
