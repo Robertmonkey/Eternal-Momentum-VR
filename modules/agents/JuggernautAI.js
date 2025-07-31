@@ -16,6 +16,9 @@ export class JuggernautAI extends BaseAgent {
     this.state = 'ROAMING';
     this.timer = 0;
     this.target = this.randomPos();
+    this.lastCharge = Date.now();
+    this.isCharging = false;
+    this.bouncesLeft = 0;
   }
 
   randomPos() {
@@ -32,34 +35,32 @@ export class JuggernautAI extends BaseAgent {
     if (!this.alive) return;
     this.timer += delta;
 
-    if (this.state === 'ROAMING') {
-      moveTowards(this.position, this.target, 0.8, this.radius);
+    const speedMult = 1 + (1 - this.health / this.maxHealth) * 2.5;
+
+    if (!this.isCharging) {
+      moveTowards(this.position, this.target, 0.8 * speedMult, this.radius);
       if (this.position.distanceTo(this.target) < 0.05 * this.radius) {
         this.target = this.randomPos();
       }
-      if (this.timer >= 7) {
-        this.state = 'CHARGE_UP';
-        this.timer = 0;
-        if (gameHelpers && typeof gameHelpers.play === 'function') {
-          gameHelpers.play('chargeUpSound');
-        }
+
+      if (Date.now() - this.lastCharge > 7000) {
+        this.isCharging = true;
+        this.bouncesLeft = 2;
+        this.chargeTarget = playerObj?.position ? playerObj.position.clone() : this.randomPos();
+        gameHelpers?.play?.('chargeUpSound');
+        this.chargeStart = Date.now() + 1000;
       }
-    } else if (this.state === 'CHARGE_UP') {
-      if (this.timer >= 1) {
-        this.state = 'CHARGING';
-        this.timer = 0;
-        this.target = playerObj && playerObj.position
-          ? playerObj.position.clone()
-          : this.randomPos();
-        if (gameHelpers && typeof gameHelpers.play === 'function') {
-          gameHelpers.play('chargeDashSound');
-        }
+    } else {
+      if (Date.now() < this.chargeStart) return;
+
+      moveTowards(this.position, this.chargeTarget, 6 * speedMult, this.radius);
+      if (this.position.distanceTo(this.chargeTarget) < 0.05 * this.radius) {
+        this.chargeTarget = this.randomPos();
+        this.bouncesLeft--;
       }
-    } else if (this.state === 'CHARGING') {
-      moveTowards(this.position, this.target, 6, this.radius);
-      if (this.timer >= 2) {
-        this.state = 'ROAMING';
-        this.timer = 0;
+      if (this.bouncesLeft < 0) {
+        this.isCharging = false;
+        this.lastCharge = Date.now();
         this.target = this.randomPos();
       }
     }

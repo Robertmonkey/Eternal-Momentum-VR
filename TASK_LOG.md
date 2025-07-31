@@ -238,4 +238,13 @@ Next Steps: Continue implementing remaining bosses.
 | B07 | EMP Overload | ✅ Implemented | modules/agents/EMPOverloadAI.js | tests/empOverloadAI.test.mjs |
 | B08 | The Architect | ✅ Implemented | modules/agents/ArchitectAI.js | tests/architectAI.test.mjs |
 | B09 | Aethel & Umbra | ✅ Implemented | modules/agents/AethelUmbraAI.js | tests/aethelUmbraAI.test.mjs |
-| B10–B30 | – | Pending | – | – |
+| B10 | Looping Eye | ✅ Implemented | modules/agents/LoopingEyeAI.js | tests/loopingEyeAI.test.mjs |
+| B11 | The Juggernaut | ✅ Implemented | modules/agents/JuggernautAI.js | tests/juggernautAI.test.mjs |
+| B12 | The Puppeteer | ✅ Implemented | modules/agents/PuppeteerAI.js | tests/puppeteerAI.test.mjs |
+| B13 | The Glitch | ✅ Implemented | modules/agents/GlitchAI.js | tests/glitchAI.test.mjs |
+| B14 | Sentinel Pair | ✅ Implemented | modules/agents/SentinelPairAI.js | tests/sentinelPairAI.test.mjs |
+| B15–B30 | – | Pending | – | – |
+2025-09-17 – FR-09 – Bosses B10-B14
+Summary: Implemented Looping Eye, Juggernaut, Puppeteer, Glitch and Sentinel Pair bosses with full mechanics and added corresponding tests.
+Verification: npm test – all suites including new boss tests pass.
+Next Steps: Continue implementing bosses B15-B30.

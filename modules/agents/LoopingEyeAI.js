@@ -1,8 +1,9 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import { spherePosToUv } from '../utils.js';
 
 // LoopingEyeAI - Implements boss B10: Looping Eye
-// Records the player's movement and then replays a damaging trail.
+// Teleports to random locations with a short warning.
 
 export class LoopingEyeAI extends BaseAgent {
   constructor(radius = 1) {
@@ -12,37 +13,47 @@ export class LoopingEyeAI extends BaseAgent {
     super({ health: 320, model: mesh });
 
     this.radius = radius;
-    this.state = 'RECORDING';
-    this.timer = 0;
-    this.path = [];
+    this.lastTeleport = Date.now();
+    this.teleportingAt = 0;
+    this.teleportTarget = null;
   }
 
-  update(delta, playerObj, gameHelpers, drawTrail) {
-    if (!this.alive) return;
-    this.timer += delta;
+  randomPos() {
+    const t = Math.random() * 2 * Math.PI;
+    const p = Math.random() * Math.PI;
+    return new THREE.Vector3(
+      Math.sin(p) * Math.cos(t) * this.radius,
+      Math.cos(p) * this.radius,
+      Math.sin(p) * Math.sin(t) * this.radius
+    );
+  }
 
-    if (this.state === 'RECORDING') {
-      if (playerObj && playerObj.position) {
-        this.path.push(playerObj.position.clone());
-        if (this.path.length > 300) this.path.shift();
+  update(delta, playerObj, gameHelpers) {
+    if (!this.alive) return;
+
+    const interval = this.health < this.maxHealth * 0.25
+      ? 1500
+      : (this.health < this.maxHealth * 0.5 ? 2000 : 2500);
+
+    if (!this.teleportingAt && Date.now() - this.lastTeleport > interval) {
+      this.teleportingAt = Date.now() + 1000;
+      this.teleportTarget = this.randomPos();
+      gameHelpers?.play?.('chargeUpSound');
+      if (gameHelpers?.spawnParticles) {
+        const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
+        gameHelpers.spawnParticles(uv.u * 2048, uv.v * 1024, '#ffffff', 30, 4, 20);
       }
-      if (this.timer >= 5) {
-        this.state = 'REPLAY';
-        this.timer = 0;
-        if (gameHelpers && typeof gameHelpers.play === 'function') {
-          gameHelpers.play('timeRewind');
-        }
-      }
-    } else if (this.state === 'REPLAY') {
-      if (drawTrail) {
-        for (let i = 1; i < this.path.length; i++) {
-          drawTrail(this.path[i - 1], this.path[i]);
-        }
-      }
-      if (this.timer >= 5) {
-        this.path = [];
-        this.state = 'RECORDING';
-        this.timer = 0;
+    }
+
+    if (this.teleportingAt && Date.now() > this.teleportingAt) {
+      this.position.copy(this.teleportTarget);
+      this.lastTeleport = Date.now();
+      this.teleportingAt = 0;
+      this.teleportTarget = null;
+      gameHelpers?.play?.('mirrorSwap');
+      if (gameHelpers?.spawnParticles) {
+        const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
+        gameHelpers.spawnParticles(uv.u * 2048, uv.v * 1024, '#ffffff', 30, 4, 20);
       }
     }
   }

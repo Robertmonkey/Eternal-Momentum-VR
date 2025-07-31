@@ -14,6 +14,7 @@ export class GlitchAI extends BaseAgent {
     this.radius = radius;
     this.timer = 0;
     this.moveTarget = this.randomPos();
+    this.lastTeleport = Date.now();
   }
 
   randomPos() {
@@ -26,7 +27,7 @@ export class GlitchAI extends BaseAgent {
     );
   }
 
-  update(delta, gameHelpers) {
+  update(delta, gameHelpers, playerState) {
     if (!this.alive) return;
     this.timer += delta;
     moveTowards(this.position, this.moveTarget, 0.6, this.radius);
@@ -35,13 +36,19 @@ export class GlitchAI extends BaseAgent {
     }
     if (this.timer >= 3) {
       this.timer = 0;
-      if (gameHelpers && typeof gameHelpers.play === 'function') {
-        gameHelpers.play('glitchSound');
-      }
-      if (gameHelpers && typeof gameHelpers.addGlitchZone === 'function') {
-        gameHelpers.addGlitchZone(this.position.clone());
+      this.lastTeleport = Date.now();
+      gameHelpers?.play?.('glitchSound');
+      gameHelpers?.addGlitchZone?.(this.position.clone());
+      if (playerState) {
+        playerState.controlsInverted = true;
+        setTimeout(() => { playerState.controlsInverted = false; }, 3000);
       }
       this.position.copy(this.randomPos());
     }
+  }
+
+  die(gameHelpers, playerState) {
+    if (playerState) playerState.controlsInverted = false;
+    super.die(gameHelpers);
   }
 }
