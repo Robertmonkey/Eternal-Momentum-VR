@@ -19,6 +19,7 @@ let primaryController;
 let triggerDown = false;
 let gripDown = false;
 const tempMatrix = new THREE.Matrix4();
+let hoveredUi = null;
 
 export function initPlayerController() {
   const scene = getScene();
@@ -122,10 +123,24 @@ export function updatePlayerController() {
   }
 
   if (uiHit) {
-    if (triggerDown && uiHit.object.userData && typeof uiHit.object.userData.onSelect === 'function') {
-      uiHit.object.userData.onSelect();
+    if (hoveredUi !== uiHit.object) {
+      if (hoveredUi && hoveredUi.userData && typeof hoveredUi.userData.onBlur === 'function') {
+        hoveredUi.userData.onBlur();
+      }
+      hoveredUi = uiHit.object;
+      if (hoveredUi.userData && typeof hoveredUi.userData.onHover === 'function') {
+        hoveredUi.userData.onHover();
+      }
+    }
+    if (triggerDown && hoveredUi.userData && typeof hoveredUi.userData.onSelect === 'function') {
+      hoveredUi.userData.onSelect();
     }
     return;
+  } else if (hoveredUi) {
+    if (hoveredUi.userData && typeof hoveredUi.userData.onBlur === 'function') {
+      hoveredUi.userData.onBlur();
+    }
+    hoveredUi = null;
   }
 
   const hit = raycaster.intersectObject(arena, false)[0];
