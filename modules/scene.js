@@ -66,12 +66,31 @@ export function initScene(container = document.body) {
   arena.name = 'arena';
   scene.add(arena);
 
-  const platformGeo = new THREE.CylinderGeometry(10, 10, 0.5, 32);
-  const platformMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-  platform = new THREE.Mesh(platformGeo, platformMat);
-  platform.name = 'platform';
-  platform.position.set(0, 0, 0);
-  scene.add(platform);
+  // Replace the old opaque cylinder with a thin neon grid disc so the
+  // player can see through the platform and shoot underneath.
+  const platformGroup = new THREE.Group();
+  const ringGeo = new THREE.RingGeometry(9.5, 10, 64);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0x00ffff,
+    opacity: 0.4,
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  platformGroup.add(ring);
+
+  const gridHelper = new THREE.GridHelper(20, 20, 0x00ffff, 0x004444);
+  gridHelper.rotation.x = Math.PI / 2;
+  gridHelper.material.transparent = true;
+  gridHelper.material.opacity = 0.25;
+  platformGroup.add(gridHelper);
+
+  platformGroup.name = 'platform';
+  platformGroup.position.set(0, 0, 0);
+  platform = platformGroup;
+  scene.add(platformGroup);
 
   window.addEventListener('resize', onWindowResize);
 
