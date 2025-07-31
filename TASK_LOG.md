@@ -275,3 +275,12 @@ Next Steps: Begin FR-10 testing infrastructure.
 Summary: Set up Jest to run all existing .mjs tests via a wrapper and added a WebXR integration test. Updated package.json test script and added GitHub Actions workflow for CI. Added jest configuration and ensured all tests pass under Jest.
 Verification: npm install && npm test – both unit and integration tests pass.
 Next Steps: Proceed to FR-11 auto start and stage flow refactor.
+
+2025-09-21 – FR-11 – Auto start and home menu
+Summary: Refactored vrMain.start to accept an initial stage and start the game
+immediately. Updated app.js to launch the last unlocked stage on load and added
+a home button in the settings modal that stops the VR loop and shows the home
+screen. startStage is now exported for external use.
+Verification: `npm test` – all suites pass.
+Next Steps: Review stage flow to ensure progress persists and continue with
+remaining FR tasks.
