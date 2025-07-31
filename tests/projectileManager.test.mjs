@@ -1,6 +1,12 @@
 import assert from 'assert';
 import * as THREE from '../vendor/three.module.js';
-import { spawnProjectile, updateProjectiles, getActiveProjectiles, resetProjectiles } from '../modules/ProjectileManager.js';
+
+global.window = {};
+global.document = {
+  getElementById: () => null,
+  createElement: () => ({ getContext: () => ({}) })
+};
+const { spawnProjectile, updateProjectiles, getActiveProjectiles, resetProjectiles } = await import('../modules/ProjectileManager.js');
 
 const target = { position: new THREE.Vector3(2, 0, 0), r: 1, hp: 3 };
 

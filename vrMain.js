@@ -5,15 +5,19 @@ import { initModals } from './modules/ModalManager.js';
 import { initVrGameLoop, updateVrGameLoop } from './modules/vrGameLoop.js';
 import { initControllerMenu, updateControllerMenu } from './modules/ControllerMenu.js';
 import { AudioManager } from './modules/audio.js';
+import { loadPlayerState, state } from './modules/state.js';
 
 let initialized = false;
 
 export async function start() {
   if (initialized) return;
+  loadPlayerState();
   initScene(document.body);
   initPlayerController();
   initVrGameLoop();
   initUI();
+  AudioManager.sfxVolume = state.settings.sfxVolume / 100;
+  AudioManager.musicVolume = state.settings.musicVolume / 100;
   AudioManager.setup(getCamera(), null);
   await initModals();
   initControllerMenu();

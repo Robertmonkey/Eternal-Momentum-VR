@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
-import { getControllers } from './scene.js';
+import { getSecondaryController } from './scene.js';
 import { showModal } from './ModalManager.js';
 import { AudioManager } from './audio.js';
 import { state } from './state.js';
@@ -52,7 +52,7 @@ function createButton(icon, onSelect) {
 }
 
 export function initControllerMenu() {
-  const leftController = getControllers()[1];
+  const leftController = getSecondaryController();
   if (!leftController || menuGroup) return;
 
   menuGroup = new THREE.Group();

@@ -1,4 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
+import { state } from './state.js';
 
 let scene, camera, renderer, playerRig;
 let arena, platform;
@@ -109,3 +110,9 @@ export function getPlayerRig() { return playerRig; }
 export function getControllers() { return controllers; }
 export function getArena() { return arena; }
 export function getPlatform() { return platform; }
+export function getPrimaryController() {
+  return state.settings.handedness === 'left' ? controllers[1] : controllers[0];
+}
+export function getSecondaryController() {
+  return state.settings.handedness === 'left' ? controllers[0] : controllers[1];
+}

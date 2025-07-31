@@ -143,3 +143,7 @@ Summary: Reverted arena texture usage. The sphere now uses a dark gray MeshStand
 Verification: `npm test` to confirm updated arenaSphere test passes.
 Next Steps: Proceed with FR-02 settings panel implementation.
 
+2025-08-30 – FR-02 – Settings panel and handedness
+Summary: Added settings modal with handedness toggle and volume sliders. Created cog button on HUD to open the panel. Preferences saved via savePlayerState and applied on startup. Controllers now use primary/secondary roles based on handedness.
+Verification: Ran npm test after adding new settingsSave test; all suites passed.
+Next Steps: Begin FR-03 UI reconstruction using Three.js panels.

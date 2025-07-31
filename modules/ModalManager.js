@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { getCamera } from './scene.js';
-import { resetGame, state } from './state.js';
+import { resetGame, state, savePlayerState } from './state.js';
+import { AudioManager } from './audio.js';
 import { captureElementToTexture } from './utils.js';
 import { holoMaterial } from './UIManager.js';
 
@@ -37,7 +38,22 @@ function createTextSprite(text, size = 48, color = '#eaf2ff') {
   const sprite = new THREE.Sprite(material);
   const scale = 0.001;
   sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
+  sprite.userData.ctx = ctx;
+  sprite.userData.canvas = canvas;
+  sprite.userData.font = `${size}px sans-serif`;
   return sprite;
+}
+
+function updateTextSprite(sprite, text) {
+  const ctx = sprite.userData.ctx;
+  const canvas = sprite.userData.canvas;
+  if (!ctx || !canvas) return;
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+  if (sprite.userData.font) ctx.font = sprite.userData.font;
+  ctx.fillStyle = '#eaf2ff';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 0, canvas.height / 2);
+  sprite.material.map.needsUpdate = true;
 }
 
 function createButton(label, onSelect) {
@@ -70,6 +86,70 @@ function createModal(id, title, buttons) {
     b.position.set(0, 0.15 - i * 0.25, 0.02);
     modal.add(b);
   });
+  modal.visible = false;
+  return modal;
+}
+
+function createSettingsModal() {
+  const modal = new THREE.Group();
+  modal.name = 'settings';
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 1.2),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+  const header = createTextSprite('SETTINGS', 64);
+  header.position.set(0, 0.45, 0.01);
+  modal.add(header);
+
+  const handedSprite = createTextSprite(`Handed: ${state.settings.handedness}`, 32);
+  const handedBtn = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.15), holoMaterial(0x111111, 0.8));
+  handedSprite.position.set(0, 0, 0.01);
+  const handedGroup = new THREE.Group();
+  handedGroup.add(handedBtn);
+  handedGroup.add(handedSprite);
+  handedBtn.userData.onSelect = () => {
+    state.settings.handedness = state.settings.handedness === 'right' ? 'left' : 'right';
+    updateTextSprite(handedSprite, `Handed: ${state.settings.handedness}`);
+    savePlayerState();
+  };
+  handedGroup.position.set(0, 0.15, 0.02);
+  modal.add(handedGroup);
+
+  function createVolumeControl(label, settingKey, yPos) {
+    const group = new THREE.Group();
+    const minus = createButton('-', () => adjust(-5));
+    const plus = createButton('+', () => adjust(5));
+    const display = createTextSprite(`${label}: ${state.settings[settingKey]}%`, 32);
+    minus.position.set(-0.6, 0, 0);
+    plus.position.set(0.6, 0, 0);
+    display.position.set(0, 0, 0.01);
+    group.add(minus);
+    group.add(plus);
+    group.add(display);
+
+    function adjust(delta) {
+      let v = state.settings[settingKey] + delta;
+      v = Math.min(100, Math.max(0, v));
+      state.settings[settingKey] = v;
+      updateTextSprite(display, `${label}: ${v}%`);
+      if (settingKey === 'musicVolume') {
+        AudioManager.musicVolume = v / 100;
+        if (AudioManager.currentMusic) {
+          AudioManager.currentMusic.setVolume(AudioManager.userMuted ? 0 : AudioManager.musicVolume);
+        }
+      } else if (settingKey === 'sfxVolume') {
+        AudioManager.sfxVolume = v / 100;
+      }
+      savePlayerState();
+    }
+    group.position.set(0, yPos, 0.02);
+    return group;
+  }
+
+  modal.add(createVolumeControl('Music', 'musicVolume', -0.1));
+  modal.add(createVolumeControl('SFX', 'sfxVolume', -0.35));
+
   modal.visible = false;
   return modal;
 }
@@ -132,6 +212,9 @@ export async function initModals(cam = getCamera()) {
     { label: 'Close', onSelect: () => hideModal('cores') }
   ]);
   group.add(modals.cores);
+
+  modals.settings = createSettingsModal();
+  group.add(modals.settings);
 }
 
 export function showModal(id) {

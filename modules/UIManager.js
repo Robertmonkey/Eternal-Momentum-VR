@@ -3,6 +3,7 @@ import { getCamera } from './scene.js';
 import { state } from './state.js';
 import { bossData } from './bosses.js';
 import { powers } from './powers.js';
+import { showModal } from './ModalManager.js';
 
 let uiGroup;
 let hudMesh;
@@ -237,6 +238,16 @@ function createHudElements() {
   coreGroup = core.group;
   coreIcon = core.icon;
   coreCooldown = core.overlay;
+
+  const settingsGroup = new THREE.Group();
+  const settingsBg = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 0.08), holoMaterial(0x111111, 0.8));
+  settingsGroup.add(settingsBg);
+  const settingsIcon = createTextSprite('⚙', '#eaf2ff', 48);
+  settingsIcon.position.set(0, 0, 0.01);
+  settingsGroup.add(settingsIcon);
+  settingsBg.userData.onSelect = () => showModal('settings');
+  settingsGroup.position.set(0.35, -0.22, 0.02);
+  group.add(settingsGroup);
 }
 
 function createBossUI() {
