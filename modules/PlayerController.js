@@ -74,9 +74,9 @@ export function initPlayerController() {
     });
   }
 
-  // Initialize shared cursor position in state if not already set
-  if (!state.mousePosition || !state.mousePosition.isVector3) {
-    state.mousePosition = new THREE.Vector3();
+  // Initialize shared cursor direction in state if not already set
+  if (!state.cursorDir || !state.cursorDir.isVector3) {
+    state.cursorDir = new THREE.Vector3();
   }
 }
 
@@ -146,7 +146,7 @@ export function updatePlayerController() {
   const hit = raycaster.intersectObject(arena, false)[0];
   if (hit) {
     targetPoint.copy(hit.point);
-    state.mousePosition.copy(hit.point);
+    state.cursorDir.copy(hit.point).sub(avatar.position).normalize();
     if (crosshair) {
       crosshair.visible = true;
       crosshair.position.copy(hit.point);

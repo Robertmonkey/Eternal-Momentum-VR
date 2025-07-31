@@ -100,7 +100,7 @@ export function activateCorePower(mx, my, gameHelpers) {
       // here to capture the cursor coordinates at the moment of activation.
       setTimeout(() => {
         if (state.gameOver) return;
-        const uv = spherePosToUv(state.mousePosition.clone().normalize(), 1);
+        const uv = spherePosToUv(state.cursorDir.clone().normalize(), 1);
         const cursorX = uv.u * CANVAS_W;
         const cursorY = uv.v * CANVAS_H;
         const angle = Math.atan2(cursorY - playerY, cursorX - playerX);
@@ -238,7 +238,7 @@ export function applyCoreTickEffects(gameHelpers) {
   // --- Miasma passive ---
   if (playerHasCore('miasma')) {
       const miasmaState = state.player.talent_states.core_states.miasma;
-      const uvCursor = spherePosToUv(state.mousePosition.clone().normalize(), 1);
+      const uvCursor = spherePosToUv(state.cursorDir.clone().normalize(), 1);
       const cursorX = uvCursor.u * CANVAS_W;
       const cursorY = uvCursor.v * CANVAS_H;
       const moveDist = Math.hypot(cursorX - playerX, cursorY - playerY);
@@ -308,7 +308,7 @@ export function applyCoreTickEffects(gameHelpers) {
   if (playerHasCore('helix_weaver')) {
     const helixState = state.player.talent_states.core_states.helix_weaver;
     // Only spawn bolts when the player is stationary; movement cancels the effect.
-    const uvCursor2 = spherePosToUv(state.mousePosition.clone().normalize(), 1);
+    const uvCursor2 = spherePosToUv(state.cursorDir.clone().normalize(), 1);
     const curX2 = uvCursor2.u * CANVAS_W;
     const curY2 = uvCursor2.v * CANVAS_H;
     const moveDist = Math.hypot(curX2 - playerX, curY2 - playerY);

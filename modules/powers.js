@@ -2,7 +2,7 @@
 import { state } from './state.js';
 import * as utils from './utils.js';
 import * as Cores from './cores.js';
-import { spherePosToUv } from './utils.js';
+import { toCanvasPos } from './utils.js';
 import { gameHelpers } from './gameHelpers.js';
 
 const SCREEN_WIDTH = 2048;
@@ -16,8 +16,7 @@ function playerHasCore(coreId) {
 
 function getCanvasPos(obj) {
   if (obj.position && obj.position.isVector3) {
-    const uv = spherePosToUv(obj.position.clone().normalize(), 1);
-    return { x: uv.u * 2048, y: uv.v * 1024 };
+    return toCanvasPos(obj.position);
   }
   return { x: obj.x, y: obj.y };
 }
@@ -367,10 +366,8 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   slotEl.classList.add('activated');
   setTimeout(()=> slotEl.classList.remove('activated'), 200);
 
-  // Use mouse position stored in state
-  const uv = spherePosToUv(state.mousePosition.clone().normalize(), 1);
-  const mx = uv.u * SCREEN_WIDTH;
-  const my = uv.v * SCREEN_HEIGHT;
+  // Use cursor direction stored in state
+  const { x: mx, y: my } = utils.toCanvasPos(state.cursorDir, SCREEN_WIDTH, SCREEN_HEIGHT);
   
   const applyArgs = [utils, gameHelpers, mx, my, options];
   
