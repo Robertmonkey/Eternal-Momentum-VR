@@ -324,3 +324,7 @@ Next Steps: Continue with FR-15 helper deduplication.
 Summary: Added explicit notes in AGENTS and README clarifying that UI reconstruction is an ongoing task until all menus match the original game's fonts, colors and behaviours.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Complete FR-03 by implementing remaining menu features and backgrounds.
+2025-09-29 – FR-03 – Confirm modal
+Summary: Implemented confirm modal in ModalManager with showConfirm helper and added new unit test.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Continue auditing remaining menus for parity.

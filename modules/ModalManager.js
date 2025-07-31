@@ -418,6 +418,44 @@ function createLoreModal() {
   return modal;
 }
 
+let confirmCallback;
+
+function createConfirmModal() {
+  const modal = new THREE.Group();
+  modal.name = 'confirm';
+
+  const bg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.2, 0.8),
+    holoMaterial(0x141428, 0.95)
+  );
+  modal.add(bg);
+
+  const title = createTextSprite('CONFIRM', 48);
+  title.position.set(0, 0.25, 0.01);
+  modal.add(title);
+
+  const body = createTextSprite('', 32);
+  body.position.set(0, 0.05, 0.01);
+  modal.add(body);
+
+  const yesBtn = createButton('Confirm', () => {
+    hideModal('confirm');
+    if (typeof confirmCallback === 'function') confirmCallback();
+  });
+  yesBtn.position.set(-0.3, -0.25, 0.02);
+  modal.add(yesBtn);
+
+  const noBtn = createButton('Cancel', () => hideModal('confirm'));
+  noBtn.position.set(0.3, -0.25, 0.02);
+  modal.add(noBtn);
+
+  modal.userData.title = title;
+  modal.userData.body = body;
+
+  modal.visible = false;
+  return modal;
+}
+
 
 export function startStage(stage) {
   applyAllTalentEffects();
@@ -458,6 +496,9 @@ export async function initModals(cam = getCamera()) {
 
   modals.settings = createSettingsModal();
   group.add(modals.settings);
+
+  modals.confirm = createConfirmModal();
+  group.add(modals.confirm);
 }
 
 export function showModal(id) {
@@ -471,6 +512,20 @@ export function showModal(id) {
 
 export function hideModal(id) {
   if (modals[id]) modals[id].visible = false;
+}
+
+export function showConfirm(title, text, onConfirm) {
+  ensureGroup();
+  if (!modals.confirm) {
+    modals.confirm = createConfirmModal();
+    modalGroup.add(modals.confirm);
+  }
+  confirmCallback = onConfirm;
+  if (modals.confirm) {
+    updateTextSprite(modals.confirm.userData.title, title);
+    updateTextSprite(modals.confirm.userData.body, text);
+  }
+  showModal('confirm');
 }
 
 export function getModalObjects() {
