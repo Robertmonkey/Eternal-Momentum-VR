@@ -202,3 +202,7 @@ Next Steps: Polish talent layout and integrate descriptions.
 Summary: Added hover detection to PlayerController and info panel in ascension modal showing talent name, description and cost. Updated ModalManager and added ascensionInfo.test.mjs with package.json entry.
 Verification: npm test – all suites including new ascension info test pass.
 Next Steps: Finalise FR-08 by refining layout and ensure talent descriptions update after purchase.
+2025-09-12 – FR-08 – Talent purchase info update
+Summary: Added ascensionInfoPurchase.test.mjs verifying talent info panel refreshes after buying a talent. Updated package.json test script.
+Verification: Ran npm test; all suites including new test pass.
+Next Steps: Begin FR-09 boss fidelity audit.
