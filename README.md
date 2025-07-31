@@ -1,78 +1,84 @@
-Eternal Momentum VR – Comprehensive Implementation Guide
-Project Vision and Goals
-Eternal Momentum VR is a full 3D re‑imagining of the 2D browser game Eternal Momentum. The goal of this project is not to create “something similar” – it is to produce a 1‑to‑1 mechanical port that feels and plays like the original, while taking advantage of virtual‑reality hardware. Every power‑up, boss mechanic and meta‑progression system from the JavaScript game must behave identically. Only the way the player views and interacts with the world changes: instead of watching a 2D canvas, the player stands on a floating platform inside a glowing sphere and uses VR controllers to aim and navigate.
+# Eternal Momentum VR – Comprehensive Implementation Guide
 
-This document lays out the step‑by‑step tasks and architectural guidelines required to achieve that vision. It assumes the reader has access to the original code in the Eternal‑Momentum‑OLD GAME/ folder and the partial VR rewrite in the root of this repository. Use these files as your source of truth when questions arise.
+## Project Vision and Goals
 
-Key Design Differences from the 2D Game
-Player Platform – In VR, the player should stand on a small, semi‑transparent neon deck suspended in the centre of the arena sphere. The deck should be visually striking but never obstruct the player’s view. The current opaque platform blocks half the action; replace it with a narrow ring or disc that the avatar stands on. The laser pointer’s ray and the cursor must be able to pass through the platform. This change preserves the “floating in the void” feeling of the original while working in 3D space.
+Eternal Momentum VR is a full 3D re‑imagining of the 2D browser game **Eternal Momentum**.  The goal of this project is not to create “something similar” – it is to produce a **1‑to‑1 mechanical port** that feels and plays like the original, while taking advantage of virtual‑reality hardware.  Every power‑up, boss mechanic and meta‑progression system from the JavaScript game must behave identically.  Only the way the player views and interacts with the world changes: instead of watching a 2D canvas, the player stands on a floating platform inside a glowing sphere and uses VR controllers to aim and navigate.
 
-Control Mapping – The original rewrite hard‑coded the laser pointer to the right controller. Implement a handedness setting so that left‑handed players can swap controls. Add a small cog icon to the HUD; clicking it opens a Settings panel where players can toggle “Swap Primary/Offhand” and adjust Music and SFX volume sliders. Save these preferences to persistent state (e.g. localStorage) and honour them when spawning controllers.
+This document lays out the **step‑by‑step tasks** and architectural guidelines required to achieve that vision.  It assumes the reader has access to the original code in the `Eternal‑Momentum‑OLD GAME/` folder and the partial VR rewrite in the root of this repository.  Use these files as your source of truth when questions arise.
 
-Automatic Stage Launch – In the 2D browser game, gameplay begins immediately when the page loads. The current VR prototype requires clicking an AWAKEN button. Restore the original flow by starting Stage 1 (or the last unlocked stage) automatically after page load. The home screen can still exist as a separate menu accessed via the Settings panel if the player wants to view lore or adjust options.
+### Key Design Differences from the 2D Game
 
-3D Coordinate System – The VR port must abandon 2D pixel positions (e.g. state.player.x, state.mousePosition.x) in favour of 3D vectors. Every entity should have a THREE.Vector3 position. When a 2D coordinate is required (for example, to place UI elements on the sphere), convert the 3D position using a helper that maps a point on the unit sphere to UV coordinates. Powers, cores, projectiles and AI must compute distances and directions using 3D vectors rather than flat‐screen formulas.
+- **Player Platform** – In VR, the player should stand on a small, semi‑transparent **neon deck** suspended in the centre of the arena sphere.  The deck should be visually striking but never obstruct the player’s view.  The current opaque platform blocks half the action; replace it with a narrow ring or disc that the avatar stands on.  The laser pointer’s ray and the cursor must be able to pass through the platform.  This change preserves the “floating in the void” feeling of the original while working in 3D space.
 
-Menus & HUD – Menus should be beautiful, legible and centred in the player’s field of view. Avoid stretching low‑resolution textures into the top‑left corner. Recreate each menu (Home Screen, Stage Select, Ascension Conduit, Aberration Core attunement, Lore Codex) as a floating holographic panel drawn with Three.js. Use the original HTML/CSS as a template for layout, but render text and icons via the VR HUD system. Do not rely on html2canvas or other rasterization techniques for production – these are suitable for prototyping only.
+- **Control Mapping** – The original rewrite hard‑coded the laser pointer to the right controller.  Implement a **handedness setting** so that left‑handed players can swap controls.  Add a small cog icon to the HUD; clicking it opens a Settings panel where players can toggle “Swap Primary/Offhand” and adjust **Music** and **SFX** volume sliders.  Save these preferences to persistent state (e.g. localStorage) and honour them when spawning controllers.
 
-State Unification – Abandon the hybrid architecture that mixes the old 2D canvas loop with the new VR scene. The only update loop should be the Three.js render loop in vrMain.js. Convert all position vectors in state.js to THREE.Vector3. The VR managers (GameManager, PlayerController, UIManager, AgentManager, ProjectileManager, AudioManager, AssetManager) must read from and write to this unified state.
+    - **Automatic Stage Launch** – In the 2D browser game, gameplay begins immediately when the page loads.  The current VR prototype requires clicking an **AWAKEN** button.  Restore the original flow by starting Stage 1 (or the last unlocked stage) automatically after page load.  The home screen can still exist as a separate menu accessed via the Settings panel if the player wants to view lore or adjust options.
 
-Mechanical Fidelity – All game systems (power‑ups, aberration cores, ascension talents, bosses, minions and stage logic) must be implemented exactly as defined in the original source code. Refer to the FEATURES.md document for a catalogue of mechanics. When in doubt, open the original file (e.g. powers.js, cores.js, bosses.js, ascension.js) and mirror its behaviour.
+    - **3D Coordinate System** – The VR port must abandon 2D pixel positions (e.g. `state.player.x`, `state.mousePosition.x`) in favour of 3D vectors.  Every entity should have a `THREE.Vector3` position.  When a 2D coordinate is required (for example, to place UI elements on the sphere), convert the 3D position using a helper that maps a point on the unit sphere to UV coordinates.  Powers, cores, projectiles and AI must compute distances and directions using 3D vectors rather than flat‐screen formulas.
 
-Getting Started
-Install Dependencies – Ensure you have Node.js and npm installed. Run npm install in the project root to install Three.js and supporting libraries. Meta Quest development requires enabling WebXR in your browser or using Oculus Link. For testing on desktop, Chrome or Firefox with WebXR emulator is sufficient.
+- **Menus & HUD** – Menus should be beautiful, legible and centred in the player’s field of view.  Avoid stretching low‑resolution textures into the top‑left corner.  Recreate each menu (Home Screen, Stage Select, Ascension Conduit, Aberration Core attunement, Lore Codex) as a floating holographic panel drawn with Three.js.  Use the original HTML/CSS as a template for layout, but render text and icons via the VR HUD system.  Do not rely on `html2canvas` or other rasterization techniques for production – these are suitable for prototyping only.
 
-Understand the Original Game – Before writing any VR code, play through the 2D version located in Eternal‑Momentum‑OLD GAME/. Familiarise yourself with the game loop, enemy patterns, bosses, power‑ups, ascension talent tree and UI flow. This context is critical for making correct design decisions in VR.
+- **State Unification** – Abandon the hybrid architecture that mixes the old 2D canvas loop with the new VR scene.  The only update loop should be the Three.js render loop in `vrMain.js`.  Convert all position vectors in `state.js` to `THREE.Vector3`.  The VR managers (GameManager, PlayerController, UIManager, AgentManager, ProjectileManager, AudioManager, AssetManager) must read from and write to this unified state.
 
-Run the VR Prototype – Execute npm run dev (or the appropriate start script) to launch the current VR build. Observe how the avatar moves, how the laser pointer behaves and how the HUD and menus appear. Note any discrepancies with the original game; these will form part of your task list.
+- **Mechanical Fidelity** – All game systems (power‑ups, aberration cores, ascension talents, bosses, minions and stage logic) must be implemented **exactly** as defined in the original source code.  Refer to the **[FEATURES.md](./FEATURES.md)** document for a catalogue of mechanics.  When in doubt, open the original file (e.g. `powers.js`, `cores.js`, `bosses.js`, `ascension.js`) and mirror its behaviour.
 
-Read the Task Documents – This README provides a high‑level roadmap. The AGENTS.md file contains a sequenced list of refactoring and implementation tasks that must be completed. The TASK_LOG.md is where you record your progress after completing each task. Always update the log to keep future sessions in sync.
+## Getting Started
 
-Development Guidelines
-Scene & Rendering
-Arena Sphere – Use a THREE.SphereGeometry to represent the playable area. Apply a MeshStandardMaterial with the original assets/bg.png as the texture. Add an AmbientLight and a DirectionalLight so that the sphere’s texture is visible.
+1. **Install Dependencies** – Ensure you have Node.js and npm installed.  Run `npm install` in the project root to install Three.js and supporting libraries.  Meta Quest development requires enabling WebXR in your browser or using Oculus Link.  For testing on desktop, Chrome or Firefox with WebXR emulator is sufficient.
 
-Player Platform – Create a thin, translucent disc at the centre of the sphere for the player avatar. Use emissive materials to match the neon aesthetic. Ensure the platform does not block the laser pointer or obstruct the view; the player should be able to see through it.
+2. **Understand the Original Game** – Before writing any VR code, play through the 2D version located in `Eternal‑Momentum‑OLD GAME/`.  Familiarise yourself with the game loop, enemy patterns, bosses, power‑ups, ascension talent tree and UI flow.  This context is critical for making correct design decisions in VR.
 
-Camera & Controls – Use a VR‑enabled THREE.PerspectiveCamera attached to a playerRig object that contains the controllers. The PlayerController should cast a ray from the appropriate controller (depending on handedness) to the inner surface of the sphere. The intersection point becomes the target for the player avatar. Always clamp the avatar to the sphere’s surface by normalising its position vector and multiplying by the sphere radius.
+3. **Run the VR Prototype** – Execute `npm run dev` (or the appropriate start script) to launch the current VR build.  Observe how the avatar moves, how the laser pointer behaves and how the HUD and menus appear.  Note any discrepancies with the original game; these will form part of your task list.
 
-HUD & Menus – Implement UIManager and ModalManager to create holographic panels. Each panel is a THREE.PlaneGeometry with transparent background and emissive text. Use the holoMaterial pattern to ensure consistent appearance. Place menus at comfortable distances (~1 metre) in front of the player. All buttons must have colliders so that pointing at them and pressing the trigger fires their actions.
+4. **Read the Task Documents** – This README provides a high‑level roadmap.  The **[AGENTS.md](./AGENTS.md)** file contains a sequenced list of refactoring and implementation tasks that must be completed.  The **[TASK_LOG.md](./TASK_LOG.md)** is where you record your progress after completing each task.  Always update the log to keep future sessions in sync.
 
-Audio – Use THREE.AudioListener attached to the camera. Replace all <audio> elements with THREE.PositionalAudio attached to the corresponding entities (player, bosses, projectiles). Provide volume control in the settings panel and persist the values.
+## Development Guidelines
 
-Game Logic
-Power‑Ups and Cores – Implement the PowerManager to handle offensive and defensive power use. Map the trigger button to the offensive power and the grip button to the defensive power. Pressing both simultaneously should activate the attuned aberration core. Each effect must be ported exactly from powers.js and cores.js. For example, the Shield power should set a shieldActiveUntil timestamp and create a 3D shield mesh around the avatar; the Chain Lightning power should cast lightning bolts between enemies using Three.js line segments. See FEATURES.md for complete behaviour definitions.
+### Scene & Rendering
 
-Ascension Talents – Recreate the Ascension Conduit UI as a holographic talent tree. When the player opens this menu, display the current AP total and available talents. Purchasing a talent should immediately modify the global state (state.player.damageMultiplier, state.gravityActiveDuration, etc.) as described in ascension.js. Persist the unlocked talents to localStorage.
+1. **Arena Sphere** – Use a `THREE.SphereGeometry` to represent the playable area.  Apply a `MeshStandardMaterial` with the original `assets/bg.png` as the texture.  Add an `AmbientLight` and a `DirectionalLight` so that the sphere’s texture is visible.
 
-Bosses and Enemies – Each boss’s behaviour must match the functions defined in modules/bosses.js from the old game. For every boss: read the original init, logic, onDamage and onDeath functions; identify spawn patterns, attack phases and special abilities; and recreate them in 3D using the Three.js scene graph. For example, the Splitter Sentinel divides into fragments when damaged; in VR, instantiate multiple smaller enemy meshes that home toward the player. The Vampire Veil summons blood pickups; in VR, spawn 3D blood orbs that float toward the player. See AGENTS.md for the full list of bosses and tasks.
+2. **Player Platform** – Create a thin, translucent disc at the centre of the sphere for the player avatar.  Use emissive materials to match the neon aesthetic.  Ensure the platform does not block the laser pointer or obstruct the view; the player should be able to see through it.
 
-Meta‑Progression & Saving – Use a single global state object (imported from state.js) to store all player data. Provide functions loadPlayerState() and savePlayerState() to serialise/deserialise this object from localStorage. Ensure the VR game reads from this state when initialising the player avatar, unlocked stages, acquired cores and purchased talents.
+3. **Camera & Controls** – Use a VR‑enabled `THREE.PerspectiveCamera` attached to a `playerRig` object that contains the controllers.  The **PlayerController** should cast a ray from the appropriate controller (depending on handedness) to the inner surface of the sphere.  The intersection point becomes the target for the player avatar.  Always clamp the avatar to the sphere’s surface by normalising its position vector and multiplying by the sphere radius.
 
-Settings Panel
-Implement a settings panel accessible via a cog icon on the HUD. The panel should include:
+4. **HUD & Menus** – Implement **UIManager** and **ModalManager** to create holographic panels.  Each panel is a `THREE.PlaneGeometry` with transparent background and emissive text.  Use the `holoMaterial` pattern to ensure consistent appearance.  Place menus at comfortable distances (~1 metre) in front of the player.  All buttons must have colliders so that pointing at them and pressing the trigger fires their actions.
 
-Handedness Toggle – Switches the primary and secondary controllers. If the user is left‑handed, the laser pointer and trigger actions should move to the left controller, while grip actions move to the right. Update state.settings.handedness accordingly and persist the preference.
+5. **Audio** – Use `THREE.AudioListener` attached to the camera.  Replace all `<audio>` elements with `THREE.PositionalAudio` attached to the corresponding entities (player, bosses, projectiles).  Provide volume control in the settings panel and persist the values.
 
-Music Volume Slider – Adjusts the global background music volume. Range: 0 %–100 %. Modify the gain node of the AudioManager.
+### Game Logic
 
-SFX Volume Slider – Adjusts sound effect volume. Range: 0 %–100 %. Apply this multiplier when playing positional audio.
+1. **Power‑Ups and Cores** – Implement the **PowerManager** to handle offensive and defensive power use.  Map the trigger button to the offensive power and the grip button to the defensive power.  Pressing both simultaneously should activate the attuned aberration core.  Each effect must be ported exactly from `powers.js` and `cores.js`.  For example, the **Shield** power should set a `shieldActiveUntil` timestamp and create a 3D shield mesh around the avatar; the **Chain Lightning** power should cast lightning bolts between enemies using Three.js line segments.  See **FEATURES.md** for complete behaviour definitions.
 
-Verification & Testing
-Unit Tests – Write Jest (or your chosen framework) unit tests for each manager and mechanic. For example, tests should confirm that calling usePower('shockwave') spawns the correct effect and updates state. Use playerState.test.mjs as an example.
+2. **Ascension Talents** – Recreate the Ascension Conduit UI as a holographic talent tree.  When the player opens this menu, display the current AP total and available talents.  Purchasing a talent should immediately modify the global state (`state.player.damageMultiplier`, `state.gravityActiveDuration`, etc.) as described in `ascension.js`.  Persist the unlocked talents to localStorage.
 
-Integration Tests – Create VR integration tests (e.g. using Playwright with WebXR support) that simulate controller input and verify that the avatar moves correctly, menus open, talents can be purchased, and bosses behave as expected. The noCanvas.test.mjs file is an example of removing the old canvas loop.
+3. **Bosses and Enemies** – Each boss’s behaviour must match the functions defined in `modules/bosses.js` from the old game.  For every boss: **read the original `init`, `logic`, `onDamage` and `onDeath` functions**; identify spawn patterns, attack phases and special abilities; and recreate them in 3D using the Three.js scene graph.  For example, the **Splitter Sentinel** divides into fragments when damaged; in VR, instantiate multiple smaller enemy meshes that home toward the player.  The **Vampire Veil** summons blood pickups; in VR, spawn 3D blood orbs that float toward the player.  See **AGENTS.md** for the full list of bosses and tasks.
 
-Manual Playtesting – Regularly run the VR build on actual hardware (Meta Quest 3) to ensure performance and comfort. Validate that the neon deck looks correct, menus are legible and interactive, and that motion sickness is minimized by smoothing avatar movement.
+4. **Meta‑Progression & Saving** – Use a single global `state` object (imported from `state.js`) to store all player data.  Provide functions `loadPlayerState()` and `savePlayerState()` to serialise/deserialise this object from localStorage.  Ensure the VR game reads from this state when initialising the player avatar, unlocked stages, acquired cores and purchased talents.
 
-Structure of the Repository
-Eternal‑Momentum‑OLD GAME/: Unmodified 2D browser game. Use this as a reference for mechanics and data (power values, boss behaviours, talent costs).
+### Settings Panel
 
-modules/: Source code for the VR port. Contains managers (GameManager.js, PlayerController.js, UIManager.js, etc.), 3D enemy AI (modules/agents/), power logic (powers.js), state (state.js) and helper utilities.
+Implement a settings panel accessible via a cog icon on the HUD.  The panel should include:
 
-assets/: Textures, models, sound files and videos used in both the original game and the VR port.
+* **Handedness Toggle** – Switches the primary and secondary controllers.  If the user is left‑handed, the laser pointer and trigger actions should move to the left controller, while grip actions move to the right.  Update `state.settings.handedness` accordingly and persist the preference.
+* **Music Volume Slider** – Adjusts the global background music volume.  Range: 0 %–100 %.  Modify the gain node of the AudioManager.
+* **SFX Volume Slider** – Adjusts sound effect volume.  Range: 0 %–100 %.  Apply this multiplier when playing positional audio.
 
-tests/: Unit and integration tests for the VR code. Use these to verify that your implementations match the original mechanics.
+## Verification & Testing
 
-Conclusion
-The success of Eternal Momentum VR depends on careful attention to both mechanical fidelity and VR user experience. Use this README as your north star. Follow the step‑by‑step guidelines, consult the original code when implementing mechanics and always verify your work with tests and playtests. With diligence and a structured approach, you will create a VR adaptation that honors the spirit of the original game while delivering an immersive, modern experience.
+1. **Unit Tests** – Write Jest (or your chosen framework) unit tests for each manager and mechanic.  For example, tests should confirm that calling `usePower('shockwave')` spawns the correct effect and updates state.  Use `playerState.test.mjs` as an example.
+
+2. **Integration Tests** – Create VR integration tests (e.g. using Playwright with WebXR support) that simulate controller input and verify that the avatar moves correctly, menus open, talents can be purchased, and bosses behave as expected.  The `noCanvas.test.mjs` file is an example of removing the old canvas loop.
+
+3. **Manual Playtesting** – Regularly run the VR build on actual hardware (Meta Quest 3) to ensure performance and comfort.  Validate that the neon deck looks correct, menus are legible and interactive, and that motion sickness is minimized by smoothing avatar movement.
+
+## Structure of the Repository
+
+- `Eternal‑Momentum‑OLD GAME/`: Unmodified 2D browser game.  Use this as a reference for mechanics and data (power values, boss behaviours, talent costs).
+- `modules/`: Source code for the VR port.  Contains managers (`GameManager.js`, `PlayerController.js`, `UIManager.js`, etc.), 3D enemy AI (`modules/agents/`), power logic (`powers.js`), state (`state.js`) and helper utilities.
+- `assets/`: Textures, models, sound files and videos used in both the original game and the VR port.
+- `tests/`: Unit and integration tests for the VR code.  Use these to verify that your implementations match the original mechanics.
+
+## Conclusion
+
+The success of Eternal Momentum VR depends on careful attention to both **mechanical fidelity** and **VR user experience**.  Use this README as your north star.  Follow the step‑by‑step guidelines, consult the original code when implementing mechanics and always verify your work with tests and playtests.  With diligence and a structured approach, you will create a VR adaptation that honors the spirit of the original game while delivering an immersive, modern experience.
