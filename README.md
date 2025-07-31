@@ -36,7 +36,7 @@ This document lays out the **step‑by‑step tasks** and architectural guidelin
 
 ### Scene & Rendering
 
-1. **Arena Sphere** – Use a `THREE.SphereGeometry` to represent the playable area.  Apply a `MeshStandardMaterial` with the original `assets/bg.png` as the texture.  Add an `AmbientLight` and a `DirectionalLight` so that the sphere’s texture is visible.
+1. **Arena Sphere** – Use a `THREE.SphereGeometry` to represent the playable area.  Apply a dark gray `THREE.MeshStandardMaterial` so the arena matches the original game's look.  Add an `AmbientLight` and a `DirectionalLight` so the material is properly lit.
 
 2. **Player Platform** – Create a thin, translucent disc at the centre of the sphere for the player avatar.  Use emissive materials to match the neon aesthetic.  Ensure the platform does not block the laser pointer or obstruct the view; the player should be able to see through it.
 

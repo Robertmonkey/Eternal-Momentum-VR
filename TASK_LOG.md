@@ -132,3 +132,14 @@
 Summary: Replaced cylinder platform with transparent neon grid ring. Added grid helper and ensured ambient + directional lights illuminate bg texture.
 Verification: Ran npm test; all suites passed.
 Next Steps: Continue FR-01 by tweaking arena lighting brightness if needed, then begin FR-02 settings panel.
+
+2025-08-29 – FR-01 Verification
+Summary: Added arenaSphere.test.mjs to confirm the arena loads bg.png texture and uses MeshStandardMaterial with lighting. Updated package.json to run new test.
+Verification: `npm test` succeeds with the new test included.
+Next Steps: Begin FR-02 by implementing the settings panel UI.
+
+2025-08-29 – FR-01 Correction
+Summary: Reverted arena texture usage. The sphere now uses a dark gray MeshStandardMaterial instead of bg.png. Updated README and test accordingly.
+Verification: `npm test` to confirm updated arenaSphere test passes.
+Next Steps: Proceed with FR-02 settings panel implementation.
+
