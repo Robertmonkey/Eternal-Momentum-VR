@@ -16,8 +16,13 @@ await initModals(camera);
 const levelSelect = getModalObjects().find(m => m && m.name === 'levelSelect');
 assert(levelSelect, 'levelSelect modal created');
 
-const firstBtn = levelSelect.children.find(c => c.children && c.children[0]?.userData?.onSelect);
-assert(firstBtn, 'stage button exists');
-firstBtn.children[0].userData.onSelect();
+const stageRow = levelSelect.getObjectByName('stage1');
+assert(stageRow, 'stage row exists');
+stageRow.children[0].children[0].userData.onSelect();
 assert.strictEqual(state.currentStage, 1, 'stage set to 1');
+
+// mechanics info button
+stageRow.children[1].children[0].userData.onSelect();
+const bossInfo = getModalObjects().find(m => m && m.name === 'bossInfo');
+assert(bossInfo.visible, 'boss info visible');
 console.log('stage select modal test passed');
