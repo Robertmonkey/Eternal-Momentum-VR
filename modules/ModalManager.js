@@ -42,7 +42,7 @@ function createButton(label, onSelect, width = 0.5, height = 0.1) {
 
 function createModalContainer(width, height, title) {
     const group = new THREE.Group();
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x141428, 0.95));
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x1e1e2f, 0.95));
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(0x00ffff, 0.5));
