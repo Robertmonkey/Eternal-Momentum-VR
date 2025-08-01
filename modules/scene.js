@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
+import { initControllerMenu } from './ControllerMenu.js'; // Import menu initializer
 
 let scene, camera, renderer, arena, grid, primaryController, secondaryController, playerRig;
 
@@ -26,28 +27,37 @@ export function initScene() {
     arena.name = 'arena';
     scene.add(arena);
 
-    // FR-01: Correct lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(0, 10, 5);
     scene.add(directionalLight);
 
-    // FR-01: Correct floor grid
-    const gridGeometry = new THREE.RingGeometry(ARENA_RADIUS * 0.15, ARENA_RADIUS * 0.2, 64);
-    const gridMaterial = new THREE.MeshBasicMaterial({
+    // --- FLOOR FIX ---
+    // 1. Create the solid grid floor
+    const floorGeometry = new THREE.CircleGeometry(ARENA_RADIUS * 0.2, 64);
+    const floorMaterial = new THREE.MeshBasicMaterial({
         color: 0x00ffff,
         wireframe: true,
         transparent: true,
-        opacity: 0.4
+        opacity: 0.2
     });
-    grid = new THREE.Mesh(gridGeometry, gridMaterial);
-    grid.name = 'floorGrid';
-    grid.rotation.x = -Math.PI / 2; // **FIX**: Makes the grid horizontal
-    grid.position.y = 0; // At player's feet
-    scene.add(grid);
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    // 2. Create the glowing ring outline
+    const ringGeometry = new THREE.RingGeometry(ARENA_RADIUS * 0.19, ARENA_RADIUS * 0.2, 64);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.8
+    });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.rotation.x = -Math.PI / 2;
+    scene.add(ring);
     
-    // Player Rig to hold camera and controllers
     playerRig = new THREE.Group();
     playerRig.position.set(0, 1.6, 0); // Player height
     playerRig.add(camera);
@@ -57,6 +67,8 @@ export function initScene() {
     secondaryController = renderer.xr.getController(1);
     playerRig.add(primaryController);
     playerRig.add(secondaryController);
+
+    initControllerMenu(); // Initialize the new controller menu
 }
 
 // Getters for other modules
