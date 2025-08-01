@@ -17,7 +17,8 @@ showConfirm('Erase?', 'Really erase?', () => { confirmed = true; });
 const confirmModal = getModalObjects().find(m => m && m.name === 'confirm');
 assert(confirmModal && confirmModal.visible, 'confirm modal visible');
 // simulate pressing confirm button
-const yesGroup = confirmModal.children.find(c => c.children && c.children[0]?.userData?.onSelect);
-yesGroup.children[0].userData.onSelect();
+// onSelect handlers are stored on the second child (the button background)
+const yesGroup = confirmModal.children.find(c => c.children && c.children[1]?.userData?.onSelect);
+yesGroup.children[1].userData.onSelect();
 assert(confirmed, 'confirm callback triggered');
 console.log('confirm modal test passed');

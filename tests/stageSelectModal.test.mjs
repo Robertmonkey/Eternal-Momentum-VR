@@ -4,7 +4,13 @@ import * as THREE from 'three';
 // minimal DOM stubs
 global.window = {};
 global.document = {
-  createElement: () => ({ getContext: () => ({ measureText: () => ({ width: 0 }), fillText: () => {} }) }),
+  createElement: () => ({
+    getContext: () => ({
+      measureText: () => ({ width: 0 }),
+      fillText: () => {},
+      clearRect: () => {}
+    })
+  }),
   getElementById: () => null
 };
 
@@ -18,11 +24,12 @@ assert(levelSelect, 'levelSelect modal created');
 
 const stageRow = levelSelect.getObjectByName('stage1');
 assert(stageRow, 'stage row exists');
-stageRow.children[0].children[0].userData.onSelect();
+// button structure: [border, bg, label]. onSelect is attached to the bg mesh
+stageRow.children[0].children[1].userData.onSelect();
 assert.strictEqual(state.currentStage, 1, 'stage set to 1');
 
 // mechanics info button
-stageRow.children[1].children[0].userData.onSelect();
+stageRow.children[1].children[1].userData.onSelect();
 const bossInfo = getModalObjects().find(m => m && m.name === 'bossInfo');
 assert(bossInfo.visible, 'boss info visible');
 console.log('stage select modal test passed');

@@ -29,9 +29,9 @@ let infoGroup = asc.children.find(c => c.children && c.children.length===3 && c.
 assert(infoGroup, 'info group exists');
 const ctx = infoGroup.children[0].userData.ctx;
 const beforeText = ctx.lastText;
-const grid = asc.children.find(g => g.children && g.children.some(n => n.children && n.children[0]?.userData?.onHover));
-const nodes = grid.children.filter(n => n.children && n.children[0]?.userData?.onHover);
+const grid = asc.children.find(g => g.children && g.children.some(n => n.children && n.children[1]?.userData?.onHover));
+const nodes = grid.children.filter(n => n.children && n.children[1]?.userData?.onHover);
 assert(nodes.length > 1, 'nodes found');
-nodes[1].children[0].userData.onHover();
+nodes[1].children[1].userData.onHover();
 assert.notStrictEqual(ctx.lastText, beforeText, 'info text updated');
 console.log('ascension info test passed');

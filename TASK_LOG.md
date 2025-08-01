@@ -373,3 +373,7 @@ Next Steps: Continue polishing UI layouts and verify other menus for fidelity ga
 Summary: Fixed crash when showHomeMenu was called before VR initialization by checking ensureGroup() in ModalManager.
 Verification: npm install && npm test – all 65 suites pass.
 Next Steps: Continue monitoring VR start sequence for edge cases.
+2025-10-08 – FR-01 – Grid orientation fix
+Summary: Corrected neon grid floor orientation in scene.js so the disc lies horizontally. Updated ModalManager texture loading to skip when DOM functions are missing. Added Jest setup for createElementNS and updated tests for new button structure and boss info handler.
+Verification: npm install && npm test – all 65 suites pass.
+Next Steps: Continue addressing Critical User Feedback items such as pointer reliability.

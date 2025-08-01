@@ -2,7 +2,13 @@ import assert from 'assert';
 import * as THREE from 'three';
 
 // minimal DOM stubs
-const canvasStub = { getContext: () => ({ measureText: () => ({ width: 0 }), fillText: () => {} }) };
+const canvasStub = {
+  getContext: () => ({
+    measureText: () => ({ width: 0 }),
+    fillText: () => {},
+    clearRect: () => {}
+  })
+};
 
 global.window = { gameHelpers: {} };
 global.document = {
@@ -26,17 +32,19 @@ let gameOver = getModalObjects().filter(Boolean).find(m => m.name === 'gameOver'
 assert(gameOver.visible, 'gameOver modal visible');
 
 // find restart button
-const restartGroup = gameOver.children.find(c => c.children && c.children[0]?.userData?.onSelect);
+// onSelect is attached to the background mesh (child index 1)
+const restartGroup = gameOver.children.find(c => c.children && c.children[1]?.userData?.onSelect);
 state.player.health = 50;
-restartGroup.children[0].userData.onSelect();
+restartGroup.children[1].userData.onSelect();
 
 assert.strictEqual(state.player.health, state.player.maxHealth, 'player reset');
 assert(!gameOver.visible, 'gameOver hidden after restart');
 
 // test ascension button opens ascension modal
 showModal('gameOver');
-const ascGroup = gameOver.children.filter(c => c.children && c.children[0]?.userData?.onSelect)[1];
-ascGroup.children[0].userData.onSelect();
+// buttons store their handler on the background mesh (index 1)
+const ascGroup = gameOver.children.filter(c => c.children && c.children[1]?.userData?.onSelect)[1];
+ascGroup.children[1].userData.onSelect();
 const ascension = getModalObjects().filter(Boolean).find(m => m.name === 'ascension');
 assert(ascension.visible, 'ascension modal visible');
 

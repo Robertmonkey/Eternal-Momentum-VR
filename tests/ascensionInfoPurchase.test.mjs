@@ -40,12 +40,12 @@ const infoGroup = asc.children.find(c => c.children && c.children.length===3);
 const costCtx = infoGroup.children[2].userData.ctx;
 const before = costCtx.lastText;
 
-const grid = asc.children.find(g => g.children && g.children.some(n => n.children && n.children[0]?.userData?.onSelect));
-const nodes = grid.children.filter(n => n.children && n.children[0]?.userData?.onSelect);
+const grid = asc.children.find(g => g.children && g.children.some(n => n.children && n.children[1]?.userData?.onSelect));
+const nodes = grid.children.filter(n => n.children && n.children[1]?.userData?.onSelect);
 assert(nodes.length > 0, 'nodes found');
 
-nodes[0].children[0].userData.onSelect();
-nodes[0].children[0].userData.onHover();
+nodes[0].children[1].userData.onSelect();
+nodes[0].children[1].userData.onHover();
 assert.notStrictEqual(costCtx.lastText, before, 'info text updated after purchase');
 assert.ok(state.player.purchasedTalents.has('core-nexus'), 'talent purchased');
 console.log('ascension info purchase test passed');
