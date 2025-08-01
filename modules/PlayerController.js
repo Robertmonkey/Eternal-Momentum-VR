@@ -73,9 +73,10 @@ export async function initPlayerController() {
         new THREE.MeshStandardMaterial({ color: 0x3498db, emissive: 0x3498db })
     );
     avatar.name = 'playerAvatar';
-    avatar.position.set(0, 0, 0); 
-    state.player.position.copy(avatar.position);
-    targetPoint.copy(avatar.position);
+    const startPos = new THREE.Vector3(0, 0, radius);
+    avatar.position.copy(startPos);
+    state.player.position.copy(startPos);
+    targetPoint.copy(startPos);
     scene.add(avatar);
 
     const chTex = await assetManager.loadTexture("assets/cursors/crosshair.cur");
