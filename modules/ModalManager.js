@@ -20,7 +20,8 @@ function ensureGroup() {
     if (!modalGroup) {
         modalGroup = new THREE.Group();
         modalGroup.name = 'modalGroup';
-        getScene().add(modalGroup);
+        const scene = getScene();
+        if (scene) scene.add(modalGroup);
     }
 }
 
