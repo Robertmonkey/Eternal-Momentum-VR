@@ -9,10 +9,13 @@ global.document = {
 };
 
 
-const { buildNavMesh, findPath } = await import('../modules/navmesh.js');
+const { buildNavMesh, findPath, debugPath, clearDebug } = await import('../modules/navmesh.js');
 
 buildNavMesh(1, 1);
 const path = findPath({u:0, v:0}, {u:0.5, v:0.25});
 assert(path.length >= 2, 'Path should have at least start and end');
+const line = debugPath(path);
+assert(line.isLine, 'debugPath returns a THREE.Line');
+clearDebug();
 
 console.log('navmesh tests passed');
