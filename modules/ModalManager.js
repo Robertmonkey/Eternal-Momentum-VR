@@ -316,13 +316,19 @@ export function showModal(id) {
     
     modalGroup.position.copy(cameraWorldPos).add(offset);
     modalGroup.quaternion.copy(cameraWorldQuat);
-    
-    modal.visible = true;
+
+    // Pause the game before heavy UI creation to avoid race conditions
     state.isPaused = true;
+    modal.visible = true;
     AudioManager.playSfx('uiModalOpen');
 
     if (modal.userData.refresh) {
-        modal.userData.refresh();
+        // Defer refresh to the next frame so the paused state takes effect
+        requestAnimationFrame(() => {
+            if (activeModalId === id) {
+                modal.userData.refresh();
+            }
+        });
     }
 }
 
