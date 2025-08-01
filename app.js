@@ -1,4 +1,4 @@
-import { start as startVR, stop as stopVR } from './vrMain.js';
+import { start as startVR, stop as stopVR, isRunning as vrIsRunning } from './vrMain.js';
 import * as THREE from './vendor/three.module.js';
 import { getRenderer } from './modules/scene.js';
 import { showHud } from './modules/UIManager.js';

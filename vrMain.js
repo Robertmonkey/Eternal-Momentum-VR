@@ -31,6 +31,7 @@ export async function start(initialStage) {
   );
   gameOverShown = false;
   initialized = true;
+  if (typeof window !== 'undefined') window.vrMainRunning = true;
   getRenderer().setAnimationLoop(() => {
     updatePlayerController();
     updateVrGameLoop();
@@ -48,4 +49,9 @@ export function stop() {
   if (!initialized) return;
   getRenderer().setAnimationLoop(null);
   initialized = false;
+  if (typeof window !== 'undefined') window.vrMainRunning = false;
+}
+
+export function isRunning() {
+  return initialized;
 }

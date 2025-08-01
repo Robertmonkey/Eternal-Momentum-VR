@@ -381,3 +381,8 @@ Next Steps: Continue addressing Critical User Feedback items such as pointer rel
 Summary: Fixed pointer selection to fire once per trigger press by tracking just-pressed state in PlayerController and processing input each frame. Added refreshPrimaryController to swap controllers when handedness changes and called it from Settings modal.
 Verification: npm test – all 65 suites pass.
 Next Steps: Evaluate avatar movement at game start for stuck issues and auto-launch improvements.
+
+2025-10-10 – FR-11 – Automatic startGame on XR session
+Summary: Added sessionstart handler in scene.js that calls window.startGame and shows the home menu when entering VR if the game isn't running. Introduced window.vrMainRunning flag in vrMain.js and initialized targetPoint to the avatar position. Exported isRunning helper and updated app.js import.
+Verification: npm test – all 65 suites pass.
+Next Steps: Continue auditing menu layouts for parity with the 2D game.
