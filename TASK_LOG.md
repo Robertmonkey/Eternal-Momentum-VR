@@ -403,3 +403,8 @@ Next Steps: Continue FR-03 UI parity work.
 Summary: Optimised navmesh pathfinding with cache size limit and iteration guard. Added debugPath/clearDebug helpers and stress tests. README updated documenting navmesh usage.
 Verification: npm test – all 67 suites pass.
 Next Steps: Continue FR-03 UI parity work.
+
+2025-10-15 – FR-03 – Lore codex scrollable text
+Summary: Rebuilt Lore Codex modal with full story paragraphs and added scroll bar using createTextBlock helper. Updated test to verify lines and scroll controls.
+Verification: npm test – all 67 suites pass.
+Next Steps: Continue FR-03 by auditing remaining menu layouts for accuracy.
