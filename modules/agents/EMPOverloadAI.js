@@ -1,86 +1,61 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-
-// EMPOverloadAI - Implements boss B7: EMP Overload
-// This boss periodically charges up and unleashes an EMP burst that clears
-// the player's power-ups and briefly stuns them. Visual lightning bolts are
-// spawned to indicate the discharge.
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class EMPOverloadAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.TorusGeometry(0.3 * radius, 0.1 * radius, 16, 32);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x00BFFF });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 260, model: mesh });
-
-    this.radius = radius;
-    this.state = 'NORMAL';
-    this.timer = 0;
-    this.bolts = [];
-  }
-
-  /**
-   * Trigger the EMP discharge. Resets player inventories and spawns
-   * a burst of lightning bolt visuals.
-   * @param {object} gameHelpers - Utility callbacks (play, addStatusEffect).
-   * @param {object} state      - Global game state for inventory access.
-   * @param {number} width      - Canvas width for bolt coordinates.
-   * @param {number} height     - Canvas height for bolt coordinates.
-   */
-  discharge(gameHelpers, state, width, height) {
-    this.timer = 0;
-    this.state = 'NORMAL';
-    if (gameHelpers && typeof gameHelpers.play === 'function') {
-      gameHelpers.play('empDischarge');
-    }
-    if (state) {
-      state.offensiveInventory = [null, null, null];
-      state.defensiveInventory = [null, null, null];
-    }
-    if (gameHelpers && typeof gameHelpers.addStatusEffect === 'function') {
-      gameHelpers.addStatusEffect('Slowed', '🐌', 1000);
-      gameHelpers.addStatusEffect('Stunned', '😵', 500);
-    }
-    this.bolts.length = 0;
-    for (let i = 0; i < 7; i++) {
-      this.bolts.push({
-        x1: Math.random() * width,
-        y1: 0,
-        x2: Math.random() * width,
-        y2: height,
-        life: 0.3
-      });
-      this.bolts.push({
-        x1: 0,
-        y1: Math.random() * height,
-        x2: width,
-        y2: Math.random() * height,
-        life: 0.3
-      });
-    }
-  }
-
-  update(delta, width, height, gameHelpers, state, drawLightning) {
-    if (!this.alive) return;
-
-    this.timer += delta;
-    if (this.state === 'NORMAL' && this.timer > 10) {
-      this.state = 'CHARGING';
-      this.timer = 0;
-      if (gameHelpers && typeof gameHelpers.play === 'function') {
-        gameHelpers.play('powerSirenSound');
-      }
-    } else if (this.state === 'CHARGING' && this.timer > 3) {
-      this.discharge(gameHelpers, state, width, height);
-    }
-
-    // Update lightning bolt lifetimes
-    this.bolts = this.bolts.filter(b => {
-      b.life -= delta;
-      if (b.life > 0 && typeof drawLightning === 'function') {
-        drawLightning(b.x1, b.y1, b.x2, b.y2, '#00BFFF');
-      }
-      return b.life > 0;
+  constructor() {
+    const geometry = new THREE.TorusGeometry(0.8, 0.2, 16, 32);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x3498db,
+        emissive: 0x3498db,
+        emissiveIntensity: 0.6
     });
+    super({ model: new THREE.Mesh(geometry, material) });
+
+    const bossData = { id: "emp", name: "EMP Overload", maxHP: 260 };
+    Object.assign(this, bossData);
+
+    this.lastEMPTime = 0;
+    this.isCharging = false;
+  }
+
+  update(delta) {
+    if (!this.alive) return;
+    const now = Date.now();
+
+    if (!this.isCharging && now - this.lastEMPTime > 8000) {
+      this.isCharging = true;
+      gameHelpers.play('chargeUpSound');
+
+      // 3 second charge-up time before discharge
+      setTimeout(() => {
+        if (!this.alive) return;
+        
+        gameHelpers.play('empDischarge');
+        
+        // Wipe player inventories
+        state.offensiveInventory = [null, null, null];
+        state.defensiveInventory = [null, null, null];
+        
+        // Apply status effects
+        gameHelpers.addStatusEffect('Slowed', '🐌', 1000);
+        gameHelpers.addStatusEffect('Stunned', '😵', 500);
+
+        // Visual effect for the blast
+        state.effects.push({
+            type: 'shockwave',
+            caster: this,
+            position: this.position.clone(),
+            maxRadius: 100, // Arena radius * 2
+            speed: 200,
+            damage: 0, // EMP doesn't do direct damage
+            color: new THREE.Color(0x3498db)
+        });
+        
+        this.isCharging = false;
+        this.lastEMPTime = now + 3000; // Record time after discharge
+      }, 3000);
+    }
   }
 }
