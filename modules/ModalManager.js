@@ -240,6 +240,10 @@ export function showModal(id) {
     activeModalId = id;
     
     const camera = getCamera();
+    if (!camera) {
+        console.warn('Cannot show modal before camera is ready.');
+        return;
+    }
     const distance = 1.5;
     const cameraWorldPos = new THREE.Vector3();
     const cameraWorldQuat = new THREE.Quaternion();

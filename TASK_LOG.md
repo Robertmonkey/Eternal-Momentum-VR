@@ -422,3 +422,7 @@ Next Steps: Audit remaining modals for any lingering wording differences.
 Summary: Updated boss info modal close button to 'Close' to match the original UI and added text storage in createTextSprite for testing. Implemented modalTextParity.test.mjs verifying close button wording across menus.
 Verification: npm test – all 68 suites pass.
 Next Steps: Continue reviewing remaining UI elements for fidelity issues.
+2025-10-19 – Bug Fix – Modal crash safeguard
+Summary: Added camera readiness check in showModal to prevent crashes when menus open before VR initialization.
+Verification: npm test failed to run because package.json is missing.
+
