@@ -4,9 +4,9 @@ import { AssetManager } from './modules/AssetManager.js';
 const loadingEl = document.getElementById('loadingScreen');
 const fillEl = document.getElementById('loadingProgressFill');
 const statusEl = document.getElementById('loadingStatusText');
+const progressContainer = document.getElementById('loadingProgressContainer');
 
 // A manifest of essential assets to load before the game starts.
-// You should add all critical audio files here to avoid in-game loading hitches.
 const ASSET_MANIFEST = [
     // Textures
     'assets/bg.png',
@@ -43,7 +43,11 @@ async function preloadAssets() {
         } else {
             promise = assetManager.loadTexture(url);
         }
-        return promise.then(() => updateProgress(url));
+        // Use a catch to prevent one failed asset from stopping the whole process
+        return promise.then(() => updateProgress(url)).catch(err => {
+            console.warn(`Could not load asset: ${url}`, err);
+            updateProgress(url); // Still count it as "loaded" to not stall the bar
+        });
     });
 
     await Promise.all(loadPromises);
@@ -52,23 +56,33 @@ async function preloadAssets() {
 }
 
 async function main() {
-    try {
-        await preloadAssets();
-        
-        // Fade out the loading screen
-        if (loadingEl) loadingEl.style.opacity = '0';
-        
-        // Start VR after the fade-out
-        setTimeout(() => {
-            if (loadingEl) loadingEl.style.display = 'none';
-            // This will start the VR session and show the in-VR home menu.
-            startVR(); 
-        }, 500);
+    // Show the initial prompt and hide the progress bar
+    if (statusEl) statusEl.textContent = 'Click to Begin';
+    if (progressContainer) progressContainer.style.display = 'none';
 
-    } catch (error) {
-        console.error("Fatal error during initialization:", error);
-        if (statusEl) statusEl.textContent = "Error: Could not load critical assets.";
-    }
+    // Wait for the first user interaction to unlock the AudioContext
+    loadingEl.addEventListener('click', async () => {
+        // Show the progress bar and start loading
+        if (statusEl) statusEl.textContent = 'Initializing Systems...';
+        if (progressContainer) progressContainer.style.display = 'block';
+
+        try {
+            await preloadAssets();
+            
+            // Fade out the loading screen
+            if (loadingEl) loadingEl.style.opacity = '0';
+            
+            // Start the VR setup after the fade-out animation
+            setTimeout(() => {
+                if (loadingEl) loadingEl.style.display = 'none';
+                startVR(); 
+            }, 500);
+
+        } catch (error) {
+            console.error("Fatal error during initialization:", error);
+            if (statusEl) statusEl.textContent = "Error: Could not load critical assets.";
+        }
+    }, { once: true }); // The listener will only fire once
 }
 
 window.addEventListener('load', main);
