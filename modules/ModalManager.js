@@ -313,7 +313,9 @@ function createAscensionModal() {
     infoName.position.set(0, 0.6, 0.01);
     const infoDesc = createTextSprite('', 24);
     infoDesc.position.set(0, 0.52, 0.01);
-    modal.add(infoName, infoDesc);
+    const infoFooter = createTextSprite('', 24, '#cccccc');
+    infoFooter.position.set(0, 0.46, 0.01);
+    modal.add(infoName, infoDesc, infoFooter);
 
     const apLabel = createTextSprite('ASCENSION POINTS', 28, '#00ffff');
     apLabel.position.set(0, 0.7, 0.01);
@@ -325,6 +327,13 @@ function createAscensionModal() {
         grid.clear();
         lines.clear();
         const positions = {};
+        const allTalents = {};
+        Object.values(TALENT_GRID_CONFIG).forEach(con => {
+            Object.keys(con).forEach(key => {
+                if (key === 'color') return;
+                allTalents[key] = con[key];
+            });
+        });
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
             Object.keys(con).forEach(key => {
                 if (key === 'color') return;
@@ -332,18 +341,26 @@ function createAscensionModal() {
                 const btn = createButton(t.icon, () => { purchaseTalent(t.id); modal.userData.refresh(); }, 0.12, 0.12);
                 const pos = new THREE.Vector3((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
                 btn.position.copy(pos);
-                btn.userData.onHover = hovered => { if (hovered) {
-                    updateTextSprite(infoName, t.name);
-                    updateTextSprite(infoDesc, t.description((state.player.purchasedTalents.get(t.id)||0)+1,
-                        (state.player.purchasedTalents.get(t.id)||0) >= t.maxRanks));
-                } };
+                btn.userData.onHover = hovered => {
+                    if (hovered) {
+                        const purchased = state.player.purchasedTalents.get(t.id) || 0;
+                        const isMax = !t.isInfinite && purchased >= t.maxRanks;
+                        let cost;
+                        if (isMax) cost = 'MAXED';
+                        else if (t.isInfinite) cost = `${t.costPerRank[0]} AP`;
+                        else cost = `${t.costPerRank[purchased]} AP`;
+                        updateTextSprite(infoName, t.name);
+                        updateTextSprite(infoDesc, t.description(purchased + 1, isMax));
+                        updateTextSprite(infoFooter, `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${cost}`);
+                    }
+                };
                 grid.add(btn);
                 positions[t.id] = pos.clone();
             });
         });
 
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
-            const color = new THREE.Color(con.color || '#00ffff');
+            const baseColor = new THREE.Color(con.color || '#00ffff');
             Object.keys(con).forEach(key => {
                 if (key === 'color') return;
                 const t = con[key];
@@ -351,7 +368,18 @@ function createAscensionModal() {
                 t.prerequisites.forEach(pr => {
                     const start = positions[pr];
                     if (!start) return;
-                    const mat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.5 });
+                    const prereq = allTalents[pr];
+                    const nexusConnection = (t.isNexus || (prereq && prereq.isNexus));
+                    let color = baseColor;
+                    let width = 0.01;
+                    if (nexusConnection) {
+                        color = new THREE.Color(0x00ff00);
+                        width = 0.015;
+                    }
+                    const currentRank = state.player.purchasedTalents.get(pr) || 0;
+                    const needed = prereq ? prereq.maxRanks : 1;
+                    const opacity = currentRank >= needed ? 1.0 : 0.3;
+                    const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity, linewidth: width });
                     const geom = new THREE.BufferGeometry().setFromPoints([start, end]);
                     lines.add(new THREE.Line(geom, mat));
                 });
