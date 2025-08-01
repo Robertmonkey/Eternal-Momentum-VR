@@ -148,15 +148,28 @@ export function addEssence(amount) {
 }
 
 function getSafeSpawnLocation() {
-    const randomAngle = Math.random() * Math.PI * 2;
-    const randomY = (Math.random() - 0.5) * 0.8; // Spawn in a band around the equator
-    const pos = new THREE.Vector3(Math.cos(randomAngle), randomY, Math.sin(randomAngle)).normalize();
-    
-    // Ensure spawn is away from player
-    if (pos.distanceTo(state.player.position) < ARENA_RADIUS * 0.5) {
-        pos.negate();
+    const maxAttempts = 20;
+    for (let i = 0; i < maxAttempts; i++) {
+        const randomAngle = Math.random() * Math.PI * 2;
+        const randomY = (Math.random() - 0.5) * 0.8; // Spawn in a band around the equator
+        const pos = new THREE.Vector3(Math.cos(randomAngle), randomY, Math.sin(randomAngle)).normalize().multiplyScalar(ARENA_RADIUS);
+
+        // Keep a healthy distance from the player
+        if (pos.distanceTo(state.player.position) < ARENA_RADIUS * 0.6) continue;
+
+        // Avoid spawning directly on top of other bosses
+        let tooClose = false;
+        for (const e of state.enemies) {
+            if (e.boss && pos.distanceTo(e.position) < ARENA_RADIUS * 0.4) {
+                tooClose = true;
+                break;
+            }
+        }
+        if (!tooClose) return pos;
     }
-    return pos.multiplyScalar(ARENA_RADIUS);
+
+    // Fallback: opposite side of the player
+    return state.player.position.clone().negate().normalize().multiplyScalar(ARENA_RADIUS);
 }
 
 export function getBossesForStage(stageNum) {
@@ -191,25 +204,34 @@ export function spawnEnemy(isBoss = false, bossId = null) {
         // Special multi-part boss spawns need to be added to scene individually
         if (bossId === 'aethel_and_umbra') {
             const partnerA = new AethelUmbraAI('Aethel');
-            const partnerB = new AethelUmbraAI('Umbra', partnerA);
-            partnerA.partner = partnerB;
-            partnerA.position.copy(getSafeSpawnLocation());
-            partnerB.position.copy(getSafeSpawnLocation());
             partnerA.boss = true;
+            partnerA.position.copy(getSafeSpawnLocation());
+            state.enemies.push(partnerA);
+            scene.add(partnerA);
+
+            const partnerB = new AethelUmbraAI('Umbra', partnerA);
             partnerB.boss = true;
-            state.enemies.push(partnerA, partnerB);
-            scene.add(partnerA, partnerB); // Add BOTH to scene
+            partnerA.partner = partnerB;
+            partnerB.partner = partnerA;
+            partnerB.position.copy(getSafeSpawnLocation());
+            state.enemies.push(partnerB);
+            scene.add(partnerB);
             return partnerA;
         }
         if (bossId === 'sentinel_pair') {
             const sentinelA = new SentinelPairAI();
-            const sentinelB = new SentinelPairAI(sentinelA);
-            sentinelA.position.copy(getSafeSpawnLocation());
-            sentinelB.position.copy(getSafeSpawnLocation());
             sentinelA.boss = true;
+            sentinelA.position.copy(getSafeSpawnLocation());
+            state.enemies.push(sentinelA);
+            scene.add(sentinelA);
+
+            const sentinelB = new SentinelPairAI(sentinelA);
             sentinelB.boss = true;
-            state.enemies.push(sentinelA, sentinelB);
-            scene.add(sentinelA, sentinelB); // Add BOTH to scene
+            sentinelB.position.copy(getSafeSpawnLocation());
+            sentinelA.partner = sentinelB;
+            sentinelB.partner = sentinelA;
+            state.enemies.push(sentinelB);
+            scene.add(sentinelB);
             return sentinelA;
         }
         if (bossId === 'obelisk') {
