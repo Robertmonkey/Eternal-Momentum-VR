@@ -82,6 +82,7 @@ function createTextSprite(text, size = 32, color = FONT_COLOR) {
   sprite.userData.ctx = ctx;
   sprite.userData.canvas = canvas;
   sprite.userData.font = `${size}px ${fontStack}`;
+  sprite.userData.text = text; // retain original text for tests
   return sprite;
 }
 
@@ -94,6 +95,7 @@ function updateTextSprite(sprite, text, color = FONT_COLOR) {
   ctx.fillStyle = color;
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 0, canvas.height / 2);
+  sprite.userData.text = text;
   sprite.material.map.needsUpdate = true;
 }
 
@@ -771,7 +773,8 @@ function createBossInfoModal() {
   const body = createTextSprite('', 24, FONT_COLOR);
   body.position.set(0, 0.15, 0.01);
   modal.add(body);
-  const closeBtn = createButton('CLOSE', () => hideModal('bossInfo'));
+  // The original UI uses mixed-case text for this button
+  const closeBtn = createButton('Close', () => hideModal('bossInfo'));
   closeBtn.position.set(0, -0.35, 0.02);
   modal.add(closeBtn);
   modal.userData.title = title;

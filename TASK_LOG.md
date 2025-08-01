@@ -418,3 +418,7 @@ Next Steps: Continue reviewing other menus for exact wording matches.
 Summary: Replaced AP display in createAscensionModal with separate 'ASCENSION POINTS' label and value sprite. Updated purchase handler to refresh the value. Home menu erase timeline confirm text now matches the original game's wording.
 Verification: `npm test` – all 67 suites pass.
 Next Steps: Audit remaining modals for any lingering wording differences.
+2025-10-18 – FR-03 – Modal text parity
+Summary: Updated boss info modal close button to 'Close' to match the original UI and added text storage in createTextSprite for testing. Implemented modalTextParity.test.mjs verifying close button wording across menus.
+Verification: npm test – all 68 suites pass.
+Next Steps: Continue reviewing remaining UI elements for fidelity issues.
