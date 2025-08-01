@@ -18,8 +18,48 @@ let crosshair;
 let primaryController;
 let triggerDown = false;
 let gripDown = false;
+let triggerJustPressed = false;
+let gripJustPressed = false;
 const tempMatrix = new THREE.Matrix4();
 let hoveredUi = null;
+
+function onSelectStart() {
+  triggerDown = true;
+  triggerJustPressed = true;
+}
+
+function onSelectEnd() {
+  triggerDown = false;
+}
+
+function onSqueezeStart() {
+  gripDown = true;
+  gripJustPressed = true;
+}
+
+function onSqueezeEnd() {
+  gripDown = false;
+}
+
+export function refreshPrimaryController() {
+  const newPrimary = getPrimaryController();
+  if (newPrimary === primaryController) return;
+  if (laser && primaryController) primaryController.remove(laser);
+  if (primaryController) {
+    primaryController.removeEventListener('selectstart', onSelectStart);
+    primaryController.removeEventListener('selectend', onSelectEnd);
+    primaryController.removeEventListener('squeezestart', onSqueezeStart);
+    primaryController.removeEventListener('squeezeend', onSqueezeEnd);
+  }
+  primaryController = newPrimary;
+  if (primaryController) {
+    primaryController.add(laser);
+    primaryController.addEventListener('selectstart', onSelectStart);
+    primaryController.addEventListener('selectend', onSelectEnd);
+    primaryController.addEventListener('squeezestart', onSqueezeStart);
+    primaryController.addEventListener('squeezeend', onSqueezeEnd);
+  }
+}
 
 export function initPlayerController() {
   const scene = getScene();
@@ -59,20 +99,10 @@ export function initPlayerController() {
     laser.scale.z = radius * 2;
     primaryController.add(laser);
 
-    primaryController.addEventListener('selectstart', () => {
-      triggerDown = true;
-      handleInput();
-    });
-    primaryController.addEventListener('selectend', () => {
-      triggerDown = false;
-    });
-    primaryController.addEventListener('squeezestart', () => {
-      gripDown = true;
-      handleInput();
-    });
-    primaryController.addEventListener('squeezeend', () => {
-      gripDown = false;
-    });
+    primaryController.addEventListener('selectstart', onSelectStart);
+    primaryController.addEventListener('selectend', onSelectEnd);
+    primaryController.addEventListener('squeezestart', onSqueezeStart);
+    primaryController.addEventListener('squeezeend', onSqueezeEnd);
   }
 
   // Initialize shared cursor direction in state if not already set
@@ -82,16 +112,15 @@ export function initPlayerController() {
 }
 
 function handleInput() {
-  if (triggerDown && gripDown) {
+  if ((triggerJustPressed && gripDown) || (gripJustPressed && triggerDown)) {
     useCoreActive(gameHelpers);
-    return;
-  }
-
-  if (triggerDown) {
+  } else if (triggerJustPressed) {
     useOffensivePower();
-  } else if (gripDown) {
+  } else if (gripJustPressed) {
     useDefensivePower();
   }
+  triggerJustPressed = false;
+  gripJustPressed = false;
 }
 
 export function updatePlayerController() {
@@ -133,9 +162,11 @@ export function updatePlayerController() {
         hoveredUi.userData.onHover();
       }
     }
-    if (triggerDown && hoveredUi.userData && typeof hoveredUi.userData.onSelect === 'function') {
+    if (triggerJustPressed && hoveredUi.userData && typeof hoveredUi.userData.onSelect === 'function') {
       hoveredUi.userData.onSelect();
+      triggerJustPressed = false;
     }
+    handleInput();
     return;
   } else if (hoveredUi) {
     if (hoveredUi.userData && typeof hoveredUi.userData.onBlur === 'function') {
@@ -157,6 +188,8 @@ export function updatePlayerController() {
   else if (crosshair) {
     crosshair.visible = false;
   }
+
+  handleInput();
 
   moveTowards(avatar.position, targetPoint, state.player.speed, radius);
   state.player.position.copy(avatar.position);

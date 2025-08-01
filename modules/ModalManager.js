@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { getCamera } from './scene.js';
 import { resetGame, state, savePlayerState } from './state.js';
+import { refreshPrimaryController } from './PlayerController.js';
 import { AudioManager } from './audio.js';
 import { STAGE_CONFIG } from './config.js';
 import { bossData } from './bosses.js';
@@ -191,6 +192,7 @@ function createSettingsModal() {
   handedBtnBg.userData.onSelect = () => {
     state.settings.handedness = state.settings.handedness === 'right' ? 'left' : 'right';
     updateTextSprite(handedSprite, `Handed: ${state.settings.handedness}`, FONT_COLOR);
+    refreshPrimaryController();
     savePlayerState();
   };
   handedGroup.position.set(0, 0.15, 0.02);
