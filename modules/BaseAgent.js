@@ -20,6 +20,9 @@ export class BaseAgent extends THREE.Group {
   takeDamage(amount = 0, fromPlayer = false, gameHelpers = null) {
     if (!this.alive) return;
     if (!gameHelpers) gameHelpers = {};
+    if (this.petrifiedUntil && this.petrifiedUntil > Date.now()) {
+      amount *= 1.2;
+    }
     this.health -= amount;
     if (fromPlayer) {
       CoreManager.onDamageDealt(this, gameHelpers);
