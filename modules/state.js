@@ -43,7 +43,7 @@ export const state = {
     
     // VR-specific state
     settings: {
-        handedness: 'right',
+        handedness: 'left',
         musicVolume: 75,
         sfxVolume: 85,
     },
