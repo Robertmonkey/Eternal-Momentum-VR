@@ -1,45 +1,50 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import * as CoreManager from '../CoreManager.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// CenturionAI - Implements boss B24: The Centurion
-// Summons a shrinking energy box around the player.
+const ARENA_RADIUS = 50;
 
 export class CenturionAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.BoxGeometry(0.6 * radius, 0.6 * radius, 0.6 * radius);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xd35400 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 480, model: mesh });
+  constructor() {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xd35400,
+        emissive: 0xd35400,
+        emissiveIntensity: 0.5
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
-    this.lastWall = 0;
-    this.activeBoxes = [];
+    const bossData = { id: "centurion", name: "The Centurion", maxHP: 480 };
+    Object.assign(this, bossData);
+    
+    this.lastWallTime = 0;
   }
 
-  update(delta, playerObj, state, gameHelpers) {
-    if (!this.alive || !playerObj) return;
+  update(delta) {
+    if (!this.alive) return;
+    const now = Date.now();
 
-    if (Date.now() - this.lastWall > 12000) {
-      this.lastWall = Date.now();
-      const box = { start: Date.now(), duration: 6000, size: 2 * this.radius };
-      this.activeBoxes.push(box);
-      gameHelpers?.play?.('wallSummon');
+    if (now - this.lastWallTime > 12000) {
+      this.lastWallTime = now;
+      gameHelpers.play('wallSummon');
+
+      state.effects.push({
+        type: 'shrinking_box',
+        startTime: now,
+        duration: 8000,
+        center: state.player.position.clone(),
+        initialSize: ARENA_RADIUS * 0.8, // World units
+        gapSide: Math.floor(Math.random() * 4), // 0: +X, 1: -X, 2: +Z, 3: -Z
+        gapPosition: Math.random() // 0.0 to 1.0 along the wall edge
+      });
+      gameHelpers.playLooping('wallShrink');
     }
+  }
 
-    this.activeBoxes = this.activeBoxes.filter(b => Date.now() - b.start < b.duration);
-    this.activeBoxes.forEach(b => {
-      const progress = (Date.now() - b.start) / b.duration;
-      const size = b.size * (1 - progress);
-      if (Math.abs(playerObj.position.x - this.position.x) > size / 2 ||
-          Math.abs(playerObj.position.z - this.position.z) > size / 2) {
-        return;
-      }
-      if (typeof playerObj.health === 'number') {
-        const dmg = 0.3 * delta;
-        playerObj.health -= dmg;
-        CoreManager.onPlayerDamage(dmg, this, gameHelpers);
-      }
-    });
+  die() {
+      gameHelpers.stopLoopingSfx('wallShrink');
+      state.effects = state.effects.filter(e => e.type !== 'shrinking_box');
+      super.die();
   }
 }
