@@ -1,21 +1,17 @@
-// modules/powers.js
+import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import * as utils from './utils.js';
 import * as Cores from './cores.js';
 import { gameHelpers } from './gameHelpers.js';
-import * as THREE from '../vendor/three.module.js';
-import { playerHasCore, getCanvasPos } from './helpers.js';
+import { playerHasCore } from './helpers.js';
 
-const SCREEN_WIDTH = 2048;
-const SCREEN_HEIGHT = 1024;
+const ARENA_RADIUS = 50; // Should match the radius in scene.js
 
-// helper functions provided by helpers.js
-
-export const powers={
+export const powers = {
   shield:{
     emoji:"🛡️",
     desc:"Blocks damage for a duration.",
-    apply:(utils, game)=>{
+    apply:() => {
       let duration = 6000;
       const talentRank = state.player.purchasedTalents.get('aegis-shield');
       if (talentRank) {
@@ -25,17 +21,17 @@ export const powers={
       const shieldEndTime = Date.now() + duration;
       state.player.shield = true;
       state.player.shield_end_time = shieldEndTime;
-      game.addStatusEffect('Shield', '🛡️', duration);
-      const { x, y } = getCanvasPos(state.player);
-      utils.spawnParticles(state.particles, x, y,"#f1c40f",30,4,30,5);
+      gameHelpers.addStatusEffect('Shield', '🛡️', duration);
+      
+      // Effect for visuals will be handled in a dedicated rendering loop
+      state.effects.push({ type: 'shield_activation', position: state.player.position.clone() });
 
       setTimeout(()=> {
           if(state.player.shield_end_time <= shieldEndTime){
               state.player.shield=false;
               if(state.player.purchasedTalents.has('aegis-retaliation')){
-                  const pos = getCanvasPos(state.player);
-                  state.effects.push({ type: 'shockwave', caster: state.player, x: pos.x, y: pos.y, radius: 0, maxRadius: 250, speed: 1000, startTime: Date.now(), hitEnemies: new Set(), damage: 0, color: 'rgba(255, 255, 255, 0.5)' });
-                  game.play('shockwaveSound');
+                  state.effects.push({ type: 'shockwave', caster: state.player, position: state.player.position.clone(), maxRadius: 15, speed: 60, damage: 0 });
+                  gameHelpers.play('shockwaveSound');
               }
           }
       }, duration);
@@ -45,58 +41,51 @@ export const powers={
       state.player.health=Math.min(state.player.maxHealth,state.player.health+30);
       gameHelpers.play('pickupSound');
   }},
-  shockwave:{emoji:"💥",desc:"Expanding wave damages enemies.",apply:(utils, game, mx, my, options = {})=>{
+  shockwave:{emoji:"💥",desc:"Expanding wave damages enemies.",apply:(options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options;
-      let speed = 800;
-      let radius = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT);
+      let speed = 30;
+      let radius = ARENA_RADIUS * 1.5;
       let damage = (((state.player.berserkUntil > Date.now()) ? 30 : 15) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
-      const oPos = getCanvasPos(origin);
-      state.effects.push({ type: 'shockwave', caster: origin, x: oPos.x, y: oPos.y, radius: 0, maxRadius: radius, speed: speed, startTime: Date.now(), hitEnemies: new Set(), damage: damage });
-      game.play('shockwaveSound');
+      state.effects.push({ type: 'shockwave', caster: origin, position: origin.position.clone(), maxRadius: radius, speed: speed, startTime: Date.now(), hitEnemies: new Set(), damage: damage });
+      gameHelpers.play('shockwaveSound');
   }},
   missile:{
     emoji:"🎯",
     desc:"AoE explosion damages nearby.",
-    apply:(utils, game, mx, my, options = {})=>{
+    apply:(options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options;
-      game.play('shockwaveSound');
+      gameHelpers.play('shockwaveSound');
       let damage = (((state.player.berserkUntil > Date.now()) ? 20 : 10) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
-      let radius = 250;
+      let radius = 15; // World units
       const radiusTalentRank = state.player.purchasedTalents.get('stellar-detonation');
       if(radiusTalentRank) radius *= (1 + (radiusTalentRank * 0.15));
 
-      const oPos = getCanvasPos(origin);
       state.effects.push({
           type: 'shockwave',
           caster: origin,
-          x: oPos.x,
-          y: oPos.y,
-          radius: 0,
+          position: origin.position.clone(),
           maxRadius: radius,
-          speed: 1200,
+          speed: 70,
           startTime: Date.now(),
           hitEnemies: new Set(),
           damage: damage,
-          color: 'rgba(255, 153, 68, 0.7)'
+          color: new THREE.Color(0xff9944)
       });
       utils.triggerScreenShake(200, 8);
 
       if(state.player.purchasedTalents.has('homing-shrapnel')){
-          const baseDir = state.cursorDir.clone().normalize();
-          const normal = state.player.position.clone().normalize();
-          const step = utils.pixelsToArc(4, SCREEN_WIDTH);
+          const baseDir = state.cursorDir.clone();
+          const normal = origin.position.clone().normalize();
           for(let i = 0; i < 3; i++) {
-              const angleOffset = (i - 1) * 0.5;
+              const angleOffset = (i - 1) * 0.5; // radians
               const finalDir = utils.rotateAroundNormal(baseDir, normal, angleOffset);
-              const originVec = state.player.position.clone();
               state.effects.push({
                   type: 'seeking_shrapnel',
-                  position: originVec.clone(),
-                  velocity: finalDir.multiplyScalar(step),
-                  r: 6,
+                  position: origin.position.clone(),
+                  velocity: finalDir.multiplyScalar(0.4),
+                  r: 0.3, // World units
                   damage: 5 * state.player.talent_modifiers.damage_multiplier,
-                  life: 3000,
-                  startTime: Date.now(),
+                  lifeEnd: Date.now() + 3000,
                   targetIndex: i
                 });
           }
@@ -106,12 +95,10 @@ export const powers={
   chain:{
     emoji:"⚡",
     desc:"Chain lightning hits multiple targets.",
-    apply:(utils, game, mx, my, options = {})=>{
+    apply:(options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options;
-      game.play('chainSound');
-      let chainCount = 6;
-      const chainTalentRank = state.player.purchasedTalents.get('arc-cascade');
-      if(chainTalentRank) chainCount += chainTalentRank * 1;
+      gameHelpers.play('chainSound');
+      let chainCount = 6 + (state.player.purchasedTalents.get('arc-cascade') || 0);
 
       const targets = [];
       let currentTarget = origin;
@@ -130,139 +117,94 @@ export const powers={
           if (closest) {
               targets.push(closest);
               currentTarget = closest;
-          } else {
-              break;
-          }
+          } else { break; }
       }
       let damage = (((state.player.berserkUntil > Date.now()) ? 30 : 15) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
-      state.effects.push({ type: 'chain_lightning', targets: targets, links: [], startTime: Date.now(), durationPerLink: 80, damage: damage, caster: origin });
+      state.effects.push({ type: 'chain_lightning', targets: targets, caster: origin, damage: damage });
     }
   },
   gravity:{
     emoji:"🌀",
-    desc:"Pulls enemies for 1s",
-    apply:(utils, game)=>{
-        game.play('gravitySound'); 
-        state.gravityActive=true; 
-        state.gravityEnd=Date.now()+1000; 
-        utils.spawnParticles(state.particles, SCREEN_WIDTH/2, SCREEN_HEIGHT/2,"#9b59b6",100,4,40,5);
+    desc:"Pulls enemies towards the center.",
+    apply:()=>{
+        gameHelpers.play('gravitySound'); 
+        state.gravityActive = true; 
+        state.gravityEnd = Date.now() + 1000; 
         
         if (state.player.purchasedTalents.has('temporal-collapse')) {
             setTimeout(() => {
                 if(state.gameOver) return;
                 state.effects.push({ 
                     type: 'slow_zone', 
-                    x: SCREEN_WIDTH / 2,
-                    y: SCREEN_HEIGHT / 2,
-                    r: 250, 
+                    position: new THREE.Vector3(0,0,0), // Center of sphere
+                    radius: 15, // World units
                     endTime: Date.now() + 4000 
                 });
             }, 1000);
         }
     }
   },
-  speed:{emoji:"🚀",desc:"Speed Boost for 5s",apply:(utils, game)=>{
-      if(!state.player.speedBoostActive){
-          state.player.speedBoostActive = true;
-          state.player._speedBoostOriginal = state.player.speed;
-          state.player.speed *= 1.5;
-      }
-      game.addStatusEffect('Speed Boost', '🚀', 5000);
-      const { x, y } = getCanvasPos(state.player);
-      utils.spawnParticles(state.particles, x,y,"#00f5ff",40,3,30,5);
-      setTimeout(()=>{
-          state.player.speedBoostActive = false;
-          if(state.player._speedBoostOriginal !== undefined){
-              state.player.speed = state.player._speedBoostOriginal;
-              delete state.player._speedBoostOriginal;
-          }
-      },5000);
+  speed:{emoji:"🚀",desc:"Speed Boost for 5s",apply:()=>{
+      state.player.speed *= 1.5; 
+      gameHelpers.addStatusEffect('Speed Boost', '🚀', 5000); 
+      setTimeout(() => { state.player.speed /= 1.5 }, 5000);
   }},
-  freeze:{emoji:"🧊",desc:"Freeze enemies for 4s",apply:(utils, game)=>{
+  freeze:{emoji:"🧊",desc:"Freeze enemies for 4s",apply:()=>{
       state.enemies.forEach(e=>{
           if (e.id === 'fractal_horror' || e.isFriendly) return;
           if (e.frozen) return;
           e.frozen=true;
           e.wasFrozen = true;
-          e._dx=e.dx;
-          e._dy=e.dy;
-          e.dx=e.dy=0;
           e.frozenUntil = Date.now() + 4000;
           
           if (playerHasCore('basilisk')) {
             e.petrifiedUntil = Date.now() + 3000;
           }
       });
-      {
-        const pos = getCanvasPos(state.player);
-        utils.spawnParticles(state.particles, pos.x,pos.y,"#0ff",60,3,30,5);
-      }
-      setTimeout(()=>{
-          state.enemies.forEach(e=>{
-              if (!e.frozen) return;
-              e.frozen=false;
-              if (e.hp > 0) {
-                e.dx=e._dx;
-                e.dy=e._dy;
-              }
-          });
-      },4000);
   }},
-  decoy:{emoji:"🔮",desc:"Decoy lasts 5s",apply:(utils, game)=>{
+  decoy:{emoji:"🔮",desc:"Decoy lasts 5s",apply:()=>{
     const isMobile = state.player.purchasedTalents.has('quantum-duplicate');
     
-    // This creates a decoy specifically from the power-up
-    const rand = (min, max) => Math.random() * (max - min) + min;
-    const baseVec = state.player.position.clone();
-    const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 200,
-        0,
-        (Math.random() - 0.5) * 200
-    ).normalize().multiplyScalar(0.1);
-    const pos = baseVec.clone().add(offset);
+    const offset = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize().multiplyScalar(5);
+    const pos = state.player.position.clone().add(offset).normalize().multiplyScalar(ARENA_RADIUS);
+
     state.decoys.push({
         position: pos,
-        r: 20,
+        r: 0.5,
         expires: Date.now() + 5000,
         isTaunting: true,
-        isMobile: isMobile, // Only power-up decoys can be mobile via talent
+        isMobile: isMobile,
         hp: 1,
-        fromCore: false // Mark as not from the core
+        fromCore: false
     });
-    game.play('magicDispelSound'); // Using a different sound to distinguish
-    {
-      const pos = getCanvasPos(state.player);
-      utils.spawnParticles(state.particles, pos.x, pos.y, "#8e44ad", 50, 3, 30, 5);
-    }
+    gameHelpers.play('magicDispelSound');
   }},
-  stack:{emoji:"🧠",desc:"Double next power-up",apply:(utils, game)=>{ state.stacked=true; game.addStatusEffect('Stacked', '🧠', 60000); const pos=getCanvasPos(state.player); utils.spawnParticles(state.particles, pos.x,pos.y,"#aaa",40,4,30,5); }},
-  score: {emoji: "💎", desc: "Gain a large amount of Essence.", apply: (utils, game) => { game.addEssence(200 + state.player.level * 10); const pos=getCanvasPos(state.player); utils.spawnParticles(state.particles, pos.x, pos.y, "#f1c40f", 40, 4, 30,5); }},
-  repulsion: {emoji: "🖐️", desc: "Creates a 5s push-away field.", apply: (utils, game) => {
+  stack:{emoji:"🧠",desc:"Double next power-up",apply:()=>{ state.stacked=true; gameHelpers.addStatusEffect('Stacked', '🧠', 60000); }},
+  score: {emoji: "💎", desc: "Gain a large amount of Essence.", apply: () => { gameHelpers.addEssence(200 + state.player.level * 10); }},
+  repulsion: {emoji: "🖐️", desc: "Creates a 5s push-away field.", apply: () => {
       const hasKineticOverload = state.player.purchasedTalents.has('kinetic-overload');
       state.effects.push({
           type: 'repulsion_field',
-          ...getCanvasPos(state.player),
-          radius: 250,
+          position: state.player.position.clone(),
+          radius: 15,
           startTime: Date.now(),
           endTime: Date.now() + 5000,
           isOverloaded: hasKineticOverload,
           hitEnemies: new Set()
       });
-      game.play('shockwaveSound');
+      gameHelpers.play('shockwaveSound');
   }},
-  orbitalStrike: {emoji: "☄️", desc: "Calls 3 meteors on random enemies", apply:(utils, game, mx, my, options = {}) => {
+  orbitalStrike: {emoji: "☄️", desc: "Calls 3 meteors on random enemies", apply:(options = {}) => {
       const { damageModifier = 1.0, origin = state.player } = options;
       const availableTargets = state.enemies.filter(e => !e.isFriendly);
       for (let i = 0; i < 3; i++) {
           if (availableTargets.length > 0) {
               const targetIndex = Math.floor(Math.random() * availableTargets.length);
               const target = availableTargets.splice(targetIndex, 1)[0];
-              const tPos = getCanvasPos(target);
               state.effects.push({
                   type: 'orbital_target',
                   target: target,
-                  x: tPos.x,
-                  y: tPos.y,
+                  position: target.position.clone(),
                   startTime: Date.now(),
                   caster: origin,
                   damageModifier: damageModifier
@@ -270,14 +212,14 @@ export const powers={
             }
         }
     }},
-  black_hole: {emoji: "⚫", desc: "Pulls and damages enemies for 4s", apply:(utils, game, mx, my, options = {}) => {
+  black_hole: {emoji: "⚫", desc: "Pulls and damages enemies for 4s", apply:(options = {}) => {
       const { damageModifier = 1.0, origin = state.player } = options;
       let damage = (((state.player.berserkUntil > Date.now()) ? 6 : 3) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
-      let radius = 350;
+      let radius = 20; // World units
       const blackHoleEffect = {
           type: 'black_hole',
-          x: mx, y: my,
-          radius: 20, maxRadius: radius,
+          position: state.cursorDir.clone().multiplyScalar(ARENA_RADIUS),
+          radius: 1, maxRadius: radius,
           damageRate: 200, lastDamage: new Map(),
           startTime: Date.now(),
           duration: 4000,
@@ -286,32 +228,28 @@ export const powers={
           caster: origin
       };
       state.effects.push(blackHoleEffect);
-      game.play('gravitySound');
+      gameHelpers.play('gravitySound');
 
       if (playerHasCore('time_eater')) {
           setTimeout(() => {
               if (state.gameOver) return;
-              // Ensure effect hasn't been cleared
               if (state.effects.includes(blackHoleEffect)) {
-                  state.effects.push({ type: 'dilation_field', x: mx, y: my, r: radius, endTime: Date.now() + 5000 });
+                  state.effects.push({ type: 'dilation_field', position: blackHoleEffect.position.clone(), r: radius, endTime: Date.now() + 5000 });
               }
           }, 4000);
       }
   }},
-  berserk: {emoji: "💢", desc: "8s: Deal 2x damage, take 2x damage", apply:(utils, game)=>{ state.player.berserkUntil = Date.now() + 8000; game.addStatusEffect('Berserk', '💢', 8000); const pos=getCanvasPos(state.player); utils.spawnParticles(state.particles, pos.x, pos.y, "#e74c3c", 40, 3, 30,5); }},
-  ricochetShot: {emoji: "🔄", desc: "Fires a shot that bounces 6 times", apply:(utils, game, mx, my, options = {}) => {
+  berserk: {emoji: "💢", desc: "8s: Deal 2x damage", apply:()=>{ state.player.berserkUntil = Date.now() + 8000; gameHelpers.addStatusEffect('Berserk', '💢', 8000); }},
+  ricochetShot: {emoji: "🔄", desc: "Fires a shot that bounces 6 times", apply:(options = {}) => {
       const { damageModifier = 1.0, origin = state.player } = options;
       let bounceCount = 6;
-      const oPos = getCanvasPos(origin);
       const damage = 10 * damageModifier;
-      const originVec = origin.position ? origin.position.clone() : utils.uvToSpherePos(oPos.x/SCREEN_WIDTH, oPos.y/SCREEN_HEIGHT, 1);
-      const baseDir = state.cursorDir.clone().normalize();
-      const step = utils.pixelsToArc(10, SCREEN_WIDTH);
+      const velocity = state.cursorDir.clone().multiplyScalar(0.8);
       state.effects.push({
           type: 'ricochet_projectile',
-          position: originVec.clone(),
-          velocity: baseDir.multiplyScalar(step),
-          r: 8,
+          position: origin.position.clone(),
+          velocity: velocity,
+          r: 0.3,
           damage: damage,
           bounces: bounceCount,
           initialBounces: bounceCount,
@@ -319,7 +257,7 @@ export const powers={
           caster: origin
       });
     }},
-  bulletNova: {emoji: "💫", desc: "Unleashes a spiral of bullets", apply:(utils, game, mx, my, options = {})=>{
+  bulletNova: {emoji: "💫", desc: "Unleashes a spiral of bullets", apply:(options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options; 
       state.effects.push({ type: 'nova_controller', startTime: Date.now(), duration: 2000, lastShot: 0, angle: Math.random() * Math.PI * 2, caster: origin, damageModifier: damageModifier }); 
     }},
@@ -333,8 +271,6 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   
   const { play, addStatusEffect } = gameHelpers;
   const queueType = offensivePowers.includes(powerKey) ? 'offensive' : 'defensive';
-  const slotId = queueType === 'offensive' ? 'slot-off-0' : 'slot-def-0';
-  const slotEl = document.getElementById(slotId);
   let consumed = !isFreeCast;
 
   if (consumed) {
@@ -347,8 +283,6 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
       }
       if (recycled) {
           addStatusEffect('Recycled', '♻️', 2000);
-          const pos=getCanvasPos(state.player);
-          utils.spawnParticles(state.particles, pos.x, pos.y, "#2ecc71", 40, 5, 40,5);
           consumed = false;
       }
   }
@@ -358,30 +292,23 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
       inventory.shift();
       inventory.push(null);
   }
-
-  slotEl.classList.add('activated');
-  setTimeout(()=> slotEl.classList.remove('activated'), 200);
-
-  // Use cursor direction stored in state
-  const { x: mx, y: my } = utils.toCanvasPos(state.cursorDir, SCREEN_WIDTH, SCREEN_HEIGHT);
   
-  const applyArgs = [utils, gameHelpers, mx, my, options];
+  const applyArgs = [options];
   
-  if (power.type === 'offensive' && playerHasCore('temporal_paradox')) {
-      const pos=getCanvasPos(state.player);
-      const echoEffect = {
-          type: 'paradox_player_echo',
-          x: pos.x, y: pos.y,
-          powerKey: powerKey, 
-          mx: mx, my: my,
+  if (queueType === 'offensive' && playerHasCore('temporal_paradox')) {
+      const echoEffect = { 
+          type: 'paradox_player_echo', 
+          position: state.player.position.clone(), 
+          powerKey: powerKey,
+          cursorDir: state.cursorDir.clone(),
           startTime: Date.now()
       };
       state.effects.push(echoEffect);
       play('phaseShiftSound');
   }
 
-  if (power.type === 'defensive') {
-      Cores.handleCoreOnDefensivePower(powerKey, mx, my, gameHelpers);
+  if (queueType === 'defensive') {
+      Cores.handleCoreOnDefensivePower(powerKey, gameHelpers);
   }
 
   let stackedEffect = state.stacked;
@@ -391,11 +318,10 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
       addStatusEffect('Preordained', '🎲', 2000);
   }
 
-  // Apply the main power effect
   power.apply(...applyArgs);
   if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
   
-  if (stackedEffect && power.name !== 'Stack') {
+  if (stackedEffect && powerKey !== 'stack') {
       power.apply(...applyArgs);
       if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
       if(state.stacked) {
@@ -404,15 +330,12 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
       }
   }
   
-  if (!isFreeCast && power.type !== 'stack' && playerHasCore('singularity') && Math.random() < 0.05) {
+  if (!isFreeCast && powerKey !== 'stack' && playerHasCore('singularity') && Math.random() < 0.05) {
       setTimeout(() => {
            if (state.gameOver) return;
            power.apply(...applyArgs);
-           if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
            addStatusEffect('Duplicated', '✨', 2000);
            play('shaperAttune');
-           const pos=getCanvasPos(state.player);
-           utils.spawnParticles(state.particles, pos.x, pos.y, '#9b59b6', 40, 3, 30,5);
       }, 150);
   }
 }
