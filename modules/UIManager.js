@@ -3,6 +3,7 @@ import { getCamera } from './scene.js';
 import { state } from './state.js';
 import { bossData } from './bosses.js';
 import { powers } from './powers.js';
+import { AssetManager } from './AssetManager.js';
 
 let uiGroup;
 let hudMesh;
@@ -15,6 +16,15 @@ let coreIcon, coreCooldown, coreSocket;
 let bossContainer;
 const bossBars = new Map();
 let notificationGroup, notificationTimeout;
+
+let bgTexture = null;
+export function getBgTexture() {
+  if (!bgTexture) {
+    const manager = new AssetManager();
+    bgTexture = manager.getTexture('assets/bg.png');
+  }
+  return bgTexture;
+}
 
 export function holoMaterial(color = 0x141428, opacity = 0.85) {
   return new THREE.MeshStandardMaterial({

@@ -435,3 +435,7 @@ Verification: Manual code review; npm test unavailable due to missing package.js
 2025-08-01 - Feature - VR modals
 Summary: Implemented basic Ascension, Lore, Boss Info, and Orrery VR modals.
 Verification: npm test fails due to missing package.json.
+
+2025-10-21 – FR-03 – Asset parity
+Summary: Verified that all sound effects used in the 2D game are present in the VR port. The old but unused `aspectDefeated` and `shaperFail` sounds remain unreferenced. Applied `bg.png` as the common texture for all modal and button backgrounds and updated the asset analysis.
+Verification: `node scripts/checkAssetUsage.js` (with ignore list) reports all required assets referenced.

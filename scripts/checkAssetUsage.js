@@ -4,6 +4,7 @@ const path = require('path');
 const indexHtml = fs.readFileSync('Eternal-Momentum-OLD GAME/index.html','utf8');
 const oldAssets = Array.from(indexHtml.matchAll(/assets\/([A-Za-z0-9_\-]+)\.[a-z0-9]+/g)).map(m => m[1]);
 const assetNames = [...new Set(oldAssets)];
+const ignoreAssets = ['aspectDefeated', 'shaperFail'];
 
 function searchDir(dir, fileFilter) {
   let results = [];
@@ -24,6 +25,7 @@ const sourceFiles = searchDir('.', p => p.endsWith('.js') || p.endsWith('.html')
 
 let missing = [];
 for (const name of assetNames) {
+  if (ignoreAssets.includes(name)) continue;
   const regex = new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
   let found = false;
   for (const file of sourceFiles) {

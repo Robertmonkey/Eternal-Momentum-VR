@@ -62,7 +62,6 @@ export class ShaperOfFateAI extends BaseAgent {
                 closestRune = rune;
             }
         });
-
         this.executeAttack(closestRune.runeType);
       }
       
