@@ -360,3 +360,7 @@ Summary: Modified app.js to display the VR home screen panel after assets finish
 Verification: npm install && npm test – all suites pass.
 Next Steps: Continue UI reconstruction and stage flow improvements.
 2025-08-01 – FR-03 – Weaver's Orrery VR menu\nSummary: Implemented full Orrery modal with boss selection, point tracking, and startOrrery helper. Added automated test orreryModal.test.mjs and updated modal rendering logic.\nVerification: npm install && npm test – all suites pass.\nNext Steps: Continue porting remaining UI screens.
+2025-10-05 – FR-11 – Loading screen stuck fix
+Summary: Adjusted app.js to stop auto-starting VR. After assets load we now call showHome() so the loading screen hides and the user can launch VR via the AWAKEN/CONTINUE buttons. Updated README to describe this flow.
+Verification: npm install && npm test – all suites pass.
+Next Steps: Monitor for any additional VR initialization issues as UI refactor continues.

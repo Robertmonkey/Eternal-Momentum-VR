@@ -12,7 +12,7 @@ This document lays out the **step‑by‑step tasks** and architectural guidelin
 
 - **Control Mapping** – The original rewrite hard‑coded the laser pointer to the right controller.  Implement a **handedness setting** so that left‑handed players can swap controls.  Add a small cog icon to the HUD; clicking it opens a Settings panel where players can toggle “Swap Primary/Offhand” and adjust **Music** and **SFX** volume sliders.  Save these preferences to persistent state (e.g. localStorage) and honour them when spawning controllers.
 
-    - **Automatic Home Screen** – After assets finish loading, the VR build should enter immersive mode and display the floating home screen panel.  From this holographic menu the player can choose **AWAKEN**, **CONTINUE MOMENTUM** or other options.  This ensures the user sees the menu immediately instead of launching a stage without context.
+    - **Home Screen After Loading** – Once assets are loaded the game displays the home screen with **AWAKEN** and **CONTINUE MOMENTUM** buttons. Selecting either option starts the VR session and shows the floating home panel.
 
     - **3D Coordinate System** – The VR port must abandon 2D pixel positions (e.g. `state.player.x`, `state.mousePosition.x`) in favour of 3D vectors.  Every entity should have a `THREE.Vector3` position.  When a 2D coordinate is required (for example, to place UI elements on the sphere), convert the 3D position using a helper that maps a point on the unit sphere to UV coordinates.  Powers, cores, projectiles and AI must compute distances and directions using 3D vectors rather than flat‐screen formulas.
 
