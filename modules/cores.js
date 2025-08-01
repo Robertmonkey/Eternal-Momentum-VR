@@ -267,6 +267,14 @@ export function handleCoreOnPlayerDamage(damage) {
             gameHelpers.play('mirrorSwap');
         }
     }
+
+    // Reset Phase Momentum on any damage taken
+    if (damageTaken > 0) {
+        const pmState = state.player.talent_states.phaseMomentum;
+        pmState.lastDamageTime = Date.now();
+        pmState.active = false;
+    }
+
     return damageTaken;
 }
 
