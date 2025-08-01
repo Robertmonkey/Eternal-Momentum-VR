@@ -89,9 +89,10 @@ function updatePantheonUI() {
 }
 
 function updateStatusEffectsUI() {
+    if (!statusBar || !statusBar.classList) return;
     const now = Date.now();
     state.player.statusEffects = state.player.statusEffects.filter(effect => now < effect.endTime);
-    
+
     statusBar.classList.toggle('visible', state.player.statusEffects.length > 0);
     statusBar.innerHTML = '';
 
