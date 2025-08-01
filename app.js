@@ -1,7 +1,7 @@
 import { launchVR } from './vrMain.js';
 import { AssetManager } from './modules/AssetManager.js';
-import { state, loadPlayerState, savePlayerState } from './modules/state.js';
-import { applyAllTalentEffects } from './modules/ascension.js'; // <-- CORRECTED IMPORT
+import { state, loadPlayerState } from './modules/state.js';
+import { applyAllTalentEffects } from './modules/ascension.js';
 import { AudioManager } from './modules/audio.js';
 
 // DOM Elements
@@ -10,12 +10,10 @@ const fillEl = document.getElementById('loadingProgressFill');
 const statusEl = document.getElementById('loadingStatusText');
 const homeScreen = document.getElementById('homeScreen');
 
-// A full asset manifest. This time it's safe to load everything.
+// A full asset manifest.
 const ASSET_MANIFEST = [
-    // Textures
     'assets/bg.png', 'assets/cursors/crosshair.cur', 'assets/load.png',
-    'assets/home.mp4', // Required for home screen background
-    // Audio
+    'assets/home.mp4',
     'assets/bgMusic_01.mp3', 'assets/bossSpawnSound.mp3', 'assets/hitSound.mp3',
     'assets/pickupSound.mp3', 'assets/uiClickSound.mp3', 'assets/uiHoverSound.mp3',
     'assets/shieldBreak.mp3', 'assets/shockwaveSound.mp3', 'assets/talentPurchase.mp3',
@@ -27,7 +25,7 @@ async function preloadAssets() {
     const totalAssets = ASSET_MANIFEST.length;
     let loadedCount = 0;
 
-    const updateProgress = (url) => {
+    const updateProgress = () => {
         loadedCount++;
         const progress = Math.round((loadedCount / totalAssets) * 100);
         if (fillEl) fillEl.style.width = `${progress}%`;
@@ -36,20 +34,28 @@ async function preloadAssets() {
 
     const loadPromises = ASSET_MANIFEST.map(url => {
         let promise;
-        // For this flow, we create Audio elements but don't play them, which is safe.
-        // The real audio context unlock happens on click.
-        if (/\.(mp3|wav|ogg)$/.test(url)) {
+        const extension = url.split('.').pop();
+
+        if (['mp3', 'wav', 'ogg'].includes(extension)) {
+            promise = assetManager.loadAudio(url);
+        } else if (extension === 'mp4') {
             promise = new Promise(resolve => {
-                const audio = new Audio(url);
-                audio.addEventListener('canplaythrough', () => resolve(), { once: true });
-                audio.addEventListener('error', () => resolve(), { once: true }); // Resolve even on error to not block loading
+                const videoEl = document.getElementById('homeVideoBg');
+                if (videoEl) {
+                    videoEl.oncanplaythrough = () => resolve();
+                    videoEl.onerror = () => resolve(); // Don't block loading on video error
+                    videoEl.src = url;
+                } else {
+                    resolve();
+                }
             });
-        } else {
+        } else { // Default to texture
             promise = assetManager.loadTexture(url);
         }
-        return promise.then(() => updateProgress(url)).catch(err => {
+        
+        return promise.then(updateProgress).catch(err => {
             console.warn(`Could not load asset: ${url}`, err);
-            updateProgress(url);
+            updateProgress(); // Continue even if one asset fails
         });
     });
 
@@ -72,12 +78,8 @@ function setupHomeScreen() {
     }
 
     const startVRSequence = (stage) => {
+        AudioManager.unlockAudio();
         homeScreen.style.display = 'none';
-        loadingEl.style.display = 'flex';
-        statusEl.textContent = 'Launching VR...';
-        fillEl.parentElement.style.display = 'none';
-
-        // The launchVR function will now handle everything from here
         launchVR(stage);
     };
 
