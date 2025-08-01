@@ -1,7 +1,8 @@
 import { launchVR } from './vrMain.js';
 import { AssetManager } from './modules/AssetManager.js';
-import { state, loadPlayerState, applyAllTalentEffects } from './modules/state.js';
-import { AudioManager } from './modules/audio.js'; // We need this to unlock audio
+import { state, loadPlayerState, savePlayerState } from './modules/state.js';
+import { applyAllTalentEffects } from './modules/ascension.js'; // <-- CORRECTED IMPORT
+import { AudioManager } from './modules/audio.js';
 
 // DOM Elements
 const loadingEl = document.getElementById('loadingScreen');
@@ -11,8 +12,10 @@ const homeScreen = document.getElementById('homeScreen');
 
 // A full asset manifest. This time it's safe to load everything.
 const ASSET_MANIFEST = [
+    // Textures
     'assets/bg.png', 'assets/cursors/crosshair.cur', 'assets/load.png',
     'assets/home.mp4', // Required for home screen background
+    // Audio
     'assets/bgMusic_01.mp3', 'assets/bossSpawnSound.mp3', 'assets/hitSound.mp3',
     'assets/pickupSound.mp3', 'assets/uiClickSound.mp3', 'assets/uiHoverSound.mp3',
     'assets/shieldBreak.mp3', 'assets/shockwaveSound.mp3', 'assets/talentPurchase.mp3',
@@ -31,11 +34,16 @@ async function preloadAssets() {
         if (statusEl) statusEl.textContent = `Loading... (${progress}%)`;
     };
 
-    // We can load everything now because the audio context will be unlocked later on click.
     const loadPromises = ASSET_MANIFEST.map(url => {
         let promise;
+        // For this flow, we create Audio elements but don't play them, which is safe.
+        // The real audio context unlock happens on click.
         if (/\.(mp3|wav|ogg)$/.test(url)) {
-            promise = assetManager.loadAudio(url);
+            promise = new Promise(resolve => {
+                const audio = new Audio(url);
+                audio.addEventListener('canplaythrough', () => resolve(), { once: true });
+                audio.addEventListener('error', () => resolve(), { once: true }); // Resolve even on error to not block loading
+            });
         } else {
             promise = assetManager.loadTexture(url);
         }
@@ -64,8 +72,12 @@ function setupHomeScreen() {
     }
 
     const startVRSequence = (stage) => {
-        AudioManager.unlockAudio(); // Unlock audio now that the user has clicked!
         homeScreen.style.display = 'none';
+        loadingEl.style.display = 'flex';
+        statusEl.textContent = 'Launching VR...';
+        fillEl.parentElement.style.display = 'none';
+
+        // The launchVR function will now handle everything from here
         launchVR(stage);
     };
 
