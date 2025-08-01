@@ -11,33 +11,26 @@ export class SplitterAI extends BaseAgent {
         color: 0xff4500,
         emissive: 0xff4500,
         emissiveIntensity: 0.5,
-        metalness: 0.5,
-        roughness: 0.5
     });
-    super({ model: new THREE.Mesh(geometry, material) });
-
-    const bossData = { id: "splitter", name: "Splitter Sentinel", maxHP: 96 };
-    Object.assign(this, bossData);
-  }
-
-  update(delta) {
-    // No active behavior, as per the original game.
+    const model = new THREE.Mesh(geometry, material)
+    super({ health: 96, model });
+    this.name = "Splitter Sentinel";
+    this.id = "splitter";
   }
 
   die() {
-    super.die();
+    if (!this.alive) return;
+    super.die(); // This sets this.alive = false
     gameHelpers.play('splitterOnDeath');
 
     const spawnInOrbit = (count, orbitRadius) => {
         const centerVec = this.position.clone().normalize();
-        const upVec = new THREE.Vector3(0, 1, 0);
-        // Create two orthogonal vectors on the tangent plane
+        const upVec = new THREE.Vector3(0, 1, 0).cross(centerVec).length() > 0.1 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
         const basisA = new THREE.Vector3().crossVectors(centerVec, upVec).normalize();
         const basisB = new THREE.Vector3().crossVectors(centerVec, basisA).normalize();
 
         for (let i = 0; i < count; i++) {
-            const angle = (i / count) * 2 * Math.PI + Math.random() * 0.5;
-            
+            const angle = (i / count) * 2 * Math.PI;
             const offset = basisA.clone().multiplyScalar(Math.cos(angle) * orbitRadius)
                              .add(basisB.clone().multiplyScalar(Math.sin(angle) * orbitRadius));
             
@@ -50,7 +43,7 @@ export class SplitterAI extends BaseAgent {
         }
     };
 
-    spawnInOrbit(6, 6); // First wave with a 6-unit radius
-    setTimeout(() => spawnInOrbit(6, 12), 1000); // Second wave, further out
+    spawnInOrbit(6, 6); // First wave
+    setTimeout(() => { if (state.bossActive) spawnInOrbit(6, 12) }, 1000); // Second wave
   }
 }
