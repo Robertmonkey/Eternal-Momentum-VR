@@ -1,35 +1,79 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-
-// FractalHorrorAI - Implements boss B25: The Fractal Horror
-// Splits into smaller copies as its shared health decreases.
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class FractalHorrorAI extends BaseAgent {
-  constructor(radius = 1, generation = 1, shared) {
-    const geom = new THREE.DodecahedronGeometry(0.4 * radius);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xbe2edd });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 1000 / generation, model: mesh });
+  constructor(generation = 1) {
+    const size = 1.2 / generation;
+    const geometry = new THREE.DodecahedronGeometry(size, 0);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xbe2edd,
+        emissive: 0xbe2edd,
+        emissiveIntensity: 0.5
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
+    
+    if (generation === 1) {
+        const bossData = { id: "fractal_horror", name: "The Fractal Horror", maxHP: 10000 };
+        Object.assign(this, bossData);
+        state.fractalHorrorSharedHp = this.maxHP;
+    } else {
+        this.maxHP = 10000 / generation;
+        this.health = this.maxHP;
+    }
 
-    this.radius = radius;
     this.generation = generation;
-    this.shared = shared || { hp: 1000 };
   }
 
-  update(delta, playerObj, state, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
-    if (this.shared.hp <= 0) { this.die(); return; }
+    this.health = state.fractalHorrorSharedHp; // Sync with shared pool
 
-    if (this.health < this.maxHealth * 0.5 && this.generation < 4) {
-      this.shared.hp -= this.health;
-      this.health = 0;
-      for (let i = 0; i < 2; i++) {
-        const child = new FractalHorrorAI(this.radius * 0.7, this.generation + 1, this.shared);
-        child.position.copy(this.position);
-        this.parent.add(child);
-        state?.enemies?.push(child);
-      }
-      this.die();
+    // Split if enough damage has been dealt and generation is not too high
+    const hpPercent = state.fractalHorrorSharedHp / this.maxHP;
+    const expectedSplits = Math.floor((1 - hpPercent) * 20); // Split roughly every 5%
+
+    if (state.enemies.filter(e => e.id === 'fractal_horror').length < expectedSplits && this.generation < 5) {
+        this.split();
     }
+  }
+
+  split() {
+    if (!this.alive) return;
+    gameHelpers.play('fractalSplit');
+    for (let i = 0; i < 2; i++) {
+        const child = new FractalHorrorAI(this.generation + 1);
+        const offset = new THREE.Vector3().randomDirection().multiplyScalar(this.r * 2);
+        child.position.copy(this.position).add(offset);
+        state.enemies.push(child);
+        // In a real scene graph, you would add child to the scene:
+        // this.parent.add(child);
+    }
+    this.die(false); // Die without triggering on-death effects
+  }
+
+  takeDamage(amount, sourceObject) {
+      if (!this.alive) return;
+      state.fractalHorrorSharedHp -= amount;
+      // All instances die when shared health is gone
+      if (state.fractalHorrorSharedHp <= 0) {
+          state.enemies.forEach(e => {
+              if (e.id === 'fractal_horror') e.hp = 0;
+          });
+      }
+  }
+
+  die(isFinal = true) {
+      // Remove this instance from the game
+      const index = state.enemies.indexOf(this);
+      if (index > -1) state.enemies.splice(index, 1);
+      this.alive = false;
+      this.model.visible = false;
+
+      // If this is the very last fragment, trigger the actual boss death
+      if (isFinal && state.enemies.filter(e => e.id === 'fractal_horror').length === 0) {
+          super.die();
+      }
   }
 }
