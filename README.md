@@ -6,7 +6,9 @@ Eternal Momentum VR is a full 3D re-imagining of the 2D browser game, **Eternal 
 ## Current Status: Playable Refactor Complete
 The initial, foundational refactor of the project is now complete. The game has been successfully transitioned from a broken 2D/3D hybrid into a stable, VR-native application. All major systems are now functional:
 * **Player Control:** Reliable movement and interaction in VR.
-* **Spawning:** Enemies, bosses, and power-ups spawn correctly.
+* **Spawning:** Enemies, bosses, and power-ups spawn correctly. The `spawnEnemy`
+  helper now accepts an optional position so special boss mechanics can spawn
+  minions exactly where intended.
 * **UI:** All menus are functional, in-world 3D panels.
 * **Boss Mechanics:** All 30 bosses from the original game have been implemented with their core mechanics adapted for 3D combat.
 
