@@ -430,25 +430,113 @@ function createOrreryModal() {
   header.position.set(0, 0.65, 0.01);
   modal.add(header);
 
-  const points = createTextSprite(`ECHOES: ${state.player.orreryPoints || 0}`, 32);
-  points.position.set(0, 0.45, 0.01);
+  let totalEchoes = 0;
+
+  const echoLabel = createTextSprite('ECHOES OF CREATION', 32);
+  echoLabel.position.set(0, 0.45, 0.01);
+  modal.add(echoLabel);
+
+  const points = createTextSprite(`${totalEchoes}`, 32);
+  points.position.set(0, 0.35, 0.01);
   modal.add(points);
 
-  const placeholder = createTextSprite('Feature in progress', 28);
-  placeholder.position.set(0, 0, 0.01);
-  modal.add(placeholder);
+  const bossList = new THREE.Group();
+  bossList.name = 'bossList';
+  bossList.position.set(0, 0.15, 0.02);
+  modal.add(bossList);
 
-  const clearBtn = createButton('CLEAR ROSTER', () => {});
-  clearBtn.position.set(0, -0.45, 0.02);
+  const rosterLabel = createTextSprite('TIMELINE ROSTER', 32);
+  rosterLabel.position.set(0, -0.05, 0.01);
+  modal.add(rosterLabel);
+
+  const selection = new THREE.Group();
+  selection.name = 'selectionDisplay';
+  selection.position.set(0, -0.25, 0.02);
+  modal.add(selection);
+
+  const costDisplay = createTextSprite('ECHOES SPENT: 0', 28);
+  costDisplay.position.set(0, -0.45, 0.01);
+  modal.add(costDisplay);
+
+  const clearBtn = createButton('CLEAR ROSTER', () => {
+    selectedBosses = [];
+    currentCost = 0;
+    render();
+  });
+  clearBtn.position.set(0, -0.65, 0.02);
   modal.add(clearBtn);
 
-  const startBtn = createButton('FORGE TIMELINE', () => {});
-  startBtn.position.set(0, -0.65, 0.02);
+  const startBtn = createButton('FORGE TIMELINE', () => startOrrery(selectedBosses));
+  startBtn.name = 'startBtn';
+  startBtn.position.set(0, -0.85, 0.02);
   modal.add(startBtn);
 
   const closeBtn = createButton('CLOSE', () => hideModal('orrery'));
-  closeBtn.position.set(0, -0.85, 0.02);
+  closeBtn.position.set(0, -1.05, 0.02);
   modal.add(closeBtn);
+
+  const costs = { 1: 2, 2: 5, 3: 8 };
+  let selectedBosses = [];
+  let currentCost = 0;
+
+  function render() {
+    totalEchoes = 0;
+    const hs = state.player.highestStageBeaten;
+    if (hs >= 30) {
+      totalEchoes += 10 + (hs - 30);
+      if (hs >= 50) totalEchoes += 15;
+      if (hs >= 70) totalEchoes += 20;
+      if (hs >= 90) totalEchoes += 25;
+    }
+    updateTextSprite(points, `${totalEchoes - currentCost}`);
+    updateTextSprite(costDisplay, `ECHOES SPENT: ${currentCost}`);
+
+    bossList.clear();
+    const available = bossData.filter(b => b.difficulty_tier).sort((a,b)=>a.difficulty_tier-b.difficulty_tier);
+    available.forEach((boss, i) => {
+      const cost = costs[boss.difficulty_tier];
+      const row = new THREE.Group();
+      const btn = createButton(boss.name, () => {
+        if (totalEchoes - currentCost >= cost) {
+          selectedBosses.push(boss.id);
+          currentCost += cost;
+          render();
+        }
+      });
+      row.add(btn);
+      const mech = createButton('❔', () => showBossInfoModal([boss.id], 'mechanics'));
+      mech.position.set(0.6, 0, 0);
+      row.add(mech);
+      const lore = createButton('ℹ️', () => showBossInfoModal([boss.id], 'lore'));
+      lore.position.set(0.8, 0, 0);
+      row.add(lore);
+      const cText = createTextSprite(String(cost), 24);
+      cText.position.set(1.0, 0, 0.01);
+      row.add(cText);
+      row.position.set(0, -0.25 * i, 0);
+      bossList.add(row);
+    });
+
+    selection.clear();
+    selectedBosses.forEach((id, idx) => {
+      const boss = bossData.find(b => b.id === id);
+      const btn = createButton(boss.name, () => {
+        selectedBosses.splice(idx, 1);
+        currentCost -= costs[boss.difficulty_tier];
+        render();
+      });
+      btn.scale.set(0.5,0.5,0.5);
+      btn.position.set(0, -0.2 * idx, 0);
+      selection.add(btn);
+    });
+  }
+
+  render();
+
+  modal.userData.startBtn = startBtn;
+  modal.userData.selectedBosses = selectedBosses;
+  modal.userData.bossList = bossList;
+  modal.userData.render = render;
 
   modal.visible = false;
   return modal;
@@ -568,6 +656,16 @@ export function startStage(stage) {
   if (typeof stage === 'number') {
     state.currentStage = stage;
   }
+  state.isPaused = false;
+  Object.values(modals).forEach(m => m.visible = false);
+}
+
+export function startOrrery(bossList) {
+  applyAllTalentEffects();
+  resetGame(true);
+  state.arenaMode = true;
+  state.customOrreryBosses = bossList;
+  state.currentStage = 999;
   state.isPaused = false;
   Object.values(modals).forEach(m => m.visible = false);
 }

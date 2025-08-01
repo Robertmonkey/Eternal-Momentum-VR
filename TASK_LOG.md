@@ -359,3 +359,4 @@ Next Steps: Continue auditing menus for any remaining discrepancies.
 Summary: Modified app.js to display the VR home screen panel after assets finish loading. Updated README and AGENTS text to clarify that the game should enter VR and show the home menu before gameplay begins.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Continue UI reconstruction and stage flow improvements.
+2025-08-01 – FR-03 – Weaver's Orrery VR menu\nSummary: Implemented full Orrery modal with boss selection, point tracking, and startOrrery helper. Added automated test orreryModal.test.mjs and updated modal rendering logic.\nVerification: npm install && npm test – all suites pass.\nNext Steps: Continue porting remaining UI screens.
