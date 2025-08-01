@@ -205,6 +205,33 @@ export function handleCoreOnEnemyDeath(enemy) {
             gameHelpers.play('splitterOnDeath');
         }
     }
+
+    const cryoRank = state.player.purchasedTalents.get('cryo-shatter');
+    if (cryoRank && enemy.wasFrozen) {
+        const chance = cryoRank === 1 ? 0.25 : 0.5;
+        if (Math.random() < chance) {
+            state.effects.push({
+                type: 'shockwave',
+                caster: state.player,
+                position: enemy.position.clone(),
+                maxRadius: 15,
+                speed: 50,
+                startTime: now,
+                hitEnemies: new Set(),
+                damage: 5 * state.player.talent_modifiers.damage_multiplier,
+                color: new THREE.Color(0x00c8ff)
+            });
+
+            if (state.player.purchasedTalents.has('glacial-propagation')) {
+                state.effects.push({
+                    type: 'small_freeze',
+                    position: enemy.position.clone(),
+                    radius: 15,
+                    endTime: now + 200
+                });
+            }
+        }
+    }
     if (playerHasCore('swarm')) {
         const swarmState = state.player.talent_states.core_states.swarm;
         if (!swarmState.tail) swarmState.tail = [];
