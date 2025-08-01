@@ -1,66 +1,50 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import { state } from '../state.js';
 
-// Aethel & Umbra duo implementation (Boss B9)
-// Each agent is instantiated separately but can reference a partner.
-
-export class AethelAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.DodecahedronGeometry(0.3 * radius);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, emissive: 0xffffff });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 180, model: mesh });
-    this.radius = radius;
-    this.timer = 0;
-    this.partner = null;
+export class AethelUmbraAI extends BaseAgent {
+  constructor(role, partner = null) {
+    const isAethel = role === 'Aethel';
+    const geometry = isAethel ? new THREE.DodecahedronGeometry(0.7) : new THREE.IcosahedronGeometry(0.9);
+    const material = new THREE.MeshStandardMaterial({
+        color: isAethel ? 0x3498db : 0xc0392b,
+        emissive: isAethel ? 0x3498db : 0xc0392b,
+        emissiveIntensity: 0.5
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
+    
+    this.role = role;
+    this.partner = partner;
+    this.enraged = false;
+    this.name = role;
+    this.maxHP = isAethel ? 280 * 0.75 : 280 * 1.5;
+    this.health = this.maxHP;
+    this.speed = isAethel ? 1.5 : 0.8;
   }
-
-  update(delta, gameHelpers) {
+  
+  update(delta) {
     if (!this.alive) return;
-    this.timer += delta;
-    if (this.timer >= 6) {
-      this.timer = 0;
-      if (gameHelpers && typeof gameHelpers.spawnHealingZone === 'function') {
-        gameHelpers.spawnHealingZone(this.position.clone(), 0.5 * this.radius, 5);
-      }
-    }
+    // Basic chase logic, can be replaced with navmesh later
+    const playerPos = state.player.position;
+    const direction = playerPos.clone().sub(this.position).normalize();
+    this.position.add(direction.multiplyScalar(this.speed * delta * 0.2));
+    this.position.normalize().multiplyScalar(50);
   }
 
   die() {
     super.die();
-    if (!this.partner || !this.partner.alive) {
-      if (typeof this.onBothDeath === 'function') this.onBothDeath();
-    }
-  }
-}
-
-export class UmbraAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.TetrahedronGeometry(0.3 * radius);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 220, model: mesh });
-    this.radius = radius;
-    this.timer = 0;
-    this.partner = null;
-  }
-
-  update(delta, gameHelpers, targetPos) {
-    if (!this.alive) return;
-    this.timer += delta;
-    if (this.timer >= 2) {
-      this.timer = 0;
-      if (gameHelpers && typeof gameHelpers.spawnProjectile === 'function') {
-        const velocity = targetPos.clone().sub(this.position).normalize();
-        gameHelpers.spawnProjectile({ position: this.position.clone(), velocity });
-      }
+    if (this.partner && this.partner.alive && !this.partner.enraged) {
+      this.partner.enrage();
     }
   }
 
-  die() {
-    super.die();
-    if (!this.partner || !this.partner.alive) {
-      if (typeof this.onBothDeath === 'function') this.onBothDeath();
-    }
+  enrage() {
+    this.enraged = true;
+    this.speed *= 2;
+    const newScale = this.model.scale.x * 1.25;
+    this.model.scale.set(newScale, newScale, newScale);
+    const healthBonus = this.maxHP * 0.5;
+    this.maxHP += healthBonus;
+    this.health += healthBonus;
   }
 }
