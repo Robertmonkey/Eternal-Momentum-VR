@@ -119,6 +119,14 @@ function createAbilitySlot(size, isMain = false) {
     return { group, sprite };
 }
 
+function getBossColor(boss) {
+    if (!boss) return 0xffffff;
+    if (boss.color) return boss.color;
+    const id = boss.kind || boss.id || (boss.role ? 'aethel_and_umbra' : null);
+    const data = bossData.find(b => b.id === id);
+    return data ? data.color : 0xffffff;
+}
+
 function createBossBar(boss) {
     const group = new THREE.Group();
 
@@ -132,14 +140,15 @@ function createBossBar(boss) {
     // Left anchored fill bar so scaling matches the original behaviour
     const geom = new THREE.PlaneGeometry(0.24, 0.02);
     geom.translate(0.12, 0, 0); // anchor left at x=0
-    const fill = new THREE.Mesh(geom, holoMaterial(boss.color));
+    const color = getBossColor(boss);
+    const fill = new THREE.Mesh(geom, holoMaterial(color));
     fill.position.set(-0.12, -0.01, 0.001);
 
     const label = createTextSprite(boss.name, 24);
     label.position.set(0, 0.015, 0.002);
 
     group.add(border, bg, fill, label);
-    group.userData = { fill, label };
+    group.userData = { fill, label, color };
     return group;
 }
 
@@ -346,7 +355,8 @@ export function updateHud() {
             const cur = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.hp;
             const pct = Math.max(0, cur / boss.maxHP);
             bar.userData.fill.scale.x = pct;
-            bar.userData.fill.material.color.set(boss.color);
+            const color = getBossColor(boss);
+            bar.userData.fill.material.color.set(color);
             updateTextSprite(bar.userData.label, boss.name);
             bar.position.set(0, -index * 0.07, 0);
             index++;
