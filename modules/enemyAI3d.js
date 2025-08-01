@@ -53,4 +53,24 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
       e.pathIndex++;
     }
   });
+
+  const fields = state.effects.filter(f => f.type === 'repulsion_field');
+  fields.forEach(field => {
+    field.position.copy(state.player.position);
+    const overloaded = field.isOverloaded && Date.now() < field.startTime + 2000;
+    state.enemies.forEach(enemy => {
+      if (enemy.boss && enemy.kind !== 'fractal_horror') return;
+      const dist = enemy.position.distanceTo(field.position);
+      if (dist < field.radius) {
+        const dir = enemy.position.clone().sub(field.position).normalize();
+        const push = overloaded && !field.hitEnemies.has(enemy) ? 2 : 0.3;
+        enemy.position.add(dir.multiplyScalar(push));
+        if (overloaded) field.hitEnemies.add(enemy);
+      }
+    });
+    if (Date.now() > field.endTime) {
+      const idx = state.effects.indexOf(field);
+      if (idx !== -1) state.effects.splice(idx, 1);
+    }
+  });
 }

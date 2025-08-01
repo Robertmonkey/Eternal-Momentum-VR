@@ -68,8 +68,15 @@ initGameHelpers(gameHelpers);
 
 export function addStatusEffect(name, emoji, duration) {
     const now = Date.now();
+    const preventCrowdControl = state.player.purchasedTalents.has('unstoppable-frenzy') && state.player.berserkUntil > now;
     if (['Stunned', 'Petrified', 'Charging', 'Warping'].includes(name)) {
-        state.player.stunnedUntil = Math.max(state.player.stunnedUntil, now + duration);
+        if (!preventCrowdControl) {
+            state.player.stunnedUntil = Math.max(state.player.stunnedUntil, now + duration);
+        } else {
+            return;
+        }
+    } else if (name === 'Slowed' && preventCrowdControl) {
+        return;
     }
     const existing = state.player.statusEffects.find(e => e.name === name);
     if (existing) {
@@ -259,7 +266,9 @@ export function spawnPickup() {
     });
     
     const type = types[Math.floor(Math.random() * types.length)];
-    const life = 10000;
+    let life = 10000;
+    const anomalyRank = state.player.purchasedTalents.get('temporal-anomaly');
+    if (anomalyRank) life *= 1 + (anomalyRank === 1 ? 0.25 : 0.5);
     
     const pickupPos = new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS);
     
