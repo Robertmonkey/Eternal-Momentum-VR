@@ -115,7 +115,26 @@ function levelUp() {
 
 export function addEssence(amount) {
     if (state.gameOver) return;
-    state.player.essence += Math.floor(amount * state.player.talent_modifiers.essence_gain_modifier);
+    let modifiedAmount = Math.floor(amount * state.player.talent_modifiers.essence_gain_modifier);
+
+    const transmuteRank = state.player.purchasedTalents.get('essence-transmutation');
+    if (transmuteRank) {
+        const essenceBefore = state.player.essence % 50;
+        let gainedHP = Math.floor((essenceBefore + modifiedAmount) / 50);
+        if (gainedHP > 0) {
+            const caps = [1.5, 2.5, 3.0];
+            const cap = state.player.baseMaxHealth * caps[transmuteRank - 1];
+            if (state.player.maxHealth + gainedHP > cap) {
+                gainedHP = Math.floor(cap - state.player.maxHealth);
+            }
+            if (gainedHP > 0) {
+                state.player.maxHealth += gainedHP;
+                state.player.health += gainedHP;
+            }
+        }
+    }
+
+    state.player.essence += modifiedAmount;
     while (state.player.essence >= state.player.essenceToNextLevel) {
         levelUp();
     }
