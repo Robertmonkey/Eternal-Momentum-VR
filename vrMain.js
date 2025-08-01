@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { VRButton } from './vendor/addons/webxr/VRButton.js'; // <-- CORRECTED PATH
 import { initScene, getScene, getCamera, getRenderer } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
 import { initUI, updateHud } from './modules/UIManager.js';
@@ -42,7 +42,9 @@ export function start() {
 
     vrContainer = document.getElementById('vrContainer');
     vrContainer.appendChild(renderer.domElement);
-    vrContainer.appendChild(VRButton.createButton(renderer));
+    
+    const vrButton = VRButton.createButton(renderer);
+    vrContainer.appendChild(vrButton);
     
     renderer.xr.enabled = true;
 
