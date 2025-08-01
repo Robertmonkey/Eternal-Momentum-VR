@@ -3,6 +3,7 @@ import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import { gameHelpers } from '../gameHelpers.js';
 import * as CoreManager from '../CoreManager.js';
+import { applyPlayerDamage } from '../helpers.js';
 
 export class ReflectorAI extends BaseAgent {
   constructor() {
@@ -52,8 +53,11 @@ export class ReflectorAI extends BaseAgent {
       gameHelpers.play('reflectorOnHit');
       if (sourceObject && typeof sourceObject.health === 'number') {
         const reflectedDamage = 10;
-        sourceObject.health -= reflectedDamage;
-        CoreManager.onPlayerDamage(reflectedDamage, this, gameHelpers);
+        if (sourceObject === state.player) {
+          applyPlayerDamage(reflectedDamage, this, gameHelpers);
+        } else {
+          sourceObject.health -= reflectedDamage;
+        }
       }
     } else {
         super.takeDamage(amount, true);
