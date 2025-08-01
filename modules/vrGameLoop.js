@@ -7,6 +7,7 @@ import * as CoreManager from './CoreManager.js';
 import { AudioManager } from './audio.js';
 import { showUnlockNotification } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
+import { applyPlayerDamage, playerHasCore } from './helpers.js';
 
 function updatePhaseMomentum() {
     const rank = state.player.purchasedTalents.get('phase-momentum');
@@ -76,6 +77,28 @@ function handleBossDefeat() {
     }
 }
 
+function handlePlayerEnemyCollisions() {
+    const playerPos = state.player.position;
+    const playerRadius = state.player.r || 0.5;
+    const hasPhased = playerHasCore('quantum_shadow') &&
+        state.player.statusEffects.some(e => e.name === 'Phased');
+    const isImmune = state.player.statusEffects.some(e =>
+        e.name === 'Charging' || e.name === 'Warping') ||
+        state.effects.some(e => e.type === 'juggernaut_player_charge');
+
+    state.enemies.forEach(enemy => {
+        if (!enemy.alive || enemy.isFriendly) return;
+        if (!enemy.position) return;
+        const enemyRadius = enemy.r !== undefined ? enemy.r : 1;
+        const dist = enemy.position.distanceTo(playerPos);
+        if (dist < enemyRadius + playerRadius && !hasPhased && !isImmune) {
+            CoreManager.onCollision(enemy);
+            const baseDamage = enemy.boss ? (enemy.enraged ? 20 : 10) : 1;
+            applyPlayerDamage(baseDamage, enemy, gameHelpers);
+        }
+    });
+}
+
 export function vrGameLoop() {
     if (state.gameOver) return;
 
@@ -88,6 +111,7 @@ export function vrGameLoop() {
     updateEffects3d();
     updateProjectiles3d();
     updatePickups3d();
+    handlePlayerEnemyCollisions();
 
     if (state.bossActive) {
         handleBossDefeat();
