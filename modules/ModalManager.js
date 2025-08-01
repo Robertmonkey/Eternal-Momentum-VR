@@ -323,6 +323,7 @@ function createAscensionModal() {
         purchaseTalent(t.id);
         updateTextSprite(apDisplay, `AP: ${state.player.ascensionPoints}`);
         updateNode(t.id);
+        drawConnectors();
         showInfo(t);
       });
       const bgMesh = btn.children[0];
@@ -336,10 +337,46 @@ function createAscensionModal() {
       const y = (0.5 - t.position.y / 100) * height;
       btn.position.set(x, y, 0);
       grid.add(btn);
-      nodes[t.id] = { rank, talent: t };
+      nodes[t.id] = { rank, talent: t, button: btn };
     });
   });
   modal.add(grid);
+
+  const connectorGroup = new THREE.Group();
+  connectorGroup.name = 'connectors';
+  connectorGroup.position.z = 0.01;
+  modal.add(connectorGroup);
+
+  function drawConnectors() {
+    connectorGroup.clear();
+    Object.values(TALENT_GRID_CONFIG).forEach(constellation => {
+      const color = constellation.color || 0xffffff;
+      Object.keys(constellation).forEach(key => {
+        if (key === 'color') return;
+        const talent = constellation[key];
+        const node = nodes[talent.id];
+        if (!node) return;
+        talent.prerequisites.forEach(pr => {
+          const pre = nodes[pr];
+          if (!pre) return;
+          const prereqRank = state.player.purchasedTalents.get(pr) || 0;
+          const required = TALENT_GRID_CONFIG.core[pr]?.maxRanks ||
+            Object.values(TALENT_GRID_CONFIG).find(c => c[pr])?.[pr].maxRanks || 0;
+          const mat = new THREE.LineBasicMaterial({
+            color: prereqRank >= required ? color : 0x444444,
+            transparent: true,
+            opacity: 0.6
+          });
+          const geo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(pre.button.position.x, pre.button.position.y, 0),
+            new THREE.Vector3(node.button.position.x, node.button.position.y, 0)
+          ]);
+          const line = new THREE.Line(geo, mat);
+          connectorGroup.add(line);
+        });
+      });
+    });
+  }
 
   function updateNode(id) {
     const info = nodes[id];
@@ -349,14 +386,24 @@ function createAscensionModal() {
   }
 
   Object.keys(nodes).forEach(updateNode);
+  drawConnectors();
   if (nodes['core-nexus']) {
     showInfo(nodes['core-nexus'].talent);
   }
 
   const clearBtn = createButton('ERASE TIMELINE', () => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('eternalMomentumSave');
-    }
+    showConfirm(
+      '|| SEVER TIMELINE? ||',
+      'All Ascension progress and unlocked powers will be lost to the void. This action cannot be undone.',
+      () => {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem('eternalMomentumSave');
+          if (typeof window !== 'undefined' && window.location && window.location.reload) {
+            window.location.reload();
+          }
+        }
+      }
+    );
   });
   clearBtn.position.set(0, 0.05, 0.02);
   modal.add(clearBtn);
