@@ -7,6 +7,7 @@ import { showUnlockNotification, showBossBanner } from './UIManager.js';
 import { AudioManager } from './audio.js';
 import { initGameHelpers } from './gameHelpers.js';
 import { getScene } from './scene.js';
+import { uvToSpherePos } from './utils.js';
 
 // Import all your new 3D AI agent classes
 import { AethelUmbraAI } from './agents/AethelUmbraAI.js';
@@ -42,6 +43,8 @@ import { VampireAI } from './agents/VampireAI.js';
 import { BaseAgent } from './BaseAgent.js';
 
 const ARENA_RADIUS = 50;
+const CANVAS_W = 2048;
+const CANVAS_H = 1024;
 
 // Map boss IDs to their 3D AI classes
 const bossAIClassMap = {
@@ -190,7 +193,7 @@ export function spawnBossesForStage(stageNum) {
     }
 }
 
-export function spawnEnemy(isBoss = false, bossId = null) {
+export function spawnEnemy(isBoss = false, bossId = null, location = null) {
     const scene = getScene();
     if (!scene) {
         console.error("Scene not available for spawning enemy.");
@@ -271,7 +274,18 @@ export function spawnEnemy(isBoss = false, bossId = null) {
         return null;
     }
 
-    enemy.position.copy(getSafeSpawnLocation());
+    let spawnPos;
+    if (location instanceof THREE.Vector3) {
+        spawnPos = location.clone();
+    } else if (location && typeof location.x === 'number' && typeof location.y === 'number') {
+        const u = location.x / CANVAS_W;
+        const v = location.y / CANVAS_H;
+        spawnPos = uvToSpherePos(u, v, ARENA_RADIUS);
+    } else {
+        spawnPos = getSafeSpawnLocation();
+    }
+
+    enemy.position.copy(spawnPos);
     state.enemies.push(enemy);
     scene.add(enemy); // ** THE CRITICAL FIX: Add the enemy's 3D object to the scene **
     return enemy;
