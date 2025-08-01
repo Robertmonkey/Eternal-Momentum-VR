@@ -399,3 +399,7 @@ Next Steps: Continue refining remaining menus for parity.
 Summary: Centralized playerHasCore and getCanvasPos in new helpers.js, removed duplicates from gameLoop, powers and cores. Added helpers.test.mjs verifying functionality.
 Verification: npm test – all 66 suites pass.
 Next Steps: Continue FR-03 UI parity work.
+2025-10-14 – FR-16 – NavMesh improvements
+Summary: Optimised navmesh pathfinding with cache size limit and iteration guard. Added debugPath/clearDebug helpers and stress tests. README updated documenting navmesh usage.
+Verification: npm test – all 67 suites pass.
+Next Steps: Continue FR-03 UI parity work.

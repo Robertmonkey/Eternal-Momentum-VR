@@ -58,7 +58,9 @@ This document lays out the **step‑by‑step tasks** and architectural guidelin
 
 3. **Bosses and Enemies** – Each boss’s behaviour must match the functions defined in `modules/bosses.js` from the old game.  For every boss: **read the original `init`, `logic`, `onDamage` and `onDeath` functions**; identify spawn patterns, attack phases and special abilities; and recreate them in 3D using the Three.js scene graph.  For example, the **Splitter Sentinel** divides into fragments when damaged; in VR, instantiate multiple smaller enemy meshes that home toward the player.  The **Vampire Veil** summons blood pickups; in VR, spawn 3D blood orbs that float toward the player.  See **AGENTS.md** for the full list of bosses and tasks.
 
-4. **Meta‑Progression & Saving** – Use a single global `state` object (imported from `state.js`) to store all player data.  Provide functions `loadPlayerState()` and `savePlayerState()` to serialise/deserialise this object from localStorage.  Ensure the VR game reads from this state when initialising the player avatar, unlocked stages, acquired cores and purchased talents.
+4. **NavMesh & Pathfinding** – The `navmesh.js` module builds an icosahedron-based mesh and exposes `findPath()` for enemy navigation.  Paths are cached and can be visualised via `debugPath()` in development.  Rebuild the mesh whenever obstacles change and clear caches to avoid stale routes.
+
+5. **Meta‑Progression & Saving** – Use a single global `state` object (imported from `state.js`) to store all player data.  Provide functions `loadPlayerState()` and `savePlayerState()` to serialise/deserialise this object from localStorage.  Ensure the VR game reads from this state when initialising the player avatar, unlocked stages, acquired cores and purchased talents.
 
 ### Settings Panel
 

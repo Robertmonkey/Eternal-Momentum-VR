@@ -9,7 +9,9 @@ import { uvToSpherePos, spherePosToUv } from './utils.js';
 
 let nodes = [];
 let neighbors = [];
+let debugLines = [];
 let pathCache = new Map();
+const CACHE_LIMIT = 100;
 let lastObsHash = '';
 
 class MinHeap {
@@ -88,7 +90,7 @@ export function buildNavMesh(subdiv = 2, radius = 1){
     triIdx.push(...verts);
   }
 
-  const neigh = new Array(nodes.length).fill(0).map(()=>new Set());
+  const neigh = Array.from({length:nodes.length}, ()=>new Set());
   for(let i=0;i<triIdx.length;i+=3){
     const a=triIdx[i], b=triIdx[i+1], c=triIdx[i+2];
     neigh[a].add(b); neigh[a].add(c);
@@ -118,7 +120,7 @@ function obstaclesHash(){
   return state.pathObstacles.map(o=>`${o.u.toFixed(2)},${o.v.toFixed(2)},${o.radius}`).join('|');
 }
 
-export function findPath(startUv,endUv){
+export function findPath(startUv,endUv,{maxIterations=2000}={}){
   if(!nodes.length) buildNavMesh();
   const obsHash = obstaclesHash();
   if(obsHash !== lastObsHash){
@@ -129,6 +131,9 @@ export function findPath(startUv,endUv){
   const endPos   = uvToSpherePos(endUv.u,endUv.v,1);
   const start = closestNodeIdx(startPos);
   const goal  = closestNodeIdx(endPos);
+  if(start===goal){
+    return [startUv,endUv];
+  }
   const cacheKey = `${start}-${goal}-${obsHash}`;
   if(pathCache.has(cacheKey)) return pathCache.get(cacheKey);
   const came = new Map();
@@ -139,7 +144,9 @@ export function findPath(startUv,endUv){
   open.push(start);
   inOpen.add(start);
   const visited = new Set([start]);
-  while (open.size()) {
+  let iterations=0;
+  while (open.size() && iterations < maxIterations) {
+    iterations++;
     const cur = open.pop();
     inOpen.delete(cur);
     if(cur===goal) break;
@@ -167,5 +174,24 @@ export function findPath(startUv,endUv){
   path.reverse();
   const result = path.map(i=>spherePosToUv(nodes[i],1));
   pathCache.set(cacheKey, result);
+  if(pathCache.size > CACHE_LIMIT){
+    const firstKey = pathCache.keys().next().value;
+    pathCache.delete(firstKey);
+  }
   return result;
+}
+
+export function debugPath(path){
+  const points = path.map(p => uvToSpherePos(p.u,p.v,1));
+  const geom = new THREE.BufferGeometry().setFromPoints(points);
+  const mat = new THREE.LineBasicMaterial({ color: 0xff00ff });
+  const line = new THREE.Line(geom, mat);
+  debugLines.push(line);
+  return line;
+}
+
+export function clearDebug(){
+  debugLines.forEach(l => l.geometry.dispose());
+  debugLines.forEach(l => l.material.dispose());
+  debugLines.length = 0;
 }
