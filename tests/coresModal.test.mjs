@@ -1,5 +1,6 @@
 import assert from 'assert';
 import * as THREE from 'three';
+import fs from 'fs';
 
 // stub DOM
 global.window = {};
@@ -24,13 +25,18 @@ await initModals(camera);
 const cores = getModalObjects().find(m => m && m.name === 'cores');
 assert(cores, 'cores modal created');
 
-// list of core buttons is stored in child index 5
-const list = cores.children[5];
+// verify header and label text are correct in source
+const src = fs.readFileSync('./modules/ModalManager.js', 'utf8');
+assert(src.includes("ABERRATION CORE ATTUNEMENT"), 'heading text match');
+assert(src.includes("CURRENTLY ATTUNED"), 'label text match');
+
+// list of core buttons stored under coreList
+const list = cores.getObjectByName('coreList');
 const firstBtn = list.children[0];
 firstBtn.children[1].userData.onSelect();
 assert(state.player.equippedAberrationCore, 'core equipped');
 
-const unequip = cores.children.find(c => c.children && c.children[1]?.userData?.onSelect && c.children[1].userData.onSelect.toString().includes('null'));
+const unequip = cores.getObjectByName('unequipBtn');
 unequip.children[1].userData.onSelect();
 assert.strictEqual(state.player.equippedAberrationCore, null, 'core unequipped');
 
