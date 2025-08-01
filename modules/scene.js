@@ -1,125 +1,69 @@
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 
-let scene, camera, renderer, playerRig;
-let arena, platform;
-let controllers = [];
+let scene, camera, renderer, arena, grid, primaryController, secondaryController, playerRig;
 
-export function initScene(container = document.body) {
-  scene = new THREE.Scene();
+const ARENA_RADIUS = 50;
 
-  camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
+export function initScene() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
 
-  // Enable preserveDrawingBuffer so html2canvas can capture the WebGL canvas
-  // without throwing a warning.
-  renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    preserveDrawingBuffer: true
-  });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled = true;
-  renderer.xr.enabled = true;
-  container.appendChild(renderer.domElement);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
 
-  // Avoid noisy console logs in production builds
-  renderer.xr.addEventListener('sessionstart', () => {
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug('WebXR session started');
-    }
-    if (typeof window !== 'undefined' && window.startGame && !window.vrMainRunning) {
-      window.startGame(false);
-      if (window.showHomeMenu) window.showHomeMenu();
-    }
-  });
-  renderer.xr.addEventListener('sessionend', () => {
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug('WebXR session ended');
-    }
-    if (typeof window !== 'undefined') window.vrMainRunning = false;
-  });
+    const arenaGeometry = new THREE.SphereGeometry(ARENA_RADIUS, 64, 32);
+    const arenaMaterial = new THREE.MeshStandardMaterial({
+        color: 0x333333,
+        side: THREE.BackSide,
+        metalness: 0.1,
+        roughness: 0.8
+    });
+    arena = new THREE.Mesh(arenaGeometry, arenaMaterial);
+    arena.name = 'arena';
+    scene.add(arena);
 
-  playerRig = new THREE.Group();
-  playerRig.name = 'playerRig';
-  playerRig.add(camera);
-  scene.add(playerRig);
+    // FR-01: Correct lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(0, 10, 5);
+    scene.add(directionalLight);
 
-  controllers[0] = renderer.xr.getController(0);
-  controllers[1] = renderer.xr.getController(1);
-  playerRig.add(controllers[0]);
-  playerRig.add(controllers[1]);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
-  dir.position.set(3, 3, 2);
-  scene.add(dir);
-
-  // --- Environment Implementation (S02) ---
-  const arenaGeo = new THREE.SphereGeometry(500, 32, 32);
-  const arenaMat = new THREE.MeshStandardMaterial({
-    color: 0x1e1e2f,
-    side: THREE.BackSide
-  });
-  arena = new THREE.Mesh(arenaGeo, arenaMat);
-  arena.name = 'arena';
-  scene.add(arena);
-
-  // Replace the old opaque cylinder with a thin neon grid disc so the
-  // player can see through the platform and shoot underneath.
-  const platformGroup = new THREE.Group();
-  const ringGeo = new THREE.RingGeometry(9.5, 10, 64);
-  const ringMat = new THREE.MeshBasicMaterial({
-    color: 0x00ffff,
-    opacity: 0.4,
-    transparent: true,
-    side: THREE.DoubleSide,
-    depthWrite: false
-  });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
-  ring.rotation.x = -Math.PI / 2;
-  platformGroup.add(ring);
-
-  const gridHelper = new THREE.GridHelper(20, 20, 0x00ffff, 0x004444);
-  // The grid should lie flat on the XZ plane. Rotating it would place the
-  // disc vertically, which users reported seeing in the prototype.
-  gridHelper.rotation.x = 0;
-  gridHelper.material.transparent = true;
-  gridHelper.material.opacity = 0.25;
-  platformGroup.add(gridHelper);
-
-  platformGroup.name = 'platform';
-  platformGroup.position.set(0, 0, 0);
-  platform = platformGroup;
-  scene.add(platformGroup);
-
-  window.addEventListener('resize', onWindowResize);
-
-  return { scene, camera, renderer, playerRig, arena, platform };
+    // FR-01: Correct floor grid
+    const gridGeometry = new THREE.RingGeometry(ARENA_RADIUS * 0.15, ARENA_RADIUS * 0.2, 64);
+    const gridMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.4
+    });
+    grid = new THREE.Mesh(gridGeometry, gridMaterial);
+    grid.name = 'floorGrid';
+    grid.rotation.x = -Math.PI / 2; // **FIX**: Makes the grid horizontal
+    grid.position.y = 0; // At player's feet
+    scene.add(grid);
+    
+    // Player Rig to hold camera and controllers
+    playerRig = new THREE.Group();
+    playerRig.position.set(0, 1.6, 0); // Player height
+    playerRig.add(camera);
+    scene.add(playerRig);
+    
+    primaryController = renderer.xr.getController(0);
+    secondaryController = renderer.xr.getController(1);
+    playerRig.add(primaryController);
+    playerRig.add(secondaryController);
 }
 
-function onWindowResize() {
-  if (!camera || !renderer) return;
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-export function getScene() { return scene; }
-export function getCamera() { return camera; }
-export function getRenderer() { return renderer; }
-export function getPlayerRig() { return playerRig; }
-export function getControllers() { return controllers; }
-export function getArena() { return arena; }
-export function getPlatform() { return platform; }
-export function getPrimaryController() {
-  return state.settings.handedness === 'left' ? controllers[1] : controllers[0];
-}
-export function getSecondaryController() {
-  return state.settings.handedness === 'left' ? controllers[0] : controllers[1];
-}
+// Getters for other modules
+export const getScene = () => scene;
+export const getCamera = () => camera;
+export const getRenderer = () => renderer;
+export const getArena = () => arena;
+export const getGrid = () => grid;
+export const getPrimaryController = () => state.settings.handedness === 'right' ? primaryController : secondaryController;
+export const getSecondaryController = () => state.settings.handedness === 'right' ? secondaryController : primaryController;
