@@ -64,7 +64,8 @@ export function updatePickups3d(radius = ARENA_RADIUS){
         }
         data.group.position.copy(p.position);
         data.group.rotation.y += 0.03;
-        data.sprite.lookAt(getCamera().position);
+        const cam = getCamera();
+        if (cam) data.sprite.lookAt(cam.position);
         if(dist < state.player.r + p.r){
             gameHelpers.play('pickupSound');
             if(p.type === 'rune_of_fate'){

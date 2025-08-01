@@ -429,3 +429,6 @@ Verification: npm test failed to run because package.json is missing.
 2025-10-19 – Bug Fix – Stage select resetGame
 Summary: Pass bossData when resetting game from stage select to avoid missing core states.
 Verification: npm test failed due to missing package.json.
+2025-10-20 – Bug Fix – Restore missing global flags
+Summary: Reintroduced several global state flags (stacked, arenaMode, gravityActive, gravityEnd, customOrreryBosses) lost during the VR refactor. Updated resetGame to reset these fields. Fixed projectile property defaults, safeguarded pickup lookAt, and documented in this log.
+Verification: Manual code review; npm test unavailable due to missing package.json.
