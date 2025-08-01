@@ -273,6 +273,7 @@ const createModalFunctions = {
     "lore": createLoreModal,
     "bossInfo": createBossInfoModal,
     "orrery": createOrreryModal,
+    "gameOver": createGameOverModal,
 };
 
 export function initModals() {
@@ -486,6 +487,32 @@ function createBossInfoModal() {
     modal.add(closeBtn);
     modal.userData.contentSprite = content;
     modal.userData.titleSprite = modal.children.find(c => c.userData.isTitle);
+    return modal;
+}
+
+function createGameOverModal() {
+    const modal = createModalContainer(1.2, 1.0, 'TIMELINE COLLAPSED');
+    modal.name = 'modal_gameOver';
+
+    const restartBtn = createButton('Restart Stage', () => {
+        resetGame(bossData);
+        hideModal();
+    }, 0.8, 0.1, 0x00ffff);
+    restartBtn.position.set(0, 0.2, 0.01);
+    modal.add(restartBtn);
+
+    const ascBtn = createButton('Ascension Conduit', () => { hideModal(); showModal('ascension'); }, 0.8, 0.1, 0xff8800);
+    ascBtn.position.set(0, 0.05, 0.01);
+    modal.add(ascBtn);
+
+    const coreBtn = createButton('Aberration Cores', () => { hideModal(); showModal('cores'); }, 0.8, 0.1, 0x00ff00);
+    coreBtn.position.set(0, -0.1, 0.01);
+    modal.add(coreBtn);
+
+    const stageBtn = createButton('Stage Select', () => { hideModal(); showModal('levelSelect'); }, 0.8, 0.1, 0x9b59b6);
+    stageBtn.position.set(0, -0.25, 0.01);
+    modal.add(stageBtn);
+
     return modal;
 }
 
