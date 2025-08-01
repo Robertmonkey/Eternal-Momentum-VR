@@ -1,62 +1,65 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { moveTowards } from '../movement3d.js';
-
-// PuppeteerAI - Implements boss B12: The Puppeteer
-// Converts distant enemies into puppets over time.
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class PuppeteerAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.3 * radius, 12, 12);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xa29bfe });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 320, model: mesh });
-    this.radius = radius;
-    this.timer = 0;
-    this.moveTarget = this.randomPos();
+  constructor() {
+    const geometry = new THREE.SphereGeometry(0.7, 12, 12);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xa29bfe,
+        emissive: 0xa29bfe,
+        emissiveIntensity: 0.6
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
+    
+    const bossData = { id: "puppeteer", name: "The Puppeteer", maxHP: 320 };
+    Object.assign(this, bossData);
+
+    this.lastConvertTime = 0;
   }
 
-  randomPos() {
-    const t = Math.random() * 2 * Math.PI;
-    const p = Math.random() * Math.PI;
-    return new THREE.Vector3(
-      Math.sin(p) * Math.cos(t) * this.radius,
-      Math.cos(p) * this.radius,
-      Math.sin(p) * Math.sin(t) * this.radius
-    );
-  }
-
-  update(delta, enemies = [], gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
-    this.timer += delta;
-    moveTowards(this.position, this.moveTarget, 0.4, this.radius);
-    if (this.position.distanceTo(this.moveTarget) < 0.05 * this.radius) {
-      this.moveTarget = this.randomPos();
-    }
-    if (this.timer >= 4) {
-      this.timer = 0;
-      let farthest = null;
+    const now = Date.now();
+
+    if (now - this.lastConvertTime > 4000) {
+      this.lastConvertTime = now;
+      let farthestEnemy = null;
       let maxDist = 0;
-      enemies.forEach(e => {
-        if (!e.boss && !e.isPuppet) {
-          const d = this.position.distanceTo(e.position);
-          if (d > maxDist) { maxDist = d; farthest = e; }
+
+      state.enemies.forEach(e => {
+        if (!e.boss && !e.isFriendly) {
+          const dist = this.position.distanceTo(e.position);
+          if (dist > maxDist) {
+            maxDist = dist;
+            farthestEnemy = e;
+          }
         }
       });
-      if (farthest) {
-        farthest.isPuppet = true;
-        farthest.customColor = '#a29bfe';
-        if (farthest.scale) farthest.scale.multiplyScalar(1.5);
-        if (typeof farthest.health === 'number') {
-          farthest.health = 104;
-          farthest.maxHealth = 104;
+
+      if (farthestEnemy) {
+        gameHelpers.play('puppeteerConvert');
+        farthestEnemy.isFriendly = true;
+        
+        // Enhance the puppet
+        if (farthestEnemy.model) {
+            farthestEnemy.model.material.color.set(0xa29bfe);
+            farthestEnemy.model.material.emissive.set(0xa29bfe);
         }
-        if (farthest.velocity) farthest.velocity.multiplyScalar(2);
-        gameHelpers?.play?.('puppeteerConvert');
-        if (gameHelpers?.spawnLightning) {
-          gameHelpers.spawnLightning(this.position.clone(), farthest.position.clone(), '#a29bfe');
-        }
+        farthestEnemy.r *= 1.5;
+        farthestEnemy.health = 100;
+        farthestEnemy.maxHP = 100;
       }
     }
+  }
+
+  die() {
+      // On death, all puppets are destroyed
+      state.enemies.forEach(e => {
+          if (e.isFriendly) e.hp = 0;
+      });
+      gameHelpers.play('magicDispelSound');
+      super.die();
   }
 }
