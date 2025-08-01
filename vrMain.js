@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import { VRButton } from './vendor/addons/webxr/VRButton.js';
 import { initScene, getScene, getRenderer, getCamera } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
 import { initUI, updateHud, showHud } from './modules/UIManager.js';
@@ -6,13 +7,13 @@ import { initModals } from './modules/ModalManager.js';
 import { vrGameLoop } from './modules/vrGameLoop.js';
 import { Telemetry } from './modules/telemetry.js';
 import { state, resetGame } from './modules/state.js';
-import { applyAllTalentEffects } from './modules/ascension.js'; // Corrected import
+import { applyAllTalentEffects } from './modules/ascension.js';
 import { AudioManager } from './modules/audio.js';
+import { bossData } from './modules/bosses.js'; // Import bossData here
 
 let renderer;
 
 function render(timestamp, frame) {
-    // The render loop only runs when a VR session is active.
     if (!renderer.xr.isPresenting) return;
 
     Telemetry.recordFrame();
@@ -27,52 +28,36 @@ function render(timestamp, frame) {
 }
 
 export async function launchVR(initialStage = 1) {
-    // 1. Initialize all 3D/VR components
     initScene();
     renderer = getRenderer();
     document.getElementById('vrContainer').appendChild(renderer.domElement);
     renderer.xr.enabled = true;
-    
-    // We must set up the audio manager here to get the listener for the session
-    AudioManager.setup(getCamera());
 
-    // 2. Initialize game systems
     await initPlayerController();
     initUI();
     initModals();
+    AudioManager.setup(getCamera());
     
-    // 3. Set up game state for the run
-    resetGame();
+    // Pass bossData to resetGame to prevent the crash
+    resetGame(bossData);
     state.currentStage = initialStage;
     state.isPaused = false;
 
-    // 4. Create a VR button and programmatically click it to start the session
-    const vrButton = document.createElement('button');
-    vrButton.style.display = 'none'; // Keep it hidden
-    document.body.appendChild(vrButton);
+    // Use the official VRButton logic to handle the session request
+    const button = VRButton.createButton(renderer);
 
-    vrButton.onclick = async () => {
-        try {
-            const session = await navigator.xr.requestSession('immersive-vr', {
-                optionalFeatures: ['local-floor', 'bounded-floor']
-            });
-            renderer.xr.setSession(session);
-            
-            // This is the crucial part: setAnimationLoop is called *after* the session is successfully set.
-            renderer.setAnimationLoop(render);
-            showHud();
-
-            session.addEventListener('end', () => {
-                window.location.reload();
-            });
-
-        } catch (e) {
-            console.error("Failed to start VR session:", e);
-            alert("Could not start VR. Please ensure your headset is ready and try again.");
-            homeScreen.style.display = 'flex';
-        }
-    };
+    // Hide the button and programmatically click it to start the session
+    button.style.display = 'none';
+    document.body.appendChild(button);
     
-    // Trigger the session request
-    vrButton.click();
+    renderer.xr.addEventListener('sessionstart', () => {
+        showHud();
+        renderer.setAnimationLoop(render);
+    });
+
+    renderer.xr.addEventListener('sessionend', () => {
+        window.location.reload();
+    });
+
+    button.click();
 }
