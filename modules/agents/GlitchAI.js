@@ -1,54 +1,48 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { moveTowards } from '../movement3d.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// GlitchAI - Implements boss B13: The Glitch
-// Frequently teleports leaving behind zones that invert controls.
+const ARENA_RADIUS = 50;
 
 export class GlitchAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.OctahedronGeometry(0.3 * radius, 0);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xfd79a8 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 336, model: mesh });
-    this.radius = radius;
-    this.timer = 0;
-    this.moveTarget = this.randomPos();
-    this.lastTeleport = Date.now();
+  constructor() {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    // Use a wireframe material to give it a digital/glitchy look
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xfd79a8,
+        emissive: 0xfd79a8,
+        wireframe: true
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
+
+    const bossData = { id: "glitch", name: "The Glitch", maxHP: 336 };
+    Object.assign(this, bossData);
+    
+    this.lastTeleportTime = 0;
   }
 
-  randomPos() {
-    const t = Math.random() * 2 * Math.PI;
-    const p = Math.random() * Math.PI;
-    return new THREE.Vector3(
-      Math.sin(p) * Math.cos(t) * this.radius,
-      Math.cos(p) * this.radius,
-      Math.sin(p) * Math.sin(t) * this.radius
-    );
-  }
-
-  update(delta, gameHelpers, playerState) {
+  update(delta) {
     if (!this.alive) return;
-    this.timer += delta;
-    moveTowards(this.position, this.moveTarget, 0.6, this.radius);
-    if (this.position.distanceTo(this.moveTarget) < 0.05 * this.radius) {
-      this.moveTarget = this.randomPos();
-    }
-    if (this.timer >= 3) {
-      this.timer = 0;
-      this.lastTeleport = Date.now();
-      gameHelpers?.play?.('glitchSound');
-      gameHelpers?.addGlitchZone?.(this.position.clone());
-      if (playerState) {
-        playerState.controlsInverted = true;
-        setTimeout(() => { playerState.controlsInverted = false; }, 3000);
-      }
-      this.position.copy(this.randomPos());
-    }
-  }
+    const now = Date.now();
 
-  die(gameHelpers, playerState) {
-    if (playerState) playerState.controlsInverted = false;
-    super.die(gameHelpers);
+    if (now - this.lastTeleportTime > 3000) {
+      this.lastTeleportTime = now;
+      gameHelpers.play('glitchSound');
+
+      const oldPosition = this.position.clone();
+      
+      // Teleport to new random position
+      const newPosition = new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS);
+      this.position.copy(newPosition);
+      
+      // Leave a glitch zone behind
+      state.effects.push({
+        type: 'glitch_zone',
+        position: oldPosition,
+        radius: 6, // World units
+        endTime: now + 5000,
+      });
+    }
   }
 }
