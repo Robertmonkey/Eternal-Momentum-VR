@@ -22,6 +22,17 @@ await initModals(camera);
 const levelSelect = getModalObjects().find(m => m && m.name === 'levelSelect');
 assert(levelSelect, 'levelSelect modal created');
 
+const scrollBar = levelSelect.getObjectByName('scrollBar');
+assert(scrollBar, 'scroll bar created');
+const up = scrollBar.getObjectByName('scrollUp');
+const down = scrollBar.getObjectByName('scrollDown');
+const list = levelSelect.getObjectByName('stageList');
+const initialY = list.position.y;
+down.children[1].userData.onSelect();
+assert(list.position.y < initialY, 'list scrolled down');
+up.children[1].userData.onSelect();
+assert.strictEqual(list.position.y, initialY, 'list scrolled back up');
+
 const stageRow = levelSelect.getObjectByName('stage1');
 assert(stageRow, 'stage row exists');
 // button structure: [border, bg, label]. onSelect is attached to the bg mesh

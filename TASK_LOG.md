@@ -391,3 +391,7 @@ Next Steps: Continue auditing menu layouts for parity with the 2D game.
 Summary: Updated ModalManager so modalGroup attaches to the scene instead of the camera. When a modal is shown the group positions itself at the player’s current location and orientation then stays fixed in the arena. Added null checks in updateStatusEffectsUI for test safety and documented world-space panels in README.
 Verification: npm test – all 65 suites pass.
 Next Steps: Continue verifying long menu text fits with scroll bars.
+2025-10-12 – FR-03 – Stage select scroll bar
+Summary: Added addScrollBar helper and integrated it into createStageSelectModal with up/down buttons and draggable thumb. Updated stageSelectModal test for new scroll controls.
+Verification: npm test – all suites pass.
+Next Steps: Continue refining remaining menus for parity.
