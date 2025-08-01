@@ -1,117 +1,74 @@
-import { start as startVR, stop as stopVR, isRunning as vrIsRunning } from './vrMain.js';
-import * as THREE from './vendor/three.module.js';
-import { getRenderer } from './modules/scene.js';
-import { showHud } from './modules/UIManager.js';
+import { start as startVR } from './vrMain.js';
+import { AssetManager } from './modules/AssetManager.js';
 
 const loadingEl = document.getElementById('loadingScreen');
-const homeEl = document.getElementById('homeScreen');
-const startBtn = document.getElementById('startVrBtn');
-const continueBtn = document.getElementById('continueVrBtn');
-const eraseBtn = document.getElementById('eraseVrBtn');
+const fillEl = document.getElementById('loadingProgressFill');
+const statusEl = document.getElementById('loadingStatusText');
 
-const assetsToLoad = ['assets/bg.png'];
+// A manifest of essential assets to load before the game starts.
+// You should add all critical audio files here to avoid in-game loading hitches.
+const ASSET_MANIFEST = [
+    // Textures
+    'assets/bg.png',
+    'assets/cursors/crosshair.cur',
+    // Audio
+    'assets/bgMusic_01.mp3',
+    'assets/bossSpawnSound.mp3',
+    'assets/hitSound.mp3',
+    'assets/pickupSound.mp3',
+    'assets/uiClickSound.mp3',
+    'assets/uiHoverSound.mp3',
+    'assets/shieldBreak.mp3',
+    'assets/shockwaveSound.mp3',
+    'assets/talentPurchase.mp3',
+    'assets/talentError.mp3',
+];
 
-function preloadAssets() {
-  const fill = document.getElementById('loadingProgressFill');
-  const status = document.getElementById('loadingStatusText');
-  return new Promise(resolve => {
-    const manager = new THREE.LoadingManager();
-    manager.onProgress = (_url, loaded, total) => {
-      const pct = Math.round((loaded / total) * 100);
-      if (fill) fill.style.width = pct + '%';
-      if (status) status.textContent = `Loading ${pct}%`;
+async function preloadAssets() {
+    const assetManager = new AssetManager();
+    const totalAssets = ASSET_MANIFEST.length;
+    let loadedCount = 0;
+
+    const updateProgress = (url) => {
+        loadedCount++;
+        const progress = Math.round((loadedCount / totalAssets) * 100);
+        if (fillEl) fillEl.style.width = `${progress}%`;
+        if (statusEl) statusEl.textContent = `Loading... (${progress}%)`;
     };
-    manager.onLoad = () => {
-      if (status) status.textContent = 'Loading Complete';
-      resolve();
-    };
-    const texLoader = new THREE.TextureLoader(manager);
-    assetsToLoad.forEach(src => {
-      if (src.endsWith('.mp3')) {
-        const audio = new Audio();
-        audio.src = src;
-        audio.addEventListener('canplaythrough', () => manager.itemEnd(src), { once: true });
-        manager.itemStart(src);
-      } else {
-        texLoader.load(src, () => {});
-      }
+
+    const loadPromises = ASSET_MANIFEST.map(url => {
+        let promise;
+        if (/\.(mp3|wav|ogg)$/.test(url)) {
+            promise = assetManager.loadAudio(url);
+        } else {
+            promise = assetManager.loadTexture(url);
+        }
+        return promise.then(() => updateProgress(url));
     });
-});
+
+    await Promise.all(loadPromises);
+
+    if (statusEl) statusEl.textContent = 'Momentum Stabilized!';
 }
 
-export { preloadAssets, showHome, startGame };
-
-function showLoading() {
-  if (loadingEl) loadingEl.style.display = 'flex';
-  if (homeEl) homeEl.style.display = 'none';
-}
-
-function showHome() {
-  if (loadingEl) loadingEl.style.display = 'none';
-  if (homeEl) {
-    homeEl.style.display = 'flex';
-    requestAnimationFrame(() => homeEl.classList.add('visible'));
-  }
-  stopVR();
-  if (typeof window !== 'undefined' && window.showHomeMenu) {
-    window.showHomeMenu();
-  }
-  const saveExists = !!localStorage.getItem('eternalMomentumSave');
-  if (continueBtn) continueBtn.style.display = saveExists ? 'block' : 'none';
-  if (eraseBtn) eraseBtn.style.display = saveExists ? 'block' : 'none';
-  if (startBtn) startBtn.style.display = saveExists ? 'none' : 'block';
-}
-
-if (typeof window !== 'undefined') {
-  window.showHome = showHome;
-  window.startGame = startGame;
-}
-
-async function startGame(resetSave = false) {
-  if (resetSave) localStorage.removeItem('eternalMomentumSave');
-  if (homeEl) {
-    homeEl.classList.remove('visible');
-    homeEl.addEventListener('transitionend', () => {
-      homeEl.style.display = 'none';
-    }, { once: true });
-  }
-  const saved = localStorage.getItem('eternalMomentumSave');
-  let stage = 1;
-  if (saved) {
+async function main() {
     try {
-      const data = JSON.parse(saved);
-      if (typeof data.highestStageBeaten === 'number' && data.highestStageBeaten > 0) {
-        stage = data.highestStageBeaten + 1;
-      }
-    } catch(e) {}
-  }
-  await startVR(stage);
-  showHud();
+        await preloadAssets();
+        
+        // Fade out the loading screen
+        if (loadingEl) loadingEl.style.opacity = '0';
+        
+        // Start VR after the fade-out
+        setTimeout(() => {
+            if (loadingEl) loadingEl.style.display = 'none';
+            // This will start the VR session and show the in-VR home menu.
+            startVR(); 
+        }, 500);
 
-  if (navigator.xr && navigator.xr.isSessionSupported) {
-    try {
-      const supported = await navigator.xr.isSessionSupported('immersive-vr');
-      if (!supported) {
-        console.warn('WebXR immersive-vr session not supported');
-        return;
-      }
-      const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
-      const session = await navigator.xr.requestSession('immersive-vr', sessionInit);
-      getRenderer().xr.setSession(session);
-    } catch (err) {
-      console.warn('Unable to start WebXR session', err);
+    } catch (error) {
+        console.error("Fatal error during initialization:", error);
+        if (statusEl) statusEl.textContent = "Error: Could not load critical assets.";
     }
-  }
 }
 
-window.addEventListener('load', async () => {
-  showLoading();
-  await preloadAssets();
-  showHome();
-  startBtn?.addEventListener('click', () => startGame(true));
-  continueBtn?.addEventListener('click', () => startGame(false));
-  eraseBtn?.addEventListener('click', () => {
-    localStorage.removeItem('eternalMomentumSave');
-    window.location.reload();
-  });
-});
+window.addEventListener('load', main);
