@@ -338,7 +338,7 @@ function createHomeModal() {
   modal.add(continueBtn);
   // Show a confirmation dialog when severing the timeline, matching the original game's verbiage.
   const eraseBtn = createButton('SEVER TIMELINE', () => {
-    showConfirm('|| SEVER TIMELINE? ||', 'Erasing the timeline will purge all progress and powers. This cannot be undone.', () => {
+    showConfirm('|| SEVER TIMELINE? ||', 'This timeline will be erased. All progress and unlocks will be lost to the void. This action cannot be undone.', () => {
       if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('eternalMomentumSave');
         if (typeof window !== 'undefined' && window.location) window.location.reload();
@@ -431,9 +431,13 @@ function createAscensionModal() {
   const header = createTextSprite('ASCENSION CONDUIT', 64, FONT_COLOR);
   header.position.set(0, 0.55, 0.01);
   modal.add(header);
-  const apDisplay = createTextSprite(`AP: ${state.player.ascensionPoints}`, 32, FONT_COLOR);
-  apDisplay.position.set(0, 0.35, 0.01);
-  modal.add(apDisplay);
+  const apLabel = createTextSprite('ASCENSION POINTS', 32, FONT_COLOR);
+  apLabel.position.set(0, 0.38, 0.01);
+  modal.add(apLabel);
+  const apValue = createTextSprite(`${state.player.ascensionPoints}`, 32, FONT_COLOR);
+  apValue.name = 'apValue';
+  apValue.position.set(0, 0.28, 0.01);
+  modal.add(apValue);
   const grid = new THREE.Group();
   grid.position.set(0, 0.1, 0.02);
   const nodes = {};
@@ -463,7 +467,7 @@ function createAscensionModal() {
       const t = constellation[key];
       const btn = createButton(t.icon, () => {
         purchaseTalent(t.id);
-        updateTextSprite(apDisplay, `AP: ${state.player.ascensionPoints}`, FONT_COLOR);
+        updateTextSprite(apValue, `${state.player.ascensionPoints}`, FONT_COLOR);
         updateNode(t.id);
         drawConnectors();
         showInfo(t);

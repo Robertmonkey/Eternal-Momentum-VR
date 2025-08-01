@@ -413,3 +413,8 @@ Next Steps: Continue FR-03 by auditing remaining menu layouts for accuracy.
 Summary: Updated createCoresModal to display heading 'ABERRATION CORE ATTUNEMENT' and label 'CURRENTLY ATTUNED'. Added attunedName sprite and named buttons for tests. Revised coresModal.test to check wording and use object names.
 Verification: Ran `npm test`; all 67 suites pass.
 Next Steps: Continue reviewing other menus for exact wording matches.
+
+2025-10-17 – FR-03 – Ascension points label parity
+Summary: Replaced AP display in createAscensionModal with separate 'ASCENSION POINTS' label and value sprite. Updated purchase handler to refresh the value. Home menu erase timeline confirm text now matches the original game's wording.
+Verification: `npm test` – all 67 suites pass.
+Next Steps: Audit remaining modals for any lingering wording differences.
