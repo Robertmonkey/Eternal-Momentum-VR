@@ -1,27 +1,25 @@
 import { launchVR } from './vrMain.js';
 import { AssetManager } from './modules/AssetManager.js';
-import { state, loadPlayerState, savePlayerState } from './modules/state.js';
-import { applyAllTalentEffects } from './modules/ascension.js';
-import { AudioManager } from './modules/audio.js';
+import { state, loadPlayerState, applyAllTalentEffects } from './modules/state.js';
+import { AudioManager } from './modules/audio.js'; // We need this to unlock audio
 
+// DOM Elements
 const loadingEl = document.getElementById('loadingScreen');
 const fillEl = document.getElementById('loadingProgressFill');
 const statusEl = document.getElementById('loadingStatusText');
 const homeScreen = document.getElementById('homeScreen');
 
+// A full asset manifest. This time it's safe to load everything.
 const ASSET_MANIFEST = [
-    // Add ALL your assets here, including audio.
-    // Textures
     'assets/bg.png', 'assets/cursors/crosshair.cur', 'assets/load.png',
-    // Audio
+    'assets/home.mp4', // Required for home screen background
     'assets/bgMusic_01.mp3', 'assets/bossSpawnSound.mp3', 'assets/hitSound.mp3',
     'assets/pickupSound.mp3', 'assets/uiClickSound.mp3', 'assets/uiHoverSound.mp3',
     'assets/shieldBreak.mp3', 'assets/shockwaveSound.mp3', 'assets/talentPurchase.mp3',
-    'assets/talentError.mp3', 'assets/bossDefeatSound.mp3', 'assets/systemErrorSound.mp3', 'assets/finalBossPhaseSound.mp3'
+    'assets/talentError.mp3', 'assets/bossDefeatSound.mp3', 'assets/systemErrorSound.mp3'
 ];
 
 async function preloadAssets() {
-    // This function will now only be called after a user click.
     const assetManager = new AssetManager();
     const totalAssets = ASSET_MANIFEST.length;
     let loadedCount = 0;
@@ -33,6 +31,7 @@ async function preloadAssets() {
         if (statusEl) statusEl.textContent = `Loading... (${progress}%)`;
     };
 
+    // We can load everything now because the audio context will be unlocked later on click.
     const loadPromises = ASSET_MANIFEST.map(url => {
         let promise;
         if (/\.(mp3|wav|ogg)$/.test(url)) {
@@ -45,7 +44,9 @@ async function preloadAssets() {
             updateProgress(url);
         });
     });
+
     await Promise.all(loadPromises);
+    if (statusEl) statusEl.textContent = 'Momentum Stabilized!';
 }
 
 function setupHomeScreen() {
@@ -58,17 +59,13 @@ function setupHomeScreen() {
     if (hasSaveData) {
         continueGameBtn.style.display = 'block';
         eraseGameBtn.style.display = 'block';
-        newGameBtn.style.display = 'none';
     } else {
-        continueGameBtn.style.display = 'none';
-        eraseGameBtn.style.display = 'none';
         newGameBtn.style.display = 'block';
     }
 
     const startVRSequence = (stage) => {
-        AudioManager.unlockAudio(); // Unlock audio context on click
+        AudioManager.unlockAudio(); // Unlock audio now that the user has clicked!
         homeScreen.style.display = 'none';
-        loadingEl.style.display = 'none';
         launchVR(stage);
     };
 
@@ -78,7 +75,7 @@ function setupHomeScreen() {
         startVRSequence(startStage);
     });
     eraseGameBtn.addEventListener('click', () => {
-        if (confirm("This timeline will be erased. All progress will be lost. This action cannot be undone.")) {
+        if (confirm("This timeline will be erased. All progress will be lost.")) {
             localStorage.removeItem('eternalMomentumSave');
             window.location.reload();
         }
@@ -86,27 +83,23 @@ function setupHomeScreen() {
 }
 
 async function main() {
-    // Show the initial loading screen and prompt
-    if (statusEl) statusEl.textContent = 'Click to Load Experience';
-    if (fillEl) fillEl.parentElement.style.display = 'none';
-
-    loadingEl.addEventListener('click', async () => {
-        if (statusEl) statusEl.textContent = 'Loading Assets...';
-        if (fillEl) fillEl.parentElement.style.display = 'block';
-        
+    try {
         await preloadAssets();
         
         loadPlayerState();
         applyAllTalentEffects();
         setupHomeScreen();
 
-        loadingEl.style.opacity = '0';
+        if (loadingEl) loadingEl.style.opacity = '0';
         setTimeout(() => {
-            loadingEl.style.display = 'none';
-            homeScreen.style.display = 'flex';
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (homeScreen) homeScreen.style.display = 'flex';
         }, 500);
 
-    }, { once: true });
+    } catch (error) {
+        console.error("Fatal error during initialization:", error);
+        if (statusEl) statusEl.textContent = "Error: Could not load critical assets.";
+    }
 }
 
 window.addEventListener('load', main);
