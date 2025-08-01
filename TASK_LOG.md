@@ -443,3 +443,6 @@ Verification: `node scripts/checkAssetUsage.js` (with ignore list) reports all r
 2025-10-22 – FR-05 – Basilisk synergy restoration
 Summary: Restored Cryo‑Shatter and Glacial Propagation mechanics. `BaseAgent.takeDamage` now boosts damage by 20% while petrified. Added shockwave and optional freeze burst when frozen enemies die.
 Verification: Manual code review; npm test unavailable due to missing package.json.
+2025-10-23 – UI Update – Modal style improvements
+Summary: Added multiline text support and updated modal button colors to match the original game. Updated Stage Select info icons.
+Verification: node scripts/checkAssetUsage.js

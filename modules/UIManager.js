@@ -38,45 +38,55 @@ export function holoMaterial(color = 0x1e1e2f, opacity = 0.85) {
   });
 }
 
-export function createTextSprite(text, size = 32, color = '#eaf2ff') {
+export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'center') {
+    const lines = String(text).split('\n');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const fontStack = "'Segoe UI','Roboto',sans-serif";
     ctx.font = `${size}px ${fontStack}`;
     const padding = size * 0.2;
-    const width = Math.ceil(ctx.measureText(text).width) + padding;
-    canvas.width = width;
-    canvas.height = size * 1.2;
+    const width = Math.ceil(Math.max(...lines.map(l => ctx.measureText(l).width))) + padding;
+    canvas.width = Math.max(1, width);
+    canvas.height = size * 1.2 * lines.length;
     ctx.font = `${size}px ${fontStack}`;
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    ctx.textAlign = align;
+    const x = align === 'left' ? 0 : align === 'right' ? canvas.width : canvas.width / 2;
+    lines.forEach((line, i) => {
+        ctx.fillText(line, x, (i + 0.5) * size * 1.2);
+    });
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
     const sprite = new THREE.Sprite(material);
     const scale = 0.001;
     sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
-    sprite.userData = { text, canvas, ctx, font: `${size}px ${fontStack}` }; // Cache the text
+    sprite.userData = { text, canvas, ctx, font: `${size}px ${fontStack}`, color, size, align };
     return sprite;
 }
 
 export function updateTextSprite(sprite, newText) {
     if (!sprite || !sprite.userData || sprite.userData.text === newText) return; // Don't update if text is the same
-    
+
     sprite.userData.text = newText;
-    const { ctx, canvas, font } = sprite.userData;
+    const { ctx, canvas, font, color, size, align } = sprite.userData;
     if (!ctx || !canvas) return;
     ctx.font = font;
-    const padding = parseInt(font, 10) * 0.2;
-    canvas.width = Math.max(1, Math.ceil(ctx.measureText(newText).width) + padding);
+    const lines = String(newText).split('\n');
+    const padding = size * 0.2;
+    const width = Math.ceil(Math.max(...lines.map(l => ctx.measureText(l).width))) + padding;
+    canvas.width = Math.max(1, width);
+    canvas.height = size * 1.2 * lines.length;
     ctx.font = font;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = sprite.material.color.getStyle();
+    ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-    ctx.fillText(newText, canvas.width / 2, canvas.height / 2);
+    ctx.textAlign = align;
+    const x = align === 'left' ? 0 : align === 'right' ? canvas.width : canvas.width / 2;
+    lines.forEach((line, i) => {
+        ctx.fillText(line, x, (i + 0.5) * size * 1.2);
+    });
     sprite.material.map.needsUpdate = true;
     const scale = 0.001;
     sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
