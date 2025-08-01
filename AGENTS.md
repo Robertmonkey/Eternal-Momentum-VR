@@ -1,86 +1,62 @@
-# AGENTS.md – Structured Development Task Directive
+# Developer Guide & Architectural Overview
 
-**Document Version:** 1.0  **Status:** Open
+**Document Version:** 2.0 | **Status:** Live
 
-This document is a living task plan for the Eternal Momentum VR project.  It replaces the previous ad‑hoc task list with a structured, sequential workflow designed for OpenAI Codex.  Each task is written to provide **complete context**, explicit **implementation steps**, and **acceptance criteria**.  After finishing a task, you **must** update `TASK_LOG.md` with a summary of what was done, any deviations from the plan and the next step you intend to tackle.  This creates an audit trail for future agents.
+This document describes the architecture of the Eternal Momentum VR project and establishes best practices for future development. The initial refactoring of the game into a stable, 3D VR application is complete. This guide ensures that all future work maintains the project's structure and quality.
 
-## How to Use This Document
+## Core Architectural Principles
 
-1. **Read the Original Code** – For each mechanic or boss, open the corresponding file under `Eternal‑Momentum‑OLD GAME/` (e.g. `modules/bosses.js`, `modules/powers.js`).  Understand the behaviour completely before writing any VR code.  When in doubt, run the original game.
-2. **Follow the Steps** – Each task below contains a *Problem Description*, a series of *Implementation Steps* and an *Acceptance Criteria*.  Execute the steps in order.  If you encounter a blocker, record it in `TASK_LOG.md` and seek clarification.
-3. **Self‑Verification** – After implementing, run the unit tests and manual checks described in the acceptance criteria.  Only when those checks pass should you mark the task as complete in `TASK_LOG.md`.
-4. **Leave Notes** – At the end of each task, append to `TASK_LOG.md` a note with the following structure:
+All new development must adhere to the following principles:
 
-YYYY‑MM‑DD – Task ID – Short Description
-Summary: Briefly describe what you implemented.
-Verification: Describe how you tested your work (unit tests, manual playtest, etc.) and whether it passed.
-Next Steps: Identify the next task to work on, including any dependencies or open questions.
+1.  **The State is King (`state.js`):**
+    * The global `state` object is the **single source of truth**. All game logic must read from and write to this object.
+    * **All positions MUST be stored as `THREE.Vector3` objects.** Do not use separate `x`, `y` properties for world coordinates.
+    * Avoid storing transient or derived data in the state (e.g., store a `cooldownUntil` timestamp, not a `timeRemaining` value).
 
+2.  **The Main Loop (`vrMain.js` -> `vrGameLoop.js`):**
+    * The render loop in `vrMain.js` is the application's heartbeat. It calls `renderer.render()` every frame.
+    * All gameplay logic is driven by `vrGameLoop.js`, which is called once per frame from the render loop. This function orchestrates updates to all game systems (AI, projectiles, passives, etc.).
 
-5. **Scrutinise Your Work** – Always compare your implementation against the original game.  Ask yourself: *Does this feel and function exactly like the 2D version?*  If not, document the discrepancy and fix it or flag it for later investigation.
-| **FR‑03** | **UI Reconstruction** | Current menus use low‑resolution textures and are non‑interactive. | 1. Delete any `html2canvas` rendering code in `UIManager.js` and `ModalManager.js`.  2. For each menu (Home Screen, Stage Select, Ascension Conduit, Aberration Core, Lore Codex), construct a new `THREE.Group` containing `THREE.PlaneGeometry` panels and text meshes.  3. Position panels at a comfortable distance in front of the player **without parenting them to the headset** so the user can look around the full panel.  4. Ensure long panels include scroll bars and remain stationary in world space.  5. Add event listeners for pointer clicks on buttons that call the same functions as the original HTML.  6. Copy all menu text (headings, directions, button captions) verbatim from the old game. | All menus appear crisp, centred and fully interactive.  Their layout and wording match the original game exactly. |
-## Critical User Feedback (2025-10)
+3.  **VR-First Input (`PlayerController.js`):**
+    * This module is the sole interface between the VR hardware and the game.
+    * It handles raycasting for both world interaction (movement targeting) and UI interaction.
+    * It manages input state (`triggerJustPressed`, etc.) to ensure reliable, single-press actions.
 
-- **Neon Grid Floor Misaligned** – The glowing floor disc appears vertical instead of under the player. Ensure the grid disc is horizontal at y=0.
-- **Avatar Movement & Game Start** – Starting VR sometimes leaves the avatar stuck. Auto-run `startGame()` when entering VR and ensure the avatar follows the cursor on the sphere.
-- **Menus Lack Parity** – Panels should match the 2D design and include scroll bars. Menus must stay fixed in world space instead of following the headset.
-- **Settings Hand Toggle** – Clicking the hand icons should immediately swap the primary controller.
-- **Pointer Reliability** – Fix raycasting so one trigger press reliably activates buttons.
+4.  **Decoupled UI (`UIManager.js` & `ModalManager.js`):**
+    * All in-game UI is rendered in 3D as `THREE.Object3D` instances. **NEVER manipulate the HTML DOM** for game UI after the initial load.
+    * `UIManager.js` handles the persistent HUD.
+    * `ModalManager.js` handles the creation and display of world-space menus. Menus are parented to the scene, not the camera, to ensure they are stationary.
 
+5.  **Logic in Helpers, Not Components:**
+    * Complex, reusable logic (like game progression or spawning entities) should reside in helper modules like `gameLoop.js` or `helpers.js`.
+    * AI scripts and other components should call these helpers rather than re-implementing logic.
 
-## Fidelity Refactor Tasks
+## How to Add a New Boss
 
-These tasks address architectural and behavioural fidelity issues uncovered during the first VR prototype.  Complete them in order.  Many tasks depend on the previous ones being finished.
+Follow this pattern to add a new boss to the game:
 
-| Task ID | Component | Problem Description | Implementation Steps | Acceptance Criteria |
-| :--- | :--- | :--- | :--- | :--- |
-| **FR‑01** | **Scene & Lighting** | The arena sphere is bg.png and lacks lighting. (should be a dark gray like in the old game) The platform blocks half of the view. | 1. Replace the arena’s `MeshBasicMaterial` with `MeshStandardMaterial`.  2. Add `AmbientLight` and `DirectionalLight` to the scene.  3. Replace the large opaque platform with a thin, semi‑transparent glowing neon grid disc or ring at the sphere’s centre, oriented horizontally at foot height.  4. Ensure the laser pointer and cursor can pass through the platform and that the player can see enemies all around. | The player sees the textured inner sphere.  The new platform does not obstruct vision.  Lighting makes textures visible. |
-| **FR‑02** | **Handedness & Settings Panel** | Controls are hard‑coded to the right hand, and there is no way to adjust volumes. | 1. Create a small cog icon on the HUD.  2. When clicked, open a Settings panel as a holographic modal.  3. Add a toggle to swap primary and secondary controllers (store preference in `state.settings.handedness`). Ensure clicking the hand icons updates the state and swaps the laser pointer.  4. Add Music and SFX volume sliders (values 0–100 %).  5. Persist preferences via `savePlayerState()`.  6. Use preferences when initialising controllers and AudioManager.  7. Investigate pointer raycast reliability so a single trigger press consistently selects menu items. | Players can change handedness and adjust volumes.  Preferences persist across sessions. |
-| **FR‑04** | **State Unification** | Game state is split between 2D and 3D code. | 1. Replace all x/y position properties in `state.js` with `THREE.Vector3` objects.  2. Refactor modules (`PlayerController`, `ProjectileManager`, bosses, etc.) to use `state.player.position` rather than individual x/y values.  3. Remove references to the old `gameCanvas`.  4. Ensure there is only one authoritative `state` object imported by every module. | No module references `state.player.x` or `state.player.y`.  All systems read and write to a unified 3D state. |
-| **FR‑05** | **Audio Integration** | Audio uses HTML `<audio>` elements rather than Three.js audio. | 1. Refactor `AudioManager.js` to instantiate a single `THREE.AudioListener` and attach it to the main camera.  2. Load sounds via `AudioLoader` and create `THREE.PositionalAudio` objects attached to game entities.  3. Implement volume control using gain nodes. | Sounds emanate from their correct positions, and adjusting the volume sliders in the Settings panel changes audio levels. |
-| **FR‑06** | **Power‑Up System** | Power‑up mechanics are incomplete or inaccurate in VR. | 1. Implement `PowerManager` with methods `useOffensivePower()` and `useDefensivePower()`.  2. Port each power from `powers.js` by reading its effect (damage, duration, radius) and replicating it in 3D.  3. Create appropriate visual effects using particles, meshes or shaders.  4. Hook these methods to the trigger (offensive) and grip (defensive) actions on the primary controller. | Each power behaves identically to its 2D counterpart.  Effects appear correctly in 3D. |
-| **FR‑07** | **Aberration Cores** | Core passives and actives are stubbed out. | 1. Implement a `CoreManager` to handle the equipped aberration core.  2. For each core in `cores.js`, read the passive/active definition and recreate it.  3. When the player presses both trigger and grip simultaneously, call the core’s active ability if one exists.  4. Display the equipped core in the HUD. | All core passives and actives work exactly as in the 2D game.  The HUD shows the current core. |
-| **FR‑08** | **Ascension Conduit** | Talent tree is not functional in VR. | 1. Build a holographic talent grid matching the original layout.  2. Read talent data from `ascension.js` and display cost, rank and description.  3. On purchase, deduct Ascension Points and apply the effect by modifying the appropriate values in `state`.  4. Persist unlocked talents. | Players can view and purchase talents, and talent effects apply immediately. |
-| **FR‑09** | **Boss Fidelity Audit** | Bosses use generic AI instead of their specified behaviours. | 1. For each boss `B01`–`B30`, delete the existing placeholder script under `modules/agents/`.  2. Open `Eternal‑Momentum‑OLD GAME/modules/bosses.js` and locate the object for that boss.  3. Study its `init`, `logic`, `onDamage` and `onDeath` functions.  4. Write a new Three.js script that creates 3D models, manages attack patterns and handles damage events exactly as the original.  5. Add unit tests to verify each ability triggers at the correct time. | Every boss’s behaviour matches the original.  Unit tests for at least one representative attack pass. |
-| **FR‑10** | **Testing Infrastructure** | Lack of automated testing makes regressions hard to detect. | 1. Set up Jest (or similar) for unit tests.  2. Create test cases for core systems (PowerManager, CoreManager, state updates).  3. Write integration tests using a headless WebXR emulator to simulate controller input and verify UI interactions.  4. Integrate tests into CI (GitHub Actions). | Running `npm test` executes all unit/integration tests, and they pass.  CI shows green for all implemented tasks. |
-
-
-| **FR‑12** | **Coordinate System Overhaul** | Many modules still rely on 2D x/y properties and canvas coordinates (`state.player.x`, `state.mousePosition.x`, `e.x`/`e.y`) despite the move to 3D.  This causes broken logic in powers, cores, projectiles and enemy AI. | 1. Remove the legacy `state.mousePosition` object or repurpose it to store a 3D direction vector (e.g. `state.player.cursorDir = THREE.Vector3`).  2. Replace every reference to `.x`/`.y` position fields in `powers.js`, `cores.js`, `projectilePhysics3d.js`, `gameLoop.js`, `vrGameLoop.js`, `PlayerController.js` and boss scripts with either `position` (`THREE.Vector3`) or a helper that converts between UV and world coordinates.  3. Introduce a helper in `utils.js` such as `toCanvasPos(vector3)` that accepts a 3D position, normalises it with `spherePosToUv` and returns {u,v}.  Use this helper exclusively when a 2D coordinate is truly required (e.g. for UI placement).  4. Update `enemyAI3d.js` and any other AI modules so that enemies store and update a `position` vector instead of `x`/`y`.  5. Revise chain lightning and similar effects to compute distances using `vector3.distanceTo()` instead of `Math.hypot(e.x - currentTarget.x, e.y - currentTarget.y)`.  6. Search the codebase to ensure no module references `state.player.x` or `e.x` after this task. | All positions are represented by `THREE.Vector3` objects.  The game no longer references `.x` or `.y` properties on entities.  Powers, cores, projectiles and AIs behave correctly because distance and direction calculations are based on 3D vectors.  Tests confirm that chain lightning and shockwaves hit the correct targets. |
-
-| **FR‑13** | **Projectile Physics & Power Effects in 3D** | Projectiles and some powers still update using 2D positions (`p.x`, `p.y`) and assume a flat screen.  This breaks missile trajectories, shockwave radii and homing behaviours on the sphere. | 1. Refactor `projectilePhysics3d.js` so that each projectile stores a `position` and `velocity` as `THREE.Vector3` objects.  Use great‑circle interpolation or tangent vectors to move projectiles along the sphere’s surface.  2. Update shockwave, missile, chain and other power implementations in `powers.js` to compute effect origins with `toCanvasPos()` and distances using `vector3.distanceTo()`; convert radii from pixel units to angular distances appropriate for the sphere.  3. For homing projectiles, compute steering forces in 3D by rotating the projectile’s velocity toward the target’s position on the sphere.  4. Replace `Math.atan2(my - oPos.y, mx - oPos.x)` angle calculations with spherical equivalents using cross products.  5. Add unit tests that spawn projectiles at known positions and verify they travel correctly and hit targets. | Projectiles move smoothly along the inner surface of the sphere.  Shockwave and missile effects expand uniformly around the player in 3D.  Homing projectiles seek targets reliably.  Unit tests covering projectile motion and targeting pass. |
-
-| **FR‑14** | **Icon & UI Polish** | Several buttons in the VR menus are blank or use placeholder icons, and the crosshair appears stretched or low‑resolution. | 1. Audit all UI buttons in `ControllerMenu.js`, `UIManager.js` and HTML templates. Replace placeholder graphics with emoji-based text sprites for sound toggle, ascension, stage select, aberration cores and settings.  2. Reuse the existing pointer files under `assets/cursors` (e.g. `crosshair.cur`) for the crosshair and any cursor icons instead of adding new textures.  3. Adjust the crosshair sprite so it renders at a consistent size and resolution regardless of headset FOV.  4. Ensure that UI panels are scaled appropriately so that text and icons are legible in VR. | All buttons display intuitive icons without new texture assets.  The crosshair and menu elements appear sharp and correctly sized.  User feedback indicates the UI is attractive and understandable. |
-
-| **FR‑15** | **Code Duplication & Helpers** | Helper functions such as `playerHasCore()` and `getCanvasPos()` are defined in multiple modules (e.g. `powers.js`, `cores.js`, `utils.js`) leading to inconsistent logic and maintenance difficulties. | 1. Identify helper functions duplicated across modules (e.g. `playerHasCore`, `playerHasCore`, `getCanvasPos`) by searching the codebase.  2. Move these helpers into a central module (`utils.js` or a new `helpers.js`).  3. Refactor all modules to import helpers from the central location and delete local copies.  4. Ensure each helper has a single, well‑documented implementation that covers all use cases (e.g. `playerHasCore` checks both equipped cores and pantheon buffs).  5. Write unit tests for each helper to confirm expected behaviour. | Each helper function exists only once in the codebase.  All modules import helpers rather than re‑defining them.  Unit tests for helpers pass. |
-
-| **FR‑16** | **NavMesh & Pathfinding** | The navmesh uses an icosahedron but earlier versions contained truncated loops and potential performance issues. | 1. Review `navmesh.js` to ensure loops that build neighbours and vertices run to completion (e.g. `for(let i=0;i new Set())` should correctly iterate over all indices). 2. Optimise `findPath` by caching frequently used paths and limiting recursion depth.  3. Expose a `debugPath()` function that can visualise the computed path on the sphere for testing purposes.  4. Add stress tests with large numbers of enemies to measure pathfinding performance and ensure no memory leaks. | Pathfinding reliably returns a valid route without truncation.  Performance is acceptable with many enemies.  Debug visualisations show correct paths.  Stress tests do not reveal crashes or leaks. |
-
-## Master Boss Task List
-
-Once the fidelity refactor is complete and verified by playtesting, begin re‑implementing bosses sequentially.  Use the following list to track progress:
-
-| Boss ID | Name | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| **B01** | Splitter Sentinel | To Do | Splits into multiple fragments when damaged.  Use Three.js instancing to spawn fragments. |
-| **B02** | Reflector Warden | To Do | Reflects player projectiles and gains shield stacks.  Implements a rotating mirror shield in 3D. |
-| **B03** | Vampire Veil | To Do | Heals by spawning blood pickups that track toward the boss. |
-| **B04** | Gravity Tyrant | To Do | Periodically pulls the player toward the arena wall and spawns gravity wells. |
-| **B05** | Swarm Link | To Do | Summons a chain of minions that tether together. |
-| **…** | … | … | Continue for bosses B06–B30, following the definitions in `bosses.js`. |
-
-Keep this table updated in `TASK_LOG.md` as you implement each boss.  Include links to the new script file and any tests you wrote.
+1.  **Create the AI File:** Create a new file in `modules/agents/NewBossAI.js`.
+2.  **Extend BaseAgent:** The new class must `extend BaseAgent`.
+3.  **Implement the Constructor:**
+    * Call `super()`.
+    * Create a `THREE.Mesh` or `THREE.Group` to be the boss's visual model and pass it to the `super()` constructor.
+    * Set the boss's properties (`name`, `maxHP`, etc.) based on its design.
+4.  **Implement the `update(delta)` method:** Add the boss's per-frame logic here. All movement and targeting must use 3D vectors.
+5.  **Add to Game Data:**
+    * Add the new boss's static data (ID, name, unlock level, core description) to the `bossData` array in `modules/bosses.js`.
+    * Add the boss to a stage in `modules/config.js` in the `STAGE_CONFIG` array.
+6.  **Spawn:** The existing `spawnEnemy` function will now be able to spawn your new boss by its ID.
 
 ## Ongoing Development Practices
 
-1. **Atomic Commits** – Commit and push your work frequently.  Each commit should correspond to a single task or subtask.  Include the task ID in the commit message (e.g. `FR‑04: unify state to THREE.Vector3`).
+1.  **Atomic Commits:** Commit and push your work frequently. Each commit should correspond to a single, logical change (e.g., "Fix Miasma AI gas attack," "Improve settings modal layout").
+2.  **Consistent Style:** Follow the existing code style (ES modules, camelCase, descriptive variable names). Add JSDoc comments for new functions and classes.
+3.  **Centralize Helpers:** If you write a useful function that could be used elsewhere, add it to `modules/helpers.js` instead of keeping it local.
+4.  **Test:** Add new unit tests in the `tests/` directory to verify new mechanics and prevent regressions.
 
-2. **Consistent Style** – Follow the existing code style (ES modules, camelCase, descriptive variable names).  Add JSDoc comments for new functions and classes.
+## Future Development Roadmap
 
-3. **Peer Review** – Before merging into the main branch, request a code review.  A second pair of eyes helps catch fidelity deviations.
-
-4. **Documentation** – When introducing new systems (e.g. Settings panel, PowerManager), update README and this AGENTS file to reflect their purpose and usage.
-
-5. **PowerManager Usage** – Offensive powers should be triggered via `useOffensivePower()` and defensive powers via `useDefensivePower()` from `modules/PowerManager.js`.
-6. **Emoji Icons** – Use emoji-based text sprites for UI icons (e.g. menu buttons) instead of texture files to avoid asset bloat. For the VR pointer and crosshair, reuse the `.cur` or `.ani` files already in `assets/cursors` such as `crosshair.cur`.
-
-| **FR‑11** | **Auto Start & Stage Flow** | After loading reaches 100 % the player should enter VR and immediately see the floating home menu panel. | 1. Preload assets on page load, then call `startGame()` as soon as the WebXR session begins.  After initialization, invoke `showHomeMenu()` so the holographic home screen appears in front of the player.  2. The AWAKEN and CONTINUE options on this panel begin the next stage.  3. Provide a way to return to the home menu via a VR button or Settings panel.  4. Ensure that continuing a previous run loads the correct stage and persists progress.  5. Verify the avatar rotates toward the VR pointer and is able to move around the sphere immediately after entering VR. | Once loading finishes, the user is in VR with the home screen displayed.  Selecting AWAKEN or CONTINUE starts the correct stage and progress saves across reloads. |
+* **Polishing & Bug Fixing:** Playtesting to find and fix minor bugs, timing issues, or visual glitches.
+* **Performance Optimization:** Profiling and optimizing, especially for standalone VR headsets (e.g., object pooling for projectiles/enemies, draw call reduction).
+* **UI/UX Refinements:** Improving menu layouts, adding more visual feedback for actions, and refining controller interactions.
+* **VFX & SFX Polish:** Enhancing visual effects for powers and boss attacks, and ensuring all audio cues are present and correctly positioned.
