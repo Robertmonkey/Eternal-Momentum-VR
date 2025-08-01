@@ -1,68 +1,71 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { moveTowards } from '../movement3d.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// JuggernautAI - Implements boss B11: The Juggernaut
-// Aggressive boss that periodically charges at the player.
+const ARENA_RADIUS = 50;
 
 export class JuggernautAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.35 * radius, 16, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x636e72 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 360, model: mesh });
+  constructor() {
+    const geometry = new THREE.CapsuleGeometry(0.8, 1.0, 4, 8);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x636e72,
+        emissive: 0x636e72,
+        emissiveIntensity: 0.2,
+        metalness: 0.8,
+        roughness: 0.3
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
-    this.state = 'ROAMING';
-    this.timer = 0;
-    this.target = this.randomPos();
-    this.lastCharge = Date.now();
+    const bossData = { id: "juggernaut", name: "The Juggernaut", maxHP: 360 };
+    Object.assign(this, bossData);
+    
     this.isCharging = false;
-    this.bouncesLeft = 0;
+    this.chargeEndTime = 0;
+    this.lastChargeTime = 0;
+    this.chargeTarget = new THREE.Vector3();
   }
 
-  randomPos() {
-    const theta = Math.random() * 2 * Math.PI;
-    const phi = Math.random() * Math.PI;
-    return new THREE.Vector3(
-      Math.sin(phi) * Math.cos(theta) * this.radius,
-      Math.cos(phi) * this.radius,
-      Math.sin(phi) * Math.sin(theta) * this.radius
-    );
-  }
-
-  update(delta, playerObj, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
-    this.timer += delta;
+    const now = Date.now();
+    const speedMultiplier = 1 + (1 - this.health / this.maxHP) * 2.5;
 
-    const speedMult = 1 + (1 - this.health / this.maxHealth) * 2.5;
-
-    if (!this.isCharging) {
-      moveTowards(this.position, this.target, 0.8 * speedMult, this.radius);
-      if (this.position.distanceTo(this.target) < 0.05 * this.radius) {
-        this.target = this.randomPos();
-      }
-
-      if (Date.now() - this.lastCharge > 7000) {
-        this.isCharging = true;
-        this.bouncesLeft = 2;
-        this.chargeTarget = playerObj?.position ? playerObj.position.clone() : this.randomPos();
-        gameHelpers?.play?.('chargeUpSound');
-        this.chargeStart = Date.now() + 1000;
-      }
+    if (this.isCharging) {
+        if (now > this.chargeEndTime) {
+            this.isCharging = false;
+            this.lastChargeTime = now;
+        } else {
+            // Move quickly towards the charge target
+            moveTowards(this.position, this.chargeTarget, 15 * speedMultiplier * delta, ARENA_RADIUS);
+            // If we reach the target, pick a new random one to simulate a bounce
+            if (this.position.distanceTo(this.chargeTarget) < 2) {
+                this.chargeTarget.randomDirection().multiplyScalar(ARENA_RADIUS);
+            }
+        }
     } else {
-      if (Date.now() < this.chargeStart) return;
+        // Normal movement
+        const playerPos = state.player.position;
+        moveTowards(this.position, playerPos, 0.8 * speedMultiplier * delta, ARENA_RADIUS);
 
-      moveTowards(this.position, this.chargeTarget, 6 * speedMult, this.radius);
-      if (this.position.distanceTo(this.chargeTarget) < 0.05 * this.radius) {
-        this.chargeTarget = this.randomPos();
-        this.bouncesLeft--;
-      }
-      if (this.bouncesLeft < 0) {
-        this.isCharging = false;
-        this.lastCharge = Date.now();
-        this.target = this.randomPos();
-      }
+        // Check if it's time to charge
+        if (now - this.lastChargeTime > 7000) {
+            this.isCharging = true;
+            this.chargeEndTime = now + 3000; // Charge for 3 seconds
+            this.chargeTarget.copy(playerPos);
+            gameHelpers.play('chargeUpSound');
+            state.effects.push({
+                type: 'charge_indicator',
+                source: this,
+                startTime: now,
+                duration: 1000,
+                radius: 3
+            });
+            setTimeout(() => {
+                if(this.alive) gameHelpers.play('chargeDashSound');
+            }, 1000);
+        }
     }
   }
 }
