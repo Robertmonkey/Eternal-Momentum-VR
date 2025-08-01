@@ -7,7 +7,7 @@ import { usePower } from './powers.js';
 import { playerHasCore } from './helpers.js';
 import { gameHelpers } from './gameHelpers.js';
 
-const ARENA_RADIUS = 50; // Should match the radius in scene.js
+const ARENA_RADIUS = 50;
 
 /**
  * Activate the currently equipped core's active ability.
@@ -22,6 +22,7 @@ export function activateCorePower() {
         gameHelpers.play('talentError');
         return;
     }
+    
     let abilityTriggered = false;
 
     switch (coreId) {
@@ -59,7 +60,6 @@ export function activateCorePower() {
             const ringRadius = 10; // World units
             const pillarCount = 16;
             const centerVec = state.player.position.clone().normalize();
-            // Create a basis on the tangent plane of the player's position
             const basisA = new THREE.Vector3().crossVectors(centerVec, new THREE.Vector3(0, 1, 0)).normalize();
             const basisB = new THREE.Vector3().crossVectors(centerVec, basisA).normalize();
 
@@ -68,7 +68,7 @@ export function activateCorePower() {
                 const offset = basisA.clone().multiplyScalar(Math.cos(pAngle) * ringRadius)
                     .add(basisB.clone().multiplyScalar(Math.sin(pAngle) * ringRadius));
                 const pillarPos = state.player.position.clone().add(offset).normalize().multiplyScalar(ARENA_RADIUS);
-
+                
                 state.effects.push({
                     type: 'architect_pillar',
                     position: pillarPos,
@@ -80,25 +80,25 @@ export function activateCorePower() {
             break;
         }
         case 'annihilator': {
-            coreState.cooldownUntil = now + 25000;
-            state.effects.push({ type: 'player_annihilation_beam', startTime: now, endTime: now + 4000 });
-            gameHelpers.play('powerSirenSound');
-            abilityTriggered = true;
-            break;
+          coreState.cooldownUntil = now + 25000;
+          state.effects.push({ type: 'player_annihilation_beam', startTime: now, endTime: now + 4000 });
+          gameHelpers.play('powerSirenSound');
+          abilityTriggered = true;
+          break;
         }
         case 'looper': {
-            coreState.cooldownUntil = now + 10000;
-            gameHelpers.addStatusEffect('Warping', '🌀', 1000);
-            gameHelpers.addStatusEffect('Stunned', '🌀', 1000);
-            state.effects.push({
-                type: 'teleport_locus',
-                startTime: now,
-                duration: 1000,
-                endTime: now + 1000,
-            });
-            gameHelpers.play('chargeUpSound');
-            abilityTriggered = true;
-            break;
+          coreState.cooldownUntil = now + 10000;
+          gameHelpers.addStatusEffect('Warping', '🌀', 1000);
+          gameHelpers.addStatusEffect('Stunned', '🌀', 1000);
+          state.effects.push({
+            type: 'teleport_locus',
+            startTime: now,
+            duration: 1000,
+            endTime: now + 1000,
+          });
+          gameHelpers.play('chargeUpSound');
+          abilityTriggered = true;
+          break;
         }
     }
 }
@@ -156,7 +156,13 @@ export function applyCoreTickEffects() {
         const gravityState = state.player.talent_states.core_states.gravity;
         if (now > (gravityState.lastPulseTime || 0) + 5000) {
             gravityState.lastPulseTime = now;
-            state.effects.push({ type: 'player_pull_pulse', position: state.player.position.clone(), maxRadius: 30, startTime: now, duration: 500 });
+            state.effects.push({ 
+                type: 'player_pull_pulse', 
+                position: state.player.position.clone(), 
+                maxRadius: 30, // World units
+                startTime: now, 
+                duration: 500 
+            });
             gameHelpers.play('gravitySound');
         }
     }
@@ -217,7 +223,22 @@ export function handleCoreOnEnemyDeath(enemy) {
 export function handleCoreOnPlayerDamage(damage) {
     let damageTaken = damage;
     if (playerHasCore('mirror_mirage') && damageTaken > 0) {
-        // Spawning decoy logic
+        const coreDecoys = state.decoys.filter(d => d.fromCore);
+        if (coreDecoys.length < 3) {
+            const offset = new THREE.Vector3().randomDirection().multiplyScalar(2);
+            const decoyPos = state.player.position.clone().add(offset).normalize().multiplyScalar(ARENA_RADIUS);
+            state.decoys.push({
+                position: decoyPos,
+                r: 0.5,
+                fromCore: true,
+                isTaunting: false,
+                lastTauntTime: Date.now(),
+                nextTauntTime: Date.now() + 4000 + Math.random() * 3000,
+                tauntDuration: 2000,
+                tauntEndTime: Date.now(),
+            });
+            gameHelpers.play('mirrorSwap');
+        }
     }
     return damageTaken;
 }
@@ -240,7 +261,7 @@ export function handleCoreOnDamageDealt(target) {
     if (playerHasCore('vampire') && Math.random() < 0.10) {
         state.pickups.push({
             position: target.position.clone(),
-            r: 0.4,
+            r: 0.4, // World units
             type: 'custom', emoji: '🩸',
             lifeEnd: Date.now() + 8000,
             isSeeking: true,
@@ -277,11 +298,11 @@ export function handleCoreOnFatalDamage() {
                 state.player.health = rewindState.health;
                 epochState.cooldownUntil = now + 120000;
                 gameHelpers.play('timeRewind');
-                return true;
+                return true; // Death was prevented
             }
         }
     }
-    return false;
+    return false; // Death was not prevented
 }
 
 /**
@@ -301,14 +322,28 @@ export function handleCoreOnPickup() {
  */
 export function handleCoreOnEmptySlot() {
     if (playerHasCore('syphon')) {
-        // Syphon logic here
+        const now = Date.now();
+        const syphonState = state.player.talent_states.core_states.syphon;
+        if (now < (syphonState.cooldownUntil || 0)) return false;
+        syphonState.cooldownUntil = now + 1000;
+        
+        state.effects.push({
+          type: 'syphon_cone',
+          startTime: now,
+          endTime: now + 1000,
+          source: state.player,
+          direction: state.cursorDir.clone(),
+        });
+        gameHelpers.play('syphonFire');
+        return true;
     }
+    return false;
 }
 
 /**
  * Handle core effects when a defensive power is used.
  */
-export function handleCoreOnDefensivePower(powerKey) {
+export function handleCoreOnDefensivePower() {
     if (playerHasCore('reflector')) {
         gameHelpers.addStatusEffect('Reflective Ward', '🛡️', 2000);
     }
