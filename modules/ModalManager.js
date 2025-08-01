@@ -26,12 +26,12 @@ function ensureGroup() {
 
 function createButton(label, onSelect, width = 0.5, height = 0.1) {
     const group = new THREE.Group();
-    group.name = `button_${label}`;
+    group.name = `button_${label.replace(/\s+/g, '_')}`;
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x111122, 0.8));
     bg.userData.onSelect = onSelect;
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(0x00ffff, 0.5));
     border.position.z = -0.001;
-    const text = createTextSprite(label.substring(0, 20), 32); // Truncate long labels
+    const text = createTextSprite(label.substring(0, 20), 32);
     text.position.z = 0.002;
     group.add(bg, border, text);
     return group;
@@ -47,6 +47,7 @@ function createModalContainer(width, height, title) {
     if (title) {
         const titleSprite = createTextSprite(title, 48);
         titleSprite.position.set(0, height / 2 - 0.1, 0.01);
+        titleSprite.userData.isTitle = true; // Mark this as the title sprite
         group.add(titleSprite);
     }
     return group;
@@ -56,7 +57,9 @@ function createModalContainer(width, height, title) {
 
 function createHomeModal() {
     const modal = createModalContainer(1.2, 0.8, 'ETERNAL MOMENTUM');
-    
+    modal.name = 'modal_home';
+    modal.userData.titleSprite = modal.children.find(c => c.userData.isTitle);
+
     const startBtn = createButton('AWAKEN', () => window.startGame(true), 0.8);
     startBtn.position.set(0, 0, 0.01);
     modal.add(startBtn);
@@ -85,20 +88,21 @@ function createHomeModal() {
 
 function createSettingsModal() {
     const modal = createModalContainer(0.8, 1.0, 'Settings');
+    modal.name = 'modal_settings';
 
     const handedBtn = createButton(`Handedness: ${state.settings.handedness}`, () => {
         state.settings.handedness = state.settings.handedness === 'right' ? 'left' : 'right';
-        updateTextSprite(handedBtn.children[2], `Handedness: ${state.settings.handedness}`);
+        updateTextSprite(handedBtn.children.find(c => c.type === 'Sprite'), `Handedness: ${state.settings.handedness}`);
         savePlayerState();
         refreshPrimaryController();
     }, 0.6);
     handedBtn.position.set(0, 0.2, 0.01);
     modal.add(handedBtn);
     
-    // Placeholder for volume controls
     const musicLabel = createTextSprite('Music Volume: (WIP)', 32);
     musicLabel.position.set(0, 0, 0.01);
     modal.add(musicLabel);
+
     const sfxLabel = createTextSprite('SFX Volume: (WIP)', 32);
     sfxLabel.position.set(0, -0.1, 0.01);
     modal.add(sfxLabel);
@@ -112,6 +116,7 @@ function createSettingsModal() {
 
 function createConfirmModal() {
     const modal = createModalContainer(0.9, 0.5, 'CONFIRM');
+    modal.name = 'modal_confirm';
     
     const text = createTextSprite('This action cannot be undone.', 32);
     text.position.set(0, 0.05, 0.01);
@@ -128,20 +133,19 @@ function createConfirmModal() {
     noBtn.position.set(0.2, -0.15, 0.01);
     modal.add(noBtn);
     
-    modal.userData = { title: modal.children.find(c => c.type === 'Sprite'), text };
+    modal.userData = { titleSprite: modal.children.find(c => c.userData.isTitle), textSprite: text };
     return modal;
 }
 
 function createStageSelectModal() {
     const modal = createModalContainer(1.4, 1.2, 'SELECT STAGE');
+    modal.name = 'modal_levelSelect';
     const listContainer = new THREE.Group();
     listContainer.position.y = -0.1;
     modal.add(listContainer);
 
     modal.userData.refresh = () => {
-        listContainer.children.forEach(child => child.removeFromParent());
-        listContainer.clear();
-
+        listContainer.clear(); // More robust than removing children in a loop
         const maxStage = state.player.highestStageBeaten + 1;
         for (let i = 1; i <= Math.min(maxStage, 30); i++) {
             const stageInfo = bossData.find(b => b.unlock_level === (i * 5 - 5) + 10); // Approximate mapping
@@ -166,6 +170,7 @@ function createStageSelectModal() {
 
 function createCoresModal() {
     const modal = createModalContainer(1.2, 1.4, 'ABERRATION CORES');
+    modal.name = 'modal_cores';
     const listContainer = new THREE.Group();
     listContainer.position.y = -0.2;
     modal.add(listContainer);
@@ -182,8 +187,7 @@ function createCoresModal() {
             }, 1.0);
             btn.position.y = 0.5 - i * 0.12;
             if (state.player.equippedAberrationCore === core.id) {
-                // Highlight the selected core
-                btn.children[0].material.color.set(0x00ff00);
+                btn.children[0].material.color.set(0x00ff00); // Highlight background
             }
             listContainer.add(btn);
         });
@@ -195,7 +199,6 @@ function createCoresModal() {
 
     return modal;
 }
-
 
 // --- API ---
 
@@ -218,7 +221,6 @@ export function initModals() {
 
 export function showModal(id) {
     ensureGroup();
-    const camera = getCamera();
     
     if (activeModalId && modals[activeModalId]) {
         modals[activeModalId].visible = false;
@@ -237,6 +239,7 @@ export function showModal(id) {
     const modal = modals[id];
     activeModalId = id;
     
+    const camera = getCamera();
     const distance = 1.5;
     const cameraWorldPos = new THREE.Vector3();
     const cameraWorldQuat = new THREE.Quaternion();
@@ -262,7 +265,7 @@ export function hideModal() {
     if (activeModalId && modals[activeModalId]) {
         modals[activeModalId].visible = false;
         activeModalId = null;
-        state.isPaused = false;
+        state.isPaused = false; // Unpause unless another condition requires it
         AudioManager.playSfx('uiModalClose');
     }
 }
@@ -274,13 +277,17 @@ export function showHomeMenu() {
 export function showConfirm(title, text, onConfirm) {
     showModal('confirm');
     const modal = modals.confirm;
-    if (modal) {
-        updateTextSprite(modal.userData.title, title);
-        updateTextSprite(modal.userData.text, text);
+    if (modal && modal.userData.titleSprite && modal.userData.textSprite) {
+        updateTextSprite(modal.userData.titleSprite, title);
+        updateTextSprite(modal.userData.textSprite, text);
         confirmCallback = onConfirm;
     }
 }
 
 export function getModalObjects() {
     return Object.values(modals);
+}
+
+export function getModalByName(id) {
+    return modals[id];
 }
