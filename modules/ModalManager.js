@@ -1,17 +1,20 @@
 import * as THREE from '../vendor/three.module.js';
 import { getCamera, getScene } from './scene.js';
-import { state, savePlayerState } from './state.js';
+import { state, savePlayerState, resetGame } from './state.js';
 import { refreshPrimaryController } from './PlayerController.js';
 import { AudioManager } from './audio.js';
 import { bossData } from './bosses.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
 import { purchaseTalent, applyAllTalentEffects } from './ascension.js';
 import { holoMaterial, createTextSprite, updateTextSprite } from './UIManager.js';
+import { gameHelpers } from './gameHelpers.js';
 
 let modalGroup;
 let activeModalId = null;
 const modals = {};
 let confirmCallback;
+
+// --- UTILITY FUNCTIONS ---
 
 function ensureGroup() {
     if (!modalGroup) {
@@ -28,22 +31,32 @@ function createButton(label, onSelect, width = 0.5, height = 0.1) {
     bg.userData.onSelect = onSelect;
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(0x00ffff, 0.5));
     border.position.z = -0.001;
-    const text = createTextSprite(label, 32);
+    const text = createTextSprite(label.substring(0, 20), 32); // Truncate long labels
     text.position.z = 0.002;
     group.add(bg, border, text);
     return group;
 }
 
-// Modal creation functions
+function createModalContainer(width, height, title) {
+    const group = new THREE.Group();
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x141428, 0.95));
+    const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(0x00ffff, 0.5));
+    border.position.z = -0.001;
+    group.add(bg, border);
+
+    if (title) {
+        const titleSprite = createTextSprite(title, 48);
+        titleSprite.position.set(0, height / 2 - 0.1, 0.01);
+        group.add(titleSprite);
+    }
+    return group;
+}
+
+// --- MODAL CREATION FUNCTIONS ---
+
 function createHomeModal() {
-    const modal = new THREE.Group();
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.8), holoMaterial(0x141428, 0.9));
-    modal.add(bg);
-
-    const title = createTextSprite('ETERNAL MOMENTUM', 64);
-    title.position.set(0, 0.25, 0.01);
-    modal.add(title);
-
+    const modal = createModalContainer(1.2, 0.8, 'ETERNAL MOMENTUM');
+    
     const startBtn = createButton('AWAKEN', () => window.startGame(true), 0.8);
     startBtn.position.set(0, 0, 0.01);
     modal.add(startBtn);
@@ -71,15 +84,8 @@ function createHomeModal() {
 }
 
 function createSettingsModal() {
-    const modal = new THREE.Group();
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.0), holoMaterial(0x141428, 0.9));
-    modal.add(bg);
+    const modal = createModalContainer(0.8, 1.0, 'Settings');
 
-    const title = createTextSprite('Settings', 48);
-    title.position.set(0, 0.4, 0.01);
-    modal.add(title);
-
-    // Handedness Toggle
     const handedBtn = createButton(`Handedness: ${state.settings.handedness}`, () => {
         state.settings.handedness = state.settings.handedness === 'right' ? 'left' : 'right';
         updateTextSprite(handedBtn.children[2], `Handedness: ${state.settings.handedness}`);
@@ -89,16 +95,13 @@ function createSettingsModal() {
     handedBtn.position.set(0, 0.2, 0.01);
     modal.add(handedBtn);
     
-    // Volume controls will be added here in a future step
-
-    const homeBtn = createButton('Return to Home', () => {
-        if(window.stop) window.stop();
-        // This will transition back to the HTML home screen
-        document.getElementById('vrContainer').style.display = 'none';
-        document.getElementById('homeScreen').style.display = 'flex';
-    }, 0.6);
-    homeBtn.position.set(0, -0.2, 0.01);
-    modal.add(homeBtn);
+    // Placeholder for volume controls
+    const musicLabel = createTextSprite('Music Volume: (WIP)', 32);
+    musicLabel.position.set(0, 0, 0.01);
+    modal.add(musicLabel);
+    const sfxLabel = createTextSprite('SFX Volume: (WIP)', 32);
+    sfxLabel.position.set(0, -0.1, 0.01);
+    modal.add(sfxLabel);
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6);
     closeBtn.position.set(0, -0.4, 0.01);
@@ -108,13 +111,7 @@ function createSettingsModal() {
 }
 
 function createConfirmModal() {
-    const modal = new THREE.Group();
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.5), holoMaterial(0x141428, 0.95));
-    modal.add(bg);
-
-    const title = createTextSprite('CONFIRM', 48, '#ff4444');
-    title.position.set(0, 0.15, 0.01);
-    modal.add(title);
+    const modal = createModalContainer(0.9, 0.5, 'CONFIRM');
     
     const text = createTextSprite('This action cannot be undone.', 32);
     text.position.set(0, 0.05, 0.01);
@@ -131,18 +128,88 @@ function createConfirmModal() {
     noBtn.position.set(0.2, -0.15, 0.01);
     modal.add(noBtn);
     
-    modal.userData = { title, text };
+    modal.userData = { title: modal.children.find(c => c.type === 'Sprite'), text };
     return modal;
 }
 
-// Stubs for other modals to be created
+function createStageSelectModal() {
+    const modal = createModalContainer(1.4, 1.2, 'SELECT STAGE');
+    const listContainer = new THREE.Group();
+    listContainer.position.y = -0.1;
+    modal.add(listContainer);
+
+    modal.userData.refresh = () => {
+        listContainer.children.forEach(child => child.removeFromParent());
+        listContainer.clear();
+
+        const maxStage = state.player.highestStageBeaten + 1;
+        for (let i = 1; i <= Math.min(maxStage, 30); i++) {
+            const stageInfo = bossData.find(b => b.unlock_level === (i * 5 - 5) + 10); // Approximate mapping
+            if (!stageInfo) continue;
+            
+            const row = createButton(`${i}: ${stageInfo.name}`, () => {
+                state.currentStage = i;
+                resetGame();
+                hideModal();
+            }, 1.0);
+            row.position.y = 0.4 - (i-1) * 0.12;
+            listContainer.add(row);
+        }
+    };
+    
+    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    closeBtn.position.set(0, -0.5, 0.01);
+    modal.add(closeBtn);
+
+    return modal;
+}
+
+function createCoresModal() {
+    const modal = createModalContainer(1.2, 1.4, 'ABERRATION CORES');
+    const listContainer = new THREE.Group();
+    listContainer.position.y = -0.2;
+    modal.add(listContainer);
+
+    modal.userData.refresh = () => {
+        listContainer.clear();
+        const unlockedCores = bossData.filter(b => b.core_desc && state.player.unlockedAberrationCores.has(b.id));
+        
+        unlockedCores.forEach((core, i) => {
+            const btn = createButton(core.name, () => {
+                state.player.equippedAberrationCore = core.id;
+                savePlayerState();
+                modal.userData.refresh(); // Re-render to show selection
+            }, 1.0);
+            btn.position.y = 0.5 - i * 0.12;
+            if (state.player.equippedAberrationCore === core.id) {
+                // Highlight the selected core
+                btn.children[0].material.color.set(0x00ff00);
+            }
+            listContainer.add(btn);
+        });
+    };
+
+    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    closeBtn.position.set(0, -0.6, 0.01);
+    modal.add(closeBtn);
+
+    return modal;
+}
+
+
+// --- API ---
+
 const createModalFunctions = {
     'home': createHomeModal,
     'settings': createSettingsModal,
     'confirm': createConfirmModal,
-    // 'levelSelect': createStageSelectModal,
-    // 'ascension': createAscensionModal,
-    // 'cores': createCoresModal,
+    'levelSelect': createStageSelectModal,
+    'cores': createCoresModal,
+    // Stubs for other complex modals
+    'ascension': () => createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT (WIP)'),
+    'lore': () => createModalContainer(1.2, 1.2, 'LORE CODEX (WIP)'),
+    'bossInfo': () => createModalContainer(1.0, 0.8, 'BOSS INFO (WIP)'),
+    'orrery': () => createModalContainer(1.6, 1.2, "WEAVER'S ORRERY (WIP)"),
 };
 
 export function initModals() {
@@ -162,7 +229,7 @@ export function showModal(id) {
             modals[id] = createModalFunctions[id]();
             modalGroup.add(modals[id]);
         } else {
-            console.error(`Modal "${id}" does not exist.`);
+            console.error(`Modal "${id}" creation function does not exist.`);
             return;
         }
     }
@@ -171,15 +238,16 @@ export function showModal(id) {
     activeModalId = id;
     
     const distance = 1.5;
-    const position = new THREE.Vector3(0, 0, -distance);
     const cameraWorldPos = new THREE.Vector3();
+    const cameraWorldQuat = new THREE.Quaternion();
     camera.getWorldPosition(cameraWorldPos);
+    camera.getWorldQuaternion(cameraWorldQuat);
     
-    position.applyQuaternion(camera.quaternion);
-    position.add(cameraWorldPos);
+    const offset = new THREE.Vector3(0, 0, -distance);
+    offset.applyQuaternion(cameraWorldQuat);
     
-    modalGroup.position.copy(position);
-    modalGroup.quaternion.copy(camera.quaternion);
+    modalGroup.position.copy(cameraWorldPos).add(offset);
+    modalGroup.quaternion.copy(cameraWorldQuat);
     
     modal.visible = true;
     state.isPaused = true;
