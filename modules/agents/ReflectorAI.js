@@ -1,78 +1,71 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { spherePosToUv } from '../utils.js';
+import { gameHelpers } from '../gameHelpers.js';
 import * as CoreManager from '../CoreManager.js';
 
-// ReflectorAI - Boss B02: Reflector Warden
-// Reimplementation of the original 2D behaviour. The boss cycles between
-// idle and moving phases. Every third movement cycle enables a reflecting
-// shield for 2 seconds which heals the boss when hit and damages the player.
 export class ReflectorAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.BoxGeometry(0.4 * radius, 0.4 * radius, 0.4 * radius);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x300030 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 120, model: mesh });
-
-    const shieldGeom = new THREE.RingGeometry(0.35 * radius, 0.4 * radius, 32);
-    const shieldMat = new THREE.MeshBasicMaterial({
-      color: 0x2ecc71,
-      transparent: true,
-      opacity: 0.2,
-      side: THREE.DoubleSide
+  constructor() {
+    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x2ecc71,
+        emissive: 0x2ecc71,
+        emissiveIntensity: 0.3,
     });
-    this.shield = new THREE.Mesh(shieldGeom, shieldMat);
-    this.shield.rotation.x = Math.PI / 2;
-    this.add(this.shield);
+    const model = new THREE.Mesh(geometry, material);
+    super({ model });
+    
+    const shieldGeo = new THREE.SphereGeometry(1.2, 32, 16);
+    const shieldMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
+    this.shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    this.add(this.shieldMesh);
 
-    this.radius = radius;
-    this.phase = 'idle';
-    this.last = Date.now();
+    const bossData = { id: "reflector", name: "Reflector Warden", maxHP: 120 };
+    Object.assign(this, bossData);
+
+    this.phase = "idle";
+    this.lastPhaseChange = Date.now();
     this.cycles = 0;
     this.reflecting = false;
   }
 
-  update(delta, playerObj, gameState, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
     const now = Date.now();
-    if (now - this.last > 2000) {
-      this.phase = this.phase === 'idle' ? 'moving' : 'idle';
-      this.last = now;
-      if (this.phase === 'moving') {
+
+    // Phase cycling
+    if (now - this.lastPhaseChange > 2000) {
+      this.phase = this.phase === "idle" ? "moving" : "idle";
+      this.lastPhaseChange = now;
+      if (this.phase === "moving") {
         this.cycles++;
         if (this.cycles % 3 === 0) {
           this.reflecting = true;
-          if (gameHelpers?.spawnParticles) {
-            const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
-            gameHelpers.spawnParticles(
-              uv.u * 2048,
-              uv.v * 1024,
-              '#ffffff',
-              50,
-              4,
-              30
-            );
-          }
-          setTimeout(() => (this.reflecting = false), 2000);
+          setTimeout(() => { this.reflecting = false; }, 2000);
         }
       }
     }
 
-    this.shield.material.opacity = this.reflecting ? 0.6 : (this.phase === 'moving' ? 0.4 : 0.2);
+    // Visuals
+    this.shieldMesh.material.opacity = this.reflecting ? 0.75 : 0;
   }
 
-  takeDamage(amount, playerObj, gameState, gameHelpers) {
+  takeDamage(amount, sourceObject) {
     if (!this.alive) return;
-    if (this.phase !== 'idle') {
-      this.health = Math.min(this.maxHealth, this.health + amount);
-      if (this.reflecting && playerObj && typeof playerObj.health === 'number') {
-        playerObj.health -= 10;
-        CoreManager.onPlayerDamage(10, this, gameHelpers);
-        if (playerObj.health <= 0 && gameState) gameState.gameOver = true;
-        gameHelpers?.play?.('reflectorOnHit');
+
+    if (this.phase !== "idle") {
+        this.health = Math.min(this.maxHP, this.health + amount);
+    }
+    
+    if (this.reflecting) {
+      gameHelpers.play('reflectorOnHit');
+      if (sourceObject && typeof sourceObject.health === 'number') {
+        const reflectedDamage = 10;
+        sourceObject.health -= reflectedDamage;
+        CoreManager.onPlayerDamage(reflectedDamage, this);
       }
     } else {
-      super.takeDamage(amount, true, gameHelpers);
+        // Only call BaseAgent's takeDamage if not reflecting
+        super.takeDamage(amount, sourceObject);
     }
   }
 }
