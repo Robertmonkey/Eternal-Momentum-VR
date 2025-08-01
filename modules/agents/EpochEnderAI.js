@@ -1,42 +1,69 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-
-// EpochEnderAI - Implements boss B28: The Epoch-Ender
-// Can rewind its health and position after taking significant damage.
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class EpochEnderAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.4 * radius, 16, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xbdc3c7 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 550, model: mesh });
+  constructor() {
+    const geometry = new THREE.SphereGeometry(0.8, 16, 16);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xbdc3c7,
+        emissive: 0xbdc3c7,
+        emissiveIntensity: 0.2,
+        metalness: 0.9,
+        roughness: 0.4
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
-    this.damageWindow = 0;
-    this.lastState = { pos: this.position.clone(), hp: this.health };
-    this.rewindCooldown = 0;
+    const bossData = { id: "epoch_ender", name: "The Epoch-Ender", maxHP: 550 };
+    Object.assign(this, bossData);
+    
+    this.damageInWindow = 0;
+    this.lastStateSnapshot = { position: this.position.clone(), health: this.health };
+    this.lastSnapshotTime = 0;
+    this.rewindCooldownUntil = 0;
   }
 
-  update(delta, playerObj, state, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
     const now = Date.now();
 
-    if (!this.rewindCooldown) {
-      this.damageWindow += delta * 10; // accumulate pseudo damage
-      if (this.damageWindow > 100) {
-        gameHelpers?.play?.('timeRewind');
-        this.position.copy(this.lastState.pos);
-        this.health = this.lastState.hp;
-        this.rewindCooldown = now + 15000;
-        this.damageWindow = 0;
-      }
-    } else if (now > this.rewindCooldown) {
-      this.rewindCooldown = 0;
+    // Create the dilation field behind the boss
+    const toPlayer = state.player.position.clone().sub(this.position).normalize();
+    const fieldDirection = toPlayer.negate();
+    
+    state.effects.push({
+        type: 'dilation_field',
+        source: this,
+        position: this.position.clone(),
+        direction: fieldDirection,
+        radius: 15,
+        endTime: now + 50
+    });
+    
+    // Update the history snapshot every 2 seconds
+    if (now - this.lastSnapshotTime > 2000) {
+        this.lastSnapshotTime = now;
+        this.lastStateSnapshot = { position: this.position.clone(), health: this.health };
     }
+  }
 
-    if (!this.lastUpdate || now - this.lastUpdate > 2000) {
-      this.lastUpdate = now;
-      this.lastState = { pos: this.position.clone(), hp: this.health };
+  takeDamage(amount, sourceObject) {
+    if (!this.alive) return;
+    const now = Date.now();
+
+    if (now > this.rewindCooldownUntil) {
+      this.damageInWindow += amount;
+      if (this.damageInWindow > 100) {
+        gameHelpers.play('timeRewind');
+        this.position.copy(this.lastStateSnapshot.position);
+        this.health = this.lastStateSnapshot.health;
+        this.rewindCooldownUntil = now + 15000; // 15-second cooldown on rewind
+        this.damageInWindow = 0;
+        return; // Don't take damage this frame
+      }
     }
+    
+    super.takeDamage(amount, sourceObject);
   }
 }
