@@ -107,10 +107,7 @@ async function startGame(resetSave = false) {
 window.addEventListener('load', async () => {
   showLoading();
   await preloadAssets();
-  await startGame(false);
-  if (typeof window !== 'undefined' && window.showHomeMenu) {
-    window.showHomeMenu();
-  }
+  showHome();
   startBtn?.addEventListener('click', () => startGame(true));
   continueBtn?.addEventListener('click', () => startGame(false));
   eraseBtn?.addEventListener('click', () => {
