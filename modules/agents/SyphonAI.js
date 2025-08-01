@@ -1,35 +1,62 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-
-// SyphonAI - Implements boss B23: The Syphon
-// Attempts to steal the player's offensive power with a telegraphed cone attack.
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class SyphonAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.ConeGeometry(0.3 * radius, 0.6 * radius, 8);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x9b59b6 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 450, model: mesh });
+  constructor() {
+    const geometry = new THREE.ConeGeometry(0.6, 1.2, 16);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x9b59b6,
+        emissive: 0x9b59b6,
+        emissiveIntensity: 0.5
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
+    const bossData = { id: "syphon", name: "The Syphon", maxHP: 450 };
+    Object.assign(this, bossData);
+    
     this.isCharging = false;
-    this.lastSyphon = 0;
+    this.lastSyphonTime = 0;
   }
 
-  update(delta, playerObj, state, gameHelpers) {
-    if (!this.alive || !playerObj) return;
+  update(delta) {
+    if (!this.alive) return;
+    const now = Date.now();
 
-    if (!this.isCharging && Date.now() - this.lastSyphon > 7500) {
+    if (!this.isCharging && now - this.lastSyphonTime > 7500) {
       this.isCharging = true;
-      this.lastSyphon = Date.now();
-      gameHelpers?.play?.('chargeUpSound');
+      gameHelpers.play('chargeUpSound');
+
+      const targetDirection = state.player.position.clone().sub(this.position).normalize();
+
+      // Create a warning cone effect
+      state.effects.push({
+        type: 'syphon_cone',
+        source: this,
+        direction: targetDirection,
+        endTime: now + 2500,
+      });
+
       setTimeout(() => {
         if (!this.alive) return;
-        this.isCharging = false;
-        if (this.position.distanceTo(playerObj.position) < this.radius * 1.5) {
-          gameHelpers?.disableOffensivePower?.();
+
+        const playerDirection = state.player.position.clone().sub(this.position).normalize();
+        const angle = playerDirection.angleTo(targetDirection);
+
+        if (angle < Math.PI / 8) { // Check if player is within the cone's angle
+          const stolenPower = state.offensiveInventory[0];
+          if (stolenPower) {
+            gameHelpers.play('powerAbsorb');
+            state.offensiveInventory.shift();
+            state.offensiveInventory.push(null);
+            // In a fuller implementation, the boss would use the stolen power here
+          }
         }
-      }, 2000);
+        
+        this.isCharging = false;
+        this.lastSyphonTime = now + 2500;
+      }, 2500);
     }
   }
 }
