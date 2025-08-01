@@ -54,7 +54,15 @@ export const state = {
     pickups: [],
     effects: [],
     decoys: [],
+    particles: [],
     pathObstacles: [],
+
+    // Arena run flags
+    stacked: false,
+    arenaMode: false,
+    gravityActive: false,
+    gravityEnd: 0,
+    customOrreryBosses: [],
     
     // Game flow state
     currentStage: 1,
@@ -122,9 +130,15 @@ export function resetGame(bossData) { // Now accepts bossData to avoid circular 
         pickups: [],
         effects: [],
         decoys: [],
+        particles: [],
         pathObstacles: [],
         offensiveInventory: [null, null, null],
         defensiveInventory: [null, null, null],
+        stacked: false,
+        arenaMode: false,
+        gravityActive: false,
+        gravityEnd: 0,
+        customOrreryBosses: [],
         bossActive: false,
         gameOver: false,
         bossHasSpawnedThisRun: false,

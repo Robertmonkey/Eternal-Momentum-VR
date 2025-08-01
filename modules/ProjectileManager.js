@@ -11,8 +11,8 @@ export function spawnProjectile(props = {}) {
   p.velocity = (props.velocity instanceof THREE.Vector3)
     ? props.velocity.clone()
     : new THREE.Vector3(props.dx || 0, props.dy || 0, props.dz || 0);
-  p.r = props.r || p.r || 0;
-  p.damage = props.damage || p.damage || 0;
+  p.r = props.r ?? p.r ?? 0;
+  p.damage = props.damage ?? p.damage ?? 0;
   p.alive = true;
   active.push(p);
   return p;
