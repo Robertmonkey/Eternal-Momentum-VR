@@ -1,68 +1,21 @@
-<!-- index.html – Complete VR build (updated 2025‑07‑28) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eternal Momentum VR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Utility libraries -->
-
-  <!-- Runtime -->
-  <script type="module" src="vrMain.js"></script>
-  <script type="module" src="app.js"></script>
-
-  <!-- Styles -->
+  <title>Eternal Momentum VR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="Eternal-Momentum-OLD GAME/style.css" />
 </head>
-
 <body>
-  <!-- Neon‑grid texture source -->
-  <canvas id="gridCanvas" width="512" height="512" style="display:none;"></canvas>
-  <!-- Console button texture source -->
-  <canvas id="buttonCanvas" width="256" height="256" style="display:none;"></canvas>
-  <canvas id="settingsCanvas" width="1280" height="960" style="display:none;"></canvas>
-  <!-- Stage select panel target -->
-  <canvas id="levelSelectCanvas" width="1280" height="960" style="display:none;"></canvas>
-  <!-- Telemetry panel target -->
-  <canvas id="telemetryCanvas" width="1280" height="960" style="display:none;"></canvas>
   <div id="loadingScreen">
     <div id="loadingProgressContainer">
       <div id="loadingProgressFill"></div>
     </div>
     <p id="loadingStatusText">Initializing Systems...</p>
   </div>
-
-  <div id="homeScreen" style="display:none;">
-    <video autoplay muted loop playsinline id="home-video-bg">
-      <source src="assets/home.mp4" type="video/mp4">
-    </video>
-    <div id="homeOverlay">
-      <h1 id="gameTitle">ETERNAL MOMENTUM</h1>
-      <div id="homeActions">
-        <button id="startVrBtn" class="home-btn">AWAKEN</button>
-        <button id="continueVrBtn" class="home-btn" style="display:none;">CONTINUE MOMENTUM</button>
-        <button id="eraseVrBtn" class="home-btn erase" style="display:none;">SEVER TIMELINE</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="fadeOverlay"></div>
-
-  <!-- Motion permission prompt -->
-  <div id="motionPermissionModal">
-    <div id="motionPermissionBox" class="modal-background">
-      <h2>SYNC MOTION DATA?</h2>
-      <p>To harmonize your Conduit, we require access to your device's motion sensors.</p>
-      <div id="motionPermissionActions">
-        <button id="motionAllowBtn">GRANT ACCESS</button>
-        <button id="motionDenyBtn" class="btn-modal-close">NOT NOW</button>
-      </div>
-    </div>
-  </div>
-
+  
   <div id="vrContainer"></div>
 
+  <script type="module" src="app.js"></script>
 </body>
 </html>
