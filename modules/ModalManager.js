@@ -203,16 +203,15 @@ function createCoresModal() {
 // --- API ---
 
 const createModalFunctions = {
-    'home': createHomeModal,
-    'settings': createSettingsModal,
-    'confirm': createConfirmModal,
-    'levelSelect': createStageSelectModal,
-    'cores': createCoresModal,
-    // Stubs for other complex modals
-    'ascension': () => createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT (WIP)'),
-    'lore': () => createModalContainer(1.2, 1.2, 'LORE CODEX (WIP)'),
-    'bossInfo': () => createModalContainer(1.0, 0.8, 'BOSS INFO (WIP)'),
-    'orrery': () => createModalContainer(1.6, 1.2, "WEAVER'S ORRERY (WIP)"),
+    "home": createHomeModal,
+    "settings": createSettingsModal,
+    "confirm": createConfirmModal,
+    "levelSelect": createStageSelectModal,
+    "cores": createCoresModal,
+    "ascension": createAscensionModal,
+    "lore": createLoreModal,
+    "bossInfo": createBossInfoModal,
+    "orrery": createOrreryModal,
 };
 
 export function initModals() {
@@ -294,4 +293,104 @@ export function getModalObjects() {
 
 export function getModalByName(id) {
     return modals[id];
+}
+
+function createAscensionModal() {
+    const modal = createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT');
+    modal.name = 'modal_ascension';
+    const grid = new THREE.Group();
+    grid.position.y = -0.1;
+    modal.add(grid);
+
+    modal.userData.refresh = () => {
+        grid.clear();
+        Object.values(TALENT_GRID_CONFIG).forEach(con => {
+            Object.keys(con).forEach(key => {
+                if (key === 'color') return;
+                const t = con[key];
+                const btn = createButton(t.icon, () => purchaseTalent(t.id), 0.12, 0.12);
+                btn.position.set((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
+                grid.add(btn);
+            });
+        });
+    };
+
+    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    closeBtn.position.set(0, -0.6, 0.01);
+    modal.add(closeBtn);
+    return modal;
+}
+
+function createLoreModal() {
+    const modal = createModalContainer(1.2, 1.2, 'LORE CODEX');
+    modal.name = 'modal_lore';
+    const list = new THREE.Group();
+    list.position.y = 0.4;
+    modal.add(list);
+
+    modal.userData.refresh = () => {
+        list.clear();
+        const bosses = bossData.filter(b => b.lore);
+        bosses.forEach((b, i) => {
+            const btn = createButton(b.name, () => showBossInfo([b.id], 'lore'), 1.0);
+            btn.position.set(0, 0.4 - i * 0.12, 0.01);
+            list.add(btn);
+        });
+    };
+
+    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    closeBtn.position.set(0, -0.5, 0.01);
+    modal.add(closeBtn);
+    return modal;
+}
+
+function createBossInfoModal() {
+    const modal = createModalContainer(1.2, 1.0, 'BOSS INFO');
+    modal.name = 'modal_bossInfo';
+    const content = createTextSprite('', 32);
+    content.position.set(0, 0.1, 0.01);
+    modal.add(content);
+    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    closeBtn.position.set(0, -0.4, 0.01);
+    modal.add(closeBtn);
+    modal.userData.contentSprite = content;
+    modal.userData.titleSprite = modal.children.find(c => c.userData.isTitle);
+    return modal;
+}
+
+function createOrreryModal() {
+    const modal = createModalContainer(1.6, 1.2, "WEAVER'S ORRERY");
+    modal.name = 'modal_orrery';
+    const list = new THREE.Group();
+    list.position.y = 0.4;
+    modal.add(list);
+
+    modal.userData.refresh = () => {
+        list.clear();
+        const costs = {1:2,2:5,3:8};
+        bossData.filter(b=>b.difficulty_tier).forEach((b,i)=>{
+            const cost = costs[b.difficulty_tier] || 2;
+            const btn = createButton(`${b.name} (${cost})`, () => showBossInfo([b.id], 'mechanics'), 1.2);
+            btn.position.set(0, 0.4 - i*0.12, 0.01);
+            list.add(btn);
+        });
+    };
+
+    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    closeBtn.position.set(0, -0.5, 0.01);
+    modal.add(closeBtn);
+    return modal;
+}
+
+
+export function showBossInfo(bossIds, type = 'mechanics') {
+    showModal('bossInfo');
+    const modal = modals.bossInfo;
+    if (!modal) return;
+    const bosses = bossIds.map(id => bossData.find(b => b.id === id)).filter(b => b);
+    if (bosses.length === 0) return;
+    const title = bosses.map(b => b.name).join(' & ');
+    const content = bosses.map(b => type === 'lore' ? b.lore : b.mechanics_desc).join('\n\n');
+    if (modal.userData.titleSprite) updateTextSprite(modal.userData.titleSprite, title);
+    if (modal.userData.contentSprite) updateTextSprite(modal.userData.contentSprite, content);
 }
