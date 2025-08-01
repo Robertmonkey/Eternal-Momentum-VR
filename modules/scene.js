@@ -1,4 +1,4 @@
-\import * as THREE from '../vendor/three.module.js';
+import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { initControllerMenu } from './ControllerMenu.js';
 
@@ -27,19 +27,13 @@ export function initScene() {
     directionalLight.position.set(0, 10, 5);
     scene.add(directionalLight);
 
-    // --- FLOOR GRID FIX ---
-    // This section is updated to use a PolarGridHelper for a circular grid.
-    const gridRadius = ARENA_RADIUS * 0.2;
-    const radialDivisions = 16; // The "spokes" from the center
-    const circleDivisions = 8;  // The concentric circles
-
-    grid = new THREE.PolarGridHelper(gridRadius, radialDivisions, circleDivisions, 64, 0x00ffff, 0x00ffff);
+    const gridSize = ARENA_RADIUS * 0.4;
+    grid = new THREE.GridHelper(gridSize, 10, 0x00ffff, 0x00ffff);
     grid.material.transparent = true;
     grid.material.opacity = 0.25;
     scene.add(grid);
 
-    // The outer ring remains the same
-    const ringGeometry = new THREE.RingGeometry(gridRadius * 0.98, gridRadius, 64);
+    const ringGeometry = new THREE.RingGeometry(gridSize * 0.98, gridSize, 64);
     const ringMaterial = new THREE.MeshBasicMaterial({
         color: 0x00ffff, side: THREE.DoubleSide
     });
