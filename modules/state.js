@@ -36,26 +36,25 @@ export const state = {
             power_spawn_rate_modifier: 1.0,
         },
         talent_states: {
-            // Per-talent and per-core timers and flags are stored here
             phaseMomentum: { active: false, lastDamageTime: 0 },
-            core_states: {}, // Will be reset in resetGame
+            core_states: {},
         },
     },
     
     // VR-specific state
     settings: {
-        handedness: 'right', // 'left' or 'right'
-        musicVolume: 75,   // 0-100
-        sfxVolume: 85,     // 0-100
+        handedness: 'right',
+        musicVolume: 75,
+        sfxVolume: 85,
     },
-    cursorDir: new THREE.Vector3(0, 0, -1), // Direction of the controller pointer
+    cursorDir: new THREE.Vector3(0, 0, -1),
 
     // Game world state
     enemies: [],
     pickups: [],
     effects: [],
     decoys: [],
-    pathObstacles: [], // For enemy navigation
+    pathObstacles: [],
     
     // Game flow state
     currentStage: 1,
@@ -63,14 +62,11 @@ export const state = {
     bossHasSpawnedThisRun: false,
     bossSpawnCooldownEnd: 0,
     gameOver: false,
-    isPaused: true, // Start paused until the game begins
+    isPaused: true,
     offensiveInventory: [null, null, null],
     defensiveInventory: [null, null, null],
 };
 
-/**
- * Persists the player's essential progress and settings to localStorage.
- */
 export function savePlayerState() {
   const persistentData = {
     level: state.player.level,
@@ -84,39 +80,29 @@ export function savePlayerState() {
     unlockedDefensiveSlots: state.player.unlockedDefensiveSlots,
     unlockedAberrationCores: [...state.player.unlockedAberrationCores],
     equippedAberrationCore: state.player.equippedAberrationCore,
-    settings: state.settings, // Save settings
+    settings: state.settings,
   };
   localStorage.setItem('eternalMomentumSave', JSON.stringify(persistentData));
 }
 
-/**
- * Loads player progress and settings from localStorage.
- */
 export function loadPlayerState() {
   const savedData = localStorage.getItem('eternalMomentumSave');
   if (savedData) {
     const parsedData = JSON.parse(savedData);
-    
-    // Load progress
     Object.assign(state.player, {
         ...parsedData,
         unlockedPowers: new Set(parsedData.unlockedPowers || []),
         purchasedTalents: new Map(parsedData.purchasedTalents || []),
         unlockedAberrationCores: new Set(parsedData.unlockedAberrationCores || []),
     });
-    
-    // Load settings, with defaults for safety
     if (parsedData.settings) {
         Object.assign(state.settings, parsedData.settings);
     }
   }
 }
 
-/**
- * Resets the game to a fresh state for the start of a run.
- */
-export function resetGame() {
-    state.player.position.set(0, 0, 0); // PlayerController will set the real starting position
+export function resetGame(bossData) { // Now accepts bossData to avoid circular dependency
+    state.player.position.set(0, 0, 0);
     state.player.health = state.player.maxHealth;
     state.player.statusEffects = [];
     state.player.activePantheonBuffs = [];
@@ -124,11 +110,12 @@ export function resetGame() {
     state.player.berserkUntil = 0;
     state.player.stunnedUntil = 0;
     
-    // Reset all core states to prevent cooldowns from carrying over
     state.player.talent_states.core_states = {};
-    bossData.forEach(core => {
-        if(core.id) state.player.talent_states.core_states[core.id] = {};
-    });
+    if (bossData) { // Safely initialize core states
+        bossData.forEach(core => {
+            if(core.id) state.player.talent_states.core_states[core.id] = {};
+        });
+    }
 
     Object.assign(state, {
         enemies: [],
