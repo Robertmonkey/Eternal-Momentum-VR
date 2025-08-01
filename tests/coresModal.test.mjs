@@ -24,13 +24,14 @@ await initModals(camera);
 const cores = getModalObjects().find(m => m && m.name === 'cores');
 assert(cores, 'cores modal created');
 
-const list = cores.children[3];
+// list of core buttons is stored in child index 5
+const list = cores.children[5];
 const firstBtn = list.children[0];
-firstBtn.children[0].userData.onSelect();
+firstBtn.children[1].userData.onSelect();
 assert(state.player.equippedAberrationCore, 'core equipped');
 
-const unequip = cores.children.find(c => c.children && c.children[0]?.userData?.onSelect && c.children[0].userData.onSelect.toString().includes('null'));
-unequip.children[0].userData.onSelect();
+const unequip = cores.children.find(c => c.children && c.children[1]?.userData?.onSelect && c.children[1].userData.onSelect.toString().includes('null'));
+unequip.children[1].userData.onSelect();
 assert.strictEqual(state.player.equippedAberrationCore, null, 'core unequipped');
 
 console.log('cores modal test passed');

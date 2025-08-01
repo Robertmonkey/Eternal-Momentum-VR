@@ -81,7 +81,9 @@ export function initScene(container = document.body) {
   platformGroup.add(ring);
 
   const gridHelper = new THREE.GridHelper(20, 20, 0x00ffff, 0x004444);
-  gridHelper.rotation.x = Math.PI / 2;
+  // The grid should lie flat on the XZ plane. Rotating it would place the
+  // disc vertically, which users reported seeing in the prototype.
+  gridHelper.rotation.x = 0;
   gridHelper.material.transparent = true;
   gridHelper.material.opacity = 0.25;
   platformGroup.add(gridHelper);

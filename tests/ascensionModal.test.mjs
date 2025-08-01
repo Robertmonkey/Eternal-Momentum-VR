@@ -24,12 +24,12 @@ await initModals(camera);
 const asc = getModalObjects().find(m => m && m.name === 'ascension');
 assert(asc, 'ascension modal created');
 
-const erase = asc.children.find(c => c.children && c.children[0]?.userData?.onSelect && c.children[0].userData.onSelect.toString().includes('showConfirm'));
-erase.children[0].userData.onSelect();
+const erase = asc.children.find(c => c.children && c.children[1]?.userData?.onSelect && c.children[1].userData.onSelect.toString().includes('showConfirm'));
+erase.children[1].userData.onSelect();
 
 const confirm = getModalObjects().find(m => m && m.name === 'confirm');
-const yes = confirm.children.find(c => c.children && c.children[0]?.userData?.onSelect);
-yes.children[0].userData.onSelect();
+const yes = confirm.children.find(c => c.children && c.children[1]?.userData?.onSelect);
+yes.children[1].userData.onSelect();
 
 assert.strictEqual(store.eternalMomentumSave, undefined, 'save cleared');
 assert.ok(global.window.location.reloaded, 'page reloaded');

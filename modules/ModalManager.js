@@ -27,12 +27,18 @@ const FONT_COLOR    = '#eaf2ff'; // --font-color【802164479894751†L0-L8】
 // image should be placed in the assets folder at ../assets/bg.png.  A low
 // opacity overlay using this texture is drawn on top of each panel to
 // approximate the translucent nebula seen in the old menus.  If the texture
-// fails to load the material will simply be transparent.
-const starTexture = new THREE.TextureLoader().load('../assets/bg.png', tex => {
-  tex.encoding = THREE.sRGBEncoding;
-  tex.minFilter = THREE.LinearFilter;
-  tex.magFilter = THREE.LinearFilter;
-});
+// fails to load or the test environment lacks DOM methods, the material will
+// simply remain empty.
+let starTexture;
+if (typeof document !== 'undefined' && document.createElementNS) {
+  starTexture = new THREE.TextureLoader().load('../assets/bg.png', tex => {
+    tex.encoding = THREE.sRGBEncoding;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+  });
+} else {
+  starTexture = new THREE.Texture();
+}
 
 let modalGroup;
 const modals = {};
@@ -298,10 +304,10 @@ function createStageSelectModal() {
     row.name = `stage${i}`;
     const btn = createButton(`STAGE ${i}: ${stageInfo.displayName}`, () => startStage(i));
     row.add(btn);
-    const mech = createButton('❔', () => showBossInfoModal(stageInfo.bosses, 'mechanics'));
+    const mech = createButton('❔', () => showBossInfo(stageInfo.bosses, 'mechanics'));
     mech.position.set(0.6, 0, 0);
     row.add(mech);
-    const loreIcon = createButton('ℹ️', () => showBossInfoModal(stageInfo.bosses, 'lore'));
+    const loreIcon = createButton('ℹ️', () => showBossInfo(stageInfo.bosses, 'lore'));
     loreIcon.position.set(0.8, 0, 0);
     row.add(loreIcon);
     row.position.set(0, -0.25 * (i - 1), 0);
@@ -568,10 +574,10 @@ function createOrreryModal() {
         }
       });
       row.add(btn);
-      const mech = createButton('❔', () => showBossInfoModal([boss.id], 'mechanics'));
+      const mech = createButton('❔', () => showBossInfo([boss.id], 'mechanics'));
       mech.position.set(0.6, 0, 0);
       row.add(mech);
-      const loreIcon = createButton('ℹ️', () => showBossInfoModal([boss.id], 'lore'));
+      const loreIcon = createButton('ℹ️', () => showBossInfo([boss.id], 'lore'));
       loreIcon.position.set(0.8, 0, 0);
       row.add(loreIcon);
       const cText = createTextSprite(String(cost), 24, FONT_COLOR);

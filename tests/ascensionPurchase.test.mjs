@@ -33,10 +33,10 @@ await initModals(camera);
 const asc = getModalObjects().find(m => m && m.name === 'ascension');
 assert(asc, 'ascension modal created');
 
-const grid = asc.children.find(g => g.children && g.children.some(c => c.children && c.children[0]?.userData?.onSelect));
-const node = grid && grid.children.find(c => c.children && c.children[0]?.userData?.onSelect);
+const grid = asc.children.find(g => g.children && g.children.some(c => c.children && c.children[1]?.userData?.onSelect));
+const node = grid && grid.children.find(c => c.children && c.children[1]?.userData?.onSelect);
 assert(node, 'talent node exists');
-node.children[0].userData.onSelect();
+node.children[1].userData.onSelect();
 
 assert.ok(state.player.purchasedTalents.size >= 1, 'talent purchased');
 console.log('ascension purchase test passed');

@@ -32,11 +32,12 @@ orrery.userData.render();
 
 const bossList = orrery.getObjectByName('bossList');
 const firstRow = bossList.children[0];
-firstRow.children[0].children[0].userData.onSelect();
+// each button stores the onSelect handler on its background mesh
+firstRow.children[0].children[1].userData.onSelect();
 assert.strictEqual(orrery.userData.selectedBosses.length, 1, 'boss selected');
 
 const startBtn = orrery.userData.startBtn;
-startBtn.children[0].userData.onSelect();
+startBtn.children[1].userData.onSelect();
 assert(state.arenaMode, 'arena mode active');
 assert.deepStrictEqual(state.customOrreryBosses, orrery.userData.selectedBosses, 'boss list applied');
 
