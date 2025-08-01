@@ -25,18 +25,19 @@ function ensureGroup() {
     }
 }
 
-function createButton(label, onSelect, width = 0.5, height = 0.1) {
+function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ffff, bgColor = 0x111122) {
     const group = new THREE.Group();
     group.name = `button_${label.replace(/\s+/g, '_')}`;
 
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x111122, 0.8));
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(bgColor, 0.8));
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
 
-    const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(0x00ffff, 0.5));
+    const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(color, 0.5));
     border.position.z = -0.001;
 
     const text = createTextSprite(label.substring(0, 20), 32);
+    text.material.color.set(color);
     text.position.z = 0.002;
 
     // Interactive behaviour
@@ -165,26 +166,59 @@ function createStageSelectModal() {
     listContainer.position.y = -0.1;
     modal.add(listContainer);
 
+    const loreCodexBtn = createButton('LORE CODEX', () => showModal('lore'), 0.4, 0.08);
+    loreCodexBtn.position.set(0.5, 0.5, 0.02);
+    modal.add(loreCodexBtn);
+
+    const arenaBtn = createButton("WEAVER'S ORRERY", () => { hideModal(); showModal('orrery'); }, 0.6);
+    arenaBtn.position.set(-0.45, -0.5, 0.01);
+    const frontierBtn = createButton('JUMP TO FRONTIER', () => {
+        const stage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
+        state.currentStage = stage;
+        resetGame(bossData);
+        hideModal();
+    }, 0.6);
+    frontierBtn.position.set(0.45, -0.5, 0.01);
+
+    const closeBtn = createButton('Close', () => hideModal(), 0.5);
+    closeBtn.position.set(0, -0.65, 0.01);
+
+    modal.add(arenaBtn, frontierBtn, closeBtn);
+
     modal.userData.refresh = () => {
-        listContainer.clear(); // More robust than removing children in a loop
+        listContainer.clear();
+        arenaBtn.visible = state.player.highestStageBeaten >= 30;
         const maxStage = state.player.highestStageBeaten + 1;
         for (let i = 1; i <= Math.min(maxStage, 30); i++) {
-            const stageInfo = bossData.find(b => b.unlock_level === (i * 5 - 5) + 10); // Approximate mapping
-            if (!stageInfo) continue;
-            
-            const row = createButton(`${i}: ${stageInfo.name}`, () => {
+            const bossIds = bossData.filter(b => b.unlock_level === (i * 5 - 5) + 10).map(b => b.id);
+            if (!bossIds.length) continue;
+            const bossNames = bossIds.map(id => {
+                const b = bossData.find(x => x.id === id);
+                return b ? b.name : 'Unknown';
+            }).join(' & ');
+
+            const row = new THREE.Group();
+            const stageBtn = createButton(`STAGE ${i}`, () => {
                 state.currentStage = i;
-                resetGame(bossData); // Ensure core states initialize correctly
+                resetGame(bossData);
                 hideModal();
-            }, 1.0);
-            row.position.y = 0.4 - (i-1) * 0.12;
+            }, 0.6);
+            row.add(stageBtn);
+
+            const nameSprite = createTextSprite(bossNames, 28);
+            nameSprite.position.set(-0.2, -0.07, 0.01);
+            row.add(nameSprite);
+
+            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12);
+            mechBtn.position.set(0.4, 0.02, 0.01);
+            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12);
+            loreBtn.position.set(0.4, -0.08, 0.01);
+            row.add(mechBtn, loreBtn);
+
+            row.position.y = 0.4 - (i - 1) * 0.15;
             listContainer.add(row);
         }
     };
-    
-    const closeBtn = createButton('Close', () => hideModal(), 0.6);
-    closeBtn.position.set(0, -0.5, 0.01);
-    modal.add(closeBtn);
 
     return modal;
 }
@@ -204,11 +238,15 @@ function createCoresModal() {
             const btn = createButton(core.name, () => {
                 state.player.equippedAberrationCore = core.id;
                 savePlayerState();
-                modal.userData.refresh(); // Re-render to show selection
-            }, 1.0);
+                modal.userData.refresh();
+            }, 1.0, 0.1, core.color ? new THREE.Color(core.color).getHex() : 0x00ffff, 0x111122);
             btn.position.y = 0.5 - i * 0.12;
+            btn.children[0].material.color.set(core.color || '#ffffff');
+            btn.children[0].material.emissive.set(core.color || '#ffffff');
+            btn.children[1].material.color.set(core.color || '#ffffff');
             if (state.player.equippedAberrationCore === core.id) {
-                btn.children[0].material.color.set(0x00ff00); // Highlight background
+                btn.scale.setScalar(1.1);
+                btn.children[1].material.color.set(0x00ff00);
             }
             listContainer.add(btn);
         });
