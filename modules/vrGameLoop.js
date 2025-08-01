@@ -8,6 +8,19 @@ import { AudioManager } from './audio.js';
 import { showUnlockNotification } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
 
+function updatePhaseMomentum() {
+    const rank = state.player.purchasedTalents.get('phase-momentum');
+    const pmState = state.player.talent_states.phaseMomentum;
+    if (!rank) {
+        pmState.active = false;
+        return;
+    }
+    const now = Date.now();
+    if (now - pmState.lastDamageTime > 8000) {
+        pmState.active = true;
+    }
+}
+
 let lastSpawnTime = 0;
 let lastPowerUpTime = 0;
 
@@ -67,6 +80,8 @@ export function vrGameLoop() {
 
     handleLevelProgression();
     handleEnemyAndPowerSpawning();
+
+    updatePhaseMomentum();
 
     updateEnemies3d();
     updateProjectiles3d();

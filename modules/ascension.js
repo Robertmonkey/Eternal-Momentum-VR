@@ -106,6 +106,12 @@ export function applyAllTalentEffects() {
         }
     });
 
+    // Reset dynamic talent states
+    state.player.talent_states.phaseMomentum.active = false;
+    if (state.player.purchasedTalents.has('phase-momentum')) {
+        state.player.talent_states.phaseMomentum.lastDamageTime = Date.now();
+    }
+
     // After applying all maxHealth modifiers, ensure current health isn't higher.
     state.player.health = Math.min(state.player.health, state.player.maxHealth);
 }

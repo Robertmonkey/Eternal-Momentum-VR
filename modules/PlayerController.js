@@ -166,7 +166,8 @@ export function updatePlayerController() {
     gripJustPressed = false;
 
     if (state.player.stunnedUntil < Date.now()) {
-        moveTowards(avatar.position, targetPoint, state.player.speed, radius);
+        const speedMult = state.player.talent_states.phaseMomentum.active ? 1.1 : 1.0;
+        moveTowards(avatar.position, targetPoint, state.player.speed * speedMult, radius);
         state.player.position.copy(avatar.position);
     }
     
