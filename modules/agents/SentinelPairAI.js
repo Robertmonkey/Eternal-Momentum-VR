@@ -3,6 +3,7 @@ import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import { gameHelpers } from '../gameHelpers.js';
 import * as CoreManager from '../CoreManager.js';
+import { applyPlayerDamage } from '../helpers.js';
 
 const ARENA_RADIUS = 50;
 
@@ -60,11 +61,8 @@ export class SentinelPairAI extends BaseAgent {
     // Damage player if they intersect the beam
     const playerLineDist = new THREE.Line3(this.position, this.partner.position).closestPointToPoint(playerPos, true, new THREE.Vector3()).distanceTo(playerPos);
     if(playerLineDist < state.player.r + 0.2) {
-        if (!state.player.shield) {
-            const damage = 1;
-            state.player.health -= damage;
-            CoreManager.onPlayerDamage(damage, this, gameHelpers);
-        }
+        const damage = 1;
+        applyPlayerDamage(damage, this, gameHelpers);
     }
   }
 

@@ -2,6 +2,7 @@ import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import * as CoreManager from '../CoreManager.js';
+import { applyPlayerDamage } from '../helpers.js';
 
 export class SwarmLinkAI extends BaseAgent {
   constructor() {
@@ -50,11 +51,8 @@ export class SwarmLinkAI extends BaseAgent {
       const playerPos = state.player.position;
       const distance = playerPos.distanceTo(seg.position);
       if (distance < state.player.r + 0.4) { // 0.4 is segment radius
-        if (!state.player.shield) {
-            const damage = 0.5; // Damage per frame
-            state.player.health -= damage;
-            CoreManager.onPlayerDamage(damage, this, gameHelpers);
-        }
+        const damage = 0.5; // Damage per frame
+        applyPlayerDamage(damage, this, gameHelpers);
       }
     });
   }

@@ -3,6 +3,7 @@ import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import { gameHelpers } from '../gameHelpers.js';
 import * as CoreManager from '../CoreManager.js';
+import { applyPlayerDamage } from '../helpers.js';
 
 const ARENA_RADIUS = 50;
 
@@ -77,8 +78,7 @@ export class AnnihilatorAI extends BaseAgent {
 
         if (!this.isPlayerInShadow()) {
             const damage = 1000; // Lethal damage
-            state.player.health -= damage;
-            CoreManager.onPlayerDamage(damage, this, gameHelpers);
+            applyPlayerDamage(damage, this, gameHelpers);
         }
 
         this.isChargingBeam = false;

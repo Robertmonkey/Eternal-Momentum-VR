@@ -49,7 +49,8 @@ function handleEnemyAndPowerSpawning() {
         lastSpawnTime = now;
     }
 
-    if (now - lastPowerUpTime > 6000) {
+    const spawnInterval = 6000 / state.player.talent_modifiers.power_spawn_rate_modifier;
+    if (now - lastPowerUpTime > spawnInterval) {
         spawnPickup();
         lastPowerUpTime = now;
     }
