@@ -29,7 +29,7 @@ export function holoMaterial(color = 0x141428, opacity = 0.85) {
   });
 }
 
-function createTextSprite(text, size = 32, color = '#eaf2ff') {
+export function createTextSprite(text, size = 32, color = '#eaf2ff') {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const fontStack = "'Segoe UI','Roboto',sans-serif";
@@ -53,7 +53,7 @@ function createTextSprite(text, size = 32, color = '#eaf2ff') {
     return sprite;
 }
 
-function updateTextSprite(sprite, text) {
+export function updateTextSprite(sprite, text) {
     const { ctx, canvas, font } = sprite.userData;
     if (!ctx || !canvas) return;
     ctx.font = font;
@@ -276,6 +276,42 @@ export function updateHud() {
     }
 }
 
+export function showUnlockNotification(text, subtext = '') {
+    if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+    }
+    
+    // Clear any previous notification meshes to prevent overlap
+    while (notificationGroup.children.length) {
+        const child = notificationGroup.children[0];
+        // Clean up materials and textures to avoid memory leaks
+        if (child.material.map) child.material.map.dispose();
+        if (child.material) child.material.dispose();
+        notificationGroup.remove(child);
+    }
+
+    // Create and position the text sprites
+    if (subtext) {
+        const titleSprite = createTextSprite(subtext, 32, '#ffffff');
+        titleSprite.position.y = 0.03;
+        notificationGroup.add(titleSprite);
+
+        const textSprite = createTextSprite(text, 48, '#00ffff');
+        textSprite.position.y = -0.03;
+        notificationGroup.add(textSprite);
+    } else {
+        const textSprite = createTextSprite(text, 48, '#00ffff');
+        notificationGroup.add(textSprite);
+    }
+    
+    notificationGroup.visible = true;
+
+    // Set a timeout to hide the notification after a few seconds
+    notificationTimeout = setTimeout(() => {
+        notificationGroup.visible = false;
+    }, 3500);
+}
+
 export function showBossBanner(text) {
-    showUnlockNotification(`🚨 ${text} 🚨`, '');
+    showUnlockNotification(`🚨 ${text} 🚨`, 'Aberration Detected');
 }
