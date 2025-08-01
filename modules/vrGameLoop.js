@@ -2,6 +2,7 @@ import { state, savePlayerState } from './state.js';
 import { spawnEnemy, spawnPickup, spawnBossesForStage, handleThematicUnlock } from './gameLoop.js';
 import { updateEnemies3d } from './enemyAI3d.js';
 import { updateProjectiles3d } from './projectilePhysics3d.js';
+import { updatePickups3d } from './pickupPhysics3d.js';
 import * as CoreManager from './CoreManager.js';
 import { AudioManager } from './audio.js';
 import { showUnlockNotification } from './UIManager.js';
@@ -69,6 +70,7 @@ export function vrGameLoop() {
 
     updateEnemies3d();
     updateProjectiles3d();
+    updatePickups3d();
 
     if (state.bossActive) {
         handleBossDefeat();
