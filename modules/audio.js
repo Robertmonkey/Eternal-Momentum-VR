@@ -11,7 +11,10 @@ export const AudioManager = {
   musicGain: null,
   soundBuffers: {},
   loopingSounds: {},
-  musicPlaylist: ['bgMusic_01', 'bgMusic_02', 'bgMusic_03', 'bgMusic_04', 'bgMusic_05'],
+  musicPlaylist: [
+    'bgMusic_01', 'bgMusic_02', 'bgMusic_03', 'bgMusic_04', 'bgMusic_05',
+    'bgMusic_06', 'bgMusic_07', 'bgMusic_08', 'bgMusic_09', 'bgMusic_10'
+  ],
   currentTrackIndex: -1,
   currentMusic: null,
   soundBtn: null,
@@ -128,8 +131,11 @@ export const AudioManager = {
 
   playMusic() {
     if (this.musicPlaylist.length === 0 || this.currentMusic) return;
-    this.currentTrackIndex = 0;
-    this._playMusicTrack(this.musicPlaylist[0]);
+    if (this.currentTrackIndex === -1) {
+      this.musicPlaylist.sort(() => Math.random() - 0.5);
+      this.currentTrackIndex = 0;
+    }
+    this._playMusicTrack(this.musicPlaylist[this.currentTrackIndex]);
   },
 
   setMusicVolume(v) {
