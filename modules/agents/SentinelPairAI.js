@@ -63,7 +63,7 @@ export class SentinelPairAI extends BaseAgent {
         if (!state.player.shield) {
             const damage = 1;
             state.player.health -= damage;
-            CoreManager.onPlayerDamage(damage, this);
+            CoreManager.onPlayerDamage(damage, this, gameHelpers);
         }
     }
   }

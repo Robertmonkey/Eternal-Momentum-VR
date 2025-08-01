@@ -1,7 +1,7 @@
 import { state, savePlayerState } from './state.js';
 import { spawnEnemy, spawnPickup, spawnBossesForStage, handleThematicUnlock } from './gameLoop.js';
 import { updateEnemies3d } from './enemyAI3d.js';
-import { updateProjectiles3d } from './projectilePhysics3d.js';
+import { updateProjectiles3d, updateEffects3d } from './projectilePhysics3d.js';
 import { updatePickups3d } from './pickupPhysics3d.js';
 import * as CoreManager from './CoreManager.js';
 import { AudioManager } from './audio.js';
@@ -84,6 +84,7 @@ export function vrGameLoop() {
     updatePhaseMomentum();
 
     updateEnemies3d();
+    updateEffects3d();
     updateProjectiles3d();
     updatePickups3d();
 

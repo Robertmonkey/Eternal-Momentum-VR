@@ -53,7 +53,7 @@ export class ReflectorAI extends BaseAgent {
       if (sourceObject && typeof sourceObject.health === 'number') {
         const reflectedDamage = 10;
         sourceObject.health -= reflectedDamage;
-        CoreManager.onPlayerDamage(reflectedDamage, this);
+        CoreManager.onPlayerDamage(reflectedDamage, this, gameHelpers);
       }
     } else {
         super.takeDamage(amount, true);

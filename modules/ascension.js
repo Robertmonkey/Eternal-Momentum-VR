@@ -111,6 +111,7 @@ export function applyAllTalentEffects() {
     if (state.player.purchasedTalents.has('phase-momentum')) {
         state.player.talent_states.phaseMomentum.lastDamageTime = Date.now();
     }
+    state.player.talent_states.reactivePlating.lastTrigger = 0;
 
     // After applying all maxHealth modifiers, ensure current health isn't higher.
     state.player.health = Math.min(state.player.health, state.player.maxHealth);
