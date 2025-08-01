@@ -1,89 +1,85 @@
 import * as THREE from './vendor/three.module.js';
-import { VRButton } from './vendor/addons/webxr/VRButton.js'; // <-- CORRECTED PATH
-import { initScene, getScene, getCamera, getRenderer } from './modules/scene.js';
+import { VRButton } from './vendor/addons/webxr/VRButton.js';
+import { initScene, getScene, getRenderer, getCamera } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
-import { initUI, updateHud } from './modules/UIManager.js';
+import { initUI, updateHud, showHud } from './modules/UIManager.js';
 import { initModals, showHomeMenu } from './modules/ModalManager.js';
 import { vrGameLoop } from './modules/vrGameLoop.js';
+import { Telemetry } from './modules/telemetry.js';
+import { state, loadPlayerState, applyAllTalentEffects, resetGame } from './modules/state.js';
 import { AudioManager } from './modules/audio.js';
-import { state, loadPlayerState } from './modules/state.js';
 
 let renderer;
-let scene;
-let camera;
-let isRunning = false;
-let vrContainer;
+export let vrMainRunning = false;
+export const isRunning = () => vrMainRunning;
+let vrSessionJustStarted = false; // Flag to initialize on the first frame
 
-// Make startGame globally accessible for the home menu buttons
-window.startGame = async function(resetSave = false) {
-    if (resetSave) localStorage.removeItem('eternalMomentumSave');
-    
-    // Load state which might have been reset
-    loadPlayerState();
-
-    // Start the VR session
-    try {
-        const session = await navigator.xr.requestSession('immersive-vr', {
-            optionalFeatures: ['local-floor', 'bounded-floor']
-        });
-        renderer.xr.setSession(session);
-    } catch (e) {
-        console.error("Failed to start XR session:", e);
+function render(timestamp, frame) {
+    // --- FIX START ---
+    // Check if the VR session just began and run initialization logic
+    if (vrSessionJustStarted) {
+        showHud();
+        if (!vrMainRunning) {
+            window.startGame();
+        }
+        vrSessionJustStarted = false; // Reset the flag so this only runs once
     }
-};
+    // --- FIX END ---
 
-export function start() {
-    if (isRunning) return;
+    if (!frame) return; // Don't run logic if not in a session
+
+    Telemetry.recordFrame();
+    updatePlayerController();
     
-    initScene();
-    scene = getScene();
-    camera = getCamera();
-    renderer = getRenderer();
-
-    vrContainer = document.getElementById('vrContainer');
-    vrContainer.appendChild(renderer.domElement);
-    
-    const vrButton = VRButton.createButton(renderer);
-    vrContainer.appendChild(vrButton);
-    
-    renderer.xr.enabled = true;
-
-    loadPlayerState();
-    
-    AudioManager.setup(camera);
-    initPlayerController();
-    initUI();
-    initModals();
-
-    renderer.xr.addEventListener('sessionstart', () => {
-        isRunning = true;
-        showHomeMenu(); // Show the main menu inside VR
-    });
-
-    renderer.xr.addEventListener('sessionend', () => {
-        isRunning = false;
-    });
-
-    renderer.setAnimationLoop(render);
-}
-
-function render() {
-    if (!renderer.xr.isPresenting) return;
-
+    // Only run the main game logic if not paused
     if (!state.isPaused) {
         vrGameLoop();
     }
     
-    updatePlayerController();
     updateHud();
-
     renderer.render(getScene(), getCamera());
 }
 
-export function stop() {
-    const session = renderer.xr.getSession();
-    if (session) {
-        session.end();
+export function startGame(isNewGame = false, initialStage = 1) {
+    resetGame();
+    if (!isNewGame) {
+        state.currentStage = Math.max(1, state.player.highestStageBeaten + 1);
+    } else {
+        state.currentStage = initialStage;
     }
-    isRunning = false;
+    state.isPaused = true;
+    showHomeMenu();
+    vrMainRunning = true;
+}
+window.startGame = startGame; // Exposed globally for session handler
+
+export function stopGame() {
+    vrMainRunning = false;
+    state.isPaused = true;
+    state.gameOver = false;
+    // You might want to hide HUD elements here as well
+}
+
+export function start() {
+    initScene();
+    renderer = getRenderer();
+    document.getElementById('vrContainer').appendChild(renderer.domElement);
+    document.body.appendChild(VRButton.createButton(renderer));
+
+    renderer.xr.enabled = true;
+
+    loadPlayerState();
+    applyAllTalentEffects(); // Apply talents after loading state
+
+    initPlayerController();
+    initUI();
+    initModals();
+    AudioManager.setup(getCamera());
+
+    renderer.xr.addEventListener('sessionstart', () => {
+        vrSessionJustStarted = true; // Set the flag instead of calling startGame directly
+        AudioManager.unlockAudio();
+    });
+
+    renderer.setAnimationLoop(render);
 }
