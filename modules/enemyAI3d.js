@@ -26,7 +26,9 @@ export function clearPathObstacles(){
  * @param {number} width  - Legacy canvas width.
  * @param {number} height - Legacy canvas height.
  */
-export function updateEnemies3d(radius, width, height){
+const DEFAULT_RADIUS = 50;
+
+export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
   const playerPos = state.player.position.clone();
   const targetUv = spherePosToUv(playerPos, radius);
   state.enemies.forEach(e => {

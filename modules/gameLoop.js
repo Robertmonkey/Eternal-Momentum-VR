@@ -169,6 +169,8 @@ export function spawnEnemy(isBoss = false, bossId = null) {
             partnerA.partner = partnerB;
             partnerA.position.copy(getSafeSpawnLocation());
             partnerB.position.copy(getSafeSpawnLocation());
+            partnerA.boss = true;
+            partnerB.boss = true;
             state.enemies.push(partnerA, partnerB);
             scene.add(partnerA, partnerB); // Add BOTH to scene
             return partnerA;
@@ -178,17 +180,21 @@ export function spawnEnemy(isBoss = false, bossId = null) {
             const sentinelB = new SentinelPairAI(sentinelA);
             sentinelA.position.copy(getSafeSpawnLocation());
             sentinelB.position.copy(getSafeSpawnLocation());
+            sentinelA.boss = true;
+            sentinelB.boss = true;
             state.enemies.push(sentinelA, sentinelB);
             scene.add(sentinelA, sentinelB); // Add BOTH to scene
             return sentinelA;
         }
         if (bossId === 'obelisk') {
             const obelisk = new ObeliskAI();
+            obelisk.boss = true;
             state.enemies.push(obelisk);
             scene.add(obelisk); // Add Obelisk to scene
             const conduitTypes = [{ type: 'gravity', color: 0x9b59b6 }, { type: 'explosion', color: 0xe74c3c }, { type: 'lightning', color: 0xf1c40f }];
             for(let i = 0; i < 3; i++) {
                 const conduit = new ObeliskConduitAI(obelisk, conduitTypes[i].type, conduitTypes[i].color, (i / 3) * Math.PI * 2);
+                conduit.boss = true;
                 state.enemies.push(conduit);
                 scene.add(conduit); // Add EACH conduit to scene
             }
@@ -196,6 +202,7 @@ export function spawnEnemy(isBoss = false, bossId = null) {
         }
         // Standard single boss spawn
         enemy = new AIClass();
+        enemy.boss = true;
     } else if (!isBoss) {
         const minionGeo = new THREE.SphereGeometry(0.3, 8, 8);
         const minionMat = new THREE.MeshStandardMaterial({ color: 0xc0392b, emissive: 0xc0392b, emissiveIntensity: 0.3 });
@@ -203,6 +210,7 @@ export function spawnEnemy(isBoss = false, bossId = null) {
         enemy = new BaseAgent({ health: 20, model: minionModel });
         enemy.kind = 'minion';
         enemy.speed = 2.0;
+        enemy.boss = false;
         enemy.isFriendly = false;
         enemy.update = function(delta) {
             if (!this.alive) return;
