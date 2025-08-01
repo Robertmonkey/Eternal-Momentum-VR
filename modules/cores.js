@@ -16,6 +16,7 @@ import { bossData } from './bosses.js';
 import { showUnlockNotification, updateUI } from './ui.js';
 import { usePower } from './powers.js';
 import * as THREE from '../vendor/three.module.js';
+import { playerHasCore } from './helpers.js';
 
 const CANVAS_W = 2048;
 const CANVAS_H = 1024;
@@ -48,16 +49,6 @@ const offscreenCanvas = {
 export function getPlayerCoords() {
   const uv = utils.spherePosToUv(state.player.position.clone().normalize(), 1);
   return { x: uv.u * CANVAS_W, y: uv.v * CANVAS_H };
-}
-
-/**
- * Returns true if the player currently has the specified core equipped or
- * temporarily granted through the Pantheon core.  This helper centralises
- * the logic for checking both the equipped core and temporary buffs.
- */
-export function playerHasCore(coreId) {
-  if (state.player.equippedAberrationCore === coreId) return true;
-  return state.player.activePantheonBuffs.some(buff => buff.coreId === coreId);
 }
 
 /**

@@ -395,3 +395,7 @@ Next Steps: Continue verifying long menu text fits with scroll bars.
 Summary: Added addScrollBar helper and integrated it into createStageSelectModal with up/down buttons and draggable thumb. Updated stageSelectModal test for new scroll controls.
 Verification: npm test – all suites pass.
 Next Steps: Continue refining remaining menus for parity.
+2025-10-13 – FR-15 – Helper deduplication
+Summary: Centralized playerHasCore and getCanvasPos in new helpers.js, removed duplicates from gameLoop, powers and cores. Added helpers.test.mjs verifying functionality.
+Verification: npm test – all 66 suites pass.
+Next Steps: Continue FR-03 UI parity work.

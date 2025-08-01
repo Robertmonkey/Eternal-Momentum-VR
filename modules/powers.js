@@ -4,22 +4,12 @@ import * as utils from './utils.js';
 import * as Cores from './cores.js';
 import { gameHelpers } from './gameHelpers.js';
 import * as THREE from '../vendor/three.module.js';
+import { playerHasCore, getCanvasPos } from './helpers.js';
 
 const SCREEN_WIDTH = 2048;
 const SCREEN_HEIGHT = 1024;
 
-// Helper function to check for core presence (equipped or via Pantheon)
-function playerHasCore(coreId) {
-    if (state.player.equippedAberrationCore === coreId) return true;
-    return state.player.activePantheonBuffs.some(buff => buff.coreId === coreId);
-}
-
-function getCanvasPos(obj) {
-  if (obj.position && obj.position.isVector3) {
-    return utils.toCanvasPos(obj.position);
-  }
-  return { x: obj.x, y: obj.y };
-}
+// helper functions provided by helpers.js
 
 export const powers={
   shield:{

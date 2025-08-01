@@ -9,6 +9,7 @@ import { uvToSpherePos } from './utils.js';
 import * as THREE from '../vendor/three.module.js';
 import { AudioManager } from './audio.js';
 import * as CoreManager from './CoreManager.js';
+import { playerHasCore } from './helpers.js';
 import { getArena } from './scene.js';
 import { updateEnemies3d } from './enemyAI3d.js';
 import { updateProjectiles3d } from './projectilePhysics3d.js';
@@ -19,11 +20,7 @@ const missingStageWarned = new Set();
 const SCREEN_WIDTH = 2048;
 const SCREEN_HEIGHT = 1024;
 
-// --- Helper Function ---
-function playerHasCore(coreId) {
-    if (state.player.equippedAberrationCore === coreId) return true;
-    return state.player.activePantheonBuffs.some(buff => buff.coreId === coreId);
-}
+// --- Helper Functions ---
 
 // --- Audio Helpers ---
 function play(soundId) { AudioManager.playSfx(soundId); }
