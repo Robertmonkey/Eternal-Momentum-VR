@@ -1,31 +1,56 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-
-// TemporalParadoxAI - Implements boss B22: The Temporal Paradox
-// Records player movement and replays a damaging echo.
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class TemporalParadoxAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.35 * radius, 16, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x81ecec });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 420, model: mesh });
+  constructor() {
+    const geometry = new THREE.TorusGeometry(0.8, 0.1, 8, 32);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x81ecec,
+        emissive: 0x81ecec,
+        emissiveIntensity: 0.7
+    });
+    const model = new THREE.Mesh(geometry, material);
+    model.add(new THREE.Mesh(geometry.clone().rotateX(Math.PI / 2)));
+    super({ model });
 
-    this.radius = radius;
-    this.history = [];
-    this.lastEcho = 0;
+    const bossData = { id: "temporal_paradox", name: "The Temporal Paradox", maxHP: 420 };
+    Object.assign(this, bossData);
+
+    this.playerHistory = [];
+    this.lastEchoTime = 0;
   }
 
-  update(delta, playerObj, state, gameHelpers) {
-    if (!this.alive || !playerObj) return;
+  update(delta) {
+    if (!this.alive) return;
+    const now = Date.now();
 
-    this.history.push({ pos: playerObj.position.clone(), time: Date.now() });
-    this.history = this.history.filter(h => Date.now() - h.time < 5000);
+    // Record player's 3D position
+    this.playerHistory.push({ pos: state.player.position.clone(), time: now });
+    this.playerHistory = this.playerHistory.filter(p => now - p.time < 5000);
 
-    if (Date.now() - this.lastEcho > 8000) {
-      this.lastEcho = Date.now();
-      gameHelpers?.play?.('phaseShiftSound');
-      state?.effects?.push({ type: 'paradox_echo', path: [...this.history] });
+    if (now - this.lastEchoTime > 8000) {
+      this.lastEchoTime = now;
+      gameHelpers.play('phaseShiftSound');
+      
+      const historyToReplay = this.playerHistory.map(p => p.pos);
+      
+      state.effects.push({
+        type: 'paradox_echo',
+        path: historyToReplay,
+        startTime: now,
+        duration: 5000, // Echo replays the 5-second history over 5 seconds
+        playerRadius: state.player.r
+      });
+      gameHelpers.playLooping('paradoxTrailHum');
     }
+  }
+
+  die() {
+      gameHelpers.stopLoopingSfx('paradoxTrailHum');
+      gameHelpers.play('paradoxShatter');
+      state.effects = state.effects.filter(e => e.type !== 'paradox_echo');
+      super.die();
   }
 }
