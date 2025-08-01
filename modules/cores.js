@@ -232,6 +232,21 @@ export function handleCoreOnEnemyDeath(enemy) {
             }
         }
     }
+
+    if (state.player.purchasedTalents.has('thermal-runaway') && state.player.berserkUntil > now) {
+        state.player.berserkUntil += 100;
+    }
+
+    const scavRank = state.player.purchasedTalents.get('power-scavenger');
+    if (scavRank && Math.random() < (scavRank === 1 ? 0.01 : 0.025)) {
+        state.pickups.push({
+            position: enemy.position.clone(),
+            r: 0.5,
+            type: 'score',
+            emoji: '💎',
+            lifeEnd: Date.now() + 10000,
+        });
+    }
     if (playerHasCore('swarm')) {
         const swarmState = state.player.talent_states.core_states.swarm;
         if (!swarmState.tail) swarmState.tail = [];
@@ -336,6 +351,20 @@ export function handleCoreOnFatalDamage() {
                 return true; // Death was prevented
             }
         }
+    }
+    if (state.player.purchasedTalents.has('contingency-protocol') && !state.player.contingencyUsed) {
+        state.player.contingencyUsed = true;
+        state.player.health = 1;
+        state.player.shield = true;
+        const end = now + 3000;
+        state.player.shield_end_time = end;
+        gameHelpers.addStatusEffect('Contingency Protocol', '💔', 3000);
+        setTimeout(() => {
+            if (state.player.shield_end_time <= end) {
+                state.player.shield = false;
+            }
+        }, 3000);
+        return true;
     }
     return false; // Death was not prevented
 }

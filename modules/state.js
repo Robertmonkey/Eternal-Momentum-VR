@@ -28,6 +28,8 @@ export const state = {
         unlockedAberrationCores: new Set(),
         equippedAberrationCore: null,
         activePantheonBuffs: [],
+        preordinanceUsed: false,
+        contingencyUsed: false,
         talent_modifiers: {
             damage_multiplier: 1.0,
             damage_taken_multiplier: 1.0,
@@ -88,6 +90,8 @@ export function savePlayerState() {
     unlockedDefensiveSlots: state.player.unlockedDefensiveSlots,
     unlockedAberrationCores: [...state.player.unlockedAberrationCores],
     equippedAberrationCore: state.player.equippedAberrationCore,
+    preordinanceUsed: state.player.preordinanceUsed,
+    contingencyUsed: state.player.contingencyUsed,
     settings: state.settings,
   };
   localStorage.setItem('eternalMomentumSave', JSON.stringify(persistentData));
@@ -102,6 +106,8 @@ export function loadPlayerState() {
         unlockedPowers: new Set(parsedData.unlockedPowers || []),
         purchasedTalents: new Map(parsedData.purchasedTalents || []),
         unlockedAberrationCores: new Set(parsedData.unlockedAberrationCores || []),
+        preordinanceUsed: parsedData.preordinanceUsed || false,
+        contingencyUsed: parsedData.contingencyUsed || false,
     });
     if (parsedData.settings) {
         Object.assign(state.settings, parsedData.settings);
@@ -117,6 +123,8 @@ export function resetGame(bossData) { // Now accepts bossData to avoid circular 
     state.player.shield = false;
     state.player.berserkUntil = 0;
     state.player.stunnedUntil = 0;
+    state.player.preordinanceUsed = false;
+    state.player.contingencyUsed = false;
     
     state.player.talent_states.core_states = {};
     if (bossData) { // Safely initialize core states
