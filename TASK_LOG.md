@@ -377,3 +377,7 @@ Next Steps: Continue monitoring VR start sequence for edge cases.
 Summary: Corrected neon grid floor orientation in scene.js so the disc lies horizontally. Updated ModalManager texture loading to skip when DOM functions are missing. Added Jest setup for createElementNS and updated tests for new button structure and boss info handler.
 Verification: npm install && npm test – all 65 suites pass.
 Next Steps: Continue addressing Critical User Feedback items such as pointer reliability.
+2025-10-09 – FR-02 – Hand toggle and pointer reliability
+Summary: Fixed pointer selection to fire once per trigger press by tracking just-pressed state in PlayerController and processing input each frame. Added refreshPrimaryController to swap controllers when handedness changes and called it from Settings modal.
+Verification: npm test – all 65 suites pass.
+Next Steps: Evaluate avatar movement at game start for stuck issues and auto-launch improvements.
