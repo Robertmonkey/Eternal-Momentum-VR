@@ -306,17 +306,59 @@ function createAscensionModal() {
     grid.position.y = -0.1;
     modal.add(grid);
 
+    const lines = new THREE.Group();
+    grid.add(lines);
+
+    const infoName = createTextSprite('', 32);
+    infoName.position.set(0, 0.6, 0.01);
+    const infoDesc = createTextSprite('', 24);
+    infoDesc.position.set(0, 0.52, 0.01);
+    modal.add(infoName, infoDesc);
+
+    const apLabel = createTextSprite('ASCENSION POINTS', 28, '#00ffff');
+    apLabel.position.set(0, 0.7, 0.01);
+    const apValue = createTextSprite(`${state.player.ascensionPoints}`, 36, '#00ffff');
+    apValue.position.set(0, 0.65, 0.01);
+    modal.add(apLabel, apValue);
+
     modal.userData.refresh = () => {
         grid.clear();
+        lines.clear();
+        const positions = {};
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
             Object.keys(con).forEach(key => {
                 if (key === 'color') return;
                 const t = con[key];
-                const btn = createButton(t.icon, () => purchaseTalent(t.id), 0.12, 0.12);
-                btn.position.set((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
+                const btn = createButton(t.icon, () => { purchaseTalent(t.id); modal.userData.refresh(); }, 0.12, 0.12);
+                const pos = new THREE.Vector3((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
+                btn.position.copy(pos);
+                btn.userData.onHover = hovered => { if (hovered) {
+                    updateTextSprite(infoName, t.name);
+                    updateTextSprite(infoDesc, t.description((state.player.purchasedTalents.get(t.id)||0)+1,
+                        (state.player.purchasedTalents.get(t.id)||0) >= t.maxRanks));
+                } };
                 grid.add(btn);
+                positions[t.id] = pos.clone();
             });
         });
+
+        Object.values(TALENT_GRID_CONFIG).forEach(con => {
+            const color = new THREE.Color(con.color || '#00ffff');
+            Object.keys(con).forEach(key => {
+                if (key === 'color') return;
+                const t = con[key];
+                const end = positions[t.id];
+                t.prerequisites.forEach(pr => {
+                    const start = positions[pr];
+                    if (!start) return;
+                    const mat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.5 });
+                    const geom = new THREE.BufferGeometry().setFromPoints([start, end]);
+                    lines.add(new THREE.Line(geom, mat));
+                });
+            });
+        });
+
+        updateTextSprite(apValue, `${state.player.ascensionPoints}`);
     };
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6);

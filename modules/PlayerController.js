@@ -130,9 +130,11 @@ export function updatePlayerController() {
         targetPoint.copy(uiHit.point);
         laser.scale.z = uiHit.distance;
         crosshair.visible = false;
-        
+
         if (hoveredUi !== uiHit.object) {
+            if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
             hoveredUi = uiHit.object;
+            if (hoveredUi.userData.onHover) hoveredUi.userData.onHover(true);
             gameHelpers.play('uiHoverSound');
         }
         if (triggerJustPressed) {
@@ -140,6 +142,7 @@ export function updatePlayerController() {
             gameHelpers.play('uiClickSound');
         }
     } else {
+        if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
         hoveredUi = null;
         const arenaHit = raycaster.intersectObject(arena, false)[0];
         if (arenaHit) {
