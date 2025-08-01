@@ -8,22 +8,19 @@ import * as utils from './utils.js';
 import { AudioManager } from './audio.js';
 import { playerHasCore } from './helpers.js';
 import { initGameHelpers } from './gameHelpers.js';
+import { AethelUmbraAI } from './agents/AethelUmbraAI.js';
+import { ObeliskAI, ObeliskConduitAI } from './agents/ObeliskAI.js';
 
 const ARENA_RADIUS = 50; // Should match the radius in scene.js
-
-// --- Audio Helpers ---
-function play(soundId) { AudioManager.playSfx(soundId); }
-function playLooping(soundId) { AudioManager.playLoopingSfx(soundId); }
-function stopLoopingSfx(soundId) { AudioManager.stopLoopingSfx(soundId); }
 
 // --- Game Logic Helpers ---
 const gameHelpers = {
     addStatusEffect,
     spawnEnemy,
     spawnPickup,
-    play,
-    stopLoopingSfx,
-    playLooping,
+    play: (id) => AudioManager.playSfx(id),
+    playLooping: (id) => AudioManager.playLoopingSfx(id),
+    stopLoopingSfx: (id) => AudioManager.stopLoopingSfx(id),
     addEssence,
 };
 initGameHelpers(gameHelpers);
@@ -71,7 +68,7 @@ function handleCoreUnlocks(newLevel) {
     if (coreData && !state.player.unlockedAberrationCores.has(coreData.id)) {
         state.player.unlockedAberrationCores.add(coreData.id);
         showUnlockNotification(`Aberration Core Unlocked: ${coreData.name}`, 'New Attunement Possible');
-        play('finalBossPhaseSound');
+        gameHelpers.play('finalBossPhaseSound');
     }
 }
 
@@ -98,76 +95,95 @@ export function addEssence(amount) {
 }
 
 function getSafeSpawnLocation() {
-    // Returns a random point on the sphere, opposite the player
-    const spawnPos = state.player.position.clone().negate();
-    const randomRotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(
-        (Math.random() - 0.5) * Math.PI * 0.5,
-        (Math.random() - 0.5) * Math.PI * 0.5,
-        0
-    ));
-    spawnPos.applyQuaternion(randomRotation);
-    return spawnPos.normalize().multiplyScalar(ARENA_RADIUS);
+    const playerDir = state.player.position.clone().normalize();
+    const spawnDir = playerDir.negate();
+    
+    // Add a random offset so they don't all spawn at the exact same point
+    const randomOffset = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+    spawnDir.add(randomOffset.multiplyScalar(0.5)).normalize();
+
+    return spawnDir.multiplyScalar(ARENA_RADIUS);
 }
 
 export function getBossesForStage(stageNum) {
-    if (stageNum <= 30) {
-        const stageData = STAGE_CONFIG.find(s => s.stage === stageNum);
-        return stageData ? stageData.bosses : [];
-    }
-    // Procedural stage generation for stages > 30 can be added here
-    return ['splitter']; // Fallback
+    const stageData = STAGE_CONFIG.find(s => s.stage === stageNum);
+    return stageData ? stageData.bosses : [];
 }
 
 export function spawnBossesForStage(stageNum) {
     const bossIds = state.customOrreryBosses?.length > 0 ? state.customOrreryBosses : getBossesForStage(stageNum);
+    
     if (bossIds && bossIds.length > 0) {
         bossIds.forEach(bossId => {
             spawnEnemy(true, bossId);
         });
+        
+        if (!state.bossActive) {
+            const firstBossData = bossData.find(b => b.id === bossIds[0]);
+            showBossBanner(firstBossData ? firstBossData.name : 'Aberration Detected');
+            AudioManager.playSfx('bossSpawnSound');
+        }
+        state.bossActive = true;
+
     } else {
         console.error(`No boss configuration found for stage ${stageNum}`);
     }
 }
 
 export function spawnEnemy(isBoss = false, bossId = null) {
-    const pos = getSafeSpawnLocation();
+    const position = getSafeSpawnLocation();
     
-    const enemy = {
-        position: pos,
-        velocity: new THREE.Vector3(),
-        r: isBoss ? 2 : 0.5, // World units
-        hp: isBoss ? 200 : 20,
-        maxHP: isBoss ? 200 : 20,
-        boss: isBoss,
-        id: bossId || 'minion',
-        instanceId: THREE.MathUtils.generateUUID(),
-        // ... other default enemy properties
-    };
-
+    let enemy;
+    // Special handling for duo/complex bosses
+    if (bossId === 'aethel_and_umbra') {
+        const roleA = Math.random() < 0.5 ? 'Aethel' : 'Umbra';
+        const roleB = roleA === 'Aethel' ? 'Umbra' : 'Aethel';
+        const partnerA = new AethelUmbraAI(roleA);
+        const partnerB = new AethelUmbraAI(roleB, partnerA);
+        partnerA.partner = partnerB;
+        state.enemies.push(partnerA, partnerB);
+        return; // Exit early as we've spawned both
+    } else if (bossId === 'obelisk') {
+        enemy = new ObeliskAI();
+        state.enemies.push(enemy);
+        // Spawn its conduits
+        const conduitTypes = [{ type: 'gravity', color: 0x9b59b6 }, { type: 'explosion', color: 0xe74c3c }, { type: 'lightning', color: 0xf1c40f }];
+        for(let i = 0; i < 3; i++) {
+            const conduit = new ObeliskConduitAI(enemy, conduitTypes[i].type, conduitTypes[i].color, (i / 3) * Math.PI * 2);
+            state.enemies.push(conduit);
+        }
+        return;
+    }
+    
     if (isBoss) {
+        // Dynamically find the correct AI class
         const bossTemplate = bossData.find(b => b.id === bossId);
-        if (!bossTemplate) {
-            console.error(`Boss data not found for id: ${bossId}`);
-            return null;
+        if (!bossTemplate) { console.error(`Boss data for ${bossId} not found.`); return; }
+        // This is a simplified lookup; a real implementation might use a map.
+        const AIs = state.bossAIModules; // Assuming these are loaded into state
+        const AIClass = AIs[bossId];
+        if (AIClass) {
+            enemy = new AIClass();
+        } else { // Fallback for simple enemies
+             enemy = { position, r: 2, hp: 200, maxHP: 200, boss: true, id: bossId, model: null };
         }
-        Object.assign(enemy, bossTemplate); // Apply boss-specific properties
-        
-        // Scale HP based on stage
-        const difficultyIndex = state.currentStage - 1;
-        const scalingFactor = 12;
-        const finalHp = enemy.maxHP + (Math.pow(difficultyIndex, 1.5) * scalingFactor);
-        enemy.maxHP = Math.round(finalHp);
-        enemy.hp = enemy.maxHP;
-
-        if (enemy.init) {
-            enemy.init(enemy, state, spawnEnemy);
-        }
-        
-        if (!state.bossActive) {
-            showBossBanner(enemy.name);
-            AudioManager.playSfx('bossSpawnSound');
-        }
-        state.bossActive = true;
+    } else {
+        // Create a generic minion
+        enemy = {
+            position,
+            r: 0.5,
+            hp: 20,
+            maxHP: 20,
+            boss: false,
+            id: 'minion',
+            isFriendly: false,
+            model: null, // The renderer will assign a default model
+            update: function(delta) { // Simple chase logic
+                const direction = state.player.position.clone().sub(this.position).normalize();
+                this.position.add(direction.multiplyScalar(0.5 * delta));
+                this.position.normalize().multiplyScalar(ARENA_RADIUS);
+            }
+        };
     }
     
     state.enemies.push(enemy);
@@ -186,15 +202,12 @@ export function spawnPickup() {
     
     const type = types[Math.floor(Math.random() * types.length)];
     let life = 10000;
-    if (state.player.purchasedTalents.has('temporal-anomaly')) {
-        life *= 1.25;
-    }
     
     const pickupPos = new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS);
     
     state.pickups.push({
         position: pickupPos,
-        r: 0.5, // World units
+        r: 0.5,
         type,
         emoji: powers[type]?.emoji || '?',
         lifeEnd: Date.now() + life,
