@@ -25,7 +25,8 @@ const projectileTypes = new Set([
   'ricochet_projectile',
   'seeking_shrapnel',
   'helix_bolt',
-  'player_fragment'
+  'player_fragment',
+  'fireball'
 ]);
 
 function canDamage(caster, target){
@@ -62,6 +63,10 @@ export function updateProjectiles3d(radius = 50, width, height){
     if(!mesh){
       const geom = new THREE.SphereGeometry(radius * 0.02, 6, 6);
       const mat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
+      if(p.type === 'fireball') {
+        mat.color.set(0xff5500);
+        mat.emissive = new THREE.Color(0xff2200);
+      }
       mesh = new THREE.Mesh(geom, mat);
       if(projectileGroup) projectileGroup.add(mesh);
       dataMap.set(p, mesh);
@@ -83,8 +88,12 @@ export function updateProjectiles3d(radius = 50, width, height){
       }
     }
 
-    p.position.add(p.velocity).normalize().multiplyScalar(radius);
-    const uv = spherePosToUv(p.position, radius);
+    p.position.add(p.velocity);
+    const clamped = p.position.clone().normalize().multiplyScalar(radius);
+    if(p.type !== 'fireball') {
+      p.position.copy(clamped);
+    }
+    const uv = spherePosToUv(clamped, radius);
     p.x = uv.u * width;
     p.y = uv.v * height;
     if(mesh){
@@ -150,6 +159,27 @@ export function updateEffects3d(radius = 50){
             state.effects.splice(i,1);
           }
         });
+        break;
+      }
+      case 'fireball':{
+        ef.position.add(ef.velocity);
+        const reached = ef.position.distanceTo(ef.target) < 0.5;
+        if(reached){
+          state.effects.splice(i,1);
+          state.effects.push({
+            type:'shockwave',
+            caster: ef.caster,
+            position: ef.target.clone(),
+            radius:0,
+            maxRadius: ef.explodeRadius,
+            speed:70,
+            startTime: now,
+            hitEnemies:new Set(),
+            damage: ef.damage,
+            color: new THREE.Color(0xff9944)
+          });
+          break;
+        }
         break;
       }
       case 'ricochet_projectile':{

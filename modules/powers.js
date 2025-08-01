@@ -4,6 +4,7 @@ import * as utils from './utils.js';
 import * as Cores from './cores.js';
 import { gameHelpers } from './gameHelpers.js';
 import { playerHasCore } from './helpers.js';
+import { getPrimaryController } from './scene.js';
 
 const ARENA_RADIUS = 50; // Should match the radius in scene.js
 
@@ -60,16 +61,24 @@ export const powers = {
       const radiusTalentRank = state.player.purchasedTalents.get('stellar-detonation');
       if(radiusTalentRank) radius *= (1 + (radiusTalentRank * 0.15));
 
+      const controller = getPrimaryController();
+      const startPos = new THREE.Vector3();
+      if(controller){
+          controller.getWorldPosition(startPos);
+      } else {
+          startPos.copy(origin.position);
+      }
+      const targetPos = state.cursorDir.clone().multiplyScalar(ARENA_RADIUS);
+      const velocity = targetPos.clone().sub(startPos).normalize().multiplyScalar(1);
+
       state.effects.push({
-          type: 'shockwave',
+          type: 'fireball',
           caster: origin,
-          position: origin.position.clone(),
-          maxRadius: radius,
-          speed: 70,
-          startTime: Date.now(),
-          hitEnemies: new Set(),
+          position: startPos,
+          velocity: velocity,
+          target: targetPos,
           damage: damage,
-          color: new THREE.Color(0xff9944)
+          explodeRadius: radius
       });
       utils.triggerScreenShake(200, 8);
 
