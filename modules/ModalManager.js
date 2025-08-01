@@ -6,7 +6,7 @@ import { AudioManager } from './audio.js';
 import { bossData } from './bosses.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
 import { purchaseTalent, applyAllTalentEffects } from './ascension.js';
-import { holoMaterial, createTextSprite, updateTextSprite } from './UIManager.js';
+import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
 
 let modalGroup;
@@ -28,6 +28,8 @@ function createButton(label, onSelect, width = 0.5, height = 0.1) {
     const group = new THREE.Group();
     group.name = `button_${label.replace(/\s+/g, '_')}`;
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x111122, 0.8));
+    const tex = getBgTexture();
+    if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
     bg.userData.onSelect = onSelect;
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(0x00ffff, 0.5));
     border.position.z = -0.001;
@@ -40,6 +42,8 @@ function createButton(label, onSelect, width = 0.5, height = 0.1) {
 function createModalContainer(width, height, title) {
     const group = new THREE.Group();
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x141428, 0.95));
+    const tex = getBgTexture();
+    if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(0x00ffff, 0.5));
     border.position.z = -0.001;
     group.add(bg, border);
