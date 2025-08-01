@@ -432,3 +432,6 @@ Verification: npm test failed due to missing package.json.
 2025-10-20 – Bug Fix – Restore missing global flags
 Summary: Reintroduced several global state flags (stacked, arenaMode, gravityActive, gravityEnd, customOrreryBosses) lost during the VR refactor. Updated resetGame to reset these fields. Fixed projectile property defaults, safeguarded pickup lookAt, and documented in this log.
 Verification: Manual code review; npm test unavailable due to missing package.json.
+2025-08-01 - Feature - VR modals
+Summary: Implemented basic Ascension, Lore, Boss Info, and Orrery VR modals.
+Verification: npm test fails due to missing package.json.
