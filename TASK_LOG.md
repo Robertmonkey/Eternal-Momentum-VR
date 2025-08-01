@@ -386,3 +386,8 @@ Next Steps: Evaluate avatar movement at game start for stuck issues and auto-lau
 Summary: Added sessionstart handler in scene.js that calls window.startGame and shows the home menu when entering VR if the game isn't running. Introduced window.vrMainRunning flag in vrMain.js and initialized targetPoint to the avatar position. Exported isRunning helper and updated app.js import.
 Verification: npm test – all 65 suites pass.
 Next Steps: Continue auditing menu layouts for parity with the 2D game.
+
+2025-10-11 – FR-03 – World-space modals
+Summary: Updated ModalManager so modalGroup attaches to the scene instead of the camera. When a modal is shown the group positions itself at the player’s current location and orientation then stays fixed in the arena. Added null checks in updateStatusEffectsUI for test safety and documented world-space panels in README.
+Verification: npm test – all 65 suites pass.
+Next Steps: Continue verifying long menu text fits with scroll bars.

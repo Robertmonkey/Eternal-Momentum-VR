@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
-import { getCamera } from './scene.js';
+import { getCamera, getScene } from './scene.js';
 import { resetGame, state, savePlayerState } from './state.js';
 import { refreshPrimaryController } from './PlayerController.js';
 import { AudioManager } from './audio.js';
@@ -42,15 +42,18 @@ if (typeof document !== 'undefined' && document.createElementNS) {
 }
 
 let modalGroup;
+let modalCamera;
 const modals = {};
 
 function ensureGroup(camOverride) {
   if (!modalGroup) {
-    const cam = camOverride || getCamera();
-    if (!cam) return null;
+    const scene = getScene();
+    modalCamera = camOverride || getCamera();
     modalGroup = new THREE.Group();
     modalGroup.name = 'modalGroup';
-    cam.add(modalGroup);
+    if (scene) scene.add(modalGroup);
+  } else if (camOverride) {
+    modalCamera = camOverride;
   }
   return modalGroup;
 }
@@ -744,8 +747,11 @@ export async function initModals(cam = getCamera()) {
 
 export function showModal(id) {
   ensureGroup();
+  const cam = modalCamera || getCamera();
   Object.values(modals).forEach(m => { if (m) m.visible = false; });
-  if (modals[id]) {
+  if (modals[id] && modalGroup && cam) {
+    modalGroup.position.copy(cam.getWorldPosition(new THREE.Vector3()));
+    modalGroup.quaternion.copy(cam.getWorldQuaternion(new THREE.Quaternion()));
     modals[id].visible = true;
     modals[id].position.set(0, 0, -1.5);
   }
