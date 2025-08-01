@@ -65,10 +65,15 @@ html, body {
 }
 
 /* Home Screen Styles */
-#homeScreen {
-    background-image: url('assets/home.mp4'); /* Note: You'll need to add home.mp4 to your root assets folder */
-    background-size: cover;
-    background-position: center;
+#homeVideoBg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+    z-index: -1; /* Place it behind the overlay */
 }
 
 #home-overlay {
