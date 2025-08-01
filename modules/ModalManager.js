@@ -25,7 +25,7 @@ function ensureGroup() {
     }
 }
 
-function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ffff, bgColor = 0x111122) {
+function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ffff, bgColor = 0x111122, textColor) {
     const group = new THREE.Group();
     group.name = `button_${label.replace(/\s+/g, '_')}`;
 
@@ -36,8 +36,10 @@ function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ff
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(color, 0.5));
     border.position.z = -0.001;
 
-    const text = createTextSprite(label.substring(0, 20), 32);
-    text.material.color.set(color);
+    const txtColor = textColor !== undefined ? textColor : color;
+    const colorObj = new THREE.Color(txtColor);
+    const text = createTextSprite(label.substring(0, 20), 32, colorObj.getStyle());
+    text.material.color.set(colorObj);
     text.position.z = 0.002;
 
     // Interactive behaviour
@@ -82,20 +84,20 @@ function createHomeModal() {
     modal.name = 'modal_home';
     modal.userData.titleSprite = modal.children.find(c => c.userData.isTitle);
 
-    const startBtn = createButton('AWAKEN', () => window.startGame(true), 0.8);
+    const startBtn = createButton('AWAKEN', () => window.startGame(true), 0.8, 0.1, 0x00ffff);
     startBtn.position.set(0, 0, 0.01);
     modal.add(startBtn);
 
-    const continueBtn = createButton('CONTINUE MOMENTUM', () => window.startGame(false), 0.8);
+    const continueBtn = createButton('CONTINUE MOMENTUM', () => window.startGame(false), 0.8, 0.1, 0x00ffff);
     continueBtn.position.set(0, -0.15, 0.01);
     modal.add(continueBtn);
-    
+
     const eraseBtn = createButton('SEVER TIMELINE', () => {
         showConfirm('SEVER TIMELINE?', 'All progress will be lost.', () => {
             localStorage.removeItem('eternalMomentumSave');
             window.location.reload();
         });
-    }, 0.8);
+    }, 0.8, 0.1, 0xe74c3c);
     eraseBtn.position.set(0, -0.3, 0.01);
     modal.add(eraseBtn);
 
@@ -129,7 +131,7 @@ function createSettingsModal() {
     sfxLabel.position.set(0, -0.1, 0.01);
     modal.add(sfxLabel);
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
     closeBtn.position.set(0, -0.4, 0.01);
     modal.add(closeBtn);
     
@@ -147,11 +149,11 @@ function createConfirmModal() {
     const yesBtn = createButton('Confirm', () => {
         if (confirmCallback) confirmCallback();
         hideModal();
-    }, 0.3);
+    }, 0.3, 0.1, 0xe74c3c);
     yesBtn.position.set(-0.2, -0.15, 0.01);
     modal.add(yesBtn);
     
-    const noBtn = createButton('Cancel', () => hideModal(), 0.3);
+    const noBtn = createButton('Cancel', () => hideModal(), 0.3, 0.1, 0xf000ff);
     noBtn.position.set(0.2, -0.15, 0.01);
     modal.add(noBtn);
     
@@ -166,21 +168,21 @@ function createStageSelectModal() {
     listContainer.position.y = -0.1;
     modal.add(listContainer);
 
-    const loreCodexBtn = createButton('LORE CODEX', () => showModal('lore'), 0.4, 0.08);
+    const loreCodexBtn = createButton('LORE CODEX', () => showModal('lore'), 0.4, 0.08, 0xff8800);
     loreCodexBtn.position.set(0.5, 0.5, 0.02);
     modal.add(loreCodexBtn);
 
-    const arenaBtn = createButton("WEAVER'S ORRERY", () => { hideModal(); showModal('orrery'); }, 0.6);
+    const arenaBtn = createButton("WEAVER'S ORRERY", () => { hideModal(); showModal('orrery'); }, 0.6, 0.1, 0x9b59b6);
     arenaBtn.position.set(-0.45, -0.5, 0.01);
     const frontierBtn = createButton('JUMP TO FRONTIER', () => {
         const stage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
         state.currentStage = stage;
         resetGame(bossData);
         hideModal();
-    }, 0.6);
+    }, 0.6, 0.1, 0x00ffff, 0x00ffff, 0x1e1e2f);
     frontierBtn.position.set(0.45, -0.5, 0.01);
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.5);
+    const closeBtn = createButton('Close', () => hideModal(), 0.5, 0.1, 0xf000ff);
     closeBtn.position.set(0, -0.65, 0.01);
 
     modal.add(arenaBtn, frontierBtn, closeBtn);
@@ -209,9 +211,9 @@ function createStageSelectModal() {
             nameSprite.position.set(-0.2, -0.07, 0.01);
             row.add(nameSprite);
 
-            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12);
+            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f);
             mechBtn.position.set(0.4, 0.02, 0.01);
-            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12);
+            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6);
             loreBtn.position.set(0.4, -0.08, 0.01);
             row.add(mechBtn, loreBtn);
 
@@ -252,7 +254,7 @@ function createCoresModal() {
         });
     };
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
     closeBtn.position.set(0, -0.6, 0.01);
     modal.add(closeBtn);
 
@@ -444,7 +446,7 @@ function createAscensionModal() {
         updateTextSprite(apValue, `${state.player.ascensionPoints}`);
     };
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
     closeBtn.position.set(0, -0.6, 0.01);
     modal.add(closeBtn);
     return modal;
@@ -467,7 +469,7 @@ function createLoreModal() {
         });
     };
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
     closeBtn.position.set(0, -0.5, 0.01);
     modal.add(closeBtn);
     return modal;
@@ -479,7 +481,7 @@ function createBossInfoModal() {
     const content = createTextSprite('', 32);
     content.position.set(0, 0.1, 0.01);
     modal.add(content);
-    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
     closeBtn.position.set(0, -0.4, 0.01);
     modal.add(closeBtn);
     modal.userData.contentSprite = content;
@@ -505,7 +507,7 @@ function createOrreryModal() {
         });
     };
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6);
+    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
     closeBtn.position.set(0, -0.5, 0.01);
     modal.add(closeBtn);
     return modal;
