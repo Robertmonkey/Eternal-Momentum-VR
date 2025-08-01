@@ -20,7 +20,8 @@ function createMesh(pickup){
         opacity: 0.4
     });
     const sphere = new THREE.Mesh(new THREE.SphereGeometry(pickup.r, 16, 16), material);
-    const sprite = createTextSprite(pickup.emoji || powers[pickup.type]?.emoji || '?', 48);
+    const spriteSize = pickup.r * 2000;
+    const sprite = createTextSprite(pickup.emoji || powers[pickup.type]?.emoji || '?', spriteSize);
     sprite.position.set(0, 0, pickup.r + 0.05);
     group.add(sphere, sprite);
     const scene = getScene();
@@ -90,6 +91,7 @@ export function updatePickups3d(radius = ARENA_RADIUS){
                 const idx = inv.indexOf(null);
                 if(idx !== -1 && idx < maxSlots){
                     inv[idx] = p.type;
+                    if(gameHelpers.updateHud) gameHelpers.updateHud();
                 }else if(state.player.purchasedTalents.has('overload-protocol')){
                     gameHelpers.addStatusEffect('Auto-Used', powers[p.type]?.emoji || '?', 2000);
                     usePower(p.type, true);
