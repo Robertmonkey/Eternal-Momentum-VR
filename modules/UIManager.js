@@ -54,11 +54,12 @@ export function createTextSprite(text, size = 32, color = '#eaf2ff') {
 }
 
 export function updateTextSprite(sprite, text) {
+    if (!sprite || !sprite.userData) return;
     const { ctx, canvas, font } = sprite.userData;
     if (!ctx || !canvas) return;
     ctx.font = font;
     const padding = parseInt(font, 10) * 0.2;
-    canvas.width = Math.ceil(ctx.measureText(text).width) + padding;
+    canvas.width = Math.max(1, Math.ceil(ctx.measureText(text).width) + padding);
     ctx.font = font; // Font is reset on canvas resize
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = sprite.material.color.getStyle();
@@ -243,17 +244,22 @@ export function updateHud() {
     updateTextSprite(ascText, `LVL ${state.player.level}`);
     updateTextSprite(apText, `AP: ${state.player.ascensionPoints}`);
 
-    // Powers
-    const updateSlot = (slot, key) => {
-        slot.group.visible = !!key;
-        if (key) updateTextSprite(slot.sprite, powers[key].emoji);
+    // Power Slots
+    const updateSlot = (slot, key, isVisible) => {
+        if (!slot) return;
+        slot.group.visible = isVisible;
+        if (isVisible) {
+            updateTextSprite(slot.sprite, key ? powers[key].emoji : '');
+        }
     };
-    updateSlot(offSlots[0], state.offensiveInventory[0]);
-    updateSlot(defSlots[0], state.defensiveInventory[0]);
-    updateSlot(offQueue[0], state.offensiveInventory[1]);
-    updateSlot(offQueue[1], state.offensiveInventory[2]);
-    updateSlot(defQueue[0], state.defensiveInventory[1]);
-    updateSlot(defQueue[1], state.defensiveInventory[2]);
+
+    updateSlot(offSlots[0], state.offensiveInventory[0], true);
+    updateSlot(defSlots[0], state.defensiveInventory[0], true);
+    
+    updateSlot(offQueue[0], state.offensiveInventory[1], state.player.unlockedOffensiveSlots > 1);
+    updateSlot(offQueue[1], state.offensiveInventory[2], state.player.unlockedOffensiveSlots > 2);
+    updateSlot(defQueue[0], state.defensiveInventory[1], state.player.unlockedDefensiveSlots > 1);
+    updateSlot(defQueue[1], state.defensiveInventory[2], state.player.unlockedDefensiveSlots > 2);
 
     // Core
     const coreId = state.player.equippedAberrationCore;
@@ -281,21 +287,18 @@ export function showUnlockNotification(text, subtext = '') {
         clearTimeout(notificationTimeout);
     }
     
-    // Clear any previous notification meshes to prevent overlap
     while (notificationGroup.children.length) {
         const child = notificationGroup.children[0];
-        // Clean up materials and textures to avoid memory leaks
         if (child.material.map) child.material.map.dispose();
         if (child.material) child.material.dispose();
         notificationGroup.remove(child);
     }
 
-    // Create and position the text sprites
     if (subtext) {
         const titleSprite = createTextSprite(subtext, 32, '#ffffff');
         titleSprite.position.y = 0.03;
         notificationGroup.add(titleSprite);
-
+        
         const textSprite = createTextSprite(text, 48, '#00ffff');
         textSprite.position.y = -0.03;
         notificationGroup.add(textSprite);
@@ -306,7 +309,6 @@ export function showUnlockNotification(text, subtext = '') {
     
     notificationGroup.visible = true;
 
-    // Set a timeout to hide the notification after a few seconds
     notificationTimeout = setTimeout(() => {
         notificationGroup.visible = false;
     }, 3500);
