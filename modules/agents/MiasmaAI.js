@@ -1,44 +1,90 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import * as CoreManager from '../CoreManager.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// MiasmaAI - Implements boss B21: The Miasma
-// Periodically fills the arena with toxic gas that damages the player
-// unless vented.
+const ARENA_RADIUS = 50;
 
 export class MiasmaAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.4 * radius, 16, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x6ab04c });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 400, model: mesh });
+  constructor() {
+    const geometry = new THREE.TorusKnotGeometry(0.8, 0.2, 100, 12);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x6ab04c,
+        emissive: 0x6ab04c,
+        emissiveIntensity: 0.4
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
+    const bossData = { id: "miasma", name: "The Miasma", maxHP: 400 };
+    Object.assign(this, bossData);
+    
     this.isGasActive = false;
-    this.lastGas = 0;
+    this.lastGasAttack = 0;
+    this.isChargingSlam = false;
+    this.vents = [];
+
+    // Create 4 vents at cardinal directions on the sphere's equator
+    const ventPositions = [
+        new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)
+    ];
+
+    ventPositions.forEach(dir => {
+        const vent = {
+            position: dir.multiplyScalar(ARENA_RADIUS * 0.9),
+            cooldownUntil: 0
+        };
+        this.vents.push(vent);
+        state.effects.push({
+            type: 'miasma_vent',
+            ref: vent, // Link the effect to the AI's vent object
+            endTime: Infinity
+        });
+    });
   }
 
-  update(delta, playerObj, state, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
-    if (!playerObj) return;
+    const now = Date.now();
 
-    if (!this.isGasActive && Date.now() - this.lastGas > 10000) {
-      this.isGasActive = true;
-      this.lastGas = Date.now();
-      gameHelpers?.play?.('miasmaGasRelease');
+    // Start gas attack
+    if (!this.isGasActive && now - this.lastGasAttack > 10000) {
+        this.isGasActive = true;
+        gameHelpers.play('miasmaGasRelease');
+        state.effects.push({ type: 'miasma_gas', endTime: Infinity, id: this.instanceId });
     }
 
-    if (this.isGasActive) {
-      if (playerObj.position.distanceTo(this.position) < this.radius * 2) {
-        if (typeof playerObj.health === 'number') {
-          const dmg = 0.2 * delta;
-          playerObj.health -= dmg;
-          CoreManager.onPlayerDamage(dmg, this, gameHelpers);
-        }
-      }
-      if (Date.now() - this.lastGas > 6000) {
-        this.isGasActive = false;
-      }
+    // Perform slam attack to purify
+    if (this.isGasActive && !this.isChargingSlam) {
+        this.isChargingSlam = true;
+        gameHelpers.play('chargeUpSound');
+        
+        setTimeout(() => {
+            if (!this.alive) return;
+            gameHelpers.play('miasmaSlam');
+
+            this.vents.forEach(vent => {
+                if (now > vent.cooldownUntil && this.position.distanceTo(vent.position) < 10) {
+                    vent.cooldownUntil = now + 10000;
+                    this.isGasActive = false;
+                    state.effects = state.effects.filter(e => !(e.type === 'miasma_gas' && e.id === this.instanceId));
+                    this.lastGasAttack = now;
+                    gameHelpers.play('ventPurify');
+                }
+            });
+            this.isChargingSlam = false;
+        }, 2000);
     }
+  }
+
+  takeDamage(amount, sourceObject) {
+    // Immune to damage while gas is active
+    if (this.isGasActive) return;
+    super.takeDamage(amount, sourceObject);
+  }
+
+  die() {
+      state.effects = state.effects.filter(e => e.type !== 'miasma_gas' && e.type !== 'miasma_vent');
+      super.die();
   }
 }
