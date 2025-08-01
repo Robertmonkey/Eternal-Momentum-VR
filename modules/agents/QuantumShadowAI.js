@@ -1,57 +1,77 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// QuantumShadowAI - Implements boss B18: Quantum Shadow
-// Periodically creates quantum echoes and becomes invulnerable while
-// choosing a new location.
+const ARENA_RADIUS = 50;
 
 export class QuantumShadowAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.3 * radius, 16, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x81ecec });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 360, model: mesh });
+  constructor() {
+    const geometry = new THREE.SphereGeometry(0.7, 32, 16);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x81ecec,
+        emissive: 0x81ecec,
+        emissiveIntensity: 0.7,
+        transparent: true,
+        opacity: 1.0
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
-    this.state = 'seeking';
-    this.lastPhaseChange = Date.now();
+    const bossData = { id: "quantum_shadow", name: "Quantum Shadow", maxHP: 360 };
+    Object.assign(this, bossData);
+    
+    this.phase = 'seeking'; // 'seeking' or 'superposition'
+    this.lastPhaseChangeTime = Date.now();
     this.invulnerable = false;
-    this.echoes = [];
   }
 
-  randomPos() {
-    const t = Math.random() * 2 * Math.PI;
-    const p = Math.random() * Math.PI;
-    return new THREE.Vector3(
-      Math.sin(p) * Math.cos(t) * this.radius,
-      Math.cos(p) * this.radius,
-      Math.sin(p) * Math.sin(t) * this.radius
-    );
-  }
-
-  update(delta, playerObj, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
+    const now = Date.now();
 
-    if (this.state === 'seeking' && Date.now() - this.lastPhaseChange > 7000) {
-      this.state = 'superposition';
-      this.lastPhaseChange = Date.now();
+    if (this.phase === 'seeking' && now - this.lastPhaseChangeTime > 7000) {
+      this.phase = 'superposition';
+      this.lastPhaseChangeTime = now;
       this.invulnerable = true;
-      gameHelpers?.play?.('phaseShiftSound');
-      this.echoes = [this.randomPos(), this.randomPos(), this.randomPos()];
-    } else if (this.state === 'superposition') {
-      if (Date.now() - this.lastPhaseChange > 3000) {
-        this.state = 'seeking';
-        this.lastPhaseChange = Date.now();
-        this.invulnerable = false;
-        const target = this.echoes[Math.floor(Math.random() * this.echoes.length)];
-        if (target) this.position.copy(target);
-        this.echoes = [];
+      this.model.material.opacity = 0.3;
+      gameHelpers.play('phaseShiftSound');
+      
+      const echoCount = 3 + Math.floor((1 - this.health / this.maxHP) * 5);
+      for(let i = 0; i < echoCount; i++) {
+          state.effects.push({
+              type: 'quantum_echo',
+              position: new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS),
+              radius: this.r,
+              endTime: now + 3000
+          });
       }
+
+    } else if (this.phase === 'superposition' && now - this.lastPhaseChangeTime > 3000) {
+      this.phase = 'seeking';
+      this.lastPhaseChangeTime = now;
+      this.invulnerable = false;
+      this.model.material.opacity = 1.0;
+
+      const echoes = state.effects.filter(e => e.type === 'quantum_echo');
+      const targetEcho = echoes[Math.floor(Math.random() * echoes.length)];
+      
+      if(targetEcho) {
+          this.position.copy(targetEcho.position);
+      }
+      
+      // Detonate the other echoes
+      echoes.forEach(echo => {
+          if (echo !== targetEcho) {
+              state.effects.push({ type: 'shockwave', caster: this, position: echo.position, maxRadius: 10, speed: 50, damage: 10 });
+          }
+      });
+      // Clear all echoes
+      state.effects = state.effects.filter(e => e.type !== 'quantum_echo');
     }
   }
 
-  takeDamage(amount, gameHelpers) {
+  takeDamage(amount, sourceObject) {
     if (this.invulnerable) return;
-    super.takeDamage(amount, true, gameHelpers);
+    super.takeDamage(amount, sourceObject);
   }
 }
