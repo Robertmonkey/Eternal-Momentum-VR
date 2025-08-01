@@ -7,6 +7,7 @@ import * as CoreManager from './CoreManager.js';
 import { AudioManager } from './audio.js';
 import { showUnlockNotification } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
+import { applyPlayerDamage } from './helpers.js';
 
 function updatePhaseMomentum() {
     const rank = state.player.purchasedTalents.get('phase-momentum');
@@ -76,6 +77,23 @@ function handleBossDefeat() {
     }
 }
 
+function checkCollisions() {
+    const playerPos = state.player.position;
+    const playerRadius = state.player.r;
+
+    state.enemies.forEach(enemy => {
+        if (!enemy.alive || enemy.isFriendly) return;
+
+        const enemyPos = enemy.position;
+        const enemyRadius = enemy.r || 0.5;
+        const dist = enemyPos.distanceTo(playerPos);
+        if (dist < playerRadius + enemyRadius) {
+            const damage = enemy.boss ? 10 : 1;
+            applyPlayerDamage(damage, enemy, gameHelpers);
+        }
+    });
+}
+
 export function vrGameLoop() {
     if (state.gameOver) return;
 
@@ -88,6 +106,7 @@ export function vrGameLoop() {
     updateEffects3d();
     updateProjectiles3d();
     updatePickups3d();
+    checkCollisions();
 
     if (state.bossActive) {
         handleBossDefeat();

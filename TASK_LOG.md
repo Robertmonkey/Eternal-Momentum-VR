@@ -450,3 +450,11 @@ Verification: node scripts/checkAssetUsage.js
 2025-10-24 – Bug Fix – Power-up inventory
 Summary: Fixed pickup handling to update the HUD immediately and scaled emoji sprites to nearly fill the pickup sphere for better visibility.
 Verification: node scripts/checkAssetUsage.js
+
+2025-10-25 - Bug Fix - Player collision damage
+Summary: Added checkCollisions in vrGameLoop.js to apply contact damage when enemies touch the player.
+Verification: node -e "require('./modules/vrGameLoop.js')"
+
+2025-10-26 - Bug Fix - VR port parity
+Summary: Ensured modals position in front of the camera, HUD power slots sync from state, and bosses spawn 30% larger for better scale.
+Verification: node scripts/checkAssetUsage.js && node -e "require('./modules/vrGameLoop.js')"

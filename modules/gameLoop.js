@@ -255,6 +255,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         // Standard single boss spawn
         enemy = new AIClass();
         enemy.boss = true;
+        enemy.scale.multiplyScalar(1.3); // Bosses appear larger in VR
     } else if (!isBoss) {
         const minionGeo = new THREE.SphereGeometry(0.3, 8, 8);
         const minionMat = new THREE.MeshStandardMaterial({ color: 0xc0392b, emissive: 0xc0392b, emissiveIntensity: 0.3 });
