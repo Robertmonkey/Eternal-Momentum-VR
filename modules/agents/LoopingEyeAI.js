@@ -1,60 +1,55 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { spherePosToUv } from '../utils.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// LoopingEyeAI - Implements boss B10: Looping Eye
-// Teleports to random locations with a short warning.
+const ARENA_RADIUS = 50;
 
 export class LoopingEyeAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.35 * radius, 16, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 320, model: mesh });
+  constructor() {
+    const geometry = new THREE.SphereGeometry(0.7, 32, 16);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xecf0f1,
+        emissive: 0xecf0f1,
+        emissiveIntensity: 0.8
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
-    this.lastTeleport = Date.now();
-    this.teleportingAt = 0;
-    this.teleportTarget = null;
+    const bossData = { id: "looper", name: "Looping Eye", maxHP: 320 };
+    Object.assign(this, bossData);
+    
+    this.lastTeleportTime = Date.now();
+    this.isChargingTeleport = false;
   }
 
-  randomPos() {
-    const t = Math.random() * 2 * Math.PI;
-    const p = Math.random() * Math.PI;
-    return new THREE.Vector3(
-      Math.sin(p) * Math.cos(t) * this.radius,
-      Math.cos(p) * this.radius,
-      Math.sin(p) * Math.sin(t) * this.radius
-    );
-  }
-
-  update(delta, playerObj, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
+    const now = Date.now();
 
-    const interval = this.health < this.maxHealth * 0.25
-      ? 1500
-      : (this.health < this.maxHealth * 0.5 ? 2000 : 2500);
+    const hpPercent = this.health / this.maxHP;
+    const interval = 1500 + (2500 * hpPercent); // Teleports faster at low health
 
-    if (!this.teleportingAt && Date.now() - this.lastTeleport > interval) {
-      this.teleportingAt = Date.now() + 1000;
-      this.teleportTarget = this.randomPos();
-      gameHelpers?.play?.('chargeUpSound');
-      if (gameHelpers?.spawnParticles) {
-        const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
-        gameHelpers.spawnParticles(uv.u * 2048, uv.v * 1024, '#ffffff', 30, 4, 20);
-      }
-    }
+    if (!this.isChargingTeleport && now - this.lastTeleportTime > interval) {
+      this.isChargingTeleport = true;
+      gameHelpers.play('chargeUpSound');
 
-    if (this.teleportingAt && Date.now() > this.teleportingAt) {
-      this.position.copy(this.teleportTarget);
-      this.lastTeleport = Date.now();
-      this.teleportingAt = 0;
-      this.teleportTarget = null;
-      gameHelpers?.play?.('mirrorSwap');
-      if (gameHelpers?.spawnParticles) {
-        const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
-        gameHelpers.spawnParticles(uv.u * 2048, uv.v * 1024, '#ffffff', 30, 4, 20);
-      }
+      const teleportTarget = new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS);
+
+      // Create a warning effect at the target location
+      state.effects.push({
+        type: 'teleport_indicator',
+        position: teleportTarget,
+        radius: this.r * 2, // World units
+        endTime: now + 1000,
+      });
+
+      setTimeout(() => {
+        if (!this.alive) return;
+        this.position.copy(teleportTarget);
+        gameHelpers.play('mirrorSwap');
+        this.isChargingTeleport = false;
+        this.lastTeleportTime = now + 1000;
+      }, 1000);
     }
   }
 }
