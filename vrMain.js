@@ -3,7 +3,7 @@ import { VRButton } from './vendor/addons/webxr/VRButton.js';
 import { initScene, getScene, getRenderer, getCamera } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
 import { initUI, updateHud, showHud } from './modules/UIManager.js';
-import { initModals } from './modules/ModalManager.js';
+import { initModals, showModal } from './modules/ModalManager.js';
 import { vrGameLoop } from './modules/vrGameLoop.js';
 import { Telemetry } from './modules/telemetry.js';
 import { state, resetGame } from './modules/state.js';
@@ -18,11 +18,15 @@ function render(timestamp, frame) {
 
     Telemetry.recordFrame();
     updatePlayerController();
-    
+
     if (!state.isPaused) {
         vrGameLoop();
     }
-    
+
+    if (state.gameOver && !state.isPaused) {
+        showModal('gameOver');
+    }
+
     updateHud();
     renderer.render(getScene(), getCamera());
 }
