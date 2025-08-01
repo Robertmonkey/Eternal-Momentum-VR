@@ -128,6 +128,49 @@ function createButton(label, onSelect) {
   return group;
 }
 
+// Attach up/down buttons and a draggable scroll thumb to a list group. This
+// provides a simple scroll bar for long menus that need more items than will fit
+// vertically. `list` should have children spaced by `rowSpacing` along -Y.
+function addScrollBar(modal, list, viewHeight, rowSpacing) {
+  const controls = new THREE.Group();
+  controls.name = 'scrollBar';
+  const barHeight = viewHeight;
+  const track = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.05, barHeight),
+    holoMaterial(BORDER_COLOR, 0.25)
+  );
+  controls.add(track);
+  const thumbHeight = Math.max(0.1, Math.min(barHeight, barHeight * (viewHeight / (list.children.length * rowSpacing))));
+  const thumb = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.05, thumbHeight),
+    holoMaterial(0x00ffff, 0.6)
+  );
+  thumb.position.y = barHeight / 2 - thumbHeight / 2;
+  controls.add(thumb);
+  const upBtn = createButton('▲', () => scroll(-1));
+  upBtn.name = 'scrollUp';
+  upBtn.position.set(0, barHeight / 2 + 0.1, 0.02);
+  controls.add(upBtn);
+  const downBtn = createButton('▼', () => scroll(1));
+  downBtn.name = 'scrollDown';
+  downBtn.position.set(0, -barHeight / 2 - 0.1, 0.02);
+  controls.add(downBtn);
+  controls.position.set(0.75, 0.35 - barHeight / 2, 0.02);
+  modal.add(controls);
+  let offset = 0;
+  const maxOffset = Math.max(0, rowSpacing * (list.children.length - viewHeight / rowSpacing));
+  function updateThumb() {
+    const ratio = maxOffset === 0 ? 0 : offset / maxOffset;
+    thumb.position.y = barHeight / 2 - thumbHeight / 2 - ratio * (barHeight - thumbHeight);
+  }
+  function scroll(dir) {
+    offset = THREE.MathUtils.clamp(offset + dir * rowSpacing, 0, maxOffset);
+    list.position.y = 0.35 - offset;
+    updateThumb();
+  }
+  return { scroll: dir => scroll(dir) };
+}
+
 // Generic modal creation: add a border behind the original panel
 function createModal(id, title, buttons) {
   const modal = new THREE.Group();
@@ -300,6 +343,7 @@ function createStageSelectModal() {
   loreBtn.position.set(0.55, 0.55, 0.02);
   modal.add(loreBtn);
   const list = new THREE.Group();
+  list.name = 'stageList';
   list.position.set(0, 0.35, 0.02);
   const maxStage = STAGE_CONFIG.length;
   for (let i = 1; i <= maxStage; i++) {
@@ -319,6 +363,7 @@ function createStageSelectModal() {
     list.add(row);
   }
   modal.add(list);
+  addScrollBar(modal, list, 0.9, 0.25);
   const orreryBtn = createButton("WEAVER'S ORRERY", () => showModal('orrery'));
   orreryBtn.position.set(0, -0.35, 0.02);
   modal.add(orreryBtn);
