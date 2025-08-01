@@ -29,9 +29,15 @@ export function clearPathObstacles(){
 const DEFAULT_RADIUS = 50;
 
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
+  const now = Date.now();
   const playerPos = state.player.position.clone();
   const targetUv = spherePosToUv(playerPos, radius);
   state.enemies.forEach(e => {
+    if(e.frozenUntil && now > e.frozenUntil){
+      e.frozen = false;
+      e.frozenUntil = null;
+    }
+
     const startUv = spherePosToUv(e.position, radius);
 
     // Recalculate the full path periodically or when we reach the end
@@ -44,14 +50,17 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
     const nextUv = e.path[e.pathIndex] || targetUv;
     const pos3d = e.position.clone();
     const target3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
-    moveTowards(pos3d, target3d, e.speed || 1, radius);
-    e.position.copy(pos3d);
 
-    // Advance along the path when close to the next waypoint
-    const dest3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
-    if(pos3d.distanceTo(dest3d) < 0.05*radius){
-      e.pathIndex++;
+    if(!e.frozen){
+      moveTowards(pos3d, target3d, e.speed || 1, radius);
+      // Advance along the path when close to the next waypoint
+      const dest3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
+      if(pos3d.distanceTo(dest3d) < 0.05*radius){
+        e.pathIndex++;
+      }
     }
+
+    e.position.copy(pos3d);
   });
 
   const fields = state.effects.filter(f => f.type === 'repulsion_field');
