@@ -1,81 +1,90 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { uvToSpherePos } from '../utils.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// MirrorMirageAI - Implements boss B6: Mirror Mirage
-// The boss spawns two identical decoys plus the real form.
-// Only the real one can be damaged. Every 10 seconds all
-// three rapidly teleport to new random positions on the
-// gameplay sphere. Striking a decoy causes it to vanish and
-// respawn at a different location after a brief delay.
+const ARENA_RADIUS = 50;
 
 export class MirrorMirageAI extends BaseAgent {
-  constructor(radius = 1) {
-    super({ health: 240 });
-    this.radius = radius;
+  constructor() {
+    // The main object is just a group; the visible parts are its children (clones)
+    super({ model: new THREE.Group() });
+
+    const bossData = { id: "mirror", name: "Mirror Mirage", maxHP: 240 };
+    Object.assign(this, bossData);
+
     this.clones = [];
-    this.realIndex = 0;
-    this.swapTimer = 0;
-
-    const geom = new THREE.OctahedronGeometry(0.3 * radius, 0);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-
-    // Create three clones total (two decoys and the real one)
-    for (let i = 0; i < 3; i++) {
-      const mesh = new THREE.Mesh(geom.clone(), mat.clone());
-      this.add(mesh);
-      this.clones.push(mesh);
-    }
-
-    this.teleportAll();
-  }
-
-  randomPos() {
-    const u = Math.random();
-    const v = Math.random();
-    return uvToSpherePos(u, v, this.radius);
-  }
-
-  teleportAll(gameHelpers) {
-    this.clones.forEach(clone => {
-      clone.position.copy(this.randomPos());
-      clone.visible = true;
+    const cloneGeo = new THREE.OctahedronGeometry(0.8, 0);
+    const cloneMat = new THREE.MeshStandardMaterial({
+        color: 0xff00ff,
+        emissive: 0xff00ff,
+        emissiveIntensity: 0.5
     });
-    this.realIndex = Math.floor(Math.random() * this.clones.length);
-    if (gameHelpers && typeof gameHelpers.play === 'function') {
+
+    for (let i = 0; i < 5; i++) {
+        const cloneMesh = new THREE.Mesh(cloneGeo, cloneMat);
+        cloneMesh.userData.isClone = true; // Mark for raycasting
+        cloneMesh.userData.ai = this; // Link back to parent AI
+        this.clones.push(cloneMesh);
+        this.model.add(cloneMesh);
+    }
+    
+    this.teleportAllClones();
+    this.lastSwapTime = Date.now();
+  }
+  
+  randomPosOnSphere() {
+      return new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS);
+  }
+
+  teleportAllClones() {
+      this.clones.forEach(clone => {
+          clone.position.copy(this.randomPosOnSphere());
+          clone.visible = true;
+      });
+      // The "real" boss's position is just the position of one of its clones
+      this.position.copy(this.clones[0].position);
+  }
+
+  update(delta) {
+    if (!this.alive) return;
+    const now = Date.now();
+
+    if (now - this.lastSwapTime > 4000) {
+      this.lastSwapTime = now;
+      
+      const realClone = this.clones.find(c => c.position.equals(this.position));
+      let otherClone = this.clones[Math.floor(Math.random() * this.clones.length)];
+      while(otherClone === realClone) {
+          otherClone = this.clones[Math.floor(Math.random() * this.clones.length)];
+      }
+
+      // Swap positions
+      const tempPos = realClone.position.clone();
+      realClone.position.copy(otherClone.position);
+      otherClone.position.copy(tempPos);
+      this.position.copy(realClone.position);
+
       gameHelpers.play('mirrorSwap');
     }
   }
 
-  /**
-   * Called when an individual clone mesh is hit.
-   * @param {THREE.Object3D} mesh - The clone mesh that was struck.
-   * @param {number} [damage=0] - Damage to apply if this is the real clone.
-   */
-  hitClone(mesh, damage = 0, gameHelpers) {
-    const index = this.clones.indexOf(mesh);
-    if (index === -1) return;
-    if (index === this.realIndex) {
-      super.takeDamage(damage, true, gameHelpers);
-    } else {
-      mesh.visible = false;
-      setTimeout(() => {
-        mesh.position.copy(this.randomPos());
-        mesh.visible = true;
-      }, 1000);
-      if (gameHelpers && typeof gameHelpers.play === 'function') {
-        gameHelpers.play('mirrorSwap');
-      }
-    }
-  }
-
-  update(delta, gameHelpers) {
+  takeDamage(amount, sourceObject, hitMesh) {
     if (!this.alive) return;
-    this.swapTimer += delta;
-    if (this.swapTimer >= 10) {
-      this.swapTimer = 0;
-      this.teleportAll(gameHelpers);
-      if (typeof this.onSwap === 'function') this.onSwap();
+
+    // Determine if the hit mesh is the real one
+    if (hitMesh && hitMesh.position.equals(this.position)) {
+        // It's the real one
+        super.takeDamage(amount, sourceObject);
+    } else if (hitMesh) {
+        // It's a decoy
+        hitMesh.visible = false;
+        setTimeout(() => {
+            if (this.alive) {
+                hitMesh.position.copy(this.randomPosOnSphere());
+                hitMesh.visible = true;
+            }
+        }, 1500);
+        gameHelpers.play('magicDispelSound');
     }
   }
 }
