@@ -3,7 +3,7 @@ import { state, savePlayerState } from './state.js';
 import { LEVELING_CONFIG, THEMATIC_UNLOCKS, SPAWN_WEIGHTS, STAGE_CONFIG } from './config.js';
 import { powers } from './powers.js';
 import { bossData } from './bosses.js';
-import { showUnlockNotification, showBossBanner } from './UIManager.js';
+import { showUnlockNotification, showBossBanner, updateHud } from './UIManager.js';
 import { AudioManager } from './audio.js';
 import { initGameHelpers } from './gameHelpers.js';
 import { getScene } from './scene.js';
@@ -65,6 +65,7 @@ const gameHelpers = {
     playLooping: (id, obj) => AudioManager.playLoopingSfx(id, obj),
     stopLoopingSfx: (id) => AudioManager.stopLoopingSfx(id),
     addEssence,
+    updateHud,
 };
 initGameHelpers(gameHelpers);
 

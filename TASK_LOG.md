@@ -446,3 +446,7 @@ Verification: Manual code review; npm test unavailable due to missing package.js
 2025-10-23 – UI Update – Modal style improvements
 Summary: Added multiline text support and updated modal button colors to match the original game. Updated Stage Select info icons.
 Verification: node scripts/checkAssetUsage.js
+
+2025-10-24 – Bug Fix – Power-up inventory
+Summary: Fixed pickup handling to update the HUD immediately and scaled emoji sprites to nearly fill the pickup sphere for better visibility.
+Verification: node scripts/checkAssetUsage.js
