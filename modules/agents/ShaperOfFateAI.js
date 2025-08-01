@@ -1,51 +1,98 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// ShaperOfFateAI - Implements boss B29: The Shaper of Fate
-// Creates runes that determine its next attack based on player proximity.
+const ARENA_RADIUS = 50;
 
 export class ShaperOfFateAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.OctahedronGeometry(0.4 * radius);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xf1c40f });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 600, model: mesh });
+  constructor() {
+    const geometry = new THREE.OctahedronGeometry(0.9, 1);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xf1c40f,
+        emissive: 0xf1c40f,
+        emissiveIntensity: 0.6
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
-    this.phase = 'idle';
+    const bossData = { id: "shaper_of_fate", name: "The Shaper of Fate", maxHP: 600 };
+    Object.assign(this, bossData);
+    
+    this.phase = 'idle'; // idle -> prophecy -> fulfillment
     this.phaseTimer = Date.now() + 3000;
-    this.runes = [];
   }
 
-  update(delta, playerObj, state, gameHelpers) {
+  update(delta) {
+    if (!this.alive) return;
     const now = Date.now();
-    if (!this.alive || !playerObj) return;
 
     if (this.phase === 'idle' && now > this.phaseTimer) {
       this.phase = 'prophecy';
-      this.phaseTimer = now + 5000;
-      this.runes = [
-        { pos: playerObj.position.clone().add(new THREE.Vector3(1,0,0).multiplyScalar(this.radius)), type: 'nova' },
-        { pos: playerObj.position.clone().add(new THREE.Vector3(-1,0,0).multiplyScalar(this.radius)), type: 'shockwave' },
-        { pos: playerObj.position.clone().add(new THREE.Vector3(0,0,1).multiplyScalar(this.radius)), type: 'heal' }
-      ];
+      this.phaseTimer = now + 4000;
+      gameHelpers.play('shaperAppear');
+      
+      const runeTypes = ['nova', 'shockwave', 'lasers', 'heal', 'speed_buff'];
+      const shuffledRunes = runeTypes.sort(() => Math.random() - 0.5);
+
+      for (let i = 0; i < 3; i++) {
+          state.effects.push({
+              type: 'shaper_rune',
+              runeType: shuffledRunes[i],
+              position: new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS * 0.8),
+              radius: 4,
+              endTime: now + 4000
+          });
+      }
+
     } else if (this.phase === 'prophecy' && now > this.phaseTimer) {
       this.phase = 'fulfillment';
       this.phaseTimer = now + 3000;
-      let closest = this.runes[0];
-      let minDist = playerObj.position.distanceTo(this.runes[0].pos);
-      this.runes.forEach(r => {
-        const d = playerObj.position.distanceTo(r.pos);
-        if (d < minDist) { closest = r; minDist = d; }
-      });
-      if (closest.type === 'heal') {
-        this.health = Math.min(this.maxHealth, this.health + 30);
+      
+      const runes = state.effects.filter(e => e.type === 'shaper_rune');
+      if (runes.length > 0) {
+        let closestRune = runes[0];
+        let minPlayerDist = state.player.position.distanceTo(runes[0].position);
+        runes.forEach(rune => {
+            const dist = state.player.position.distanceTo(rune.position);
+            if (dist < minPlayerDist) {
+                minPlayerDist = dist;
+                closestRune = rune;
+            }
+        });
+
+        this.executeAttack(closestRune.runeType);
       }
-      gameHelpers?.play?.('shaperAttune');
-      this.runes = [];
+      
+      state.effects = state.effects.filter(e => e.type !== 'shaper_rune');
+
     } else if (this.phase === 'fulfillment' && now > this.phaseTimer) {
       this.phase = 'idle';
       this.phaseTimer = now + 5000;
+    }
+  }
+
+  executeAttack(attackType) {
+    gameHelpers.play('shaperAttune');
+    switch (attackType) {
+        case 'nova':
+            state.effects.push({ type: 'nova_controller', caster: this, duration: 2500, damage: 25 });
+            break;
+        case 'shockwave':
+            state.effects.push({ type: 'shockwave', caster: this, position: this.position.clone(), maxRadius: ARENA_RADIUS * 1.5, speed: 60, damage: 40 });
+            break;
+        case 'lasers':
+            for(let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                   if (this.alive) state.effects.push({ type: 'orbital_target', target: state.player, position: state.player.position.clone(), caster: this, damage: 45, radius: 5 });
+                }, i * 400);
+            }
+            break;
+        case 'heal':
+            this.health = Math.min(this.maxHP, this.health + this.maxHP * 0.1);
+            break;
+        case 'speed_buff':
+            // Implement a temporary speed boost for the boss
+            break;
     }
   }
 }
