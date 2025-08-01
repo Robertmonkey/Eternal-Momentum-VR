@@ -119,7 +119,31 @@ function createAbilitySlot(size, isMain = false) {
     return { group, sprite };
 }
 
+/**
+ * Create a simple rectangular background with a neon border to hold the HUD
+ * elements. This mirrors the old game's command bar so the UI feels unified.
+ * @param {number} width - plane width
+ * @param {number} height - plane height
+ * @returns {THREE.Group} command bar group
+ */
+function createCommandBar(width = 0.9, height = 0.25) {
+    const group = new THREE.Group();
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x111122, 0.9));
+    const tex = getBgTexture();
+    if (tex) {
+        bg.material.map = tex;
+        bg.material.needsUpdate = true;
+    }
+    const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(0x00ffff, 0.5));
+    border.position.z = -0.001;
+    group.add(bg, border);
+    return group;
+}
+
 function createHudElements() {
+    const bar = createCommandBar();
+    hudMesh.add(bar);
+
     healthFill = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.03), holoMaterial(0x3498db));
     healthFill.position.set(0, -0.015, 0.002);
     shieldFill = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.03), holoMaterial(0xf1c40f, 0.7));
