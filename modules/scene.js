@@ -33,11 +33,16 @@ export function initScene(container = document.body) {
     if (process.env.NODE_ENV !== 'production') {
       console.debug('WebXR session started');
     }
+    if (typeof window !== 'undefined' && window.startGame && !window.vrMainRunning) {
+      window.startGame(false);
+      if (window.showHomeMenu) window.showHomeMenu();
+    }
   });
   renderer.xr.addEventListener('sessionend', () => {
     if (process.env.NODE_ENV !== 'production') {
       console.debug('WebXR session ended');
     }
+    if (typeof window !== 'undefined') window.vrMainRunning = false;
   });
 
   playerRig = new THREE.Group();

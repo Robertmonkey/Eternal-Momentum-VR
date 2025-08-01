@@ -74,6 +74,7 @@ export function initPlayerController() {
   avatar.name = 'playerAvatar';
   avatar.position.copy(uvToSpherePos(0.5, 0, radius));
   state.player.position.copy(avatar.position);
+  targetPoint.copy(avatar.position);
   scene.add(avatar);
   const chTex = new THREE.TextureLoader().load("assets/cursors/crosshair.cur");
   chTex.magFilter = THREE.NearestFilter;
