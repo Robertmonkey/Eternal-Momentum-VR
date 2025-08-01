@@ -1,58 +1,123 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// ObeliskAI - Implements boss B26: The Obelisk
-// Invulnerable until three conduits are destroyed.
+const ARENA_RADIUS = 50;
 
+// The Conduit minions need to be defined as their own class
 export class ObeliskConduitAI extends BaseAgent {
-  constructor(parent, angle, radius) {
-    const geom = new THREE.SphereGeometry(0.1 * radius, 8, 8);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x8e44ad });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 150, model: mesh });
-    this.parentObelisk = parent;
-    this.orbit = angle;
-    this.radius = radius;
+    constructor(parentObelisk, conduitType, color, initialAngle) {
+        const geometry = new THREE.IcosahedronGeometry(0.6, 1);
+        const material = new THREE.MeshStandardMaterial({
+            color: color,
+            emissive: color,
+            emissiveIntensity: 0.7
+        });
+        super({ model: new THREE.Mesh(geometry, material) });
+
+        this.maxHP = 250;
+        this.health = this.maxHP;
+        this.parentObelisk = parentObelisk;
+        this.conduitType = conduitType;
+        this.orbitalAngle = initialAngle;
+        this.lastAbilityTime = Date.now();
+    }
+
+    update(delta) {
+        if (!this.alive || !this.parentObelisk.alive) {
+            this.die();
+            return;
+        }
+        
+        // Orbit the parent Obelisk
+        const now = Date.now();
+        const rotation = now * 0.0003;
+        const orbitDistance = 20;
+        const oscillation = Math.sin(now * 0.0008) * 5;
+        
+        this.position.set(
+            Math.cos(this.orbitalAngle + rotation) * (orbitDistance + oscillation),
+            Math.sin(now * 0.0005) * 5, // Bob up and down
+            Math.sin(this.orbitalAngle + rotation) * (orbitDistance + oscillation)
+        );
+
+        // Use abilities
+        switch (this.conduitType) {
+            case 'gravity':
+                if (now - this.lastAbilityTime > 4000) {
+                    this.lastAbilityTime = now;
+                    state.effects.push({ type: 'gravity_well', position: this.position.clone(), radius: 10, endTime: now + 3000 });
+                }
+                break;
+            case 'explosion':
+                if (now - this.lastAbilityTime > 5000) {
+                    this.lastAbilityTime = now;
+                    state.effects.push({ type: 'shockwave', caster: this, position: this.position.clone(), maxRadius: 12, speed: 30, damage: 25 });
+                }
+                break;
+        }
+    }
+
+    die() {
+        super.die();
+        gameHelpers.play('conduitShatter');
+        // Check if this was the last conduit
+        const remaining = state.enemies.filter(e => e instanceof ObeliskConduitAI && e.alive);
+        if (remaining.length === 0 && this.parentObelisk) {
+            this.parentObelisk.invulnerable = false;
+        }
+    }
+}
+
+
+export class ObeliskAI extends BaseAgent {
+  constructor() {
+    const geometry = new THREE.CylinderGeometry(1, 0.2, 4, 6);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x2c3e50,
+        emissive: 0x2c3e50,
+        emissiveIntensity: 0.1,
+        metalness: 0.9,
+        roughness: 0.3
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
+
+    const bossData = { id: "obelisk", name: "The Obelisk", maxHP: 800 };
+    Object.assign(this, bossData);
+
+    this.position.set(0, 0, 0);
+    this.invulnerable = true;
+    this.beamAngle = 0;
   }
 
   update(delta) {
-    const t = Date.now() / 2000 + this.orbit;
-    this.position.set(
-      this.parentObelisk.position.x + Math.cos(t) * this.radius,
-      this.parentObelisk.position.y,
-      this.parentObelisk.position.z + Math.sin(t) * this.radius
-    );
-  }
-}
-
-export class ObeliskAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.CylinderGeometry(0.3 * radius, 0.3 * radius, 1 * radius, 6);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x2c3e50 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 800, model: mesh });
-
-    this.radius = radius;
-    this.invulnerable = true;
-    this.conduits = [];
-    for (let i = 0; i < 3; i++) {
-      const c = new ObeliskConduitAI(this, (i / 3) * Math.PI * 2, 1.5 * radius);
-      this.add(c);
-      this.conduits.push(c);
-    }
-  }
-
-  update(delta, playerObj, state, gameHelpers) {
     if (!this.alive) return;
 
-    this.conduits = this.conduits.filter(c => c.alive);
-    if (this.invulnerable && this.conduits.length === 0) {
-      this.invulnerable = false;
+    if (this.invulnerable) {
+        // Hum while invulnerable
+        gameHelpers.playLooping('obeliskHum');
+    } else {
+        // Attack when vulnerable
+        gameHelpers.stopLoopingSfx('obeliskHum');
+        this.beamAngle += 0.005; // Slowly rotate the beam
+        const beamLength = ARENA_RADIUS * 2;
+        const beamEnd = new THREE.Vector3(
+            Math.cos(this.beamAngle) * beamLength,
+            0,
+            Math.sin(this.beamAngle) * beamLength
+        );
+        state.effects.push({
+            type: 'sentinel_beam', // Re-use the sentinel beam visual/logic
+            start: this.position.clone(),
+            end: beamEnd,
+            endTime: Date.now() + 50
+        });
     }
   }
 
-  takeDamage(amount, gameHelpers) {
+  takeDamage(amount, sourceObject) {
     if (this.invulnerable) return;
-    super.takeDamage(amount, true, gameHelpers);
+    super.takeDamage(amount, sourceObject);
   }
 }
