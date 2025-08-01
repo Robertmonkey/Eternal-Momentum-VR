@@ -2,6 +2,9 @@
   --primary-glow: #00ffff;
   --dark-bg: #111;
   --font-color: #eaf2ff;
+  --border-color: rgba(0, 255, 255, 0.4);
+  --health-low: #e74c3c;
+  --ui-bg: rgba(20, 20, 40, 0.85);
 }
 
 html, body { 
@@ -16,11 +19,15 @@ html, body {
 }
 
 #vrContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
 }
 
-#loadingScreen {
+#loadingScreen, #homeScreen {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
@@ -55,4 +62,74 @@ html, body {
     margin-top: 15px;
     font-size: 1.1rem;
     text-shadow: 0 0 8px var(--primary-glow);
+}
+
+/* Home Screen Styles */
+#homeScreen {
+    background-image: url('assets/home.mp4'); /* Note: You'll need to add home.mp4 to your root assets folder */
+    background-size: cover;
+    background-position: center;
+}
+
+#home-overlay {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(30, 30, 47, 0.4) 0%, rgba(30, 30, 47, 0.9) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#game-title {
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 300;
+    letter-spacing: 0.5rem;
+    color: var(--font-color);
+    text-transform: uppercase;
+    margin: 0 0 10vh 0;
+    text-shadow: 0 0 15px var(--primary-glow), 0 0 25px var(--primary-glow);
+}
+
+#home-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.home-btn {
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: var(--font-color);
+    background: rgba(0, 255, 255, 0.1);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px 40px;
+    width: 350px;
+    max-width: 90%;
+    text-shadow: 0 0 8px var(--primary-glow);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.home-btn:hover {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: var(--primary-glow);
+    transform: scale(1.05);
+}
+
+.home-btn.erase {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.4);
+    text-shadow: 0 0 8px var(--health-low);
+}
+
+.home-btn.erase:hover {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: var(--health-low);
 }
