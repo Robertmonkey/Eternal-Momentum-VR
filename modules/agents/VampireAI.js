@@ -1,65 +1,59 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { spherePosToUv } from '../utils.js';
+import { state } from '../state.js';
 
-// VampireAI - Boss B03: Vampire Veil
-// Reimplementation of the original 2D behaviour. This boss slowly regenerates
-// health when left unharmed and sometimes drops healing pickups when damaged.
 export class VampireAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.ConeGeometry(0.4 * radius, 0.8 * radius, 8);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xdc143c });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 144, model: mesh });
+  constructor() {
+    const geometry = new THREE.ConeGeometry(0.8, 1.6, 16);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x800020,
+        emissive: 0x800020,
+        emissiveIntensity: 0.4
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
 
-    this.radius = radius;
-    this.lastHit = Date.now();
-    this.lastHeal = Date.now();
+    const bossData = { id: "vampire", name: "Vampire Veil", maxHP: 144 };
+    Object.assign(this, bossData);
+    
+    this.lastHitTime = Date.now();
+    this.lastHealTime = Date.now();
   }
 
-  update(delta, playerObj, gameState, gameHelpers) {
+  update(delta, playerObj, state, gameHelpers) {
     if (!this.alive) return;
     const now = Date.now();
-    if (now - this.lastHit > 3000 && now - this.lastHeal > 5000) {
-      this.health = Math.min(this.maxHealth, this.health + 5);
-      this.lastHeal = now;
-      if (gameHelpers?.play) gameHelpers.play('vampireHeal');
-      if (gameHelpers?.spawnParticles) {
-        const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
-        gameHelpers.spawnParticles(
-          uv.u * 2048,
-          uv.v * 1024,
-          '#800020',
-          20,
-          1,
-          40
-        );
-      }
+
+    // Regenerate health if not damaged recently
+    if (now - this.lastHitTime > 3000 && now - this.lastHealTime > 5000) {
+      this.health = Math.min(this.maxHP, this.health + 5);
+      this.lastHealTime = now;
+      gameHelpers.play('vampireHeal');
+      // Visual effect for healing can be added here
     }
   }
 
-  takeDamage(amount, sourceObj, gameState, gameHelpers) {
-    this.lastHit = Date.now();
-    if (Math.random() < 0.3 && gameState) {
-      gameState.pickups.push({
+  takeDamage(amount, sourceObject) {
+    if (!this.alive) return;
+    this.lastHitTime = Date.now();
+
+    // Chance to spawn a healing orb on being hit
+    if (Math.random() < 0.3) {
+      state.pickups.push({
         position: this.position.clone(),
-        r: 10,
-        type: 'heal',
+        r: 0.4,
+        type: 'custom',
         emoji: '🩸',
         lifeEnd: Date.now() + 8000,
-        vx: 0,
-        vy: 0,
-        customApply: () => {
-          if (sourceObj && typeof sourceObj.health === 'number') {
-            sourceObj.health = Math.min(sourceObj.maxHealth || Infinity, sourceObj.health + 10);
-            if (gameHelpers?.spawnParticles) {
-              const uv = spherePosToUv(sourceObj.position.clone().normalize(), this.radius);
-              gameHelpers.spawnParticles(uv.u * 2048, uv.v * 1024, '#800020', 20, 3, 30);
-            }
+        isSeeking: true,
+        seekTarget: this, // The orb seeks the boss itself
+        customApply: (target) => {
+          if (target === this) {
+            this.health = Math.min(this.maxHP, this.health + 20);
           }
         }
       });
     }
-    super.takeDamage(amount);
+    
+    super.takeDamage(amount, sourceObject);
   }
 }
