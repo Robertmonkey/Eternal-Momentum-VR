@@ -28,14 +28,30 @@ function ensureGroup() {
 function createButton(label, onSelect, width = 0.5, height = 0.1) {
     const group = new THREE.Group();
     group.name = `button_${label.replace(/\s+/g, '_')}`;
+
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x111122, 0.8));
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
-    bg.userData.onSelect = onSelect;
+
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(0x00ffff, 0.5));
     border.position.z = -0.001;
+
     const text = createTextSprite(label.substring(0, 20), 32);
     text.position.z = 0.002;
+
+    // Interactive behaviour
+    const setHover = hovered => {
+        const intensity = hovered ? 1.5 : 1;
+        bg.material.emissiveIntensity = intensity;
+        border.material.emissiveIntensity = intensity;
+        group.scale.setScalar(hovered ? 1.05 : 1);
+    };
+
+    [bg, border, text].forEach(obj => {
+        obj.userData.onSelect = onSelect;
+        obj.userData.onHover = setHover;
+    });
+
     group.add(bg, border, text);
     return group;
 }
