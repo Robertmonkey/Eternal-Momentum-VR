@@ -20,7 +20,10 @@ export class BasiliskAI extends BaseAgent {
     super({ model: new THREE.Mesh(placeholderGeo, material) });
 
     const bossData = { id: "basilisk", name: "The Basilisk", maxHP: 384 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.zones = [];
     const zonePositions = [

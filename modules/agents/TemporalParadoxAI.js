@@ -16,7 +16,10 @@ export class TemporalParadoxAI extends BaseAgent {
     super({ model });
 
     const bossData = { id: "temporal_paradox", name: "The Temporal Paradox", maxHP: 420 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.playerHistory = [];
     this.lastEchoTime = 0;

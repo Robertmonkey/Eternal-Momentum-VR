@@ -416,7 +416,7 @@ export const bossData = [{
         b.r = 50;
         b.enraged = false;
         
-        const partner = state.enemies.find(e => e.id === 'aethel_and_umbra' && e !== b);
+        const partner = state.enemies.find(e => e.kind === 'aethel_and_umbra' && e !== b);
         
         if (!partner) {
             // This is the first twin, it defines both its own role and its partner's.
@@ -473,7 +473,7 @@ export const bossData = [{
         }
     },
     onDeath: (b, state) => {
-        const partner = state.enemies.find(e => e.id === 'aethel_and_umbra' && e !== b && e.hp > 0);
+        const partner = state.enemies.find(e => e.kind === 'aethel_and_umbra' && e !== b && e.hp > 0);
         if (partner && !partner.enraged) {
             partner.enraged = true;
             if (b.role === 'Aethel') { // Partner is Umbra, becomes faster
@@ -757,7 +757,7 @@ export const bossData = [{
     mechanics_desc: "Two bosses that share a single health pool and are connected by a constant, lethal energy beam. The beam will damage you on contact. The bosses will attempt to reposition themselves to keep the beam on you.",
     hasCustomMovement: true,
     init: (b, state, spawnEnemy) => {
-        if (!state.enemies.find(e => e.id === 'sentinel_pair' && e !== b)) {
+        if (!state.enemies.find(e => e.kind === 'sentinel_pair' && e !== b)) {
             const partner = spawnEnemy(true, 'sentinel_pair');
             if (partner) {
                 b.partner = partner;
@@ -939,7 +939,7 @@ export const bossData = [{
         
         if (Date.now() - (lastTime || 0) > 12000 && !b.isChargingBeam) {
             b.isChargingBeam = true;
-            if (b.id === 'pantheon') {
+            if (b.kind === 'pantheon') {
                 b.isChargingAnnihilatorBeam = true;
             }
 
@@ -947,7 +947,7 @@ export const bossData = [{
             setTimeout(() => {
                 if(b.hp <= 0) {
                     b.isChargingBeam = false;
-                    if (b.id === 'pantheon') {
+                    if (b.kind === 'pantheon') {
                         b.isChargingAnnihilatorBeam = false;
                     }
                     return;
@@ -966,7 +966,7 @@ export const bossData = [{
                 b.isChargingBeam = false;
 
                 setTimeout(() => {
-                    if (b.id === 'pantheon') {
+                    if (b.kind === 'pantheon') {
                         b.isChargingAnnihilatorBeam = false;
                     }
                 }, 1200); // Duration of the beam effect
@@ -1351,7 +1351,7 @@ export const bossData = [{
         ctx.globalAlpha = 1.0;
         if (!b.isGasActive && Date.now() - b.lastGasAttack > 10000) {
             b.isGasActive = true;
-            state.effects.push({ type: 'miasma_gas', endTime: Date.now() + 99999, id: b.id });
+            state.effects.push({ type: 'miasma_gas', endTime: Date.now() + 99999, id: b.kind });
             gameHelpers.play('miasmaGasRelease');
         }
         if (b.isGasActive && !b.isChargingSlam) {
@@ -1367,7 +1367,7 @@ export const bossData = [{
                     if (Date.now() > v.cooldownUntil && Math.hypot(b.x - v.x, b.y - v.y) < 120) {
                         v.cooldownUntil = Date.now() + 10000;
                         b.isGasActive = false;
-                        state.effects = state.effects.filter(e => e.type !== 'miasma_gas' || e.id !== b.id);
+                        state.effects = state.effects.filter(e => e.type !== 'miasma_gas' || e.kind !== b.kind);
                         b.lastGasAttack = Date.now();
                         gameHelpers.play('ventPurify');
                         utils.spawnParticles(state.particles, v.x, v.y, '#ffffff', 100, 6, 50, 5);
@@ -1379,7 +1379,7 @@ export const bossData = [{
         }
     },
     onDamage: (b, dmg) => { if (b.isGasActive) b.hp += dmg; },
-    onDeath: (b, state) => { state.effects = state.effects.filter(e => e.type !== 'miasma_gas' || e.id !== b.id); }
+    onDeath: (b, state) => { state.effects = state.effects.filter(e => e.type !== 'miasma_gas' || e.kind !== b.kind); }
 }, {
     id: "temporal_paradox",
     name: "The Temporal Paradox",
@@ -1536,7 +1536,7 @@ export const bossData = [{
         if (b.hp <= 0 || !state.fractalHorrorAi) return;
 
         const target = state.player;
-        let allFractals = state.enemies.filter(e => e.id === 'fractal_horror');
+        let allFractals = state.enemies.filter(e => e.kind === 'fractal_horror');
         const hpPercent = state.fractalHorrorSharedHp / b.maxHP;
         const expectedSplits = Math.floor((1 - hpPercent) / 0.02);
         
@@ -1561,7 +1561,7 @@ export const bossData = [{
             }
             biggestFractal.hp = 0;
             state.fractalHorrorSplits++;
-            allFractals = state.enemies.filter(e => e.id === 'fractal_horror');
+            allFractals = state.enemies.filter(e => e.kind === 'fractal_horror');
         }
 
         const myIndex = allFractals.indexOf(b);
@@ -1661,7 +1661,7 @@ export const bossData = [{
         }
     },
     onDeath: (b, state) => {
-        const remaining = state.enemies.filter(e => e.id === 'fractal_horror' && e !== b);
+        const remaining = state.enemies.filter(e => e.kind === 'fractal_horror' && e !== b);
         if (remaining.length === 0) {
             delete state.fractalHorrorSharedHp;
             delete state.fractalHorrorSplits;
@@ -1738,7 +1738,7 @@ export const bossData = [{
         
         if (b.invulnerable) {
             gameHelpers.playLooping('obeliskHum');
-            const livingConduits = state.enemies.filter(e => e.id === 'obelisk_conduit' && e.parentObelisk === b);
+            const livingConduits = state.enemies.filter(e => e.kind === 'obelisk_conduit' && e.parentObelisk === b);
             livingConduits.forEach(conduit => {
                 utils.drawLightning(ctx, topCenter.x, topCenter.y, conduit.x, conduit.y, conduit.color, 3);
             });
@@ -1849,7 +1849,7 @@ export const bossData = [{
     onDeath: (b, state, sE, sP, play) => {
         play('conduitShatter');
         if (b.parentObelisk) {
-            const remainingConduits = state.enemies.filter(e => e.id === 'obelisk_conduit' && e.hp > 0 && e.parentObelisk === b.parentObelisk);
+            const remainingConduits = state.enemies.filter(e => e.kind === 'obelisk_conduit' && e.hp > 0 && e.parentObelisk === b.parentObelisk);
             if (remainingConduits.length === 0) {
                 b.parentObelisk.invulnerable = false;
             }

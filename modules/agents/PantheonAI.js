@@ -21,7 +21,10 @@ export class PantheonAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "pantheon", name: "The Pantheon", maxHP: 3000 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.nextActionTime = Date.now() + 3000;
     this.activeAspects = new Map(); // Use a Map to store aspect AI instances

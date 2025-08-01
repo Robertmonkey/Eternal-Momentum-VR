@@ -16,7 +16,7 @@ export class ReflectorAI extends BaseAgent {
     this.add(this.shieldMesh);
 
     this.name = "Reflector Warden";
-    this.id = "reflector";
+    this.kind = "reflector";
     this.phase = "idle";
     this.lastPhaseChange = Date.now();
     this.cycles = 0;

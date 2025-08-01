@@ -15,7 +15,7 @@ export class SplitterAI extends BaseAgent {
     const model = new THREE.Mesh(geometry, material)
     super({ health: 96, model });
     this.name = "Splitter Sentinel";
-    this.id = "splitter";
+    this.kind = "splitter";
   }
 
   die() {

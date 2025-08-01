@@ -14,7 +14,10 @@ export class PuppeteerAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
     
     const bossData = { id: "puppeteer", name: "The Puppeteer", maxHP: 320 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.lastConvertTime = 0;
   }

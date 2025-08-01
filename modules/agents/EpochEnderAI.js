@@ -16,7 +16,10 @@ export class EpochEnderAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "epoch_ender", name: "The Epoch-Ender", maxHP: 550 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.damageInWindow = 0;
     this.lastStateSnapshot = { position: this.position.clone(), health: this.health };

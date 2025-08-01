@@ -16,7 +16,10 @@ export class ArchitectAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "architect", name: "The Architect", maxHP: 280 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.lastBuildTime = 0;
   }

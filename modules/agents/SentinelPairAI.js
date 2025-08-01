@@ -17,7 +17,10 @@ export class SentinelPairAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
     
     const bossData = { id: "sentinel_pair", name: "Sentinel Pair", maxHP: 400 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.partner = partner;
     if (this.partner) {

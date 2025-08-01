@@ -151,7 +151,7 @@ export const powers = {
   }},
   freeze:{emoji:"🧊",desc:"Freeze enemies for 4s",apply:()=>{
       state.enemies.forEach(e=>{
-          if (e.id === 'fractal_horror' || e.isFriendly) return;
+          if (e.kind === 'fractal_horror' || e.isFriendly) return;
           if (e.frozen) return;
           e.frozen=true;
           e.wasFrozen = true;

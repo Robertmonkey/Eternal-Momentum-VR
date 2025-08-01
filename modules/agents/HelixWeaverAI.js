@@ -16,7 +16,10 @@ export class HelixWeaverAI extends BaseAgent {
     super({ model });
 
     const bossData = { id: "helix_weaver", name: "The Helix Weaver", maxHP: 500 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.position.set(0, 0, 0); // Stays at the center
     this.angle = 0;

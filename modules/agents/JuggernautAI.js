@@ -19,7 +19,10 @@ export class JuggernautAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "juggernaut", name: "The Juggernaut", maxHP: 360 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.isCharging = false;
     this.chargeEndTime = 0;
