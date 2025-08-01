@@ -110,7 +110,10 @@ async function main() {
         if (loadingEl) loadingEl.style.opacity = '0';
         setTimeout(() => {
             if (loadingEl) loadingEl.style.display = 'none';
-            if (homeScreen) homeScreen.style.display = 'flex';
+            if (homeScreen) {
+                homeScreen.style.display = 'flex';
+                requestAnimationFrame(() => homeScreen.classList.add('visible'));
+            }
         }, 500);
 
     } catch (error) {
