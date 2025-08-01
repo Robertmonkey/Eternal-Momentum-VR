@@ -368,3 +368,8 @@ Next Steps: Monitor for any additional VR initialization issues as UI refactor c
 Summary: Added line connectors between talents in the Ascension Conduit VR menu and confirmation prompt for ERASE TIMELINE. Updated ascensionModal.test to cover new confirm flow and page reload. All tests pass.
 Verification: npm install && npm test – all 65 suites pass.
 Next Steps: Continue polishing UI layouts and verify other menus for fidelity gaps.
+
+2025-10-07 – FR-11 – Home menu initialization guard
+Summary: Fixed crash when showHomeMenu was called before VR initialization by checking ensureGroup() in ModalManager.
+Verification: npm install && npm test – all 65 suites pass.
+Next Steps: Continue monitoring VR start sequence for edge cases.
