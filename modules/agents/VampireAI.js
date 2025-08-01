@@ -1,42 +1,35 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class VampireAI extends BaseAgent {
   constructor() {
     const geometry = new THREE.ConeGeometry(0.8, 1.6, 16);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x800020,
-        emissive: 0x800020,
-        emissiveIntensity: 0.4
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
-
-    const bossData = { id: "vampire", name: "Vampire Veil", maxHP: 144 };
-    Object.assign(this, bossData);
+    const material = new THREE.MeshStandardMaterial({ color: 0x800020, emissive: 0x800020 });
+    super({ health: 144, model: new THREE.Mesh(geometry, material) });
     
+    this.name = "Vampire Veil";
+    this.id = "vampire";
     this.lastHitTime = Date.now();
     this.lastHealTime = Date.now();
   }
 
-  update(delta, playerObj, state, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
     const now = Date.now();
 
-    // Regenerate health if not damaged recently
     if (now - this.lastHitTime > 3000 && now - this.lastHealTime > 5000) {
       this.health = Math.min(this.maxHP, this.health + 5);
       this.lastHealTime = now;
       gameHelpers.play('vampireHeal');
-      // Visual effect for healing can be added here
     }
   }
 
-  takeDamage(amount, sourceObject) {
+  takeDamage(amount, sourceObject = state.player) {
     if (!this.alive) return;
     this.lastHitTime = Date.now();
 
-    // Chance to spawn a healing orb on being hit
     if (Math.random() < 0.3) {
       state.pickups.push({
         position: this.position.clone(),
@@ -45,7 +38,7 @@ export class VampireAI extends BaseAgent {
         emoji: '🩸',
         lifeEnd: Date.now() + 8000,
         isSeeking: true,
-        seekTarget: this, // The orb seeks the boss itself
+        seekTarget: this,
         customApply: (target) => {
           if (target === this) {
             this.health = Math.min(this.maxHP, this.health + 20);
@@ -54,6 +47,6 @@ export class VampireAI extends BaseAgent {
       });
     }
     
-    super.takeDamage(amount, sourceObject);
+    super.takeDamage(amount, true);
   }
 }
