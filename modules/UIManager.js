@@ -121,12 +121,24 @@ function createAbilitySlot(size, isMain = false) {
 
 function createBossBar(boss) {
     const group = new THREE.Group();
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.05), holoMaterial(0x111122, 0.8));
-    const fill = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.02), holoMaterial(boss.color));
-    fill.position.set(0, -0.01, 0.001);
+
+    // Background mimics the old game's dark wrapper
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.05), holoMaterial(0x000000, 0.6));
+
+    // Thin white border just behind the background
+    const border = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.06), holoMaterial(0xffffff, 0.8));
+    border.position.z = -0.001;
+
+    // Left anchored fill bar so scaling matches the original behaviour
+    const geom = new THREE.PlaneGeometry(0.24, 0.02);
+    geom.translate(0.12, 0, 0); // anchor left at x=0
+    const fill = new THREE.Mesh(geom, holoMaterial(boss.color));
+    fill.position.set(-0.12, -0.01, 0.001);
+
     const label = createTextSprite(boss.name, 24);
     label.position.set(0, 0.015, 0.002);
-    group.add(bg, fill, label);
+
+    group.add(border, bg, fill, label);
     group.userData = { fill, label };
     return group;
 }
