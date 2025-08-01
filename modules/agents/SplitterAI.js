@@ -1,50 +1,56 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { spherePosToUv } from '../utils.js';
-import { spawnEnemy } from '../gameLoop.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// SplitterAI - Boss B01: Splitter Sentinel
-// Reimplemented directly from the original 2D logic. The boss has no
-// active behavior and simply shatters into two waves of minions on death.
+const ARENA_RADIUS = 50;
+
 export class SplitterAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.3 * radius, 16, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xff4500 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 96, model: mesh });
-    this.radius = radius;
+  constructor() {
+    const geometry = new THREE.IcosahedronGeometry(0.8, 0);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xff4500,
+        emissive: 0xff4500,
+        emissiveIntensity: 0.5,
+        metalness: 0.5,
+        roughness: 0.5
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
+
+    const bossData = { id: "splitter", name: "Splitter Sentinel", maxHP: 96 };
+    Object.assign(this, bossData);
   }
 
-  update() {
-    // Splitter has no unique per-frame logic in the original game.
+  update(delta) {
+    // No active behavior, as per the original game.
   }
 
-  die(gameHelpers, state) {
+  die() {
     super.die();
-    if (gameHelpers?.play) gameHelpers.play('splitterOnDeath');
-    if (gameHelpers?.spawnParticles) {
-      const uv = spherePosToUv(this.position.clone().normalize(), this.radius);
-      gameHelpers.spawnParticles(
-        uv.u * 2048,
-        uv.v * 1024,
-        '#ff4500',
-        100,
-        6,
-        40,
-        5
-      );
-    }
-    const centerUv = spherePosToUv(this.position.clone().normalize(), this.radius);
-    const center = { x: centerUv.u * 2048, y: centerUv.v * 1024 };
-    const spawnWave = radiusPx => {
-      for (let i = 0; i < 6; i++) {
-        const ang = (i / 6) * 2 * Math.PI + Math.random() * 0.5;
-        const x = center.x + Math.cos(ang) * radiusPx;
-        const y = center.y + Math.sin(ang) * radiusPx;
-        spawnEnemy(false, null, { x, y });
-      }
+    gameHelpers.play('splitterOnDeath');
+
+    const spawnInOrbit = (count, orbitRadius) => {
+        const centerVec = this.position.clone().normalize();
+        const upVec = new THREE.Vector3(0, 1, 0);
+        // Create two orthogonal vectors on the tangent plane
+        const basisA = new THREE.Vector3().crossVectors(centerVec, upVec).normalize();
+        const basisB = new THREE.Vector3().crossVectors(centerVec, basisA).normalize();
+
+        for (let i = 0; i < count; i++) {
+            const angle = (i / count) * 2 * Math.PI + Math.random() * 0.5;
+            
+            const offset = basisA.clone().multiplyScalar(Math.cos(angle) * orbitRadius)
+                             .add(basisB.clone().multiplyScalar(Math.sin(angle) * orbitRadius));
+            
+            const spawnPos = this.position.clone().add(offset).normalize().multiplyScalar(ARENA_RADIUS);
+            
+            const minion = gameHelpers.spawnEnemy(false);
+            if (minion) {
+                minion.position.copy(spawnPos);
+            }
+        }
     };
-    spawnWave(60);
-    setTimeout(() => spawnWave(120), 1000);
+
+    spawnInOrbit(6, 6); // First wave with a 6-unit radius
+    setTimeout(() => spawnInOrbit(6, 12), 1000); // Second wave, further out
   }
 }
