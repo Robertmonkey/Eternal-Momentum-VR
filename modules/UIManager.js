@@ -26,7 +26,7 @@ export function getBgTexture() {
   return bgTexture;
 }
 
-export function holoMaterial(color = 0x141428, opacity = 0.85) {
+export function holoMaterial(color = 0x1e1e2f, opacity = 0.85) {
   return new THREE.MeshStandardMaterial({
     color,
     emissive: color,
