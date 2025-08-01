@@ -1,52 +1,73 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
-// BasiliskAI - Implements boss B15: The Basilisk
-// Generates four stasis zones that grow as health drops. Remaining inside
-// a zone for too long petrifies and stuns the player.
+const ARENA_RADIUS = 50;
 
 export class BasiliskAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.IcosahedronGeometry(0.35 * radius, 0);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x00b894 });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 384, model: mesh });
+  constructor() {
+    const geometry = new THREE.CrystalGeometry(); // Placeholder for a custom crystal shape
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x00b894,
+        emissive: 0x00b894,
+        emissiveIntensity: 0.3,
+        roughness: 0.2,
+        metalness: 0.8
+    });
+    // For now, use a simple shape
+    const placeholderGeo = new THREE.IcosahedronGeometry(0.9, 1);
+    super({ model: new THREE.Mesh(placeholderGeo, material) });
 
-    this.radius = radius;
-    // Create four zones in the arena quadrants
-    const d = radius * 0.5;
-    const positions = [
-      new THREE.Vector3( d, 0,  d),
-      new THREE.Vector3(-d, 0,  d),
-      new THREE.Vector3( d, 0, -d),
-      new THREE.Vector3(-d, 0, -d)
+    const bossData = { id: "basilisk", name: "The Basilisk", maxHP: 384 };
+    Object.assign(this, bossData);
+    
+    this.zones = [];
+    const zonePositions = [
+        new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)
     ];
-    this.zones = positions.map(p => ({ pos: p, timer: 0, cooldown: 0 }));
+
+    zonePositions.forEach(dir => {
+        this.zones.push({
+            position: dir.multiplyScalar(ARENA_RADIUS * 0.7),
+            playerInsideTime: 0,
+            cooldownUntil: 0,
+        });
+    });
   }
 
-  update(delta, playerObj, gameHelpers) {
-    if (!this.alive || !playerObj) return;
-    const hpPercent = Math.max(0, this.health / this.maxHealth);
-    const maxSize = this.radius * 0.5;
-    const size = Math.min(maxSize, (1 - hpPercent) / 0.7 * maxSize);
+  update(delta) {
+    if (!this.alive) return;
+    const now = Date.now();
+    const hpPercent = Math.max(0, this.health / this.maxHP);
+    const growth = 1.0 - hpPercent;
+    const zoneRadius = 5 + (15 * growth); // Zones grow from 5 to 20 world units
 
-    this.zones.forEach(z => {
-      const dx = playerObj.position.x - z.pos.x;
-      const dz = playerObj.position.z - z.pos.z;
-      const inside = Math.abs(dx) < size && Math.abs(dz) < size;
+    this.zones.forEach(zone => {
+        // Add a visual effect for the zone
+        state.effects.push({
+            type: 'basilisk_zone',
+            position: zone.position,
+            radius: zoneRadius,
+            endTime: now + 50,
+            onCooldown: now < zone.cooldownUntil
+        });
+        
+        const playerPos = state.player.position;
+        const distance = playerPos.distanceTo(zone.position);
 
-      if (inside && Date.now() > z.cooldown) {
-        z.timer += delta;
-        if (z.timer >= 1.5) {
-          if (gameHelpers?.play) gameHelpers.play('stoneCrackingSound');
-          gameHelpers?.addStatusEffect?.('Petrified', '🗿', 2000);
-          playerObj.stunnedUntil = Date.now() + 2000;
-          z.cooldown = Date.now() + 2000;
-          z.timer = 0;
+        if (distance < zoneRadius && now > zone.cooldownUntil) {
+            zone.playerInsideTime += delta;
+            if (zone.playerInsideTime > 1.5) { // 1.5 seconds to petrify
+                gameHelpers.play('stoneCrackingSound');
+                gameHelpers.addStatusEffect('Petrified', '🗿', 2000);
+                zone.playerInsideTime = 0;
+                zone.cooldownUntil = now + 4000; // 4 second cooldown after petrifying
+            }
+        } else {
+            zone.playerInsideTime = 0;
         }
-      } else {
-        z.timer = 0;
-      }
     });
   }
 }
