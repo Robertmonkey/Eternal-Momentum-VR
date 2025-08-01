@@ -426,3 +426,6 @@ Next Steps: Continue reviewing remaining UI elements for fidelity issues.
 Summary: Added camera readiness check in showModal to prevent crashes when menus open before VR initialization.
 Verification: npm test failed to run because package.json is missing.
 
+2025-10-19 – Bug Fix – Stage select resetGame
+Summary: Pass bossData when resetting game from stage select to avoid missing core states.
+Verification: npm test failed due to missing package.json.

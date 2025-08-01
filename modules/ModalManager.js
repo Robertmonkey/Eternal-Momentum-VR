@@ -153,7 +153,7 @@ function createStageSelectModal() {
             
             const row = createButton(`${i}: ${stageInfo.name}`, () => {
                 state.currentStage = i;
-                resetGame();
+                resetGame(bossData); // Ensure core states initialize correctly
                 hideModal();
             }, 1.0);
             row.position.y = 0.4 - (i-1) * 0.12;
