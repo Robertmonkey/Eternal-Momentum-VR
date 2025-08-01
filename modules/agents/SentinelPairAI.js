@@ -1,68 +1,83 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-import { moveTowards } from '../movement3d.js';
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
+import * as CoreManager from '../CoreManager.js';
 
-// SentinelPairAI - Implements boss B14: Sentinel Pair
-// Two agents share one health pool and project a damaging beam between them.
+const ARENA_RADIUS = 50;
 
 export class SentinelPairAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.SphereGeometry(0.28 * radius, 12, 12);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xf1c40f });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 400, model: mesh });
+  constructor(partner = null) {
+    const geometry = new THREE.OctahedronGeometry(0.7, 0);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xf1c40f,
+        emissive: 0xf1c40f,
+        emissiveIntensity: 0.6
+    });
+    super({ model: new THREE.Mesh(geometry, material) });
+    
+    const bossData = { id: "sentinel_pair", name: "Sentinel Pair", maxHP: 400 };
+    Object.assign(this, bossData);
 
-    this.radius = radius;
-    this.partner = null;
-    this.moveTarget = this.randomPos();
-  }
-
-  randomPos() {
-    const t = Math.random() * 2 * Math.PI;
-    const p = Math.random() * Math.PI;
-    return new THREE.Vector3(
-      Math.sin(p) * Math.cos(t) * this.radius,
-      Math.cos(p) * this.radius,
-      Math.sin(p) * Math.sin(t) * this.radius
-    );
-  }
-
-  update(delta, playerObj, gameHelpers) {
-    if (!this.alive) return;
-    if (this.partner && this.partner.alive && playerObj) {
-      const playerPos = playerObj.position;
-      const pVec = playerPos.clone().sub(this.position).normalize();
-      const perp = new THREE.Vector3().crossVectors(pVec, this.partner.position.clone().sub(this.position)).normalize();
-      const target = playerPos.clone().add(perp.multiplyScalar(0.2 * this.radius));
-      moveTowards(this.position, target, 0.5, this.radius);
-      const beamFn = gameHelpers?.drawBeam;
-      if (beamFn) beamFn(this.position, this.partner.position);
-
-      // damage when player crosses beam
-      const a = this.position;
-      const b = this.partner.position;
-      const ap = playerPos.clone().sub(a);
-      const ab = b.clone().sub(a);
-      const t = Math.max(0, Math.min(1, ap.dot(ab) / ab.lengthSq()));
-      const closest = a.clone().add(ab.multiplyScalar(t));
-      if (closest.distanceTo(playerPos) < (playerObj.r || 0.05) + 0.05) {
-        if (typeof playerObj.health === 'number') playerObj.health -= 1;
-      }
-    } else {
-      moveTowards(this.position, this.moveTarget, 0.3, this.radius);
-      if (this.position.distanceTo(this.moveTarget) < 0.05 * this.radius) {
-        this.moveTarget = this.randomPos();
-      }
+    this.partner = partner;
+    if (this.partner) {
+        this.partner.partner = this; // Link back
     }
   }
 
-  takeDamage(amount, gameHelpers) {
-    super.takeDamage(amount, true, gameHelpers);
-    if (this.partner) this.partner.health = this.health;
+  update(delta) {
+    if (!this.alive || !this.partner || !this.partner.alive) return;
+    const playerPos = state.player.position;
+
+    // AI to position the pair around the player
+    const toPlayer = playerPos.clone().sub(this.position).normalize();
+    const desiredSeparation = 15; // World units
+
+    // A vector perpendicular to both the "up" vector and the vector to the player
+    const perpendicular = new THREE.Vector3().crossVectors(this.position, toPlayer).normalize();
+    
+    const targetPosA = playerPos.clone().add(perpendicular.clone().multiplyScalar(desiredSeparation / 2));
+    const targetPosB = playerPos.clone().sub(perpendicular.clone().multiplyScalar(desiredSeparation / 2));
+
+    targetPosA.normalize().multiplyScalar(ARENA_RADIUS);
+    targetPosB.normalize().multiplyScalar(ARENA_RADIUS);
+
+    // This sentinel moves towards A, partner moves towards B
+    this.position.lerp(targetPosA, 0.5 * delta);
+    this.partner.position.lerp(targetPosB, 0.5 * delta);
+    
+    // Add beam effect for rendering
+    state.effects.push({
+        type: 'sentinel_beam',
+        start: this.position.clone(),
+        end: this.partner.position.clone(),
+        endTime: Date.now() + 50 // Effect lasts for a very short time
+    });
+
+    // Damage player if they intersect the beam
+    const playerLineDist = new THREE.Line3(this.position, this.partner.position).closestPointToPoint(playerPos, true, new THREE.Vector3()).distanceTo(playerPos);
+    if(playerLineDist < state.player.r + 0.2) {
+        if (!state.player.shield) {
+            const damage = 1;
+            state.player.health -= damage;
+            CoreManager.onPlayerDamage(damage, this);
+        }
+    }
+  }
+
+  takeDamage(amount, sourceObject) {
+    if (!this.alive) return;
+    // Damage is shared
+    super.takeDamage(amount, sourceObject);
+    if (this.partner) {
+        this.partner.health = this.health;
+    }
   }
 
   die() {
-    if (this.partner && this.partner.alive) this.partner.health = 0;
     super.die();
+    if (this.partner && this.partner.alive) {
+        this.partner.die();
+    }
   }
 }
