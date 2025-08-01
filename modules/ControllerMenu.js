@@ -71,8 +71,8 @@ export function initControllerMenu() {
 
 export function updateControllerMenu() {
   if (!coreButton) return;
-  // Show the cores button only after the player has unlocked them (level 10)
-  coreButton.visible = state.player.unlockedAberrationCores.size > 0;
+  // Show the cores button only after the feature is unlocked at level 10
+  coreButton.visible = state.player.level >= 10;
 }
 
 export function getControllerMenuObjects() {

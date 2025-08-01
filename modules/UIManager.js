@@ -188,7 +188,8 @@ function createHudElements() {
     const ascGroup = new THREE.Group();
     ascGroup.add(new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.04), holoMaterial(0x111122, 0.8)));
     ascGroup.add(ascFill, ascText);
-    ascGroup.position.set(0.45, -0.02, 0);
+    // Position inside the command bar so it doesn't protrude
+    ascGroup.position.set(0.34, -0.02, 0);
     hudMesh.add(ascGroup);
     
     apText = createTextSprite('AP: 0', 24, '#00ffff');
@@ -229,6 +230,7 @@ function createHudElements() {
     coreCooldown = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 0.08), holoMaterial(0x000000, 0.7));
     coreCooldown.position.z = 0.002;
     coreCooldown.scale.y = 0;
+    coreCooldown.visible = false;
     coreSocket.add(coreIcon, coreCooldown);
     coreSocket.position.set(0, -0.08, 0.01);
     hudMesh.add(coreSocket);
@@ -302,6 +304,31 @@ export function updateHud() {
         const color = coreData ? coreData.color : '#eaf2ff';
         updateTextSprite(coreIcon, coreData ? '' : '◎');
         coreIcon.material.color.set(color);
+
+        let cooldownProgress = 0;
+        if (coreId && coreData) {
+            const coreState = state.player.talent_states.core_states[coreId];
+            const cooldowns = {
+                juggernaut: 8000,
+                syphon: 5000,
+                mirror_mirage: 12000,
+                looper: 10000,
+                gravity: 6000,
+                architect: 15000,
+                annihilator: 25000,
+                puppeteer: 8000,
+                helix_weaver: 5000,
+                epoch_ender: 120000,
+                splitter: 500,
+            };
+            const duration = cooldowns[coreId];
+            if (duration && coreState && coreState.cooldownUntil && coreState.cooldownUntil > now) {
+                const remaining = coreState.cooldownUntil - now;
+                cooldownProgress = Math.max(0, remaining) / duration;
+            }
+        }
+        coreCooldown.scale.y = cooldownProgress;
+        coreCooldown.visible = !!coreId;
     }
 
     if (bossContainer) {
