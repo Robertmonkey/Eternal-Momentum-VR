@@ -191,6 +191,22 @@ export function updateEffects3d(radius = 50){
         }
         break;
       }
+      case 'small_freeze':{
+        state.enemies.forEach(e => {
+          if(!e.isFriendly && e.alive && !e.frozen && e.position.distanceTo(ef.position) < ef.radius){
+            if(Math.random() < 0.5){
+              e.frozen = true;
+              e.wasFrozen = true;
+              e.frozenUntil = now + 1000;
+              if (state.player.equippedAberrationCore === 'basilisk' || state.player.activePantheonBuffs.some(b => b.coreId === 'basilisk')) {
+                e.petrifiedUntil = now + 1000;
+              }
+            }
+          }
+        });
+        state.effects.splice(i,1);
+        break;
+      }
     }
   }
 }
