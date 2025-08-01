@@ -40,11 +40,16 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
 
     const startUv = spherePosToUv(e.position, radius);
 
-    // Recalculate the full path periodically or when we reach the end
-    if(!e.path || !e.path.length || e.pathIndex >= e.path.length || (e.lastPathCalc && Date.now()-e.lastPathCalc>500)){
+    // Recalculate the path when the player moves or after a timeout
+    const moved = !e.lastPlayerUv ||
+      Math.abs(e.lastPlayerUv.u - targetUv.u) > 0.002 ||
+      Math.abs(e.lastPlayerUv.v - targetUv.v) > 0.002;
+    if(moved || !e.path || !e.path.length || e.pathIndex >= e.path.length ||
+       (e.lastPathCalc && Date.now()-e.lastPathCalc>500)){
       e.path = findPath(startUv, targetUv);
       e.pathIndex = 1;
       e.lastPathCalc = Date.now();
+      e.lastPlayerUv = { u: targetUv.u, v: targetUv.v };
     }
 
     const nextUv = e.path[e.pathIndex] || targetUv;
