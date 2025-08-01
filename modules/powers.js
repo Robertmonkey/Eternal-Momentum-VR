@@ -120,7 +120,7 @@ export const powers = {
           } else { break; }
       }
       let damage = (((state.player.berserkUntil > Date.now()) ? 30 : 15) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
-      state.effects.push({ type: 'chain_lightning', targets: targets, caster: origin, damage: damage });
+      state.effects.push({ type: 'chain_lightning', targets: targets, caster: origin, damage: damage, startTime: Date.now(), durationPerLink: 80 });
     }
   },
   gravity:{
@@ -197,6 +197,7 @@ export const powers = {
   orbitalStrike: {emoji: "☄️", desc: "Calls 3 meteors on random enemies", apply:(options = {}) => {
       const { damageModifier = 1.0, origin = state.player } = options;
       const availableTargets = state.enemies.filter(e => !e.isFriendly);
+      const tracking = state.player.purchasedTalents.has('targeting-algorithm');
       for (let i = 0; i < 3; i++) {
           if (availableTargets.length > 0) {
               const targetIndex = Math.floor(Math.random() * availableTargets.length);
@@ -207,7 +208,8 @@ export const powers = {
                   position: target.position.clone(),
                   startTime: Date.now(),
                   caster: origin,
-                  damageModifier: damageModifier
+                  damageModifier: damageModifier,
+                  track: tracking
               });
             }
         }
@@ -258,8 +260,9 @@ export const powers = {
       });
     }},
   bulletNova: {emoji: "💫", desc: "Unleashes a spiral of bullets", apply:(options = {})=>{
-      const { damageModifier = 1.0, origin = state.player } = options; 
-      state.effects.push({ type: 'nova_controller', startTime: Date.now(), duration: 2000, lastShot: 0, angle: Math.random() * Math.PI * 2, caster: origin, damageModifier: damageModifier }); 
+      const { damageModifier = 1.0, origin = state.player } = options;
+      const novaPulsar = state.player.purchasedTalents.has('nova-pulsar');
+      state.effects.push({ type: 'nova_controller', startTime: Date.now(), duration: 2000, lastShot: 0, angle: Math.random() * Math.PI * 2, caster: origin, damageModifier: damageModifier, novaPulsar });
     }},
 };
 

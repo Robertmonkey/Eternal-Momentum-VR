@@ -53,7 +53,7 @@ export class SwarmLinkAI extends BaseAgent {
         if (!state.player.shield) {
             const damage = 0.5; // Damage per frame
             state.player.health -= damage;
-            CoreManager.onPlayerDamage(damage, this);
+            CoreManager.onPlayerDamage(damage, this, gameHelpers);
         }
       }
     });

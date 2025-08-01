@@ -262,7 +262,7 @@ export function handleCoreOnEnemyDeath(enemy) {
 /**
  * Handle core effects when the player takes damage. Returns modified damage.
  */
-export function handleCoreOnPlayerDamage(damage) {
+export function handleCoreOnPlayerDamage(damage, source, gameHelpers = {}) {
     let damageTaken = damage;
     if (playerHasCore('mirror_mirage') && damageTaken > 0) {
         const coreDecoys = state.decoys.filter(d => d.fromCore);
@@ -288,6 +288,22 @@ export function handleCoreOnPlayerDamage(damage) {
         const pmState = state.player.talent_states.phaseMomentum;
         pmState.lastDamageTime = Date.now();
         pmState.active = false;
+
+        if (state.player.purchasedTalents.has('reactive-plating')) {
+            const rpState = state.player.talent_states.reactivePlating;
+            const now = Date.now();
+            if (now - rpState.lastTrigger > 5000 && Math.random() < 0.25) {
+                rpState.lastTrigger = now;
+                state.enemies.forEach(e => {
+                    if (!e.isFriendly && e.position) {
+                        const dir = e.position.clone().sub(state.player.position).normalize();
+                        e.position.add(dir.multiplyScalar(1));
+                    }
+                });
+                state.effects.push({ type: 'shockwave', caster: state.player, position: state.player.position.clone(), radius: 0, maxRadius: 10, speed: 40, startTime: now, hitEnemies: new Set(), damage: 0 });
+                if (gameHelpers.play) gameHelpers.play('shockwaveSound');
+            }
+        }
     }
 
     return damageTaken;

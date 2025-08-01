@@ -78,7 +78,7 @@ export class AnnihilatorAI extends BaseAgent {
         if (!this.isPlayerInShadow()) {
             const damage = 1000; // Lethal damage
             state.player.health -= damage;
-            CoreManager.onPlayerDamage(damage, this);
+            CoreManager.onPlayerDamage(damage, this, gameHelpers);
         }
 
         this.isChargingBeam = false;

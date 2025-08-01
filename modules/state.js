@@ -39,6 +39,7 @@ export const state = {
         },
         talent_states: {
             phaseMomentum: { active: false, lastDamageTime: 0 },
+            reactivePlating: { lastTrigger: 0 },
             core_states: {},
         },
     },
