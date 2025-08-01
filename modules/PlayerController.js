@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three.module.js';
 import { getScene, getArena, getPrimaryController, getCamera } from './scene.js';
+import { attachBossUI } from './UIManager.js';
 import { moveTowards } from './movement3d.js';
 import { state } from './state.js';
 import { useOffensivePower, useDefensivePower } from './PowerManager.js';
@@ -58,6 +59,7 @@ export function refreshPrimaryController() {
         primaryController.addEventListener('selectend', onSelectEnd);
         primaryController.addEventListener('squeezestart', onSqueezeStart);
         primaryController.addEventListener('squeezeend', onSqueezeEnd);
+        attachBossUI();
     }
 }
 

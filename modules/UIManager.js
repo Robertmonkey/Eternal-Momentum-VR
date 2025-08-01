@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
-import { getCamera } from './scene.js';
+import { getCamera, getPrimaryController } from './scene.js';
 import { state } from './state.js';
 import { bossData } from './bosses.js';
 import { powers } from './powers.js';
@@ -119,6 +119,18 @@ function createAbilitySlot(size, isMain = false) {
     return { group, sprite };
 }
 
+function createBossBar(boss) {
+    const group = new THREE.Group();
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.05), holoMaterial(0x111122, 0.8));
+    const fill = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.02), holoMaterial(boss.color));
+    fill.position.set(0, -0.01, 0.001);
+    const label = createTextSprite(boss.name, 24);
+    label.position.set(0, 0.015, 0.002);
+    group.add(bg, fill, label);
+    group.userData = { fill, label };
+    return group;
+}
+
 /**
  * Create a simple rectangular background with a neon border to hold the HUD
  * elements. This mirrors the old game's command bar so the UI feels unified.
@@ -224,6 +236,14 @@ export function initUI() {
     uiGroup.add(hudMesh);
 
     createHudElements();
+
+    bossContainer = new THREE.Group();
+    bossContainer.name = 'bossContainer';
+    bossContainer.position.set(0, 0.1, -0.05);
+    bossContainer.rotation.x = -0.7;
+    const controller = getPrimaryController();
+    if (controller) controller.add(bossContainer);
+
     notificationGroup = new THREE.Group();
     notificationGroup.position.set(0, 0.3, -1.5);
     uiGroup.add(notificationGroup);
@@ -271,6 +291,35 @@ export function updateHud() {
         updateTextSprite(coreIcon, coreData ? '' : '◎');
         coreIcon.material.color.set(color);
     }
+
+    if (bossContainer) {
+        const bosses = state.enemies.filter(e => e.boss);
+        const activeIds = new Set();
+        let index = 0;
+        bosses.forEach(boss => {
+            activeIds.add(boss.instanceId);
+            let bar = bossBars.get(boss.instanceId);
+            if (!bar) {
+                bar = createBossBar(boss);
+                bossBars.set(boss.instanceId, bar);
+                bossContainer.add(bar);
+            }
+            const cur = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.hp;
+            const pct = Math.max(0, cur / boss.maxHP);
+            bar.userData.fill.scale.x = pct;
+            bar.userData.fill.material.color.set(boss.color);
+            updateTextSprite(bar.userData.label, boss.name);
+            bar.position.set(0, -index * 0.07, 0);
+            index++;
+        });
+        for (const [id, bar] of bossBars.entries()) {
+            if (!activeIds.has(id)) {
+                bossContainer.remove(bar);
+                bossBars.delete(id);
+            }
+        }
+        bossContainer.visible = bosses.length > 0;
+    }
 }
 
 export function showUnlockNotification(text, subtext = '') {
@@ -300,4 +349,12 @@ export function showUnlockNotification(text, subtext = '') {
 
 export function showBossBanner(text) {
     showUnlockNotification(`🚨 ${text} 🚨`, 'Aberration Detected');
+}
+
+export function attachBossUI() {
+    if (!bossContainer) return;
+    const controller = getPrimaryController();
+    if (controller && bossContainer.parent !== controller) {
+        controller.add(bossContainer);
+    }
 }
