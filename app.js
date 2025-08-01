@@ -14,10 +14,13 @@ const homeScreen = document.getElementById('homeScreen');
 const ASSET_MANIFEST = [
     'assets/bg.png', 'assets/cursors/crosshair.cur', 'assets/load.png',
     'assets/home.mp4',
-    'assets/bgMusic_01.mp3', 'assets/bossSpawnSound.mp3', 'assets/hitSound.mp3',
-    'assets/pickupSound.mp3', 'assets/uiClickSound.mp3', 'assets/uiHoverSound.mp3',
-    'assets/shieldBreak.mp3', 'assets/shockwaveSound.mp3', 'assets/talentPurchase.mp3',
-    'assets/talentError.mp3', 'assets/bossDefeatSound.mp3', 'assets/systemErrorSound.mp3'
+    'assets/bgMusic_01.mp3', 'assets/bgMusic_02.mp3', 'assets/bgMusic_03.mp3', 'assets/bgMusic_04.mp3',
+    'assets/bgMusic_05.mp3', 'assets/bgMusic_06.mp3', 'assets/bgMusic_07.mp3',
+    'assets/bgMusic_08.mp3', 'assets/bgMusic_09.mp3', 'assets/bgMusic_10.mp3',
+    'assets/bossSpawnSound.mp3', 'assets/hitSound.mp3', 'assets/pickupSound.mp3',
+    'assets/uiClickSound.mp3', 'assets/uiHoverSound.mp3', 'assets/shieldBreak.mp3',
+    'assets/shockwaveSound.mp3', 'assets/talentPurchase.mp3', 'assets/talentError.mp3',
+    'assets/bossDefeatSound.mp3', 'assets/systemErrorSound.mp3'
 ];
 
 async function preloadAssets() {
