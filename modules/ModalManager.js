@@ -1,7 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { getCamera, getScene } from './scene.js';
 import { state, savePlayerState, resetGame } from './state.js';
-import { refreshPrimaryController } from './PlayerController.js';
+import { refreshPrimaryController, resetInputFlags } from './PlayerController.js';
 import { AudioManager } from './audio.js';
 import { bossData } from './bosses.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
@@ -319,6 +319,7 @@ export function showModal(id) {
 
     // Pause the game before heavy UI creation to avoid race conditions
     state.isPaused = true;
+    resetInputFlags();
     modal.visible = true;
     AudioManager.playSfx('uiModalOpen');
 
@@ -337,6 +338,7 @@ export function hideModal() {
         modals[activeModalId].visible = false;
         activeModalId = null;
         state.isPaused = false; // Unpause unless another condition requires it
+        resetInputFlags();
         AudioManager.playSfx('uiModalClose');
     }
 }
