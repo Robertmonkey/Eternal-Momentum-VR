@@ -771,7 +771,10 @@ export function hideModal(id) {
 }
 
 export function showHomeMenu() {
-  ensureGroup();
+  if (!ensureGroup()) {
+    // VR has not been initialized yet; don't attempt to create modals
+    return;
+  }
   if (!modals.home) {
     modals.home = createHomeModal();
     modalGroup.add(modals.home);
