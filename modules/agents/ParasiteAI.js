@@ -31,7 +31,10 @@ export class ParasiteAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "parasite", name: "The Parasite", maxHP: 416 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
   }
 
   infect(target) {

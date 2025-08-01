@@ -84,7 +84,10 @@ export class ObeliskAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "obelisk", name: "The Obelisk", maxHP: 800 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.position.set(0, 0, 0);
     this.invulnerable = true;

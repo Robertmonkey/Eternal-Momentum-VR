@@ -17,7 +17,10 @@ export class AnnihilatorAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "annihilator", name: "The Annihilator", maxHP: 480 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.isChargingBeam = false;
     this.lastBeamTime = 0;

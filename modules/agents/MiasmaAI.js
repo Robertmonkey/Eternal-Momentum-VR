@@ -16,7 +16,10 @@ export class MiasmaAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "miasma", name: "The Miasma", maxHP: 400 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.isGasActive = false;
     this.lastGasAttack = 0;

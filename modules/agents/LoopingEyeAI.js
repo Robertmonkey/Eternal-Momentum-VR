@@ -16,7 +16,10 @@ export class LoopingEyeAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "looper", name: "Looping Eye", maxHP: 320 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.lastTeleportTime = Date.now();
     this.isChargingTeleport = false;

@@ -10,7 +10,7 @@ export class VampireAI extends BaseAgent {
     super({ health: 144, model: new THREE.Mesh(geometry, material) });
     
     this.name = "Vampire Veil";
-    this.id = "vampire";
+    this.kind = "vampire";
     this.lastHitTime = Date.now();
     this.lastHealTime = Date.now();
   }

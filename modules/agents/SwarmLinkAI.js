@@ -14,7 +14,10 @@ export class SwarmLinkAI extends BaseAgent {
     super({ model: new THREE.Mesh(headGeo, headMat) });
     
     const bossData = { id: "swarm", name: "Swarm Link", maxHP: 200 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.tailSegments = [];
     this.tailGroup = new THREE.Group();

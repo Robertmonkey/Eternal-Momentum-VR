@@ -17,7 +17,10 @@ export class GlitchAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "glitch", name: "The Glitch", maxHP: 336 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.lastTeleportTime = 0;
   }

@@ -10,7 +10,10 @@ export class MirrorMirageAI extends BaseAgent {
     super({ model: new THREE.Group() });
 
     const bossData = { id: "mirror", name: "Mirror Mirage", maxHP: 240 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.clones = [];
     const cloneGeo = new THREE.OctahedronGeometry(0.8, 0);

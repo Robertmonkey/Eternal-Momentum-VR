@@ -18,7 +18,10 @@ export class QuantumShadowAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "quantum_shadow", name: "Quantum Shadow", maxHP: 360 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.phase = 'seeking'; // 'seeking' or 'superposition'
     this.lastPhaseChangeTime = Date.now();

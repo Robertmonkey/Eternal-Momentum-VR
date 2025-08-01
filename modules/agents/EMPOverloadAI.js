@@ -14,7 +14,10 @@ export class EMPOverloadAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "emp", name: "EMP Overload", maxHP: 260 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
 
     this.lastEMPTime = 0;
     this.isCharging = false;

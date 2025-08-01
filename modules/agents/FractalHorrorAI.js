@@ -16,7 +16,10 @@ export class FractalHorrorAI extends BaseAgent {
     
     if (generation === 1) {
         const bossData = { id: "fractal_horror", name: "The Fractal Horror", maxHP: 10000 };
-        Object.assign(this, bossData);
+        this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
         state.fractalHorrorSharedHp = this.maxHP;
     } else {
         this.maxHP = 10000 / generation;
@@ -34,7 +37,7 @@ export class FractalHorrorAI extends BaseAgent {
     const hpPercent = state.fractalHorrorSharedHp / this.maxHP;
     const expectedSplits = Math.floor((1 - hpPercent) * 20); // Split roughly every 5%
 
-    if (state.enemies.filter(e => e.id === 'fractal_horror').length < expectedSplits && this.generation < 5) {
+    if (state.enemies.filter(e => e.kind === 'fractal_horror').length < expectedSplits && this.generation < 5) {
         this.split();
     }
   }
@@ -59,7 +62,7 @@ export class FractalHorrorAI extends BaseAgent {
       // All instances die when shared health is gone
       if (state.fractalHorrorSharedHp <= 0) {
           state.enemies.forEach(e => {
-              if (e.id === 'fractal_horror') e.hp = 0;
+              if (e.kind === 'fractal_horror') e.hp = 0;
           });
       }
   }
@@ -72,7 +75,7 @@ export class FractalHorrorAI extends BaseAgent {
       this.model.visible = false;
 
       // If this is the very last fragment, trigger the actual boss death
-      if (isFinal && state.enemies.filter(e => e.id === 'fractal_horror').length === 0) {
+      if (isFinal && state.enemies.filter(e => e.kind === 'fractal_horror').length === 0) {
           super.die();
       }
   }

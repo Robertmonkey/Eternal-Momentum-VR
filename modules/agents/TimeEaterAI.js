@@ -16,7 +16,10 @@ export class TimeEaterAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "time_eater", name: "Time Eater", maxHP: 440 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.lastAbilityTime = 0;
   }

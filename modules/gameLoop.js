@@ -201,7 +201,7 @@ export function spawnEnemy(isBoss = false, bossId = null) {
         const minionMat = new THREE.MeshStandardMaterial({ color: 0xc0392b, emissive: 0xc0392b, emissiveIntensity: 0.3 });
         const minionModel = new THREE.Mesh(minionGeo, minionMat);
         enemy = new BaseAgent({ health: 20, model: minionModel });
-        enemy.id = 'minion';
+        enemy.kind = 'minion';
         enemy.speed = 2.0;
         enemy.isFriendly = false;
         enemy.update = function(delta) {

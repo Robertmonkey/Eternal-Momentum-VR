@@ -16,7 +16,10 @@ export class SingularityAI extends BaseAgent {
     super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "singularity", name: "The Singularity", maxHP: 600 };
-    Object.assign(this, bossData);
+    this.kind = bossData.id;
+    this.name = bossData.name;
+    this.maxHP = bossData.maxHP;
+    this.health = this.maxHP;
     
     this.phase = 1;
     this.lastActionTime = 0;
