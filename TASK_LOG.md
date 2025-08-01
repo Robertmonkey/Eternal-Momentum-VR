@@ -364,3 +364,7 @@ Next Steps: Continue UI reconstruction and stage flow improvements.
 Summary: Adjusted app.js to stop auto-starting VR. After assets load we now call showHome() so the loading screen hides and the user can launch VR via the AWAKEN/CONTINUE buttons. Updated README to describe this flow.
 Verification: npm install && npm test – all suites pass.
 Next Steps: Monitor for any additional VR initialization issues as UI refactor continues.
+2025-10-06 – FR-08 – Ascension menu connectors
+Summary: Added line connectors between talents in the Ascension Conduit VR menu and confirmation prompt for ERASE TIMELINE. Updated ascensionModal.test to cover new confirm flow and page reload. All tests pass.
+Verification: npm install && npm test – all 65 suites pass.
+Next Steps: Continue polishing UI layouts and verify other menus for fidelity gaps.
