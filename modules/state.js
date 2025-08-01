@@ -1,172 +1,75 @@
-// modules/state.js
-//
-// This file defines the global game state and includes additional
-// configuration for each aberration core.  The original project did not
-// contain a `modules` directory in the working tree; during the rewrite we
-// recreate the state module locally and extend it to support all of the
-// aberration cores described in the specification.  In particular we add
-// missing core state entries (vampire, glitch, fractal_horror, parasite,
-// etc.) and update existing ones with sensible defaults.  When the game
-// is reset the `resetGame` function reinitialises these fields so that
-// passive cooldowns and flags do not leak across runs.
-
 import * as THREE from '../vendor/three.module.js';
 import { LEVELING_CONFIG } from './config.js';
-import { offensivePowers } from './powers.js';
-import { uvToSpherePos } from './utils.js';
 
-// The central state object.  Most other modules import this to read or
-// mutate game state.  New fields can be safely added here as long as
-// they are replicated in resetGame.
+// The central state object. All game logic reads from and writes to this.
 export const state = {
-  // Track mouse buttons for detecting LMB/RMB combos when activating cores
-  LMB_down: false,
-  RMB_down: false,
-  // Direction from the player avatar toward the current cursor target on the
-  // arena sphere. Stored as a normalised THREE.Vector3.
-  cursorDir: new THREE.Vector3(),
-  player: {
-    position: new THREE.Vector3(0, 0, 0),
-    // Player hitbox radius.  Fractal Horror modifies this value on equip.
-    r: 20,
-    // Base movement speed multiplier.  Modified by talents and cores.
-    speed: 1.0,
-    baseMaxHealth: 100,
-    maxHealth: 100,
-    health: 100,
-    shield: false,
-    shield_end_time: 0,
-    stunnedUntil: 0,
-    berserkUntil: 0,
-    speedBoostActive: false,
-    controlsInverted: false,
-    statusEffects: [],
-    level: 1,
-    essence: 0,
-    essenceToNextLevel: LEVELING_CONFIG.BASE_XP,
-    ascensionPoints: 0,
-    // By default the player starts with two basic powers unlocked.
-    unlockedPowers: new Set(['heal', 'missile']),
-    // Talents purchased from the ascension interface.  A map from id → rank.
-    purchasedTalents: new Map(),
-    // The highest stage the player has beaten.  Used to pick the next stage
-    // on reset.
-    highestStageBeaten: 0,
-    // Inventory capacity for offensive and defensive powers.  Additional
-    // slots can be unlocked via thematic milestones.
-    unlockedOffensiveSlots: 1,
-    unlockedDefensiveSlots: 1,
-    // Parasite infection on the player – these flags are separate from the
-    // parasite core and indicate the player has been infected by an enemy.
-    infected: false,
-    infectionEnd: 0,
-    lastSpore: 0,
-    // Flags for single‑use contingencies (some talents consume these).
-    contingencyUsed: false,
-    preordinanceUsed: false,
-    // Aberration core management.  `unlockedAberrationCores` tracks which
-    // cores have been unlocked; `equippedAberrationCore` holds the id of
-    // the currently equipped core; `activePantheonBuffs` stores temporary
-    // buffs granted by the Pantheon core.
-    unlockedAberrationCores: new Set(),
-    equippedAberrationCore: null,
-    activePantheonBuffs: [],
-    // Talent modifiers modify base stats on the fly.  Each entry should be
-    // treated as multiplicative.
-    talent_modifiers: {
-      damage_multiplier: 1.0,
-      damage_taken_multiplier: 1.0,
-      pickup_radius_bonus: 0,
-      essence_gain_modifier: 1.0,
-      power_spawn_rate_modifier: 1.0,
-      pull_resistance_modifier: 0,
+    // Player and input state
+    player: {
+        position: new THREE.Vector3(0, 1.6, 0), // Player's 3D position
+        r: 0.5, // Player's 3D radius
+        speed: 1.0,
+        baseMaxHealth: 100,
+        maxHealth: 100,
+        health: 100,
+        shield: false,
+        shield_end_time: 0,
+        stunnedUntil: 0,
+        berserkUntil: 0,
+        statusEffects: [],
+        level: 1,
+        essence: 0,
+        essenceToNextLevel: LEVELING_CONFIG.BASE_XP,
+        ascensionPoints: 0,
+        unlockedPowers: new Set(['heal', 'missile']),
+        purchasedTalents: new Map(),
+        highestStageBeaten: 0,
+        unlockedOffensiveSlots: 1,
+        unlockedDefensiveSlots: 1,
+        unlockedAberrationCores: new Set(),
+        equippedAberrationCore: null,
+        activePantheonBuffs: [],
+        talent_modifiers: {
+            damage_multiplier: 1.0,
+            damage_taken_multiplier: 1.0,
+            pickup_radius_bonus: 0,
+            essence_gain_modifier: 1.0,
+            power_spawn_rate_modifier: 1.0,
+        },
+        talent_states: {
+            // Per-talent and per-core timers and flags are stored here
+            phaseMomentum: { active: false, lastDamageTime: 0 },
+            core_states: {}, // Will be reset in resetGame
+        },
     },
-    // `talent_states` stores per–talent and per–core timers and flags.  New
-    // aberration cores must add an entry here so that their cooldowns and
-    // internal counters persist between ticks and are reset correctly.  Each
-    // entry should be treated as private state for that core.
-    talent_states: {
-      phaseMomentum: {
-        active: false,
-        lastDamageTime: 0,
-      },
-      reactivePlating: {
-        cooldownUntil: 0,
-      },
-      core_states: {
-        // Architect: last pillar spawn time (unused in the new design but
-        // retained for backwards compatibility).
-        architect: { lastPillarTime: 0 },
-        mirror_mirage: { lastDecoyTime: 0 },
-        puppeteer: { lastConversion: 0 },
-        splitter: { cooldownUntil: 0 },
-        swarm: { tail: [], enemiesForNextSegment: 0 },
-        epoch_ender: { cooldownUntil: 0, history: [], lastSnapshotTime: 0 },
-        pantheon: { lastCycleTime: 0 },
-        syphon: { cooldownUntil: 0 },
-        juggernaut: { cooldownUntil: 0 },
-        miasma: { isPurifying: false, stillStartTime: null },
-        annihilator: { cooldownUntil: 0 },
-        shaper_of_fate: { isDisabled: false },
-        helix_weaver: { lastBolt: 0 },
-        temporal_paradox: { lastEcho: 0 },
-        obelisk: {},
-        gravity: { lastPulseTime: 0 },
-        looper: { isShifting: false },
-        // New aberration cores begin here
-        vampire: { },
-        glitch: { },
-        fractal_horror: { applied: false, originalR: null, originalSpeed: null, killCount: 0 },
-        parasite: { },
-        // Gravity is already defined above but left here for clarity.
-      },
+    
+    // VR-specific state
+    settings: {
+        handedness: 'right', // 'left' or 'right'
+        musicVolume: 75,   // 0-100
+        sfxVolume: 85,     // 0-100
     },
-  },
-  settings: {
-    handedness: 'right',
-    musicVolume: 100,
-    sfxVolume: 100
-  },
-  // Global collections for all active enemies, pickups, visual effects, and
-  // transient particle systems.  Modules like powers.js or cores.js push
-  // objects into these arrays to be rendered or processed by gameLoop.js.
-  // Each enemy stores a `position` Vector3 on the arena surface
-  enemies: [],
-  pickups: [],
-  effects: [],
-  particles: [],
-  decoys: [],
-  pathObstacles: [],
-  currentStage: 1,
-  currentBoss: null,
-  bossActive: false,
-  bossHasSpawnedThisRun: false,
-  gameOver: false,
-  isPaused: false,
-  gameLoopId: null,
-  offensiveInventory: [null, null, null],
-  defensiveInventory: [null, null, null],
-  stacked: false,
-  arenaMode: false,
-  wave: 0,
-  lastArenaSpawn: 0,
-  gravityActive: false,
-  gravityEnd: 0,
-  // Shared HP and behaviour controller for the Fractal Horror boss.
-  // These are initialised by the boss logic when first encountered but
-  // must be present here so they can be reliably cleared between runs.
-  fractalHorrorSharedHp: null,
-  fractalHorrorSplits: 0,
-  fractalHorrorAi: null,
-  bossSpawnCooldownEnd: 0,
-  customOrreryBosses: [],
+    cursorDir: new THREE.Vector3(0, 0, -1), // Direction of the controller pointer
+
+    // Game world state
+    enemies: [],
+    pickups: [],
+    effects: [],
+    decoys: [],
+    pathObstacles: [], // For enemy navigation
+    
+    // Game flow state
+    currentStage: 1,
+    bossActive: false,
+    bossHasSpawnedThisRun: false,
+    bossSpawnCooldownEnd: 0,
+    gameOver: false,
+    isPaused: true, // Start paused until the game begins
+    offensiveInventory: [null, null, null],
+    defensiveInventory: [null, null, null],
 };
 
 /**
- * Persist the player's essential data to localStorage.  Only a subset of
- * player fields need to be saved; transient values like positions or
- * cooldowns are deliberately omitted.  When the game is loaded the
- * complementary `loadPlayerState` function will restore these values.
+ * Persists the player's essential progress and settings to localStorage.
  */
 export function savePlayerState() {
   const persistentData = {
@@ -181,113 +84,64 @@ export function savePlayerState() {
     unlockedDefensiveSlots: state.player.unlockedDefensiveSlots,
     unlockedAberrationCores: [...state.player.unlockedAberrationCores],
     equippedAberrationCore: state.player.equippedAberrationCore,
-    settings: state.settings
+    settings: state.settings, // Save settings
   };
   localStorage.setItem('eternalMomentumSave', JSON.stringify(persistentData));
 }
 
 /**
- * Load persisted player data from localStorage.  Any fields not present
- * in the saved record fall back to sensible defaults.  Complex data
- * structures like Sets or Maps are reconstructed from their serialised
- * representations.
+ * Loads player progress and settings from localStorage.
  */
 export function loadPlayerState() {
   const savedData = localStorage.getItem('eternalMomentumSave');
   if (savedData) {
     const parsedData = JSON.parse(savedData);
-    const playerData = {
-      unlockedOffensiveSlots: 1,
-      unlockedDefensiveSlots: 1,
-      ...parsedData,
-      unlockedPowers: new Set(parsedData.unlockedPowers || []),
-      purchasedTalents: new Map(parsedData.purchasedTalents || []),
-      unlockedAberrationCores: new Set(parsedData.unlockedAberrationCores || []),
-      equippedAberrationCore: parsedData.equippedAberrationCore || null,
-    };
-    Object.assign(state.player, playerData);
+    
+    // Load progress
+    Object.assign(state.player, {
+        ...parsedData,
+        unlockedPowers: new Set(parsedData.unlockedPowers || []),
+        purchasedTalents: new Map(parsedData.purchasedTalents || []),
+        unlockedAberrationCores: new Set(parsedData.unlockedAberrationCores || []),
+    });
+    
+    // Load settings, with defaults for safety
     if (parsedData.settings) {
-      state.settings.handedness = parsedData.settings.handedness || 'right';
-      state.settings.musicVolume = parsedData.settings.musicVolume ?? 100;
-      state.settings.sfxVolume = parsedData.settings.sfxVolume ?? 100;
+        Object.assign(state.settings, parsedData.settings);
     }
   }
 }
 
 /**
- * Reset the game into a fresh state.  This function is called at the
- * beginning of a new run or when the player restarts after dying.  It
- * resets positions, clears arrays and reinitialises all core state
- * trackers.  The optional `isArena` flag forces the game to start at
- * stage 1 regardless of the highest stage beaten.
+ * Resets the game to a fresh state for the start of a run.
  */
-export function resetGame(isArena = false) {
-  const startPos = uvToSpherePos(0.5, 0, 1);
+export function resetGame() {
+    state.player.position.set(0, 0, 0); // PlayerController will set the real starting position
+    state.player.health = state.player.maxHealth;
+    state.player.statusEffects = [];
+    state.player.activePantheonBuffs = [];
+    state.player.shield = false;
+    state.player.berserkUntil = 0;
+    state.player.stunnedUntil = 0;
+    
+    // Reset all core states to prevent cooldowns from carrying over
+    state.player.talent_states.core_states = {};
+    bossData.forEach(core => {
+        if(core.id) state.player.talent_states.core_states[core.id] = {};
+    });
 
-  // Place the player at the "top" of the sphere and fully heal them.
-  state.player.position.copy(startPos);
-  state.player.health = state.player.maxHealth;
-  state.player.statusEffects = [];
-  state.player.activePantheonBuffs = [];
-  state.player.shield = false;
-  state.player.shield_end_time = 0;
-  state.player.berserkUntil = 0;
-  state.player.speedBoostActive = false;
-  state.player.talent_states.phaseMomentum.lastDamageTime = Date.now();
-  state.player.talent_states.reactivePlating.cooldownUntil = 0;
-  state.player.infected = false;
-  state.player.infectionEnd = 0;
-  state.player.lastSpore = 0;
-  state.player.contingencyUsed = false;
-  state.player.preordinanceUsed = false;
-  state.cursorDir.set(0, 0, 0);
-  // Recreate the core state container to wipe out any lingering cooldowns.
-  state.player.talent_states.core_states = {
-    architect: { lastPillarTime: 0 },
-    mirror_mirage: { lastDecoyTime: 0 },
-    puppeteer: { lastConversion: 0 },
-    splitter: { cooldownUntil: 0 },
-    swarm: { tail: [], enemiesForNextSegment: 0 },
-    epoch_ender: { cooldownUntil: 0, history: [], lastSnapshotTime: 0 },
-    pantheon: { lastCycleTime: 0 },
-    syphon: { cooldownUntil: 0 },
-    juggernaut: { cooldownUntil: 0 },
-    miasma: { isPurifying: false, stillStartTime: null },
-    annihilator: { cooldownUntil: 0 },
-    shaper_of_fate: { isDisabled: false },
-    helix_weaver: { lastBolt: 0 },
-    temporal_paradox: { lastEcho: 0 },
-    obelisk: {},
-    gravity: { lastPulseTime: 0 },
-    looper: { isShifting: false },
-    vampire: { },
-    glitch: { },
-    fractal_horror: { applied: false, originalR: null, originalSpeed: null, killCount: 0 },
-    parasite: { },
-  };
-  // Reset collection arrays and other high‑level flags.
-  Object.assign(state, {
-    enemies: [],
-    pickups: [],
-    effects: [],
-    particles: [],
-    decoys: [],
-    pathObstacles: [],
-    offensiveInventory: [null, null, null],
-    defensiveInventory: [null, null, null],
-    currentBoss: null,
-    bossActive: false,
-    stacked: false,
-    gameOver: false,
-    bossHasSpawnedThisRun: false,
-    gravityActive: false,
-    gravityEnd: 0,
-    isPaused: false,
-    currentStage: isArena ? 1 : (state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1),
-    // **FIX:** Set an initial cooldown for the first boss spawn of the stage.
-    bossSpawnCooldownEnd: Date.now() + 3000,
-    fractalHorrorSharedHp: null,
-    fractalHorrorSplits: 0,
-    fractalHorrorAi: null,
-  });
+    Object.assign(state, {
+        enemies: [],
+        pickups: [],
+        effects: [],
+        decoys: [],
+        pathObstacles: [],
+        offensiveInventory: [null, null, null],
+        defensiveInventory: [null, null, null],
+        bossActive: false,
+        gameOver: false,
+        bossHasSpawnedThisRun: false,
+        bossSpawnCooldownEnd: 0,
+        isPaused: false,
+    });
 }
