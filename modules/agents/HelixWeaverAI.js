@@ -1,39 +1,68 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
-
-// HelixWeaverAI - Implements boss B27: The Helix Weaver
-// Stationary boss that fires spiraling projectiles.
+import { state } from '../state.js';
+import { gameHelpers } from '../gameHelpers.js';
 
 export class HelixWeaverAI extends BaseAgent {
-  constructor(radius = 1) {
-    const geom = new THREE.TorusGeometry(0.4 * radius, 0.1 * radius, 8, 16);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xe74c3c });
-    const mesh = new THREE.Mesh(geom, mat);
-    super({ health: 500, model: mesh });
+  constructor() {
+    const geometry = new THREE.TorusGeometry(0.8, 0.2, 16, 32);
+    const material = new THREE.MeshStandardMaterial({
+        color: 0xe74c3c,
+        emissive: 0xe74c3c,
+        emissiveIntensity: 0.6
+    });
+    const model = new THREE.Mesh(geometry, material);
+    model.add(new THREE.Mesh(geometry.clone().rotateX(Math.PI / 2)));
+    super({ model });
 
-    this.radius = radius;
+    const bossData = { id: "helix_weaver", name: "The Helix Weaver", maxHP: 500 };
+    Object.assign(this, bossData);
+
+    this.position.set(0, 0, 0); // Stays at the center
     this.angle = 0;
-    this.lastShot = 0;
+    this.lastShotTime = 0;
     this.activeArms = 1;
+    this.lastArmIncrease = 4;
   }
 
-  update(delta, playerObj, state, gameHelpers) {
+  update(delta) {
     if (!this.alive) return;
+    const now = Date.now();
 
-    if (Date.now() - this.lastShot > 100) {
-      this.lastShot = Date.now();
+    if (now - this.lastShotTime > 100) {
+      this.lastShotTime = now;
+      const speed = 0.5; // World units per frame
       const totalArms = 4;
+      
       for (let i = 0; i < this.activeArms; i++) {
-        const ang = this.angle + (i * (2 * Math.PI / totalArms));
-        const dir = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang)).normalize().multiplyScalar(0.2);
-        state?.effects?.push({ type: 'nova_bullet', caster: this, position: this.position.clone(), velocity: dir });
+        const angle = this.angle + (i * (2 * Math.PI / totalArms));
+        const velocity = new THREE.Vector3(Math.cos(angle) * speed, 0, Math.sin(angle) * speed);
+        
+        state.effects.push({ 
+            type: 'nova_bullet', 
+            caster: this, 
+            position: this.position.clone(), 
+            velocity: velocity,
+            radius: 0.2,
+            color: new THREE.Color(0xe74c3c),
+            damage: 13
+        });
       }
       this.angle += 0.2;
     }
+  }
 
-    const hpPct = this.health / this.maxHealth;
-    if (hpPct < 0.8) this.activeArms = 2;
-    if (hpPct < 0.6) this.activeArms = 3;
-    if (hpPct < 0.4) this.activeArms = 4;
+  takeDamage(amount, sourceObject) {
+    super.takeDamage(amount, sourceObject);
+    const hpPercent = this.health / this.maxHP;
+    let armsToActivate = 1;
+    if (hpPercent < 0.8) armsToActivate = 2;
+    if (hpPercent < 0.6) armsToActivate = 3;
+    if (hpPercent < 0.4) armsToActivate = 4;
+
+    if (armsToActivate > this.activeArms) {
+        this.activeArms = armsToActivate;
+        gameHelpers.play('weaverCast');
+    }
   }
 }
