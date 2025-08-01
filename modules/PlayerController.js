@@ -5,6 +5,7 @@ import { state } from './state.js';
 import { useOffensivePower, useDefensivePower } from './PowerManager.js';
 import { useCoreActive } from './CoreManager.js';
 import { getModalObjects } from './ModalManager.js';
+import { getControllerMenuObjects } from './ControllerMenu.js';
 import { gameHelpers } from './gameHelpers.js';
 import { AssetManager } from './AssetManager.js';
 
@@ -25,7 +26,6 @@ const tempMatrix = new THREE.Matrix4();
 let hoveredUi = null;
 const assetManager = new AssetManager();
 
-// **FIX**: Handlers now correctly set a "just pressed" flag
 function onSelectStart() {
     if (!triggerDown) triggerJustPressed = true;
     triggerDown = true;
@@ -119,7 +119,10 @@ export function updatePlayerController() {
     raycaster.ray.origin.setFromMatrixPosition(primaryController.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    const allUI = getModalObjects().filter(m => m.visible);
+    const modalUI = getModalObjects().filter(m => m.visible);
+    const controllerUI = getControllerMenuObjects();
+    const allUI = [...modalUI, ...controllerUI];
+
     const uiHits = raycaster.intersectObjects(allUI, true);
     const uiHit = uiHits[0];
 
@@ -149,14 +152,13 @@ export function updatePlayerController() {
                 crosshair.position.copy(arenaHit.point);
                 crosshair.lookAt(getCamera().position);
             }
-            handleInput(); // Handle gameplay input only if not pointing at UI
+            handleInput();
         } else {
             laser.scale.z = radius * 2;
             if (crosshair) crosshair.visible = false;
         }
     }
     
-    // **FIX**: Reset single-frame input flags at the end of every update
     triggerJustPressed = false;
     gripJustPressed = false;
 
