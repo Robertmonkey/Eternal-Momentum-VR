@@ -6,32 +6,70 @@ import { bossData } from './bosses.js';
 import { showUnlockNotification, showBossBanner } from './UIManager.js';
 import * as utils from './utils.js';
 import { AudioManager } from './audio.js';
-import { playerHasCore } from './helpers.js';
 import { initGameHelpers } from './gameHelpers.js';
+
+// Import all your new 3D AI agent classes
 import { AethelUmbraAI } from './agents/AethelUmbraAI.js';
+import { AnnihilatorAI } from './agents/AnnihilatorAI.js';
+import { ArchitectAI } from './agents/ArchitectAI.js';
+import { BasiliskAI } from './agents/BasiliskAI.js';
+import { CenturionAI } from './agents/CenturionAI.js';
+import { EMPOverloadAI } from './agents/EMPOverloadAI.js';
+import { EpochEnderAI } from './agents/EpochEnderAI.js';
+import { FractalHorrorAI } from './agents/FractalHorrorAI.js';
+import { GlitchAI } from './agents/GlitchAI.js';
+import { GravityAI } from './agents/GravityAI.js';
+import { HelixWeaverAI } from './agents/HelixWeaverAI.js';
+import { JuggernautAI } from './agents/JuggernautAI.js';
+import { LoopingEyeAI } from './agents/LoopingEyeAI.js';
+import { MiasmaAI } from './agents/MiasmaAI.js';
+import { MirrorMirageAI } from './agents/MirrorMirageAI.js';
 import { ObeliskAI, ObeliskConduitAI } from './agents/ObeliskAI.js';
+import { PantheonAI } from './agents/PantheonAI.js';
+import { ParasiteAI } from './agents/ParasiteAI.js';
+import { PuppeteerAI } from './agents/PuppeteerAI.js';
+import { QuantumShadowAI } from './agents/QuantumShadowAI.js';
+import { ReflectorAI } from './agents/ReflectorAI.js';
+import { SentinelPairAI } from './agents/SentinelPairAI.js';
+import { ShaperOfFateAI } from './agents/ShaperOfFateAI.js';
+import { SingularityAI } from './agents/SingularityAI.js';
+import { SplitterAI } from './agents/SplitterAI.js';
+import { SwarmLinkAI } from './agents/SwarmLinkAI.js';
+import { SyphonAI } from './agents/SyphonAI.js';
+import { TemporalParadoxAI } from './agents/TemporalParadoxAI.js';
+import { TimeEaterAI } from './agents/TimeEaterAI.js';
+import { VampireAI } from './agents/VampireAI.js';
+import { BaseAgent } from './BaseAgent.js';
 
-const ARENA_RADIUS = 50; // Should match the radius in scene.js
+const ARENA_RADIUS = 50;
 
-// --- Game Logic Helpers ---
+// Map boss IDs to their 3D AI classes
+const bossAIClassMap = {
+    aethel_and_umbra: AethelUmbraAI, annihilator: AnnihilatorAI, architect: ArchitectAI,
+    basilisk: BasiliskAI, centurion: CenturionAI, emp: EMPOverloadAI, epoch_ender: EpochEnderAI,
+    fractal_horror: FractalHorrorAI, glitch: GlitchAI, gravity: GravityAI, helix_weaver: HelixWeaverAI,
+    juggernaut: JuggernautAI, looper: LoopingEyeAI, miasma: MiasmaAI, mirror: MirrorMirageAI,
+    obelisk: ObeliskAI, pantheon: PantheonAI, parasite: ParasiteAI, puppeteer: PuppeteerAI,
+    quantum_shadow: QuantumShadowAI, reflector: ReflectorAI, sentinel_pair: SentinelPairAI,
+    shaper_of_fate: ShaperOfFateAI, singularity: SingularityAI, splitter: SplitterAI,
+    swarm: SwarmLinkAI, syphon: SyphonAI, temporal_paradox: TemporalParadoxAI,
+    time_eater: TimeEaterAI, vampire: VampireAI
+};
+
 const gameHelpers = {
-    addStatusEffect,
-    spawnEnemy,
-    spawnPickup,
-    play: (id) => AudioManager.playSfx(id),
-    playLooping: (id) => AudioManager.playLoopingSfx(id),
+    addStatusEffect, spawnEnemy, spawnPickup,
+    play: (id, obj) => AudioManager.playSfx(id, obj),
+    playLooping: (id, obj) => AudioManager.playLoopingSfx(id, obj),
     stopLoopingSfx: (id) => AudioManager.stopLoopingSfx(id),
     addEssence,
 };
 initGameHelpers(gameHelpers);
-
 
 export function addStatusEffect(name, emoji, duration) {
     const now = Date.now();
     if (['Stunned', 'Petrified', 'Charging', 'Warping'].includes(name)) {
         state.player.stunnedUntil = Math.max(state.player.stunnedUntil, now + duration);
     }
-
     const existing = state.player.statusEffects.find(e => e.name === name);
     if (existing) {
         if (name === 'Conduit Charge') {
@@ -50,17 +88,28 @@ export function handleThematicUnlock(stageJustCleared) {
     const unlockLevel = stageJustCleared + 1;
     const unlockData = THEMATIC_UNLOCKS[unlockLevel];
     if (!unlockData) return;
-    
     const unlocks = Array.isArray(unlockData) ? unlockData : [unlockData];
-    unlocks.forEach(unlock => {
-        if (unlock.type === 'power' && !state.player.unlockedPowers.has(unlock.id)) {
+    for (const unlock of unlocks) {
+        const isAlreadyUnlocked = unlock.type === 'power' && state.player.unlockedPowers.has(unlock.id);
+        if (isAlreadyUnlocked) continue;
+        if (unlock.type === 'power') {
             state.player.unlockedPowers.add(unlock.id);
-            showUnlockNotification(`Power Unlocked: ${powers[unlock.id].emoji} ${powers[unlock.id].desc}`);
+            const powerName = powers[unlock.id]?.desc || unlock.id;
+            showUnlockNotification(`Power Unlocked: ${powers[unlock.id].emoji} ${powerName}`);
+        } else if (unlock.type === 'slot') {
+            if (unlock.id === 'queueSlot1') {
+                if (state.player.unlockedOffensiveSlots < 2) state.player.unlockedOffensiveSlots++;
+                if (state.player.unlockedDefensiveSlots < 2) state.player.unlockedDefensiveSlots++;
+            } else if (unlock.id === 'queueSlot2') {
+                if (state.player.unlockedOffensiveSlots < 3) state.player.unlockedOffensiveSlots++;
+                if (state.player.unlockedDefensiveSlots < 3) state.player.unlockedDefensiveSlots++;
+            }
+            showUnlockNotification(`Inventory Slot Unlocked!`);
         } else if (unlock.type === 'bonus') {
             state.player.ascensionPoints += unlock.value;
             showUnlockNotification(`Bonus: +${unlock.value} Ascension Points!`);
         }
-    });
+    }
 }
 
 function handleCoreUnlocks(newLevel) {
@@ -75,9 +124,10 @@ function handleCoreUnlocks(newLevel) {
 function levelUp() {
     state.player.level++;
     state.player.essence -= state.player.essenceToNextLevel;
-    state.player.essenceToNextLevel = LEVELING_CONFIG.BASE_XP + (state.player.level - 1) * LEVELING_CONFIG.ADDITIONAL_XP_PER_LEVEL;
-    state.player.ascensionPoints += 1;
     
+    state.player.essenceToNextLevel = LEVELING_CONFIG.BASE_XP + (state.player.level - 1) * LEVELING_CONFIG.ADDITIONAL_XP_PER_LEVEL;
+
+    state.player.ascensionPoints += 1;
     showUnlockNotification(`Level ${state.player.level}`, 'Level Up!');
     if (state.player.level === 10 && state.player.unlockedAberrationCores.size === 0) {
         showUnlockNotification("SYSTEM ONLINE", "Aberration Core Socket Unlocked");
@@ -88,19 +138,20 @@ function levelUp() {
 
 export function addEssence(amount) {
     if (state.gameOver) return;
-    state.player.essence += Math.floor(amount * state.player.talent_modifiers.essence_gain_modifier);
+    let modifiedAmount = Math.floor(amount * state.player.talent_modifiers.essence_gain_modifier);
+    state.player.essence += modifiedAmount;
     while (state.player.essence >= state.player.essenceToNextLevel) {
         levelUp();
     }
 }
 
 function getSafeSpawnLocation() {
-    const playerDir = state.player.position.clone().normalize();
-    const spawnDir = playerDir.negate();
+    // Spawn on the opposite side of the sphere from the player
+    const spawnDir = state.player.position.clone().negate();
     
     // Add a random offset so they don't all spawn at the exact same point
-    const randomOffset = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-    spawnDir.add(randomOffset.multiplyScalar(0.5)).normalize();
+    const randomOffset = new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS * 0.5);
+    spawnDir.add(randomOffset).normalize();
 
     return spawnDir.multiplyScalar(ARENA_RADIUS);
 }
@@ -131,61 +182,57 @@ export function spawnBossesForStage(stageNum) {
 }
 
 export function spawnEnemy(isBoss = false, bossId = null) {
-    const position = getSafeSpawnLocation();
-    
     let enemy;
-    // Special handling for duo/complex bosses
-    if (bossId === 'aethel_and_umbra') {
-        const roleA = Math.random() < 0.5 ? 'Aethel' : 'Umbra';
-        const roleB = roleA === 'Aethel' ? 'Umbra' : 'Aethel';
-        const partnerA = new AethelUmbraAI(roleA);
-        const partnerB = new AethelUmbraAI(roleB, partnerA);
-        partnerA.partner = partnerB;
-        state.enemies.push(partnerA, partnerB);
-        return; // Exit early as we've spawned both
-    } else if (bossId === 'obelisk') {
-        enemy = new ObeliskAI();
-        state.enemies.push(enemy);
-        // Spawn its conduits
-        const conduitTypes = [{ type: 'gravity', color: 0x9b59b6 }, { type: 'explosion', color: 0xe74c3c }, { type: 'lightning', color: 0xf1c40f }];
-        for(let i = 0; i < 3; i++) {
-            const conduit = new ObeliskConduitAI(enemy, conduitTypes[i].type, conduitTypes[i].color, (i / 3) * Math.PI * 2);
-            state.enemies.push(conduit);
+    const AIClass = isBoss ? bossAIClassMap[bossId] : null;
+
+    if (isBoss && AIClass) {
+        // Special multi-part boss spawns
+        if (bossId === 'aethel_and_umbra') {
+            const partnerA = new AethelUmbraAI('Aethel');
+            const partnerB = new AethelUmbraAI('Umbra', partnerA);
+            partnerA.partner = partnerB;
+            state.enemies.push(partnerA, partnerB);
+            return partnerA;
         }
-        return;
-    }
-    
-    if (isBoss) {
-        // Dynamically find the correct AI class
-        const bossTemplate = bossData.find(b => b.id === bossId);
-        if (!bossTemplate) { console.error(`Boss data for ${bossId} not found.`); return; }
-        // This is a simplified lookup; a real implementation might use a map.
-        const AIs = state.bossAIModules; // Assuming these are loaded into state
-        const AIClass = AIs[bossId];
-        if (AIClass) {
-            enemy = new AIClass();
-        } else { // Fallback for simple enemies
-             enemy = { position, r: 2, hp: 200, maxHP: 200, boss: true, id: bossId, model: null };
+        if (bossId === 'sentinel_pair') {
+            const sentinelA = new SentinelPairAI();
+            const sentinelB = new SentinelPairAI(sentinelA);
+            state.enemies.push(sentinelA, sentinelB);
+            return sentinelA;
         }
-    } else {
-        // Create a generic minion
-        enemy = {
-            position,
-            r: 0.5,
-            hp: 20,
-            maxHP: 20,
-            boss: false,
-            id: 'minion',
-            isFriendly: false,
-            model: null, // The renderer will assign a default model
-            update: function(delta) { // Simple chase logic
-                const direction = state.player.position.clone().sub(this.position).normalize();
-                this.position.add(direction.multiplyScalar(0.5 * delta));
-                this.position.normalize().multiplyScalar(ARENA_RADIUS);
+        if (bossId === 'obelisk') {
+            const obelisk = new ObeliskAI();
+            state.enemies.push(obelisk);
+            const conduitTypes = [{ type: 'gravity', color: 0x9b59b6 }, { type: 'explosion', color: 0xe74c3c }, { type: 'lightning', color: 0xf1c40f }];
+            for(let i = 0; i < 3; i++) {
+                const conduit = new ObeliskConduitAI(obelisk, conduitTypes[i].type, conduitTypes[i].color, (i / 3) * Math.PI * 2);
+                state.enemies.push(conduit);
             }
+            return obelisk;
+        }
+        enemy = new AIClass();
+    } else if (!isBoss) {
+        const minionGeo = new THREE.SphereGeometry(0.3, 8, 8);
+        const minionMat = new THREE.MeshStandardMaterial({ color: 0xc0392b, emissive: 0xc0392b, emissiveIntensity: 0.3 });
+        const minionModel = new THREE.Mesh(minionGeo, minionMat);
+        enemy = new BaseAgent({ health: 20, model: minionModel });
+        enemy.id = 'minion';
+        enemy.speed = 2.0; // World units per second
+        enemy.isFriendly = false;
+        enemy.update = function(delta) { // Simple chase logic
+            if (!this.alive) return;
+            const direction = state.player.position.clone().sub(this.position).normalize();
+            this.position.add(direction.multiplyScalar(this.speed * delta));
+            this.position.normalize().multiplyScalar(ARENA_RADIUS);
         };
+    } else {
+        console.error(`AI Class for boss ID "${bossId}" not found! Spawning fallback.`);
+        const fallbackGeo = new THREE.BoxGeometry(1, 1, 1);
+        const fallbackMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        enemy = new BaseAgent({ health: 1000, model: new THREE.Mesh(fallbackGeo, fallbackMat)});
     }
-    
+
+    enemy.position.copy(getSafeSpawnLocation());
     state.enemies.push(enemy);
     return enemy;
 }
@@ -201,7 +248,7 @@ export function spawnPickup() {
     });
     
     const type = types[Math.floor(Math.random() * types.length)];
-    let life = 10000;
+    const life = 10000;
     
     const pickupPos = new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS);
     
