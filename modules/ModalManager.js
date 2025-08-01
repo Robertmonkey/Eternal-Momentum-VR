@@ -549,14 +549,20 @@ function createCoresModal() {
   const coresStars = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: starTexture, transparent: true, opacity: 0.15, depthWrite: false }));
   coresStars.position.z = 0.001;
   modal.add(coresStars);
-  const header = createTextSprite('ABERRATION CORES', 64, FONT_COLOR);
+  const header = createTextSprite('ABERRATION CORE ATTUNEMENT', 64, FONT_COLOR);
   header.position.set(0, 0.65, 0.01);
   modal.add(header);
-  const equippedText = createTextSprite('Equipped: None', 32, FONT_COLOR);
-  equippedText.position.set(0, 0.45, 0.01);
-  modal.add(equippedText);
+  const attunedLabel = createTextSprite('CURRENTLY ATTUNED', 32, FONT_COLOR);
+  attunedLabel.name = 'attunedLabel';
+  attunedLabel.position.set(0, 0.5, 0.01);
+  modal.add(attunedLabel);
+  const attunedName = createTextSprite('None', 32, FONT_COLOR);
+  attunedName.name = 'attunedName';
+  attunedName.position.set(0, 0.4, 0.01);
+  modal.add(attunedName);
   const list = new THREE.Group();
-  list.position.set(0, 0.3, 0.02);
+  list.name = 'coreList';
+  list.position.set(0, 0.25, 0.02);
   let index = 0;
   bossData.forEach(core => {
     if (!core.core_desc) return;
@@ -566,17 +572,20 @@ function createCoresModal() {
   });
   modal.add(list);
   const unequipBtn = createButton('UNEQUIP CORE', () => equipCore(null));
+  unequipBtn.name = 'unequipBtn';
   unequipBtn.position.set(0, -0.5, 0.02);
   modal.add(unequipBtn);
   const closeBtn2 = createButton('CLOSE', () => hideModal('cores'));
+  closeBtn2.name = 'closeBtn';
   closeBtn2.position.set(0, -0.75, 0.02);
   modal.add(closeBtn2);
   function equipCore(id) {
     state.player.equippedAberrationCore = id;
     const core = bossData.find(b => b.id === id);
-    updateTextSprite(equippedText, `Equipped: ${core ? core.name : 'None'}`, FONT_COLOR);
+    updateTextSprite(attunedName, core ? core.name : 'None', FONT_COLOR);
     savePlayerState();
   }
+  modal.userData.attunedName = attunedName;
   modal.visible = false;
   return modal;
 }

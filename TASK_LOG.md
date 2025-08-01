@@ -408,3 +408,8 @@ Next Steps: Continue FR-03 UI parity work.
 Summary: Rebuilt Lore Codex modal with full story paragraphs and added scroll bar using createTextBlock helper. Updated test to verify lines and scroll controls.
 Verification: npm test – all 67 suites pass.
 Next Steps: Continue FR-03 by auditing remaining menu layouts for accuracy.
+
+2025-10-16 – FR-03 – Core menu text parity
+Summary: Updated createCoresModal to display heading 'ABERRATION CORE ATTUNEMENT' and label 'CURRENTLY ATTUNED'. Added attunedName sprite and named buttons for tests. Revised coresModal.test to check wording and use object names.
+Verification: Ran `npm test`; all 67 suites pass.
+Next Steps: Continue reviewing other menus for exact wording matches.
