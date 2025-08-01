@@ -39,6 +39,13 @@ function onSqueezeStart() {
 }
 function onSqueezeEnd() { gripDown = false; }
 
+export function resetInputFlags() {
+    triggerDown = false;
+    gripDown = false;
+    triggerJustPressed = false;
+    gripJustPressed = false;
+}
+
 export function refreshPrimaryController() {
     const newPrimary = getPrimaryController();
     if (newPrimary === primaryController) return;
@@ -144,7 +151,7 @@ export function updatePlayerController() {
             hoveredUi.userData.onSelect();
             gameHelpers.play('uiClickSound');
         }
-    } else {
+    } else if (!state.isPaused) {
         if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
         hoveredUi = null;
         const arenaHit = raycaster.intersectObject(arena, false)[0];
@@ -163,12 +170,18 @@ export function updatePlayerController() {
             laser.scale.z = radius * 2;
             if (crosshair) crosshair.visible = false;
         }
+    } else {
+        // When paused and not hitting UI, hide crosshair
+        if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
+        hoveredUi = null;
+        laser.scale.z = radius * 2;
+        if (crosshair) crosshair.visible = false;
     }
     
     triggerJustPressed = false;
     gripJustPressed = false;
 
-    if (state.player.stunnedUntil < Date.now()) {
+    if (!state.isPaused && state.player.stunnedUntil < Date.now()) {
         const speedMult = state.player.talent_states.phaseMomentum.active ? 1.1 : 1.0;
         moveTowards(avatar.position, targetPoint, state.player.speed * speedMult, radius);
         state.player.position.copy(avatar.position);
