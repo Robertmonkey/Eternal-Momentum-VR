@@ -3,6 +3,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
+import { getRenderer } from './scene.js';
 import { VR_PROJECTILE_SPEED_SCALE } from './config.js';
 
 let projectileGroup = null;
@@ -31,7 +32,17 @@ function canDamage(caster, target){
   return !(caster && caster.boss && target.boss);
 }
 
-export function updateProjectiles3d(radius, width, height){
+export function updateProjectiles3d(radius = 50, width, height){
+  if(width === undefined || height === undefined){
+    const renderer = getRenderer && getRenderer();
+    if(renderer && renderer.domElement){
+      width = renderer.domElement.width;
+      height = renderer.domElement.height;
+    } else {
+      width = window.innerWidth;
+      height = window.innerHeight;
+    }
+  }
   state.effects.forEach(p=>{
     if(!projectileTypes.has(p.type)) return;
     let mesh = dataMap.get(p);
@@ -82,11 +93,11 @@ export function updateProjectiles3d(radius, width, height){
   });
 
   // Clean up meshes for any projectiles that no longer exist
-  dataMap.forEach((d, p) => {
+  dataMap.forEach((mesh, p) => {
     if(!state.effects.includes(p)){
-      if(d.mesh && projectileGroup) projectileGroup.remove(d.mesh);
-      if(d.mesh) d.mesh.geometry.dispose();
-      if(d.mesh) d.mesh.material.dispose();
+      if(mesh && projectileGroup) projectileGroup.remove(mesh);
+      if(mesh && mesh.geometry) mesh.geometry.dispose();
+      if(mesh && mesh.material) mesh.material.dispose();
       dataMap.delete(p);
     }
   });
