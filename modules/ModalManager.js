@@ -13,6 +13,7 @@ import { disposeGroupChildren } from './helpers.js';
 let modalGroup;
 const modals = {};
 let confirmCallback;
+let debugErrorMesh;
 
 // --- UTILITY FUNCTIONS ---
 
@@ -282,6 +283,22 @@ const createModalFunctions = {
 
 export function initModals() {
     ensureGroup();
+
+    // --- START PRE-EMPTIVE ERROR DISPLAY ---
+    const loader = new THREE.FontLoader();
+    // Adjust this font path if necessary!
+    loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
+        const textGeometry = new THREE.TextGeometry(
+            'NO ERROR',
+            { font: font, size: 0.04, height: 0.005 }
+        );
+        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 1 });
+        debugErrorMesh = new THREE.Mesh(textGeometry, textMaterial);
+        debugErrorMesh.position.set(0, 1.5, -1.5); // Position it clearly in view
+        debugErrorMesh.visible = false; // Start hidden
+        getScene().add(debugErrorMesh); // Add directly to the main scene
+    });
+    // --- END PRE-EMPTIVE ERROR DISPLAY ---
 }
 
 export function showModal(id) {
@@ -327,29 +344,21 @@ export function showModal(id) {
                     modal.userData.refresh();
                 }
             } catch (error) {
-                // --- START 2D HTML ERROR DISPLAY ---
                 console.error("Critical error during modal refresh:", error);
 
-                const errorContainer = document.createElement('div');
-
-                errorContainer.style.position = 'absolute';
-                errorContainer.style.top = '0';
-                errorContainer.style.left = '0';
-                errorContainer.style.width = '100%';
-                errorContainer.style.height = '100%';
-                errorContainer.style.backgroundColor = 'black';
-                errorContainer.style.color = 'red'; // Make it red to be extra clear
-                errorContainer.style.fontFamily = 'monospace';
-                errorContainer.style.fontSize = '16px';
-                errorContainer.style.padding = '20px';
-                errorContainer.style.zIndex = '9999';
-                errorContainer.style.whiteSpace = 'pre-wrap';
-                errorContainer.style.overflowY = 'auto';
-
-                errorContainer.innerText = 'A critical error occurred during modal refresh:\n\n' + error.stack;
-
-                document.body.appendChild(errorContainer);
-                // --- END 2D HTML ERROR DISPLAY ---
+                if (debugErrorMesh) {
+                    // Update the geometry of the existing mesh with the new error text
+                    const loader = new THREE.FontLoader();
+                    // Adjust this font path if necessary!
+                    loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
+                        debugErrorMesh.geometry.dispose(); // Clean up old geometry
+                        debugErrorMesh.geometry = new THREE.TextGeometry(
+                            'ERROR: ' + error.message.substring(0, 200), // Show first 200 chars
+                            { font: font, size: 0.04, height: 0.005 }
+                        );
+                    });
+                    debugErrorMesh.visible = true; // Make it visible
+                }
             }
         });
     }
