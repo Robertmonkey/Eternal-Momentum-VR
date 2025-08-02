@@ -285,47 +285,78 @@ export function initModals() {
 }
 
 export function showModal(id) {
-    ensureGroup();
+    try {
+        ensureGroup();
 
-    const prevId = state.activeModalId;
-    const prevModal = prevId ? modals[prevId] : null;
-    if (prevModal) prevModal.visible = false;
+        const prevId = state.activeModalId;
+        const prevModal = prevId ? modals[prevId] : null;
+        if (prevModal) prevModal.visible = false;
 
-    if (!modals[id]) {
-        if (createModalFunctions[id]) {
-            modals[id] = createModalFunctions[id]();
-            modalGroup.add(modals[id]);
-        } else {
-            console.error(`Modal "${id}" creation function does not exist.`);
+        if (!modals[id]) {
+            if (createModalFunctions[id]) {
+                modals[id] = createModalFunctions[id]();
+                modalGroup.add(modals[id]);
+            } else {
+                console.error(`Modal "${id}" creation function does not exist.`);
+                if (prevModal) prevModal.visible = true;
+                return;
+            }
+        }
+
+        const modal = modals[id];
+
+        const camera = getCamera();
+        if (!camera) {
+            console.warn('Cannot show modal before camera is ready.');
             if (prevModal) prevModal.visible = true;
             return;
         }
-    }
 
-    const modal = modals[id];
+        state.activeModalId = id;
+        // Pause the game before heavy UI creation to avoid race conditions
+        state.isPaused = true;
+        resetInputFlags();
+        state.uiInteractionCooldownUntil = Date.now() + 250;
+        modal.visible = true;
+        AudioManager.playSfx('uiModalOpen');
 
-    const camera = getCamera();
-    if (!camera) {
-        console.warn('Cannot show modal before camera is ready.');
-        if (prevModal) prevModal.visible = true;
-        return;
-    }
+        if (modal.userData.refresh) {
+            // Defer refresh to the next frame so the paused state takes effect
+            requestAnimationFrame(() => {
+                if (state.activeModalId === id) {
+                    modal.userData.refresh();
+                }
+            });
+        }
+    } catch (error) {
+        // --- START 2D HTML ERROR DISPLAY ---
+        console.error("Critical error in showModal:", error); // For logging if console is ever available
 
-    state.activeModalId = id;
-    // Pause the game before heavy UI creation to avoid race conditions
-    state.isPaused = true;
-    resetInputFlags();
-    state.uiInteractionCooldownUntil = Date.now() + 250;
-    modal.visible = true;
-    AudioManager.playSfx('uiModalOpen');
+        // Create a container for the error message
+        const errorContainer = document.createElement('div');
 
-    if (modal.userData.refresh) {
-        // Defer refresh to the next frame so the paused state takes effect
-        requestAnimationFrame(() => {
-            if (state.activeModalId === id) {
-                modal.userData.refresh();
-            }
-        });
+        // Style it to be a highly visible overlay on the 2D page
+        errorContainer.style.position = 'absolute';
+        errorContainer.style.top = '0';
+        errorContainer.style.left = '0';
+        errorContainer.style.width = '100%';
+        errorContainer.style.height = '100%';
+        errorContainer.style.backgroundColor = 'black';
+        errorContainer.style.color = 'white';
+        errorContainer.style.fontFamily = 'monospace';
+        errorContainer.style.fontSize = '16px';
+        errorContainer.style.padding = '20px';
+        errorContainer.style.zIndex = '9999';
+        errorContainer.style.whiteSpace = 'pre-wrap'; // Ensures line breaks and spaces are respected
+        errorContainer.style.overflowY = 'auto';
+
+        // Set the error text. Using error.stack gives more detail than error.message.
+        errorContainer.innerText = 'A critical error occurred in the VR session:\n\n' + error.stack;
+
+        // Add the error display to the main page body
+        document.body.appendChild(errorContainer);
+
+        // --- END 2D HTML ERROR DISPLAY ---
     }
 }
 
