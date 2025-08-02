@@ -66,8 +66,9 @@ export const state = {
     gravityActive: false,
     gravityEnd: 0,
     customOrreryBosses: [],
-    
+
     // Game flow state
+    activeModalId: null,
     currentStage: 1,
     bossActive: false,
     bossHasSpawnedThisRun: false,
