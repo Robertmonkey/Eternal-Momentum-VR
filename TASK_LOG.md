@@ -454,3 +454,7 @@ Verification: node scripts/checkAssetUsage.js
 2025-10-25 – Bug Fix – Modal active state guard
 Summary: Prevented `showModal` from leaving the game in an inconsistent state by restoring the previous modal and delaying `activeModalId` assignment until after the camera is ready.
 Verification: npm test (fails: missing package.json)
+
+2025-10-26 – Bug Fix – Stabilize modal positioning
+Summary: Anchored `modalGroup` at a fixed world position and removed per-open camera-relative repositioning. Menus now appear consistently and the game unpauses when they close.
+Verification: node scripts/checkAssetUsage.js

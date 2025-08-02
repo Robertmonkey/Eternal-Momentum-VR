@@ -20,6 +20,10 @@ function ensureGroup() {
     if (!modalGroup) {
         modalGroup = new THREE.Group();
         modalGroup.name = 'modalGroup';
+        // Position the modal group 2 meters in front of the player's starting point at eye-level.
+        modalGroup.position.set(0, 1.6, -2);
+        // Orient the modal group to face the player's starting position.
+        modalGroup.lookAt(0, 1.6, 0);
         const scene = getScene();
         if (scene) scene.add(modalGroup);
     }
@@ -308,18 +312,6 @@ export function showModal(id) {
     }
 
     state.activeModalId = id;
-    const distance = 1.5;
-    const cameraWorldPos = new THREE.Vector3();
-    const cameraWorldQuat = new THREE.Quaternion();
-    camera.getWorldPosition(cameraWorldPos);
-    camera.getWorldQuaternion(cameraWorldQuat);
-    
-    const offset = new THREE.Vector3(0, 0, -distance);
-    offset.applyQuaternion(cameraWorldQuat);
-    
-    modalGroup.position.copy(cameraWorldPos).add(offset);
-    modalGroup.quaternion.copy(cameraWorldQuat);
-
     // Pause the game before heavy UI creation to avoid race conditions
     state.isPaused = true;
     resetInputFlags();
@@ -340,9 +332,9 @@ export function hideModal() {
     if (state.activeModalId && modals[state.activeModalId]) {
         modals[state.activeModalId].visible = false;
         state.activeModalId = null;
-        state.isPaused = false; // Unpause unless another condition requires it
         resetInputFlags();
         AudioManager.playSfx('uiModalClose');
+        state.isPaused = false; // Unpause unless another condition requires it
     }
 }
 
