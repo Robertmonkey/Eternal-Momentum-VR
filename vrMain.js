@@ -14,8 +14,6 @@ import { bossData } from './modules/bosses.js'; // Import bossData here
 let renderer;
 
 function render(timestamp, frame) {
-    if (!renderer.xr.isPresenting) return;
-
     Telemetry.recordFrame();
     updatePlayerController();
 
@@ -41,15 +39,33 @@ export async function launchVR(initialStage = 1) {
     initUI();
     initModals();
     AudioManager.setup(getCamera());
-    
+
     // Pass bossData to resetGame to prevent the crash
     resetGame(bossData);
     state.currentStage = initialStage;
     state.isPaused = false;
 
-    // Create a WebXR button that lets the user choose between VR and AR
-    const button = XRButton.createButton(renderer);
-    document.body.appendChild(button);
+    renderer.setAnimationLoop(render);
+
+    if (navigator.xr && navigator.xr.isSessionSupported) {
+        try {
+            const supported = await navigator.xr.isSessionSupported('immersive-vr');
+            if (supported) {
+                const button = XRButton.createButton(renderer);
+                document.body.appendChild(button);
+                renderer.xr.addEventListener('sessionstart', () => {
+                    showHud();
+                });
+            } else {
+                showHud();
+            }
+        } catch (err) {
+            console.warn('XR support check failed', err);
+            showHud();
+        }
+    } else {
+        showHud();
+    }
 
     // Allow stage selection via keyboard for desktop diagnostics
     window.addEventListener('keydown', (e) => {
@@ -57,11 +73,6 @@ export async function launchVR(initialStage = 1) {
             e.preventDefault();
             showModal('levelSelect');
         }
-    });
-    
-    renderer.xr.addEventListener('sessionstart', () => {
-        showHud();
-        renderer.setAnimationLoop(render);
     });
 
     // Session end will return control to the page without reloading
