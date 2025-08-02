@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { VRButton } from './vendor/addons/webxr/VRButton.js';
+import { XRButton } from './vendor/addons/webxr/XRButton.js';
 import { initScene, getScene, getRenderer, getCamera } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
 import { initUI, updateHud, showHud } from './modules/UIManager.js';
@@ -47,21 +47,22 @@ export async function launchVR(initialStage = 1) {
     state.currentStage = initialStage;
     state.isPaused = false;
 
-    // Use the official VRButton logic to handle the session request
-    const button = VRButton.createButton(renderer);
-
-    // Hide the button and programmatically click it to start the session
-    button.style.display = 'none';
+    // Create a WebXR button that lets the user choose between VR and AR
+    const button = XRButton.createButton(renderer);
     document.body.appendChild(button);
+
+    // Allow stage selection via keyboard for desktop diagnostics
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            showModal('levelSelect');
+        }
+    });
     
     renderer.xr.addEventListener('sessionstart', () => {
         showHud();
         renderer.setAnimationLoop(render);
     });
 
-    renderer.xr.addEventListener('sessionend', () => {
-        window.location.reload();
-    });
-
-    button.click();
+    // Session end will return control to the page without reloading
 }
