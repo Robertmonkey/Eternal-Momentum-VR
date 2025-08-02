@@ -10,7 +10,6 @@ import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from '
 import { gameHelpers } from './gameHelpers.js';
 
 let modalGroup;
-let activeModalId = null;
 const modals = {};
 let confirmCallback;
 
@@ -282,9 +281,9 @@ export function initModals() {
 
 export function showModal(id) {
     ensureGroup();
-    
-    if (activeModalId && modals[activeModalId]) {
-        modals[activeModalId].visible = false;
+
+    if (state.activeModalId && modals[state.activeModalId]) {
+        modals[state.activeModalId].visible = false;
     }
 
     if (!modals[id]) {
@@ -298,7 +297,7 @@ export function showModal(id) {
     }
     
     const modal = modals[id];
-    activeModalId = id;
+    state.activeModalId = id;
     
     const camera = getCamera();
     if (!camera) {
@@ -326,7 +325,7 @@ export function showModal(id) {
     if (modal.userData.refresh) {
         // Defer refresh to the next frame so the paused state takes effect
         requestAnimationFrame(() => {
-            if (activeModalId === id) {
+            if (state.activeModalId === id) {
                 modal.userData.refresh();
             }
         });
@@ -334,10 +333,15 @@ export function showModal(id) {
 }
 
 export function hideModal() {
-    if (activeModalId && modals[activeModalId]) {
-        modals[activeModalId].visible = false;
-        activeModalId = null;
-        state.isPaused = false; // Unpause unless another condition requires it
+    if (state.activeModalId && modals[state.activeModalId]) {
+        modals[state.activeModalId].visible = false;
+        state.activeModalId = null;
+        // Defer unpausing to allow another modal to open within the same frame
+        requestAnimationFrame(() => {
+            if (!state.activeModalId) {
+                state.isPaused = false;
+            }
+        });
         resetInputFlags();
         AudioManager.playSfx('uiModalClose');
     }
