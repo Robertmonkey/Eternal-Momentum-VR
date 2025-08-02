@@ -73,6 +73,7 @@ export const state = {
     bossActive: false,
     bossHasSpawnedThisRun: false,
     bossSpawnCooldownEnd: 0,
+    uiInteractionCooldownUntil: 0,
     gameOver: false,
     isPaused: true,
     offensiveInventory: [null, null, null],

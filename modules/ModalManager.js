@@ -315,6 +315,7 @@ export function showModal(id) {
     // Pause the game before heavy UI creation to avoid race conditions
     state.isPaused = true;
     resetInputFlags();
+    state.uiInteractionCooldownUntil = Date.now() + 250;
     modal.visible = true;
     AudioManager.playSfx('uiModalOpen');
 
