@@ -283,9 +283,9 @@ export function initModals() {
 export function showModal(id) {
     ensureGroup();
 
-    if (state.activeModalId && modals[state.activeModalId]) {
-        modals[state.activeModalId].visible = false;
-    }
+    const prevId = state.activeModalId;
+    const prevModal = prevId ? modals[prevId] : null;
+    if (prevModal) prevModal.visible = false;
 
     if (!modals[id]) {
         if (createModalFunctions[id]) {
@@ -293,18 +293,21 @@ export function showModal(id) {
             modalGroup.add(modals[id]);
         } else {
             console.error(`Modal "${id}" creation function does not exist.`);
+            if (prevModal) prevModal.visible = true;
             return;
         }
     }
-    
+
     const modal = modals[id];
-    state.activeModalId = id;
-    
+
     const camera = getCamera();
     if (!camera) {
         console.warn('Cannot show modal before camera is ready.');
+        if (prevModal) prevModal.visible = true;
         return;
     }
+
+    state.activeModalId = id;
     const distance = 1.5;
     const cameraWorldPos = new THREE.Vector3();
     const cameraWorldQuat = new THREE.Quaternion();

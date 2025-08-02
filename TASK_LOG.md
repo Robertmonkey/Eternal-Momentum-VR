@@ -450,3 +450,7 @@ Verification: node scripts/checkAssetUsage.js
 2025-10-24 – Bug Fix – Power-up inventory
 Summary: Fixed pickup handling to update the HUD immediately and scaled emoji sprites to nearly fill the pickup sphere for better visibility.
 Verification: node scripts/checkAssetUsage.js
+
+2025-10-25 – Bug Fix – Modal active state guard
+Summary: Prevented `showModal` from leaving the game in an inconsistent state by restoring the previous modal and delaying `activeModalId` assignment until after the camera is ready.
+Verification: npm test (fails: missing package.json)
