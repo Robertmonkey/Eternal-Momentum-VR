@@ -322,34 +322,8 @@ export function showModal(id) {
     if (modal.userData.refresh) {
         // Defer refresh to the next frame so the paused state takes effect
         requestAnimationFrame(() => {
-            try {
-                if (state.activeModalId === id) {
-                    modal.userData.refresh();
-                }
-            } catch (error) {
-                // --- START 2D HTML ERROR DISPLAY ---
-                console.error("Critical error during modal refresh:", error);
-
-                const errorContainer = document.createElement('div');
-
-                errorContainer.style.position = 'absolute';
-                errorContainer.style.top = '0';
-                errorContainer.style.left = '0';
-                errorContainer.style.width = '100%';
-                errorContainer.style.height = '100%';
-                errorContainer.style.backgroundColor = 'black';
-                errorContainer.style.color = 'red'; // Make it red to be extra clear
-                errorContainer.style.fontFamily = 'monospace';
-                errorContainer.style.fontSize = '16px';
-                errorContainer.style.padding = '20px';
-                errorContainer.style.zIndex = '9999';
-                errorContainer.style.whiteSpace = 'pre-wrap';
-                errorContainer.style.overflowY = 'auto';
-
-                errorContainer.innerText = 'A critical error occurred during modal refresh:\n\n' + error.stack;
-
-                document.body.appendChild(errorContainer);
-                // --- END 2D HTML ERROR DISPLAY ---
+            if (state.activeModalId === id) {
+                modal.userData.refresh();
             }
         });
     }
