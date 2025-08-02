@@ -75,3 +75,34 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
 
   return damage;
 }
+
+/**
+ * Recursively dispose of all geometries, materials and textures beneath the
+ * given group and remove the children. Useful for clearing dynamic UI groups
+ * without leaking GPU resources.
+ *
+ * @param {THREE.Object3D} group - Group whose descendants should be removed
+ * and disposed.
+ */
+export function disposeGroupChildren(group) {
+  if (!group || !group.children) return;
+  while (group.children.length > 0) {
+    const child = group.children[0];
+    disposeGroupChildren(child);
+
+    if (child.material) {
+      if (Array.isArray(child.material)) {
+        child.material.forEach(m => {
+          if (m.map) m.map.dispose();
+          m.dispose();
+        });
+      } else {
+        if (child.material.map) child.material.map.dispose();
+        child.material.dispose();
+      }
+    }
+    if (child.geometry) child.geometry.dispose();
+
+    group.remove(child);
+  }
+}

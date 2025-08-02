@@ -8,6 +8,7 @@ import { TALENT_GRID_CONFIG } from './talents.js';
 import { purchaseTalent, applyAllTalentEffects } from './ascension.js';
 import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
+import { disposeGroupChildren } from './helpers.js';
 
 let modalGroup;
 const modals = {};
@@ -187,7 +188,7 @@ function createStageSelectModal() {
     modal.add(arenaBtn, frontierBtn, closeBtn);
 
     modal.userData.refresh = () => {
-        listContainer.clear();
+        disposeGroupChildren(listContainer);
         arenaBtn.visible = state.player.highestStageBeaten >= 30;
         const maxStage = state.player.highestStageBeaten + 1;
         for (let i = 1; i <= Math.min(maxStage, 30); i++) {
@@ -232,7 +233,7 @@ function createCoresModal() {
     modal.add(listContainer);
 
     modal.userData.refresh = () => {
-        listContainer.clear();
+        disposeGroupChildren(listContainer);
         const unlockedCores = bossData.filter(b => b.core_desc && state.player.unlockedAberrationCores.has(b.id));
         
         unlockedCores.forEach((core, i) => {
@@ -389,8 +390,8 @@ function createAscensionModal() {
     modal.add(apLabel, apValue);
 
     modal.userData.refresh = () => {
-        grid.clear();
-        lines.clear();
+        disposeGroupChildren(grid);
+        grid.add(lines);
         const positions = {};
         const allTalents = {};
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
@@ -468,7 +469,7 @@ function createLoreModal() {
     modal.add(list);
 
     modal.userData.refresh = () => {
-        list.clear();
+        disposeGroupChildren(list);
         const bosses = bossData.filter(b => b.lore);
         bosses.forEach((b, i) => {
             const btn = createButton(b.name, () => showBossInfo([b.id], 'lore'), 1.0);
@@ -531,7 +532,7 @@ function createOrreryModal() {
     modal.add(list);
 
     modal.userData.refresh = () => {
-        list.clear();
+        disposeGroupChildren(list);
         const costs = {1:2,2:5,3:8};
         bossData.filter(b=>b.difficulty_tier).forEach((b,i)=>{
             const cost = costs[b.difficulty_tier] || 2;
