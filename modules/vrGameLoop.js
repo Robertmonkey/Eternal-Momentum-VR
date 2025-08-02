@@ -101,6 +101,7 @@ function handlePlayerEnemyCollisions() {
 
 export function vrGameLoop() {
     if (state.gameOver) return;
+    if (state.activeModalId) return;
 
     handleLevelProgression();
     handleEnemyAndPowerSpawning();
