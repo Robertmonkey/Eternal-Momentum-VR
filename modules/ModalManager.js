@@ -13,7 +13,6 @@ import { disposeGroupChildren } from './helpers.js';
 let modalGroup;
 const modals = {};
 let confirmCallback;
-let debugErrorMesh;
 
 // --- UTILITY FUNCTIONS ---
 
@@ -283,22 +282,6 @@ const createModalFunctions = {
 
 export function initModals() {
     ensureGroup();
-
-    // --- START PRE-EMPTIVE ERROR DISPLAY ---
-    const loader = new THREE.FontLoader();
-    // Adjust this font path if necessary!
-    loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
-        const textGeometry = new THREE.TextGeometry(
-            'NO ERROR',
-            { font: font, size: 0.04, height: 0.005 }
-        );
-        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 1 });
-        debugErrorMesh = new THREE.Mesh(textGeometry, textMaterial);
-        debugErrorMesh.position.set(0, 1.5, -1.5); // Position it clearly in view
-        debugErrorMesh.visible = false; // Start hidden
-        getScene().add(debugErrorMesh); // Add directly to the main scene
-    });
-    // --- END PRE-EMPTIVE ERROR DISPLAY ---
 }
 
 export function showModal(id) {
@@ -339,26 +322,8 @@ export function showModal(id) {
     if (modal.userData.refresh) {
         // Defer refresh to the next frame so the paused state takes effect
         requestAnimationFrame(() => {
-            try {
-                if (state.activeModalId === id) {
-                    modal.userData.refresh();
-                }
-            } catch (error) {
-                console.error("Critical error during modal refresh:", error);
-
-                if (debugErrorMesh) {
-                    // Update the geometry of the existing mesh with the new error text
-                    const loader = new THREE.FontLoader();
-                    // Adjust this font path if necessary!
-                    loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
-                        debugErrorMesh.geometry.dispose(); // Clean up old geometry
-                        debugErrorMesh.geometry = new THREE.TextGeometry(
-                            'ERROR: ' + error.message.substring(0, 200), // Show first 200 chars
-                            { font: font, size: 0.04, height: 0.005 }
-                        );
-                    });
-                    debugErrorMesh.visible = true; // Make it visible
-                }
+            if (state.activeModalId === id) {
+                modal.userData.refresh();
             }
         });
     }
