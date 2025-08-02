@@ -556,5 +556,3 @@ export function showBossInfo(bossIds, type = 'mechanics') {
     if (modal.userData.titleSprite) updateTextSprite(modal.userData.titleSprite, title);
     if (modal.userData.contentSprite) updateTextSprite(modal.userData.contentSprite, content);
 }
-
-window.showModal = showModal;
