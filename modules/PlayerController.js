@@ -148,8 +148,10 @@ export function updatePlayerController() {
             gameHelpers.play('uiHoverSound');
         }
         if (triggerJustPressed) {
-            hoveredUi.userData.onSelect();
-            gameHelpers.play('uiClickSound');
+            if (Date.now() > state.uiInteractionCooldownUntil) {
+                hoveredUi.userData.onSelect();
+                gameHelpers.play('uiClickSound');
+            }
         }
     } else if (!state.isPaused) {
         if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
