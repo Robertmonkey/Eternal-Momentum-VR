@@ -516,14 +516,14 @@ function createAscensionModal() {
         updateTextSprite(apValue, `${state.player.ascensionPoints}`);
     };
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
+    const closeBtn = createButton('CLOSE', () => hideModal(), 0.6, 0.1, 0xf000ff);
     closeBtn.position.set(0.45, -0.6, 0.01);
     modal.add(closeBtn);
 
-    const clearBtn = createButton('SEVER TIMELINE', () => {
+    const clearBtn = createButton('ERASE TIMELINE', () => {
         showConfirm(
-            'SEVER TIMELINE?',
-            'All Ascension progress and unlocked powers will be lost.',
+            '|| SEVER TIMELINE? ||',
+            'All Ascension progress and unlocked powers will be lost to the void. This action cannot be undone.',
             () => {
                 localStorage.removeItem('eternalMomentumSave');
                 window.location.reload();
