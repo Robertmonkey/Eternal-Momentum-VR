@@ -8,7 +8,7 @@ import { TALENT_GRID_CONFIG } from './talents.js';
 import { purchaseTalent, isTalentVisible, getConstellationColorOfTalent } from './ascension.js';
 import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
-import { disposeGroupChildren } from './helpers.js';
+import { disposeGroupChildren, wrapText } from './helpers.js';
 
 let modalGroup;
 const modals = {};
@@ -662,11 +662,11 @@ function createLoreModal() {
 function createBossInfoModal() {
     const modal = createModalContainer(1.2, 1.0, 'BOSS INFO');
     modal.name = 'modal_bossInfo';
-    const content = createTextSprite('', 32);
-    content.position.set(0, 0.1, 0.01);
+    const content = createTextSprite('', 28);
+    content.position.set(0, 0.15, 0.01);
     modal.add(content);
-    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
-    closeBtn.position.set(0, -0.4, 0.01);
+    const closeBtn = createButton('✖', () => hideModal(), 0.12, 0.12, 0xf000ff);
+    closeBtn.position.set(0.55, 0.45, 0.02);
     modal.add(closeBtn);
     modal.userData.contentSprite = content;
     modal.userData.titleSprite = modal.children.find(c => c.userData.isTitle);
@@ -736,7 +736,9 @@ export function showBossInfo(bossIds, type = 'mechanics') {
     const bosses = bossIds.map(id => bossData.find(b => b.id === id)).filter(b => b);
     if (bosses.length === 0) return;
     const title = bosses.map(b => b.name).join(' & ');
-    const content = bosses.map(b => type === 'lore' ? b.lore : b.mechanics_desc).join('\n\n');
+    const content = bosses
+        .map(b => wrapText(type === 'lore' ? b.lore : b.mechanics_desc, 60))
+        .join('\n\n');
     if (modal.userData.titleSprite) updateTextSprite(modal.userData.titleSprite, title);
     if (modal.userData.contentSprite) updateTextSprite(modal.userData.contentSprite, content);
 }
