@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { toCanvasPos } from './utils.js';
+import { toCanvasPos, uvToSpherePos } from './utils.js';
 import * as THREE from '../vendor/three.module.js';
 import * as CoreManager from './CoreManager.js';
 
@@ -25,6 +25,31 @@ export function getCanvasPos(obj){
     return toCanvasPos(obj.position);
   }
   return { x: obj.x, y: obj.y };
+}
+
+/**
+ * Set an object's 3D position from canvas pixel coordinates.
+ *
+ * @param {{position:THREE.Vector3}|THREE.Vector3} target - Object or vector to
+ * update.
+ * @param {number} x - Canvas x coordinate in pixels.
+ * @param {number} y - Canvas y coordinate in pixels.
+ * @param {number} [width=2048] - Canvas width used for conversion.
+ * @param {number} [height=1024] - Canvas height used for conversion.
+ * @returns {THREE.Vector3} Updated position vector.
+ */
+export function setPositionFromCanvas(target, x, y, width = 2048, height = 1024){
+  const u = ((x / width) - 0.5 + 1) % 1;
+  const v = y / height;
+  const vec = uvToSpherePos(u, v, 1);
+  if (target.isVector3){
+    return target.copy(vec);
+  }
+  if (target.position && target.position.isVector3){
+    target.position.copy(vec);
+    return target.position;
+  }
+  return vec;
 }
 
 /**
