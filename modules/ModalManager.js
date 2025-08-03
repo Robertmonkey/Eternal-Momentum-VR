@@ -81,6 +81,82 @@ function createModalContainer(width, height, title) {
     return group;
 }
 
+/**
+ * Adds a vertical scrollbar to a list within a modal.
+ * The scrollbar appears only when the list height exceeds the view height.
+ *
+ * @param {THREE.Object3D} modal - The modal to attach the scrollbar to.
+ * @param {THREE.Group} list - Group containing list items to scroll.
+ * @param {Object} options
+ * @param {number} options.itemHeight - Height of each list item.
+ * @param {number} options.viewHeight - Visible height of the list.
+ * @param {number} options.topOffset - Y offset of the first item.
+ * @param {number} options.x - X position for the scrollbar components.
+ */
+function addScrollBar(modal, list, { itemHeight, viewHeight, topOffset, x }) {
+    if (modal.userData.scrollGroup) {
+        modal.remove(modal.userData.scrollGroup);
+        modal.userData.scrollGroup = null;
+    }
+
+    const items = list.children;
+    const totalItems = items.length;
+    const totalHeight = itemHeight * totalItems;
+
+    // Ensure items are positioned at baseline
+    items.forEach((child, i) => {
+        child.position.y = topOffset - i * itemHeight;
+        child.visible = true;
+    });
+
+    if (totalHeight <= viewHeight) return; // No scroll needed
+
+    const group = new THREE.Group();
+    modal.userData.scrollGroup = group;
+    modal.add(group);
+
+    const top = list.position.y + topOffset;
+    const bottom = top - viewHeight;
+
+    const upBtn = createButton('▲', () => scrollBy(-itemHeight), 0.08, 0.08, 0x00ffff);
+    upBtn.position.set(x, top + 0.05, 0.02);
+    const downBtn = createButton('▼', () => scrollBy(itemHeight), 0.08, 0.08, 0x00ffff);
+    downBtn.position.set(x, bottom - 0.05, 0.02);
+    group.add(upBtn, downBtn);
+
+    const trackHeight = viewHeight - 0.1;
+    const track = new THREE.Mesh(new THREE.PlaneGeometry(0.04, trackHeight), holoMaterial(0x111122, 0.6));
+    const handleHeight = Math.max(0.1, trackHeight * (viewHeight / totalHeight));
+    const handle = new THREE.Mesh(new THREE.PlaneGeometry(0.04, handleHeight), holoMaterial(0x00ffff, 0.9));
+    handle.position.z = 0.01;
+    const trackGroup = new THREE.Group();
+    trackGroup.add(track, handle);
+    trackGroup.position.set(x, (top + bottom) / 2, 0.01);
+    group.add(trackGroup);
+
+    let offset = 0;
+    const maxOffset = totalHeight - viewHeight;
+
+    function update() {
+        items.forEach((child, i) => {
+            const y = topOffset - i * itemHeight - offset;
+            child.position.y = y;
+            child.visible = y <= topOffset && y >= topOffset - viewHeight;
+        });
+
+        const ratio = offset / maxOffset;
+        const range = trackHeight - handleHeight;
+        handle.position.y = range / 2 - ratio * range;
+    }
+
+    function scrollBy(delta) {
+        offset = Math.min(Math.max(offset + delta, 0), maxOffset);
+        update();
+    }
+
+    update();
+}
+
 // --- MODAL CREATION FUNCTIONS ---
 
 function createHomeModal() {
@@ -224,6 +300,7 @@ function createStageSelectModal() {
             row.position.y = 0.4 - (i - 1) * 0.15;
             listContainer.add(row);
         }
+        addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: 0.65 });
     };
 
     return modal;
@@ -239,7 +316,7 @@ function createCoresModal() {
     modal.userData.refresh = () => {
         disposeGroupChildren(listContainer);
         const unlockedCores = bossData.filter(b => b.core_desc && state.player.unlockedAberrationCores.has(b.id));
-        
+
         unlockedCores.forEach((core, i) => {
             const btn = createButton(core.name, () => {
                 state.player.equippedAberrationCore = core.id;
@@ -256,6 +333,7 @@ function createCoresModal() {
             }
             listContainer.add(btn);
         });
+        addScrollBar(modal, listContainer, { itemHeight: 0.12, viewHeight: 0.8, topOffset: 0.5, x: 0.55 });
     };
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
@@ -561,7 +639,7 @@ function createLoreModal() {
     const modal = createModalContainer(1.2, 1.2, 'LORE CODEX');
     modal.name = 'modal_lore';
     const list = new THREE.Group();
-    list.position.y = 0.4;
+    list.position.y = -0.1;
     modal.add(list);
 
     modal.userData.refresh = () => {
@@ -572,6 +650,7 @@ function createLoreModal() {
             btn.position.set(0, 0.4 - i * 0.12, 0.01);
             list.add(btn);
         });
+        addScrollBar(modal, list, { itemHeight: 0.12, viewHeight: 0.7, topOffset: 0.4, x: 0.55 });
     };
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
@@ -640,12 +719,7 @@ function createOrreryModal() {
             btn.position.set(0, -i*0.12, 0.01);
             list.add(btn);
         });
-        const btnHeight = 0.1;
-        const spacing = 0.12;
-        const totalHeight = (bosses.length - 1) * spacing + btnHeight;
-        const available = 0.9;
-        const scale = Math.min(1, available / totalHeight);
-        list.scale.setScalar(scale);
+        addScrollBar(modal, list, { itemHeight: 0.12, viewHeight: 0.8, topOffset: 0, x: 0.75 });
     };
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
