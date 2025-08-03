@@ -20,10 +20,10 @@ function ensureGroup() {
     if (!modalGroup) {
         modalGroup = new THREE.Group();
         modalGroup.name = 'modalGroup';
-        // Position the modal group 2 meters in front of the player's starting point at eye-level.
-        modalGroup.position.set(0, 1.6, -2);
-        // Orient the modal group to face the player's starting position.
-        modalGroup.lookAt(0, 1.6, 0);
+        // Menus were difficult to read because they were tiny. Doubling the
+        // scale here makes every modal roughly twice as large without
+        // altering individual element sizes.
+        modalGroup.scale.setScalar(2);
         const scene = getScene();
         if (scene) scene.add(modalGroup);
     }
@@ -311,6 +311,14 @@ export function showModal(id) {
         return;
     }
 
+    // Place the modal group directly in front of the player's current
+    // position at head height so menus are always comfortably readable.
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize();
+    modalGroup.position.copy(camera.position).addScaledVector(forward, 2);
+    modalGroup.position.y = camera.position.y;
+    const yawOnly = new THREE.Euler(0, camera.rotation.y, 0, 'YXZ');
+    modalGroup.quaternion.setFromEuler(yawOnly);
+
     state.activeModalId = id;
     // Pause the game before heavy UI creation to avoid race conditions
     state.isPaused = true;
@@ -500,6 +508,9 @@ function createGameOverModal() {
 
     const restartBtn = createButton('Restart Stage', () => {
         resetGame(bossData);
+        // Resetting the game would occasionally swap controller hands. Make
+        // sure the primary controller is re-evaluated after a restart.
+        refreshPrimaryController();
         hideModal();
     }, 0.8, 0.1, 0x00ffff);
     restartBtn.position.set(0, 0.2, 0.01);
