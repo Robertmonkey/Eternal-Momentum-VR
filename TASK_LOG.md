@@ -458,3 +458,6 @@ Verification: npm test (fails: missing package.json)
 2025-10-26 – Bug Fix – Stabilize modal positioning
 Summary: Anchored `modalGroup` at a fixed world position and removed per-open camera-relative repositioning. Menus now appear consistently and the game unpauses when they close.
 Verification: node scripts/checkAssetUsage.js
+2025-10-27 – FR-07 – Canvas position helpers
+Summary: Added setPositionFromCanvas helper to convert canvas coordinates into 3D vectors and updated bosses.js to use centralized get/set functions for player position. Introduced unit test verifying round-trip conversion.
+Verification: npm test – all suites pass.

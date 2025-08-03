@@ -3,18 +3,17 @@ import { STAGE_CONFIG } from './config.js';
 import * as utils from './utils.js';
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
+import { getCanvasPos, setPositionFromCanvas } from './helpers.js';
 
 const CANVAS_W = 2048;
 const CANVAS_H = 1024;
 
 function getPlayerCanvasPos() {
-    const uv = utils.spherePosToUv(state.player.position.clone().normalize(), 1);
-    return { x: uv.u * CANVAS_W, y: uv.v * CANVAS_H };
+    return getCanvasPos(state.player);
 }
 
 function setPlayerCanvasPos(x, y) {
-    const pos = utils.uvToSpherePos(x / CANVAS_W, y / CANVAS_H, 1);
-    state.player.position.copy(pos);
+    setPositionFromCanvas(state.player, x, y, CANVAS_W, CANVAS_H);
 }
 
 export const bossData = [{
