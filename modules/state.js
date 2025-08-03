@@ -119,6 +119,19 @@ export function loadPlayerState() {
 }
 
 export function resetGame(bossData) { // Now accepts bossData to avoid circular dependency
+    // Remove any lingering objects from the scene before wiping state arrays
+    const collections = ['enemies', 'pickups', 'effects', 'decoys', 'particles', 'pathObstacles'];
+    for (const key of collections) {
+        const arr = state[key];
+        if (Array.isArray(arr)) {
+            arr.forEach(obj => {
+                if (obj && obj.parent) {
+                    obj.parent.remove(obj);
+                }
+            });
+        }
+    }
+
     state.player.position.set(0, 0, 0);
     state.player.health = state.player.maxHealth;
     state.player.statusEffects = [];
