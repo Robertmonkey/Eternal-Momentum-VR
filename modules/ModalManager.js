@@ -379,11 +379,23 @@ function createAscensionModal() {
     const lines = new THREE.Group();
     grid.add(lines);
 
-    const apLabel = createTextSprite('ASCENSION POINTS', 28, '#00ffff');
-    apLabel.position.set(0, 0.7, 0.01);
-    const apValue = createTextSprite(`${state.player.ascensionPoints}`, 36, '#00ffff');
-    apValue.position.set(0, 0.65, 0.01);
-    modal.add(apLabel, apValue);
+    function createApDisplay() {
+        const group = new THREE.Group();
+        const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.15), holoMaterial(0x111122, 0.95));
+        const border = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.17), holoMaterial(0x00ffff, 0.5));
+        border.position.z = -0.001;
+        const label = createTextSprite('ASCENSION POINTS', 24, '#ffffff');
+        label.position.set(0, 0.035, 0.01);
+        const value = createTextSprite(`${state.player.ascensionPoints}`, 32, '#00ffff');
+        value.position.set(0, -0.045, 0.01);
+        group.add(bg, border, label, value);
+        group.userData = { value };
+        return group;
+    }
+
+    const apDisplay = createApDisplay();
+    apDisplay.position.set(0.55, 0.58, 0.01);
+    modal.add(apDisplay);
 
     let tooltip;
     function createTalentTooltip() {
@@ -513,7 +525,7 @@ function createAscensionModal() {
             });
         });
 
-        updateTextSprite(apValue, `${state.player.ascensionPoints}`);
+        updateTextSprite(apDisplay.userData.value, `${state.player.ascensionPoints}`);
     };
 
     const closeBtn = createButton('CLOSE', () => hideModal(), 0.6, 0.1, 0xf000ff);
