@@ -6,7 +6,7 @@
 
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
-import { moveTowards } from './movement3d.js';
+import { getSphericalDirection } from './movement3d.js';
 import { findPath, buildNavMesh } from './navmesh.js';
 
 export function addPathObstacle(u,v,radius=0.1){
@@ -57,7 +57,11 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
     const target3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
 
     if(!e.frozen){
-      moveTowards(pos3d, target3d, e.speed || 1, radius);
+      const dir = getSphericalDirection(pos3d, target3d);
+      const dist = pos3d.distanceTo(target3d);
+      pos3d.add(dir.multiplyScalar(dist * 0.015 * (e.speed || 1)));
+      pos3d.normalize().multiplyScalar(radius);
+      e.lookAt(pos3d.clone().add(dir));
       // Advance along the path when close to the next waypoint
       const dest3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
       if(pos3d.distanceTo(dest3d) < 0.05*radius){
