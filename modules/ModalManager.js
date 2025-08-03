@@ -633,12 +633,19 @@ function createOrreryModal() {
     modal.userData.refresh = () => {
         disposeGroupChildren(list);
         const costs = {1:2,2:5,3:8};
-        bossData.filter(b=>b.difficulty_tier).forEach((b,i)=>{
+        const bosses = bossData.filter(b=>b.difficulty_tier);
+        bosses.forEach((b,i)=>{
             const cost = costs[b.difficulty_tier] || 2;
             const btn = createButton(`${b.name} (${cost})`, () => showBossInfo([b.id], 'mechanics'), 1.2);
-            btn.position.set(0, 0.4 - i*0.12, 0.01);
+            btn.position.set(0, -i*0.12, 0.01);
             list.add(btn);
         });
+        const btnHeight = 0.1;
+        const spacing = 0.12;
+        const totalHeight = (bosses.length - 1) * spacing + btnHeight;
+        const available = 0.9;
+        const scale = Math.min(1, available / totalHeight);
+        list.scale.setScalar(scale);
     };
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
