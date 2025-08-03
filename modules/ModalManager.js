@@ -517,8 +517,22 @@ function createAscensionModal() {
     };
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
-    closeBtn.position.set(0, -0.6, 0.01);
+    closeBtn.position.set(0.45, -0.6, 0.01);
     modal.add(closeBtn);
+
+    const clearBtn = createButton('SEVER TIMELINE', () => {
+        showConfirm(
+            'SEVER TIMELINE?',
+            'All Ascension progress and unlocked powers will be lost.',
+            () => {
+                localStorage.removeItem('eternalMomentumSave');
+                window.location.reload();
+            }
+        );
+    }, 0.6, 0.1, 0xe74c3c);
+    clearBtn.position.set(-0.45, -0.6, 0.01);
+    modal.add(clearBtn);
+
     return modal;
 }
 
