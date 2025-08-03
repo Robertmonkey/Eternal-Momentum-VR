@@ -133,58 +133,60 @@ export function updatePlayerController() {
     const controllerUI = getControllerMenuObjects();
     const allUI = [...modalUI, ...controllerUI];
 
-    // -- REFINED CRASH FIX --
-    // Only attempt to process UI interactions if the raycaster's camera is valid.
-    // This prevents a crash without disabling player movement or other controls.
-    if (raycaster.camera) {
-        const uiHits = raycaster.intersectObjects(allUI, true);
-        const uiHit = uiHits[0];
+    // --- CRASH FIX ---
+    // Do not attempt to raycast if the camera is not yet set.
+    // This prevents a fatal error when a modal appears.
+    if (!raycaster.camera) {
+        return;
+    }
+    // --- END CRASH FIX ---
 
-        if (uiHit && uiHit.object.userData.onSelect) {
-            targetPoint.copy(uiHit.point);
-            laser.scale.z = uiHit.distance;
-            crosshair.visible = false;
+    const uiHits = raycaster.intersectObjects(allUI, true);
+    const uiHit = uiHits[0];
 
-            if (hoveredUi !== uiHit.object) {
-                if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
-                hoveredUi = uiHit.object;
-                if (hoveredUi.userData.onHover) hoveredUi.userData.onHover(true);
-                gameHelpers.play('uiHoverSound');
-            }
-            if (triggerJustPressed) {
-                if (Date.now() > state.uiInteractionCooldownUntil) {
-                    hoveredUi.userData.onSelect();
-                    gameHelpers.play('uiClickSound');
-                }
-            }
-        } else if (!state.isPaused) {
+    if (uiHit && uiHit.object.userData.onSelect) {
+        targetPoint.copy(uiHit.point);
+        laser.scale.z = uiHit.distance;
+        crosshair.visible = false;
+
+        if (hoveredUi !== uiHit.object) {
             if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
-            hoveredUi = null;
-            const arenaHit = raycaster.intersectObject(arena, false)[0];
-            if (arenaHit) {
-                targetPoint.copy(arenaHit.point);
-                state.cursorDir.copy(arenaHit.point).normalize();
-                laser.scale.z = arenaHit.distance;
-
-                if (crosshair) {
-                    crosshair.visible = true;
-                    crosshair.position.copy(arenaHit.point);
-                    crosshair.lookAt(getCamera().position);
-                }
-                handleInput();
-            } else {
-                laser.scale.z = radius * 2;
-                if (crosshair) crosshair.visible = false;
+            hoveredUi = uiHit.object;
+            if (hoveredUi.userData.onHover) hoveredUi.userData.onHover(true);
+            gameHelpers.play('uiHoverSound');
+        }
+        if (triggerJustPressed) {
+            if (Date.now() > state.uiInteractionCooldownUntil) {
+                hoveredUi.userData.onSelect();
+                gameHelpers.play('uiClickSound');
             }
+        }
+    } else if (!state.isPaused) {
+        if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
+        hoveredUi = null;
+        const arenaHit = raycaster.intersectObject(arena, false)[0];
+        if (arenaHit) {
+            targetPoint.copy(arenaHit.point);
+            state.cursorDir.copy(arenaHit.point).normalize();
+            laser.scale.z = arenaHit.distance;
+            
+            if (crosshair) {
+                crosshair.visible = true;
+                crosshair.position.copy(arenaHit.point);
+                crosshair.lookAt(getCamera().position);
+            }
+            handleInput();
         } else {
-            // When paused and not hitting UI, hide crosshair
-            if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
-            hoveredUi = null;
             laser.scale.z = radius * 2;
             if (crosshair) crosshair.visible = false;
         }
+    } else {
+        // When paused and not hitting UI, hide crosshair
+        if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
+        hoveredUi = null;
+        laser.scale.z = radius * 2;
+        if (crosshair) crosshair.visible = false;
     }
-    // -- END REFINED CRASH FIX --
     
     triggerJustPressed = false;
     gripJustPressed = false;
