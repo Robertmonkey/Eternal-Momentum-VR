@@ -6,6 +6,7 @@
 
 import { state } from './state.js';
 import { usePower } from './powers.js';
+import { gameHelpers } from './gameHelpers.js';
 
 /**
  * Use the offensive power in the first inventory slot.
@@ -13,7 +14,10 @@ import { usePower } from './powers.js';
  */
 export function useOffensivePower(options = {}) {
   const key = state.offensiveInventory[0];
-  if (key) usePower(key, false, options);
+  if (key) {
+    usePower(key, false, options);
+    if (gameHelpers.updateHud) gameHelpers.updateHud();
+  }
 }
 
 /**
@@ -22,5 +26,8 @@ export function useOffensivePower(options = {}) {
  */
 export function useDefensivePower(options = {}) {
   const key = state.defensiveInventory[0];
-  if (key) usePower(key, false, options);
+  if (key) {
+    usePower(key, false, options);
+    if (gameHelpers.updateHud) gameHelpers.updateHud();
+  }
 }
