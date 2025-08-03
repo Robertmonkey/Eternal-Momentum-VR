@@ -88,14 +88,19 @@ export function updateProjectiles3d(radius = 50, width, height){
       }
     }
 
-    p.position.add(p.velocity);
-    const clamped = p.position.clone().normalize().multiplyScalar(radius);
     if(p.type !== 'fireball') {
+      p.position.add(p.velocity);
+      const clamped = p.position.clone().normalize().multiplyScalar(radius);
       p.position.copy(clamped);
+      const uv = spherePosToUv(clamped, radius);
+      p.x = uv.u * width;
+      p.y = uv.v * height;
+    } else {
+      const clamped = p.position.clone().normalize().multiplyScalar(radius);
+      const uv = spherePosToUv(clamped, radius);
+      p.x = uv.u * width;
+      p.y = uv.v * height;
     }
-    const uv = spherePosToUv(clamped, radius);
-    p.x = uv.u * width;
-    p.y = uv.v * height;
     if(mesh){
       mesh.position.copy(p.position);
     }
