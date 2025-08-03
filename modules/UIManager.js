@@ -63,6 +63,13 @@ export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'ce
     const scale = 0.001;
     sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
     sprite.userData = { text, canvas, ctx, font: `${size}px ${fontStack}`, color, size, align };
+
+    // Sprites automatically match the camera's roll, which caused text to tilt
+    // when the player tilted their head. Counter-rotate the material each frame
+    // so text stays upright and easier to read.
+    sprite.onBeforeRender = (_, __, camera) => {
+        sprite.material.rotation = -camera.rotation.z;
+    };
     return sprite;
 }
 
