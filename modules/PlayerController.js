@@ -133,6 +133,14 @@ export function updatePlayerController() {
     const controllerUI = getControllerMenuObjects();
     const allUI = [...modalUI, ...controllerUI];
 
+    // --- CRASH FIX ---
+    // Do not attempt to raycast if the camera is not yet set.
+    // This prevents a fatal error when a modal appears.
+    if (!raycaster.camera) {
+        return;
+    }
+    // --- END CRASH FIX ---
+
     const uiHits = raycaster.intersectObjects(allUI, true);
     const uiHit = uiHits[0];
 
