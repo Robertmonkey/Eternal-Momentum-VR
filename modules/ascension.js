@@ -116,3 +116,43 @@ export function applyAllTalentEffects() {
     // After applying all maxHealth modifiers, ensure current health isn't higher.
     state.player.health = Math.min(state.player.health, state.player.maxHealth);
 }
+/**
+ * Returns the constellation color for a given talent.
+ * @param {string} talentId
+ * @returns {string}
+ */
+export function getConstellationColorOfTalent(talentId) {
+    for (const key in TALENT_GRID_CONFIG) {
+        if (TALENT_GRID_CONFIG[key][talentId]) {
+            return TALENT_GRID_CONFIG[key].color || '#00ffff';
+        }
+    }
+    return '#00ffff';
+}
+
+/**
+ * Determines if a talent should be visible in the ascension grid.
+ * @param {object} talent
+ * @returns {boolean}
+ */
+export function isTalentVisible(talent) {
+    if (!talent) return false;
+
+    const powerUnlocked = !talent.powerPrerequisite ||
+        state.player.unlockedPowers.has(talent.powerPrerequisite);
+    if (!powerUnlocked) {
+        return false;
+    }
+
+    if (talent.prerequisites.length === 0) {
+        return true;
+    }
+
+    return talent.prerequisites.every(prereqId => {
+        const prereqTalent = allTalents[prereqId];
+        if (!prereqTalent) return false;
+        const ranksNeeded = prereqTalent.maxRanks;
+        const currentRank = state.player.purchasedTalents.get(prereqId) || 0;
+        return currentRank >= ranksNeeded;
+    });
+}

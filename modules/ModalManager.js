@@ -5,7 +5,7 @@ import { refreshPrimaryController, resetInputFlags } from './PlayerController.js
 import { AudioManager } from './audio.js';
 import { bossData } from './bosses.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
-import { purchaseTalent, applyAllTalentEffects } from './ascension.js';
+import { purchaseTalent, isTalentVisible, getConstellationColorOfTalent } from './ascension.js';
 import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
 import { disposeGroupChildren } from './helpers.js';
@@ -396,60 +396,95 @@ function createAscensionModal() {
     modal.userData.refresh = () => {
         disposeGroupChildren(grid);
         grid.add(lines);
+        disposeGroupChildren(lines);
         const positions = {};
         const allTalents = {};
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
             Object.keys(con).forEach(key => {
                 if (key === 'color') return;
-                allTalents[key] = con[key];
-            });
-        });
-        Object.values(TALENT_GRID_CONFIG).forEach(con => {
-            Object.keys(con).forEach(key => {
-                if (key === 'color') return;
                 const t = con[key];
-                const btn = createButton(t.icon, () => { purchaseTalent(t.id); modal.userData.refresh(); }, 0.12, 0.12);
-                const pos = new THREE.Vector3((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
-                btn.position.copy(pos);
-                btn.userData.onHover = hovered => {
-                    if (hovered) {
-                        const purchased = state.player.purchasedTalents.get(t.id) || 0;
-                        const isMax = !t.isInfinite && purchased >= t.maxRanks;
-                        let cost;
-                        if (isMax) cost = 'MAXED';
-                        else if (t.isInfinite) cost = `${t.costPerRank[0]} AP`;
-                        else cost = `${t.costPerRank[purchased]} AP`;
-                        updateTextSprite(infoName, t.name);
-                        updateTextSprite(infoDesc, t.description(purchased + 1, isMax));
-                        updateTextSprite(infoFooter, `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${cost}`);
-                    }
-                };
-                grid.add(btn);
-                positions[t.id] = pos.clone();
+                allTalents[key] = t;
+                positions[t.id] = new THREE.Vector3((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
             });
         });
 
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
-            const baseColor = new THREE.Color(con.color || '#00ffff');
+            Object.keys(con).forEach(key => {
+                if (key === 'color') return;
+                const t = con[key];
+                const purchased = state.player.purchasedTalents.get(t.id) || 0;
+                const isMax = !t.isInfinite && purchased >= t.maxRanks;
+                const cost = t.isInfinite ? t.costPerRank[0] : t.costPerRank[purchased];
+                const prereqsMet = t.prerequisites.every(p => {
+                    const prereqTalent = allTalents[p];
+                    if (!prereqTalent) return false;
+                    const needed = prereqTalent.maxRanks;
+                    const current = state.player.purchasedTalents.get(p) || 0;
+                    return current >= needed;
+                });
+                const canPurchase = prereqsMet && state.player.ascensionPoints >= cost;
+
+                if (state.player.purchasedTalents.has(t.id) || isTalentVisible(t)) {
+                    let borderColor = 0x555555;
+                    if (isMax) {
+                        borderColor = new THREE.Color(getConstellationColorOfTalent(t.id)).getHex();
+                    } else if (canPurchase) {
+                        borderColor = 0x00ff00;
+                    }
+                    const btn = createButton(
+                        t.icon,
+                        () => { purchaseTalent(t.id); modal.userData.refresh(); },
+                        0.12,
+                        0.12,
+                        borderColor,
+                        0x111122,
+                        0xffffff
+                    );
+                    btn.position.copy(positions[t.id]);
+                    btn.userData.onHover = hovered => {
+                        if (hovered) {
+                            let displayCost;
+                            if (isMax) displayCost = 'MAXED';
+                            else displayCost = `${cost} AP`;
+                            updateTextSprite(infoName, t.name);
+                            updateTextSprite(infoDesc, t.description(purchased + 1, isMax));
+                            updateTextSprite(infoFooter, `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${displayCost}`);
+                        }
+                    };
+                    grid.add(btn);
+                }
+            });
+        });
+
+        Object.values(TALENT_GRID_CONFIG).forEach(con => {
             Object.keys(con).forEach(key => {
                 if (key === 'color') return;
                 const t = con[key];
                 const end = positions[t.id];
+                const powerUnlocked = !t.powerPrerequisite || state.player.unlockedPowers.has(t.powerPrerequisite);
                 t.prerequisites.forEach(pr => {
                     const start = positions[pr];
                     if (!start) return;
+                    if (!powerUnlocked) return;
+                    if (!state.player.purchasedTalents.has(pr) && pr !== 'core-nexus') return;
                     const prereq = allTalents[pr];
                     const nexusConnection = (t.isNexus || (prereq && prereq.isNexus));
-                    let color = baseColor;
+                    let colorHex = 0xaaaaaa;
                     let width = 0.01;
                     if (nexusConnection) {
-                        color = new THREE.Color(0x00ff00);
+                        colorHex = 0x00ff00;
                         width = 0.015;
                     }
-                    const currentRank = state.player.purchasedTalents.get(pr) || 0;
                     const needed = prereq ? prereq.maxRanks : 1;
-                    const opacity = currentRank >= needed ? 1.0 : 0.3;
-                    const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity, linewidth: width });
+                    const current = state.player.purchasedTalents.get(pr) || 0;
+                    let opacity = 0.3;
+                    if (current >= needed) {
+                        opacity = 1.0;
+                        if (!nexusConnection) {
+                            colorHex = new THREE.Color(getConstellationColorOfTalent(pr)).getHex();
+                        }
+                    }
+                    const mat = new THREE.LineBasicMaterial({ color: new THREE.Color(colorHex), transparent: true, opacity, linewidth: width });
                     const geom = new THREE.BufferGeometry().setFromPoints([start, end]);
                     lines.add(new THREE.Line(geom, mat));
                 });
