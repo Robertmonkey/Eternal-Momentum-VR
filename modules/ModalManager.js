@@ -379,24 +379,38 @@ function createAscensionModal() {
     const lines = new THREE.Group();
     grid.add(lines);
 
-    const infoName = createTextSprite('', 32);
-    infoName.position.set(0, 0.6, 0.01);
-    const infoDesc = createTextSprite('', 24);
-    infoDesc.position.set(0, 0.52, 0.01);
-    const infoFooter = createTextSprite('', 24, '#cccccc');
-    infoFooter.position.set(0, 0.46, 0.01);
-    modal.add(infoName, infoDesc, infoFooter);
-
     const apLabel = createTextSprite('ASCENSION POINTS', 28, '#00ffff');
     apLabel.position.set(0, 0.7, 0.01);
     const apValue = createTextSprite(`${state.player.ascensionPoints}`, 36, '#00ffff');
     apValue.position.set(0, 0.65, 0.01);
     modal.add(apLabel, apValue);
 
+    let tooltip;
+    function createTalentTooltip() {
+        const group = new THREE.Group();
+        group.visible = false;
+        const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.3), holoMaterial(0x111122, 0.95));
+        const border = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 0.32), holoMaterial(0x00ffff, 0.5));
+        border.position.z = -0.001;
+        const icon = createTextSprite('', 28, '#ffffff', 'left');
+        icon.position.set(-0.32, 0.06, 0.01);
+        const name = createTextSprite('', 28, '#00ffff', 'left');
+        name.position.set(-0.18, 0.06, 0.01);
+        const desc = createTextSprite('', 24, '#ffffff', 'left');
+        desc.position.set(-0.32, -0.02, 0.01);
+        const footer = createTextSprite('', 24, '#cccccc', 'left');
+        footer.position.set(-0.32, -0.11, 0.01);
+        group.add(bg, border, icon, name, desc, footer);
+        group.userData = { icon, name, desc, footer };
+        return group;
+    }
+
     modal.userData.refresh = () => {
         disposeGroupChildren(grid);
         grid.add(lines);
         disposeGroupChildren(lines);
+        tooltip = createTalentTooltip();
+        grid.add(tooltip);
         const positions = {};
         const allTalents = {};
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
@@ -446,9 +460,17 @@ function createAscensionModal() {
                             let displayCost;
                             if (isMax) displayCost = 'MAXED';
                             else displayCost = `${cost} AP`;
-                            updateTextSprite(infoName, t.name);
-                            updateTextSprite(infoDesc, t.description(purchased + 1, isMax));
-                            updateTextSprite(infoFooter, `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${displayCost}`);
+                            updateTextSprite(tooltip.userData.icon, t.icon);
+                            updateTextSprite(tooltip.userData.name, t.name);
+                            updateTextSprite(tooltip.userData.desc, t.description(purchased + 1, isMax));
+                            updateTextSprite(
+                                tooltip.userData.footer,
+                                `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${displayCost}`
+                            );
+                            tooltip.position.copy(positions[t.id]).add(new THREE.Vector3(0.25, 0.15, 0));
+                            tooltip.visible = true;
+                        } else if (tooltip) {
+                            tooltip.visible = false;
                         }
                     };
                     grid.add(btn);
