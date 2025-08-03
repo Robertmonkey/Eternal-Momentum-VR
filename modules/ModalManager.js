@@ -451,8 +451,10 @@ function createAscensionModal() {
                 const canPurchase = prereqsMet && state.player.ascensionPoints >= cost;
 
                 if (state.player.purchasedTalents.has(t.id) || isTalentVisible(t)) {
-                    let borderColor = 0x555555;
-                    if (isMax) {
+                    let borderColor = 0xaaaaaa;
+                    if (t.isNexus || t.isInfinite) {
+                        borderColor = 0x00ff00;
+                    } else if (isMax) {
                         borderColor = new THREE.Color(getConstellationColorOfTalent(t.id)).getHex();
                     } else if (canPurchase) {
                         borderColor = 0x00ff00;
@@ -466,6 +468,7 @@ function createAscensionModal() {
                         0x111122,
                         0xffffff
                     );
+                    btn.userData.talentId = t.id;
                     btn.position.copy(positions[t.id]);
                     btn.userData.onHover = hovered => {
                         if (hovered) {
@@ -479,7 +482,13 @@ function createAscensionModal() {
                                 tooltip.userData.footer,
                                 `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${displayCost}`
                             );
-                            tooltip.position.copy(positions[t.id]).add(new THREE.Vector3(0.25, 0.15, 0));
+                            const basePos = positions[t.id];
+                            let offsetX = 0.25;
+                            if (basePos.x > 0.35) offsetX = -0.25;
+                            else if (basePos.x < -0.35) offsetX = 0.25;
+                            let offsetY = 0.15;
+                            if (basePos.y > 0.3) offsetY = -0.15;
+                            tooltip.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
                             tooltip.visible = true;
                         } else if (tooltip) {
                             tooltip.visible = false;
