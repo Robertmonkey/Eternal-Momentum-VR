@@ -122,6 +122,11 @@ function handleInput() {
 export function updatePlayerController() {
     if (!primaryController || !raycaster) return;
 
+    const camera = getCamera();
+    if (!camera) return;
+    // Needed for raycasting against sprites and other UI elements
+    raycaster.camera = camera;
+
     const arena = getArena();
     const radius = arena.geometry.parameters.radius;
 
@@ -129,8 +134,8 @@ export function updatePlayerController() {
     raycaster.ray.origin.setFromMatrixPosition(primaryController.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    const modalUI = getModalObjects().filter(m => m.visible);
-    const controllerUI = getControllerMenuObjects();
+    const modalUI = getModalObjects().filter(m => m && m.visible);
+    const controllerUI = getControllerMenuObjects().filter(Boolean);
     const allUI = [...modalUI, ...controllerUI];
 
     const uiHits = raycaster.intersectObjects(allUI, true);
@@ -165,7 +170,7 @@ export function updatePlayerController() {
             if (crosshair) {
                 crosshair.visible = true;
                 crosshair.position.copy(arenaHit.point);
-                crosshair.lookAt(getCamera().position);
+                crosshair.lookAt(camera.position);
             }
             handleInput();
         } else {
