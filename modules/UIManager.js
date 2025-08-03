@@ -16,6 +16,7 @@ let coreIcon, coreCooldown, coreSocket;
 let bossContainer;
 const bossBars = new Map();
 let notificationGroup, notificationTimeout;
+const AP_RIGHT_EDGE = 0.44;
 
 let bgTexture = null;
 export function getBgTexture() {
@@ -209,7 +210,7 @@ function createHudElements() {
     hudMesh.add(ascGroup);
     
     apText = createTextSprite('AP: 0', 24, '#00ffff');
-    apText.position.set(0.45, 0.03, 0.001);
+    apText.position.set(AP_RIGHT_EDGE, 0.03, 0.001);
     hudMesh.add(apText);
 
     statusGroup = new THREE.Group();
@@ -297,6 +298,7 @@ export function updateHud() {
     ascFill.scale.x = state.player.essence / state.player.essenceToNextLevel;
     updateTextSprite(ascText, `LVL ${state.player.level}`);
     updateTextSprite(apText, `AP: ${state.player.ascensionPoints}`);
+    apText.position.x = AP_RIGHT_EDGE - apText.scale.x / 2;
 
     const updateSlot = (slot, key, isVisible) => {
         if (!slot) return;
