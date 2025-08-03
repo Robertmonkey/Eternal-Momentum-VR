@@ -77,6 +77,33 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
 }
 
 /**
+ * Insert line breaks so no line exceeds a maximum length.
+ * Existing line breaks are preserved.
+ * @param {string} text - Input text to wrap.
+ * @param {number} [maxLen=60] - Maximum characters per line.
+ * @returns {string} Wrapped text.
+ */
+export function wrapText(text, maxLen = 60) {
+  return String(text)
+    .split('\n')
+    .map(line => {
+      const words = line.split(' ');
+      let result = '';
+      let current = '';
+      words.forEach(word => {
+        if ((current + word).length > maxLen) {
+          result += current.trimEnd() + '\n';
+          current = '';
+        }
+        current += word + ' ';
+      });
+      return result + current.trimEnd();
+    })
+    .join('\n')
+    .trim();
+}
+
+/**
  * Recursively dispose of all geometries, materials and textures beneath the
  * given group and remove the children. Useful for clearing dynamic UI groups
  * without leaking GPU resources.
