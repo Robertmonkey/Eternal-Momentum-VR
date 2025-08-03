@@ -5,6 +5,7 @@ import * as Cores from './cores.js';
 import { gameHelpers } from './gameHelpers.js';
 import { playerHasCore } from './helpers.js';
 import { getPrimaryController } from './scene.js';
+import { VR_PROJECTILE_SPEED_SCALE } from './config.js';
 
 const ARENA_RADIUS = 50; // Should match the radius in scene.js
 
@@ -65,11 +66,15 @@ export const powers = {
       const startPos = new THREE.Vector3();
       if(controller){
           controller.getWorldPosition(startPos);
+          // Offset forward so the fireball spawns at the pointer tip
+          const dir = new THREE.Vector3();
+          controller.getWorldDirection(dir);
+          startPos.add(dir.multiplyScalar(0.1));
       } else {
           startPos.copy(origin.position);
       }
       const targetPos = state.cursorDir.clone().multiplyScalar(ARENA_RADIUS);
-      const velocity = targetPos.clone().sub(startPos).normalize().multiplyScalar(1);
+      const velocity = targetPos.clone().sub(startPos).normalize().multiplyScalar(VR_PROJECTILE_SPEED_SCALE);
 
       state.effects.push({
           type: 'fireball',
