@@ -59,19 +59,17 @@ export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'ce
     });
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
-    const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
-    const sprite = new THREE.Sprite(material);
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false,
+        side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
     const scale = 0.001;
-    sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
-    sprite.userData = { text, canvas, ctx, font: `${size}px ${fontStack}`, color, size, align };
-
-    // Sprites automatically match the camera's roll, which caused text to tilt
-    // when the player tilted their head. Counter-rotate the material each frame
-    // so text stays upright and easier to read.
-    sprite.onBeforeRender = (_, __, camera) => {
-        sprite.material.rotation = -camera.rotation.z;
-    };
-    return sprite;
+    mesh.scale.set(canvas.width * scale, canvas.height * scale, 1);
+    mesh.userData = { text, canvas, ctx, font: `${size}px ${fontStack}`, color, size, align };
+    return mesh;
 }
 
 export function updateTextSprite(sprite, newText) {
