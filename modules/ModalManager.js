@@ -611,16 +611,28 @@ function createAscensionModal() {
     function createApDisplay() {
         const group = new THREE.Group();
         // Match the 2D game's semi-transparent header box and cyan border.
-        const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.15), holoMaterial(0x000000, 0.3));
-        const border = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.17), holoMaterial(0x00ffff, 0.4));
+        const bgWidth = 0.5;
+        const bgHeight = 0.15;
+        const bg = new THREE.Mesh(new THREE.PlaneGeometry(bgWidth, bgHeight), holoMaterial(0x000000, 0.3));
+        const border = new THREE.Mesh(new THREE.PlaneGeometry(bgWidth + 0.02, bgHeight + 0.02), holoMaterial(0x00ffff, 0.4));
         border.position.z = -0.001;
+
         // The label text uses a dimmer white to simulate 70% opacity.
-        const label = createTextSprite('ASCENSION POINTS', 24, '#cccccc');
-        label.position.set(0, 0.035, 0.01);
-        const value = createTextSprite(`${state.player.ascensionPoints}`, 32, '#00ffff');
-        value.position.set(0, -0.045, 0.01);
+        const label = createTextSprite('ASCENSION POINTS', 24, '#cccccc', 'left');
+        const value = createTextSprite(`${state.player.ascensionPoints}`, 32, '#00ffff', 'left');
+
+        const padding = 0.02;
+        function updateLayout() {
+            const halfBg = bgWidth / 2;
+            const valWidth = value.scale.x;
+            value.position.set(halfBg - padding - valWidth / 2, 0, 0.01);
+            const labelWidth = label.scale.x;
+            label.position.set(value.position.x - valWidth / 2 - padding - labelWidth / 2, 0, 0.01);
+        }
+
         group.add(bg, border, label, value);
-        group.userData = { value };
+        group.userData = { value, updateLayout };
+        updateLayout();
         return group;
     }
 
@@ -782,6 +794,7 @@ function createAscensionModal() {
         });
 
         updateTextSprite(apDisplay.userData.value, `${state.player.ascensionPoints}`);
+        if (apDisplay.userData.updateLayout) apDisplay.userData.updateLayout();
     };
 
     const closeBtn = createButton('CLOSE', () => hideModal(), 0.6, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
