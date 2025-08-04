@@ -220,6 +220,29 @@ export function updateEffects3d(radius = 50){
         if(now > ef.endTime){ state.effects.splice(i,1); if(state.player.purchasedTalents.has('unstable-singularity')) state.effects.push({ type:'shockwave', caster: ef.caster, position: ef.position.clone(), radius:0, maxRadius:10, speed:30, startTime: now, hitEnemies:new Set(), damage:25*state.player.talent_modifiers.damage_multiplier }); }
         break;
       }
+      case 'shield_activation':{
+        if(!ef.mesh){
+          const geom = new THREE.SphereGeometry(state.player.r * 1.4, 16, 16);
+          const mat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.4 });
+          ef.mesh = new THREE.Mesh(geom, mat);
+          if(projectileGroup) projectileGroup.add(ef.mesh);
+        }
+        if(ef.mesh){
+          ef.mesh.position.copy(state.player.position);
+          const total = ef.endTime - ef.startTime;
+          const progress = total > 0 ? (now - ef.startTime) / total : 1;
+          ef.mesh.material.opacity = 0.4 * Math.max(0, 1 - progress);
+        }
+        if(now > ef.endTime || !state.player.shield){
+          if(ef.mesh){
+            if(projectileGroup) projectileGroup.remove(ef.mesh);
+            ef.mesh.geometry.dispose();
+            ef.mesh.material.dispose();
+          }
+          state.effects.splice(i,1);
+        }
+        break;
+      }
       case 'paradox_player_echo':{
         if(now - ef.startTime >= 1000){
           const prevDir = state.cursorDir.clone();

@@ -20,13 +20,14 @@ export const powers = {
           duration += talentRank * 1500;
       }
 
-      const shieldEndTime = Date.now() + duration;
+      const startTime = Date.now();
+      const shieldEndTime = startTime + duration;
       state.player.shield = true;
       state.player.shield_end_time = shieldEndTime;
       gameHelpers.addStatusEffect('Shield', '🛡️', duration);
-      
-      // Effect for visuals will be handled in a dedicated rendering loop
-      state.effects.push({ type: 'shield_activation', position: state.player.position.clone() });
+
+      // Queue a visual effect handled by updateEffects3d()
+      state.effects.push({ type: 'shield_activation', startTime, endTime: shieldEndTime });
 
       setTimeout(()=> {
           if(state.player.shield_end_time <= shieldEndTime){
