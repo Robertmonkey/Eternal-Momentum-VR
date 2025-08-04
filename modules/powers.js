@@ -291,31 +291,10 @@ export const offensivePowers = ['shockwave', 'missile', 'chain', 'orbitalStrike'
 export function usePower(powerKey, isFreeCast = false, options = {}){
   const power = powers[powerKey];
   if (!power) return;
-  
+
   const { play, addStatusEffect } = gameHelpers;
   const queueType = offensivePowers.includes(powerKey) ? 'offensive' : 'defensive';
-  let consumed = !isFreeCast;
 
-  if (consumed) {
-      let recycled = false;
-      if (state.player.purchasedTalents.has('energetic-recycling') && Math.random() < 0.20) {
-          recycled = true;
-      }
-      if (playerHasCore('singularity') && Math.random() < 0.15) {
-          recycled = true;
-      }
-      if (recycled) {
-          addStatusEffect('Recycled', '♻️', 2000);
-          consumed = false;
-      }
-  }
-
-  if (consumed) {
-      const inventory = queueType === 'offensive' ? state.offensiveInventory : state.defensiveInventory;
-      inventory.shift();
-      inventory.push(null);
-  }
-  
   const applyArgs = [options];
   
   if (queueType === 'offensive' && playerHasCore('temporal_paradox')) {
