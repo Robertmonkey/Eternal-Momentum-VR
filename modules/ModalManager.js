@@ -592,10 +592,17 @@ export function getModalByName(id) {
 }
 
 function createAscensionModal() {
-    const modal = createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT');
+    // Match the 2D game's cyan title and glow.
+    const modal = createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT', {
+        titleColor: '#00ffff',
+        titleShadowColor: '#00ffff',
+        titleShadowBlur: 10
+    });
     modal.name = 'modal_ascension';
+
+    // Center the talent grid and keep a referenceable name for tests.
     const grid = new THREE.Group();
-    grid.position.y = -0.1;
+    grid.name = 'ascension_grid';
     modal.add(grid);
 
     const lines = new THREE.Group();
@@ -618,7 +625,7 @@ function createAscensionModal() {
     }
 
     const apDisplay = createApDisplay();
-    apDisplay.position.set(0.55, 0.58, 0.01);
+    apDisplay.position.set(0.55, 0.55, 0.01);
     modal.add(apDisplay);
 
     // Divider lines to mirror the 2D modal's header and footer borders.
@@ -665,7 +672,12 @@ function createAscensionModal() {
                 if (key === 'color') return;
                 const t = con[key];
                 allTalents[key] = t;
-                positions[t.id] = new THREE.Vector3((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
+                // Scale the grid to the 16:9 aspect ratio of the 2D game.
+                positions[t.id] = new THREE.Vector3(
+                    (t.position.x / 50 - 1) * 0.8,
+                    (1 - t.position.y / 50) * 0.45,
+                    0.01
+                );
             });
         });
 
@@ -718,11 +730,11 @@ function createAscensionModal() {
                                 `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${displayCost}`
                             );
                             const basePos = positions[t.id];
-                            let offsetX = 0.25;
-                            if (basePos.x > 0.35) offsetX = -0.25;
-                            else if (basePos.x < -0.35) offsetX = 0.25;
-                            let offsetY = 0.15;
-                            if (basePos.y > 0.3) offsetY = -0.15;
+                            let offsetX = 0.3;
+                            if (basePos.x > 0.4) offsetX = -0.3;
+                            else if (basePos.x < -0.4) offsetX = 0.3;
+                            let offsetY = 0.12;
+                            if (basePos.y > 0.25) offsetY = -0.12;
                             tooltip.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
                             tooltip.visible = true;
                         } else if (tooltip) {
