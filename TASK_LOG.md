@@ -467,3 +467,7 @@ Verification: npm test – all suites pass.
 2025-10-28 – FR-07 – drawPlayer3d edge cases
 Summary: Expanded drawPlayer3d tests with negative and corner positions to ensure 3D projections map correctly to canvas coordinates.
 Verification: npm test – all suites pass.
+
+2025-10-29 – FR-05 – Temporal Paradox echo
+Summary: Added processing for `paradox_player_echo` effects so the Temporal Paradox core replays the last offensive power from the stored position after 1 s at half damage. Introduced unit test `paradoxEcho.test.js` verifying the replay and cursor restoration.
+Verification: npm test – all suites pass.

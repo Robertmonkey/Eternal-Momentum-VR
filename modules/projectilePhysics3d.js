@@ -5,6 +5,8 @@ import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
 import { getRenderer } from './scene.js';
 import { VR_PROJECTILE_SPEED_SCALE } from './config.js';
+import { usePower } from './powers.js';
+import { gameHelpers } from './gameHelpers.js';
 
 let projectileGroup = null;
 
@@ -216,6 +218,18 @@ export function updateEffects3d(radius = 50){
         const pullRadius = ef.maxRadius * progress;
         state.enemies.forEach(e=>{ if(!e.alive) return; const d = e.position.distanceTo(ef.position); if(d < pullRadius){ const pull = e.boss ? 0.02 : 0.05; e.position.add(ef.position.clone().sub(e.position).multiplyScalar(pull)); if(state.player.purchasedTalents.has('unstable-singularity') && d < ef.radius && now - (ef.lastDamage.get(e)||0) > ef.damageRate){ if(canDamage(ef.caster, e)){ e.takeDamage(ef.damage, ef.caster===state.player); } ef.lastDamage.set(e, now); } }});
         if(now > ef.endTime){ state.effects.splice(i,1); if(state.player.purchasedTalents.has('unstable-singularity')) state.effects.push({ type:'shockwave', caster: ef.caster, position: ef.position.clone(), radius:0, maxRadius:10, speed:30, startTime: now, hitEnemies:new Set(), damage:25*state.player.talent_modifiers.damage_multiplier }); }
+        break;
+      }
+      case 'paradox_player_echo':{
+        if(now - ef.startTime >= 1000){
+          const prevDir = state.cursorDir.clone();
+          state.cursorDir.copy(ef.cursorDir);
+          const origin = { position: ef.position.clone() };
+          usePower(ef.powerKey, true, { origin, damageModifier: 0.5 });
+          state.cursorDir.copy(prevDir);
+          gameHelpers.play && gameHelpers.play('mirrorSwap');
+          state.effects.splice(i,1);
+        }
         break;
       }
       case 'chain_lightning':{
