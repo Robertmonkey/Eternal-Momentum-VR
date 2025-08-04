@@ -28,17 +28,29 @@ export function clearPathObstacles(){
  */
 const DEFAULT_RADIUS = 50;
 
+// Clamp UV coordinates to keep enemies away from the poles where navigation
+// math becomes unstable.  This prevents enemies from drifting toward the top
+// or bottom of the sphere when their pathing data contains values at the
+// extremes of the v range [0,1].
+const UV_EPSILON = 0.002;
+function sanitizeUv({u, v}){
+  return {
+    u: (u % 1 + 1) % 1,
+    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, v))
+  };
+}
+
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
   const now = Date.now();
   const playerPos = state.player.position.clone();
-  const targetUv = spherePosToUv(playerPos, radius);
+  const targetUv = sanitizeUv(spherePosToUv(playerPos, radius));
   state.enemies.forEach(e => {
     if(e.frozenUntil && now > e.frozenUntil){
       e.frozen = false;
       e.frozenUntil = null;
     }
 
-    const startUv = spherePosToUv(e.position, radius);
+    const startUv = sanitizeUv(spherePosToUv(e.position, radius));
 
     // Recalculate the path when the player moves or after a timeout
     const moved = !e.lastPlayerUv ||
@@ -52,7 +64,7 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
       e.lastPlayerUv = { u: targetUv.u, v: targetUv.v };
     }
 
-    const nextUv = e.path[e.pathIndex] || targetUv;
+    const nextUv = sanitizeUv(e.path[e.pathIndex] || targetUv);
     const pos3d = e.position.clone();
     const target3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
 
