@@ -140,6 +140,7 @@ function createModalContainer(width, height, title, options = {}) {
         backgroundOpacity = 0.95,
         borderColor = 0x00ffff,
         borderOpacity = 0.5,
+        titleAlign = 'center'
     } = options;
 
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(backgroundColor, backgroundOpacity));
@@ -154,8 +155,15 @@ function createModalContainer(width, height, title, options = {}) {
     }
 
     if (title) {
-        const titleSprite = createTextSprite(title, 48, titleColor, 'center', titleShadowColor, titleShadowBlur);
-        titleSprite.position.set(0, height / 2 - 0.1, 0.01);
+        const titleSprite = createTextSprite(title, 48, titleColor, titleAlign, titleShadowColor, titleShadowBlur);
+        const margin = 0.1;
+        let x = 0;
+        if (titleAlign === 'left') {
+            x = -width / 2 + margin + titleSprite.scale.x / 2;
+        } else if (titleAlign === 'right') {
+            x = width / 2 - margin - titleSprite.scale.x / 2;
+        }
+        titleSprite.position.set(x, height / 2 - 0.1, 0.01);
         titleSprite.userData.isTitle = true; // Mark this as the title sprite
         group.add(titleSprite);
     }
@@ -592,11 +600,14 @@ export function getModalByName(id) {
 }
 
 function createAscensionModal() {
-    // Match the 2D game's cyan title and glow.
-    const modal = createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT', {
+    const width = 1.6;
+    const height = 1.4;
+    // Match the 2D game's cyan title, glow, and left-aligned header.
+    const modal = createModalContainer(width, height, 'ASCENSION CONDUIT', {
         titleColor: '#00ffff',
         titleShadowColor: '#00ffff',
-        titleShadowBlur: 10
+        titleShadowBlur: 10,
+        titleAlign: 'left'
     });
     modal.name = 'modal_ascension';
 
@@ -631,13 +642,14 @@ function createAscensionModal() {
         }
 
         group.add(bg, border, label, value);
-        group.userData = { value, updateLayout };
+        group.userData = { value, updateLayout, bgWidth };
         updateLayout();
         return group;
     }
 
     const apDisplay = createApDisplay();
-    apDisplay.position.set(0.55, 0.55, 0.01);
+    const headerY = height / 2 - 0.1;
+    apDisplay.position.set(width / 2 - apDisplay.userData.bgWidth / 2 - 0.1, headerY, 0.01);
     modal.add(apDisplay);
 
     // Divider lines to mirror the 2D modal's header and footer borders.
