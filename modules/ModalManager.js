@@ -695,15 +695,22 @@ function createAscensionModal() {
         grid.add(tooltip);
         const positions = {};
         const allTalents = {};
+        // The 2D game used a 16:9 talent grid nested inside the modal with
+        // small horizontal padding.  Mirror that exact layout so constellations
+        // line up with their original coordinates.
+        const gridWidth = 1.55; // matches header/footer divider width
+        const gridHeight = gridWidth * 9 / 16;
+        const halfW = gridWidth / 2;
+        const halfH = gridHeight / 2;
+
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
             Object.keys(con).forEach(key => {
                 if (key === 'color') return;
                 const t = con[key];
                 allTalents[key] = t;
-                // Scale the grid to the 16:9 aspect ratio of the 2D game.
                 positions[t.id] = new THREE.Vector3(
-                    (t.position.x / 50 - 1) * 0.8,
-                    (1 - t.position.y / 50) * 0.45,
+                    (t.position.x / 100) * gridWidth - halfW,
+                    halfH - (t.position.y / 100) * gridHeight,
                     0.01
                 );
             });
@@ -760,10 +767,12 @@ function createAscensionModal() {
                             );
                             const basePos = positions[t.id];
                             let offsetX = 0.3;
-                            if (basePos.x > 0.4) offsetX = -0.3;
-                            else if (basePos.x < -0.4) offsetX = 0.3;
+                            const xBoundary = halfW - 0.4;
+                            if (basePos.x > xBoundary) offsetX = -0.3;
+                            else if (basePos.x < -xBoundary) offsetX = 0.3;
                             let offsetY = 0.12;
-                            if (basePos.y > 0.25) offsetY = -0.12;
+                            const yBoundary = halfH - 0.2;
+                            if (basePos.y > yBoundary) offsetY = -0.12;
                             tooltip.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
                             tooltip.visible = true;
                         } else if (tooltip) {
