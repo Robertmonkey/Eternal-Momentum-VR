@@ -119,7 +119,13 @@ function createAbilitySlot(size, isMain = false) {
         new THREE.EdgesGeometry(geo),
         new THREE.LineBasicMaterial({ color: isMain ? 0xf000ff : 0x00ffff, transparent: true, opacity: 0.4 })
     );
-    const sprite = createTextSprite('', size * (isMain ? 1.2 : 1) * 20);
+    // The text sprite expects a pixel-based font size while the rest of the
+    // UI is laid out in world units. Previously we multiplied the slot size by
+    // only 20 which resulted in ~1px fonts and the power-up emojis were not
+    // visible. Scale the font size by 1000 (the inverse of the 0.001 world
+    // unit scale used in createTextSprite) so the emoji fills the hex slot
+    // appropriately.
+    const sprite = createTextSprite('', size * (isMain ? 1.2 : 1) * 1000);
     sprite.position.z = 0.001;
     group.add(mesh, border, sprite);
     return { group, sprite };
