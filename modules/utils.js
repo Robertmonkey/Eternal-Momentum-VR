@@ -324,6 +324,7 @@ export function rotateAroundNormal(dir, normal, angle){
  * @returns {number} Angle in radians representing the same arc on the sphere.
  */
 export function pixelsToArc(pixels, width = 2048){
+  if (!Number.isFinite(pixels) || !Number.isFinite(width) || width === 0) return 0;
   return (pixels / width) * 2 * Math.PI;
 }
 
@@ -335,8 +336,9 @@ export function pixelsToArc(pixels, width = 2048){
  * @param {Object} [options]
  */
 export function safeAddEventListener(el, type, handler, options){
-  if(!el) return;
-  el.addEventListener(type, handler, options);
+  if(!el || typeof el.addEventListener !== 'function') return;
+  if(typeof handler !== 'function') return;
+  el.addEventListener(type, handler, options || false);
 }
 
 /**
