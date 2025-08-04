@@ -596,10 +596,12 @@ function createAscensionModal() {
 
     function createApDisplay() {
         const group = new THREE.Group();
-        const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.15), holoMaterial(0x111122, 0.95));
-        const border = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.17), holoMaterial(0x00ffff, 0.5));
+        // Match the 2D game's semi-transparent header box and cyan border.
+        const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.15), holoMaterial(0x000000, 0.3));
+        const border = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.17), holoMaterial(0x00ffff, 0.4));
         border.position.z = -0.001;
-        const label = createTextSprite('ASCENSION POINTS', 24, '#ffffff');
+        // The label text uses a dimmer white to simulate 70% opacity.
+        const label = createTextSprite('ASCENSION POINTS', 24, '#cccccc');
         label.position.set(0, 0.035, 0.01);
         const value = createTextSprite(`${state.player.ascensionPoints}`, 32, '#00ffff');
         value.position.set(0, -0.045, 0.01);
@@ -611,6 +613,17 @@ function createAscensionModal() {
     const apDisplay = createApDisplay();
     apDisplay.position.set(0.55, 0.58, 0.01);
     modal.add(apDisplay);
+
+    // Divider lines to mirror the 2D modal's header and footer borders.
+    const headerDivider = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.01), holoMaterial(0x00ffff, 0.4));
+    headerDivider.position.set(0, 0.45, 0.02);
+    headerDivider.name = 'ascension_header_divider';
+    modal.add(headerDivider);
+
+    const footerDivider = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.01), holoMaterial(0x00ffff, 0.4));
+    footerDivider.position.set(0, -0.45, 0.02);
+    footerDivider.name = 'ascension_footer_divider';
+    modal.add(footerDivider);
 
     let tooltip;
     function createTalentTooltip() {
@@ -752,7 +765,7 @@ function createAscensionModal() {
         updateTextSprite(apDisplay.userData.value, `${state.player.ascensionPoints}`);
     };
 
-    const closeBtn = createButton('CLOSE', () => hideModal(), 0.6, 0.1, 0xf000ff);
+    const closeBtn = createButton('CLOSE', () => hideModal(), 0.6, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
     closeBtn.position.set(0.45, -0.6, 0.01);
     modal.add(closeBtn);
 
@@ -765,7 +778,7 @@ function createAscensionModal() {
                 window.location.reload();
             }
         );
-    }, 0.6, 0.1, 0xe74c3c);
+    }, 0.6, 0.1, 0xe74c3c, 0xc0392b, 0xffffff);
     clearBtn.position.set(-0.45, -0.6, 0.01);
     modal.add(clearBtn);
 

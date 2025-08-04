@@ -36,6 +36,7 @@
     * [x] Recreate all menus from the 2D game in VR. — Completed
     * [x] Attach menus to the player's left hand. — Completed
     * [x] Ensure menu verbiage and layout are faithful to the original. — Completed
+    * [x] Refined Ascension Conduit menu with header/footer dividers and button colors matching the 2D game.
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
     * [x] Reworked stage list to use original stage configuration and match button colors.
