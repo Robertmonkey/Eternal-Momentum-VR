@@ -109,13 +109,20 @@ export function isPointInShadow(shadowCaster, point, sourceX, sourceY) {
 }
 
 export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
+  const u = ((x / 2048) - 0.5 + 1) % 1;
+  const v = y / 1024;
+  const center = uvToSpherePos(u, v, 1);
+  const basisA = new THREE.Vector3(center.z, 0, -center.x).normalize();
+  const basisB = new THREE.Vector3().crossVectors(center, basisA).normalize();
+  const speed = (spd / 2048) * 2 * Math.PI;
   for (let i = 0; i < n; i++) {
     const a = Math.random() * 2 * Math.PI;
+    const dir = basisA.clone().multiplyScalar(Math.cos(a))
+      .add(basisB.clone().multiplyScalar(Math.sin(a)))
+      .multiplyScalar(speed * (0.5 + Math.random() * 0.5));
     particles.push({
-      x,
-      y,
-      dx: Math.cos(a) * spd * (0.5 + Math.random() * 0.5),
-      dy: Math.sin(a) * spd * (0.5 + Math.random() * 0.5),
+      position: new THREE.Vector3().copy(center),
+      velocity: dir,
       r,
       color: c,
       life,
@@ -127,14 +134,14 @@ export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
 export function updateParticles(ctx, particles) {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
-    p.x += p.dx;
-    p.y += p.dy;
+    p.position.add(p.velocity);
     p.life--;
     ctx.globalAlpha = p.life / p.maxLife;
     ctx.fillStyle = p.color;
     ctx.beginPath();
     if (p.r > 0) {
-      ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
+      const { x, y } = toCanvasPos(p.position, ctx.canvas.width, ctx.canvas.height);
+      ctx.arc(x, y, p.r, 0, 2 * Math.PI);
       ctx.fill();
     }
     if (p.life <= 0) particles.splice(i, 1);
