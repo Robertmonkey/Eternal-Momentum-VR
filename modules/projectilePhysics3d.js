@@ -420,6 +420,47 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
         ef.beams.length = linkIndex+1;
         break;
       }
+      case 'repulsion_field':{
+        if(now > ef.endTime){
+          if(ef.mesh){
+            if(projectileGroup) projectileGroup.remove(ef.mesh);
+            ef.mesh.geometry.dispose();
+            ef.mesh.material.dispose();
+          }
+          state.effects.splice(i,1);
+          break;
+        }
+        if(!ef.mesh){
+          const geom = new THREE.SphereGeometry(ef.radius, 16, 16);
+          const mat = new THREE.MeshBasicMaterial({ color: ef.isOverloaded ? 0x00ffff : 0xffffff, transparent: true, opacity: 0.2, wireframe: true });
+          ef.mesh = new THREE.Mesh(geom, mat);
+          if(projectileGroup) projectileGroup.add(ef.mesh);
+        }
+        ef.position.copy(state.player.position);
+        if(ef.mesh){
+          ef.mesh.position.copy(ef.position);
+          const total = ef.endTime - ef.startTime;
+          const progress = total > 0 ? (ef.endTime - now) / total : 0;
+          let baseOpacity = 0.4 * Math.max(0, progress);
+          if(ef.isOverloaded && now < ef.startTime + 2000){
+            baseOpacity = 0.8 * Math.max(0, 1 - (now - ef.startTime)/2000);
+          }
+          ef.mesh.material.opacity = baseOpacity;
+        }
+        state.enemies.forEach(e=>{
+          if(e.isFriendly || !e.position) return;
+          const dist = e.position.distanceTo(ef.position);
+          if(dist < ef.radius + (e.r||0.5)){
+            const dir = e.position.clone().sub(ef.position).normalize();
+            if(ef.isOverloaded && now < ef.startTime + 2000 && !ef.hitEnemies.has(e)){
+              e.position.add(dir.clone().multiplyScalar(20));
+              ef.hitEnemies.add(e);
+            }
+            e.position.add(dir.multiplyScalar(5 * deltaFactor));
+          }
+        });
+        break;
+      }
       case 'small_freeze':{
         state.enemies.forEach(e => {
           if(!e.isFriendly && e.alive && !e.frozen && e.position.distanceTo(ef.position) < ef.radius){
