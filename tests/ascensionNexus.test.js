@@ -54,11 +54,12 @@ async function setup() {
         emissive: new THREE.Color(color),
         emissiveIntensity: 1,
         transparent: true,
-        opacity
+        opacity,
+        dispose: () => {}
       }),
       createTextSprite: () => {
         const obj = new THREE.Object3D();
-        obj.material = { color: new THREE.Color(0xffffff) };
+        obj.material = { color: new THREE.Color(0xffffff), dispose: () => {} };
         return obj;
       },
       updateTextSprite: () => {},
@@ -68,20 +69,48 @@ async function setup() {
     }
   });
 
-  const { initModals, showModal } = await import('../modules/ModalManager.js');
-  return { scene, initModals, showModal };
+  const { initModals, showModal, getModalObjects } = await import('../modules/ModalManager.js');
+  return { scene, initModals, showModal, getModalObjects };
 }
 
 test('nexus talents use green border color', async () => {
-  const { scene, initModals, showModal } = await setup();
+  const { initModals, showModal, getModalObjects } = await setup();
   initModals();
   showModal('ascension');
-  const modalGroup = scene.children[0];
-  const ascensionModal = modalGroup.children.find(c => c.name === 'modal_ascension');
+  const ascensionModal = getModalObjects().find(m => m.name === 'modal_ascension');
   assert.ok(ascensionModal);
   const grid = ascensionModal.children.find(c => c.position && c.position.y === -0.1);
   const nexusButton = grid.children.find(c => c.userData && c.userData.talentId === 'core-nexus');
   assert.ok(nexusButton, 'core nexus button should exist');
   const border = nexusButton.children[1];
   assert.equal(border.material.color.getHex(), 0x00ff00);
+});
+
+test('ascension modal buttons mirror 2D colors', async () => {
+  const { initModals, showModal, getModalObjects } = await setup();
+  initModals();
+  showModal('ascension');
+  const ascensionModal = getModalObjects().find(m => m.name === 'modal_ascension');
+  assert.ok(ascensionModal);
+
+  const closeBtn = ascensionModal.children.find(c => c.name === 'button_CLOSE');
+  assert.ok(closeBtn, 'close button should exist');
+  const closeBg = closeBtn.children[0];
+  const closeText = closeBtn.children[2];
+  assert.equal(closeBg.material.color.getHex(), 0xf000ff);
+  assert.equal(closeText.material.color.getHex(), 0xffffff);
+
+  const clearBtn = ascensionModal.children.find(c => c.name === 'button_ERASE_TIMELINE');
+  assert.ok(clearBtn, 'clear button should exist');
+  const clearBg = clearBtn.children[0];
+  const clearText = clearBtn.children[2];
+  assert.equal(clearBg.material.color.getHex(), 0xc0392b);
+  assert.equal(clearText.material.color.getHex(), 0xffffff);
+
+  const headerLine = ascensionModal.children.find(c => c.name === 'ascension_header_divider');
+  const footerLine = ascensionModal.children.find(c => c.name === 'ascension_footer_divider');
+  assert.ok(headerLine);
+  assert.ok(footerLine);
+  assert.equal(headerLine.material.color.getHex(), 0x00ffff);
+  assert.equal(footerLine.material.color.getHex(), 0x00ffff);
 });
