@@ -42,6 +42,7 @@
     * [x] Aligned Ascension Point header with side-by-side label and value to match the 2D layout.
     * [x] Left-aligned Ascension Conduit title and right-aligned AP display to mirror the original menu.
     * [x] Restored AP header styling and hover sound cues to match the 2D Ascension interface.
+    * [x] Auto-sized AP header container so its background grows with the value like the 2D menu.
     * [x] Realigned talent nodes and connector lines so constellations mirror the 2D arrangement exactly.
     * [x] Switched talent nodes to circular buttons and mirrored 2D click responses.
     * [x] Updated controller menu Ascension button to use original 'Ascension Conduit' wording with auto-sized background.
