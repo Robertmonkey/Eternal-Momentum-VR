@@ -6,9 +6,14 @@
     * Refined spherical movement calculations to avoid pole drift on antipodal targets.
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
-    * [ ] Ensure all other power-ups are functional.
+    * [x] Ensure all other power-ups are functional.
         * [x] Chain lightning power adapted with 3D beam effect.
         * [x] Heal and black hole powers render 3D effects.
+        * [x] Repulsion field pushes enemies away.
+        * [x] Orbital strike targets enemies and creates shockwaves.
+        * [x] Ricochet shot bounces and damages foes.
+        * [x] Bullet nova spawns damaging spiral shots.
+        * [x] Berserk applies damage boost status.
     * [x] Implement correct power-up controls for VR controllers. — Completed
     * [x] Fix bug preventing power-ups from being collected. — Completed
 
