@@ -65,16 +65,19 @@ export const powers = {
 
       const controller = getPrimaryController();
       const startPos = new THREE.Vector3();
-      if(controller){
+      const aimDir = new THREE.Vector3();
+
+      if (controller) {
           controller.getWorldPosition(startPos);
+          controller.getWorldDirection(aimDir);
           // Offset forward so the fireball spawns at the pointer tip
-          const dir = new THREE.Vector3();
-          controller.getWorldDirection(dir);
-          startPos.add(dir.multiplyScalar(0.1));
+          startPos.add(aimDir.clone().multiplyScalar(0.1));
       } else {
           startPos.copy(origin.position);
+          aimDir.copy(state.cursorDir);
       }
-      const targetPos = state.cursorDir.clone().multiplyScalar(ARENA_RADIUS);
+
+      const targetPos = aimDir.clone().multiplyScalar(ARENA_RADIUS);
       const velocity = targetPos.clone().sub(startPos).normalize().multiplyScalar(VR_PROJECTILE_SPEED_SCALE);
 
       state.effects.push({
