@@ -3,7 +3,7 @@ import { state } from './state.js';
 import * as utils from './utils.js';
 import * as Cores from './cores.js';
 import { gameHelpers } from './gameHelpers.js';
-import { playerHasCore } from './helpers.js';
+import { playerHasCore, applyPlayerHeal } from './helpers.js';
 import { getPrimaryController } from './scene.js';
 import { VR_PROJECTILE_SPEED_SCALE } from './config.js';
 
@@ -41,7 +41,7 @@ export const powers = {
     }
   },
   heal:{emoji:"❤️",desc:"+30 HP",apply:()=>{
-      state.player.health=Math.min(state.player.maxHealth,state.player.health+30);
+      applyPlayerHeal(30);
       gameHelpers.play('pickupSound');
       const now = Date.now();
       state.effects.push({ type: 'heal_sparkle', position: state.player.position.clone(), startTime: now, endTime: now + 800 });

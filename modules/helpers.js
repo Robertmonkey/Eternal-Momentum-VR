@@ -102,6 +102,31 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
 }
 
 /**
+ * Clamp a numeric value between a minimum and maximum.
+ *
+ * @param {number} value - The input number to clamp.
+ * @param {number} min - Minimum allowed value.
+ * @param {number} max - Maximum allowed value.
+ * @returns {number} The clamped value.
+ */
+export function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+/**
+ * Heal the player by a given amount while respecting max health.
+ * Negative values are allowed and will reduce health.
+ *
+ * @param {number} amount - Amount of health to restore.
+ * @returns {number} The player's updated health.
+ */
+export function applyPlayerHeal(amount) {
+  const newHealth = clamp(state.player.health + amount, 0, state.player.maxHealth);
+  state.player.health = newHealth;
+  return newHealth;
+}
+
+/**
  * Insert line breaks so no line exceeds a maximum length.
  * Existing line breaks are preserved.
  * @param {string} text - Input text to wrap.

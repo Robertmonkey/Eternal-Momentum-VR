@@ -5,6 +5,7 @@ import { gameHelpers } from './gameHelpers.js';
 import * as CoreManager from './CoreManager.js';
 import { createTextSprite } from './UIManager.js';
 import { getScene, getCamera } from './scene.js';
+import { applyPlayerHeal } from './helpers.js';
 
 const ARENA_RADIUS = 50; // Should match arena radius in scene.js
 
@@ -79,7 +80,7 @@ export function updatePickups3d(radius = ARENA_RADIUS){
                 continue;
             }
             if(state.player.purchasedTalents.has('essence-weaving')){
-                state.player.health = Math.min(state.player.maxHealth, state.player.health + state.player.maxHealth * 0.02);
+                applyPlayerHeal(state.player.maxHealth * 0.02);
             }
             CoreManager.onPickup();
             if(p.customApply){

@@ -4,7 +4,7 @@ import * as utils from './utils.js';
 import { bossData } from './bosses.js';
 import { showUnlockNotification } from './UIManager.js';
 import { usePower } from './powers.js';
-import { playerHasCore } from './helpers.js';
+import { playerHasCore, applyPlayerHeal } from './helpers.js';
 import { gameHelpers } from './gameHelpers.js';
 
 const ARENA_RADIUS = 50;
@@ -131,7 +131,7 @@ export function applyCoreTickEffects() {
     // Vampire passive regen
     if (playerHasCore('vampire') && now - state.player.talent_states.phaseMomentum.lastDamageTime > 5000) {
         if (state.player.health < state.player.maxHealth) {
-            state.player.health = Math.min(state.player.maxHealth, state.player.health + (0.02 * state.player.maxHealth / 60)); // Heal per frame
+            applyPlayerHeal(0.02 * state.player.maxHealth / 60); // Heal per frame
         }
     }
 
@@ -332,7 +332,7 @@ export function handleCoreOnDamageDealt(target) {
             lifeEnd: Date.now() + 8000,
             isSeeking: true,
             customApply: () => {
-                state.player.health = Math.min(state.player.maxHealth, state.player.health + (state.player.maxHealth * 0.20));
+                applyPlayerHeal(state.player.maxHealth * 0.20);
                 gameHelpers.play('vampireHeal');
             },
         });
