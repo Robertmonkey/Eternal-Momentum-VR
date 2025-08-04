@@ -10,6 +10,7 @@ import * as CoreManager from './CoreManager.js';
  * @returns {boolean} True if the core is active
  */
 export function playerHasCore(coreId){
+  if (!coreId) return false;
   if (state.player.equippedAberrationCore === coreId) return true;
   return state.player.activePantheonBuffs.some(buff => buff.coreId === coreId);
 }
@@ -22,6 +23,9 @@ export function playerHasCore(coreId){
  */
 export function getCanvasPos(obj){
   if (!obj) return { x: 0, y: 0 };
+  if (obj.isVector3) {
+    return toCanvasPos(obj);
+  }
   if (obj.position && obj.position.isVector3){
     return toCanvasPos(obj.position);
   }
@@ -44,8 +48,10 @@ export function getCanvasPos(obj){
 export function setPositionFromCanvas(target, x, y, width = 2048, height = 1024){
   width = width > 0 ? width : 1;
   height = height > 0 ? height : 1;
-  const u = ((x / width) - 0.5 + 1) % 1;
-  const v = y / height;
+  const clampedX = Math.min(width, Math.max(0, x));
+  const clampedY = Math.min(height, Math.max(0, y));
+  const u = ((clampedX / width) - 0.5 + 1) % 1;
+  const v = clampedY / height;
   const vec = uvToSpherePos(u, v, 1);
   if (target && target.isVector3){
     return target.copy(vec);

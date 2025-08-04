@@ -54,3 +54,4 @@
 * [x] Updated vampire core effects to use `applyPlayerHeal` for life-steal.
 * [x] Added unit tests for `clamp` and `applyPlayerHeal`.
 * [x] Centralized power-up inventory management in `PowerManager` for reliability.
+* [x] Hardened projectile pooling and coordinate helpers to reset reused objects and validate inputs.
