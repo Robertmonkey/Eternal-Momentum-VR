@@ -21,10 +21,13 @@ export function playerHasCore(coreId){
  * @returns {{x:number,y:number}}
  */
 export function getCanvasPos(obj){
+  if (!obj) return { x: 0, y: 0 };
   if (obj.position && obj.position.isVector3){
     return toCanvasPos(obj.position);
   }
-  return { x: obj.x, y: obj.y };
+  const x = Number.isFinite(obj.x) ? obj.x : 0;
+  const y = Number.isFinite(obj.y) ? obj.y : 0;
+  return { x, y };
 }
 
 /**
@@ -39,13 +42,15 @@ export function getCanvasPos(obj){
  * @returns {THREE.Vector3} Updated position vector.
  */
 export function setPositionFromCanvas(target, x, y, width = 2048, height = 1024){
+  width = width > 0 ? width : 1;
+  height = height > 0 ? height : 1;
   const u = ((x / width) - 0.5 + 1) % 1;
   const v = y / height;
   const vec = uvToSpherePos(u, v, 1);
-  if (target.isVector3){
+  if (target && target.isVector3){
     return target.copy(vec);
   }
-  if (target.position && target.position.isVector3){
+  if (target && target.position && target.position.isVector3){
     target.position.copy(vec);
     return target.position;
   }
@@ -110,6 +115,7 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
  * @returns {number} The clamped value.
  */
 export function clamp(value, min, max) {
+  if (min > max) [min, max] = [max, min];
   return Math.min(max, Math.max(min, value));
 }
 
@@ -134,23 +140,29 @@ export function applyPlayerHeal(amount) {
  * @returns {string} Wrapped text.
  */
 export function wrapText(text, maxLen = 60) {
-  return String(text)
-    .split('\n')
-    .map(line => {
-      const words = line.split(' ');
-      let result = '';
-      let current = '';
-      words.forEach(word => {
-        if ((current + word).length > maxLen) {
+  const lines = String(text).split('\n');
+  return lines.map(line => {
+    const words = line.split(' ');
+    let result = '';
+    let current = '';
+    words.forEach(word => {
+      const wordPart = word.length > maxLen ? word.match(new RegExp(`.{1,${maxLen}}`, 'g')) : [word];
+      wordPart.forEach((part, idx) => {
+        if ((current + part).length > maxLen) {
           result += current.trimEnd() + '\n';
           current = '';
         }
-        current += word + ' ';
+        current += part;
+        if (idx < wordPart.length - 1) {
+          result += current + '\n';
+          current = '';
+        } else {
+          current += ' ';
+        }
       });
-      return result + current.trimEnd();
-    })
-    .join('\n')
-    .trim();
+    });
+    return result + current.trimEnd();
+  }).join('\n').trim();
 }
 
 /**
