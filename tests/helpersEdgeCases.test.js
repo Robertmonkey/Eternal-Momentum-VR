@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../vendor/three.module.js';
 
-const { getCanvasPos, setPositionFromCanvas, playerHasCore } = await import('../modules/helpers.js');
+const { getCanvasPos, setPositionFromCanvas, playerHasCore, wrapText } = await import('../modules/helpers.js');
 const { spherePosToUv } = await import('../modules/utils.js');
 const { state } = await import('../modules/state.js');
 
@@ -26,4 +26,8 @@ test('playerHasCore returns false for falsy ids', () => {
   state.player.equippedAberrationCore = null;
   state.player.activePantheonBuffs = [];
   assert.equal(playerHasCore(null), false);
+});
+
+test('wrapText returns input when maxLen is non-positive', () => {
+  assert.equal(wrapText('hello world', 0), 'hello world');
 });

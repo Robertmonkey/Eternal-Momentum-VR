@@ -165,7 +165,8 @@ export function applyScreenShake(ctx) {
 export function drawLightning(ctx, x1, y1, x2, y2, color, width = 2) {
   ctx.save();
   ctx.strokeStyle = color;
-  ctx.lineWidth = Math.random() * width + 1;
+  const w = Number.isFinite(width) ? Math.max(0, width) : 0;
+  ctx.lineWidth = Math.random() * w + 1;
   ctx.globalAlpha = Math.random() * 0.5 + 0.5;
   ctx.beginPath();
   ctx.moveTo(x1, y1);
@@ -188,19 +189,27 @@ export function drawLightning(ctx, x1, y1, x2, y2, color, width = 2) {
 }
 
 export function randomInRange(min, max) {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return NaN;
+  if (min > max) [min, max] = [max, min];
+  if (min === max) return min;
   return Math.random() * (max - min) + min;
 }
 
 export function lineCircleCollision(x1, y1, x2, y2, cx, cy, r) {
+  if (r <= 0) return false;
+  r = Math.max(0, r);
   const len = Math.hypot(x2 - x1, y2 - y1);
   if (len === 0) return Math.hypot(cx - x1, cy - y1) <= r; // Handle case where line is a point
   const dot = (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / Math.pow(len, 2);
   const closestX = x1 + dot * (x2 - x1);
   const closestY = y1 + dot * (y2 - y1);
   const onSegment = () => {
-    const d1 = Math.hypot(closestX - x1, closestY - y1);
-    const d2 = Math.hypot(closestX - x2, closestY - y2);
-    return d1 + d2 >= len - 0.1 && d1 + d2 <= len + 0.1;
+    return (
+      closestX >= Math.min(x1, x2) - 1e-6 &&
+      closestX <= Math.max(x1, x2) + 1e-6 &&
+      closestY >= Math.min(y1, y2) - 1e-6 &&
+      closestY <= Math.max(y1, y2) + 1e-6
+    );
   };
   if (!onSegment()) {
     const dist1 = Math.hypot(cx - x1, cy - y1);
@@ -336,9 +345,10 @@ export function pixelsToArc(pixels, width = 2048){
  * @param {Object} [options]
  */
 export function safeAddEventListener(el, type, handler, options){
-  if(!el || typeof el.addEventListener !== 'function') return;
-  if(typeof handler !== 'function') return;
-  el.addEventListener(type, handler, options || false);
+  if(!el || typeof el.addEventListener !== 'function') return false;
+  if(typeof handler !== 'function') return false;
+  el.addEventListener(type, handler, options ?? false);
+  return true;
 }
 
 /**
