@@ -15,7 +15,7 @@
     * [ ] Implement animations for all bosses, enemies, and power-ups.
     * [ ] Create a swirling cube animation for the "glitch" enemy.
     * [ ] Ensure all animations are interpolated for VR.
-* [ ] **Sizing:** Increase the size of the player, bosses, and enemies by 30%.
+* [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
 ## UI
 

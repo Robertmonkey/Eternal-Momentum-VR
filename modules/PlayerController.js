@@ -9,6 +9,7 @@ import { getModalObjects } from './ModalManager.js';
 import { getControllerMenuObjects } from './ControllerMenu.js';
 import { gameHelpers } from './gameHelpers.js';
 import { AssetManager } from './AssetManager.js';
+import { MODEL_SCALE } from './config.js';
 
 let avatar;
 let targetPoint = new THREE.Vector3();
@@ -78,7 +79,7 @@ export async function initPlayerController() {
     const radius = arena.geometry.parameters.radius;
     
     avatar = new THREE.Mesh(
-        new THREE.SphereGeometry(0.5, 16, 16),
+        new THREE.SphereGeometry(0.5 * MODEL_SCALE, 16, 16),
         new THREE.MeshStandardMaterial({ color: 0x3498db, emissive: 0x3498db })
     );
     avatar.name = 'playerAvatar';
