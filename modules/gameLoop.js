@@ -277,12 +277,6 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         enemy.boss = false;
         enemy.isFriendly = false;
         enemy.r = 0.3; // base radius before global scaling
-        enemy.update = function(delta) {
-            if (!this.alive) return;
-            const direction = state.player.position.clone().sub(this.position).normalize();
-            this.position.add(direction.multiplyScalar(this.speed * delta));
-            this.position.normalize().multiplyScalar(ARENA_RADIUS);
-        };
     } else {
         console.error(`AI Class for boss ID "${bossId}" not found!`);
         return null;

@@ -24,6 +24,7 @@ export function clearPathObstacles(){
  * @param {number} radius - Sphere radius.
  * @param {number} width  - Legacy canvas width.
  * @param {number} height - Legacy canvas height.
+ * @param {number} deltaMs - Time since last frame in milliseconds.
  */
 const DEFAULT_RADIUS = 50;
 
@@ -39,13 +40,17 @@ function sanitizeUv({u, v}){
   };
 }
 
-export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
+export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs = 16){
   const now = Date.now();
+  const deltaFactor = deltaMs / 16;
   // Sanitize the player's position to keep the target away from the poles.
   const playerUv = sanitizeUv(spherePosToUv(state.player.position, radius));
   state.player.position.copy(uvToSpherePos(playerUv.u, playerUv.v, radius));
 
   state.enemies.forEach(e => {
+    if (typeof e.update === 'function') {
+      e.update(deltaMs);
+    }
     if(e.frozenUntil && now > e.frozenUntil){
       e.frozen = false;
       e.frozenUntil = null;
@@ -58,10 +63,10 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
     const pos3d = e.position.clone();
     const target3d = state.player.position.clone();
 
-    if(!e.frozen){
+    if(!e.customMovement && !e.frozen){
       const dir = getSphericalDirection(pos3d, target3d);
       const dist = pos3d.distanceTo(target3d);
-      pos3d.add(dir.multiplyScalar(dist * 0.015 * (e.speed || 1)));
+      pos3d.add(dir.multiplyScalar(dist * 0.015 * (e.speed || 1) * deltaFactor));
       pos3d.normalize().multiplyScalar(radius);
       e.lookAt(pos3d.clone().add(dir));
     }
