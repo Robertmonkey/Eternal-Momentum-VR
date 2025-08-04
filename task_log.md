@@ -28,7 +28,7 @@
     * [x] Recreate all menus from the 2D game in VR. — Completed
     * [x] Attach menus to the player's left hand. — Completed
     * [x] Ensure menu verbiage and layout are faithful to the original. — Completed
-    * [ ] Restore backgrounds and fix scaling issues. — In Progress
+    * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
 

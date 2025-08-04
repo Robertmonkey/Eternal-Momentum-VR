@@ -21,16 +21,27 @@ function createButton(label, icon, onSelect) {
     bg.material.map = tex;
     bg.material.needsUpdate = true;
   }
-  bg.userData.onSelect = onSelect;
-  group.add(bg);
+  const border = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.09), holoMaterial(0x00ffff, 0.5));
+  border.position.z = -0.001;
+  group.add(bg, border);
 
   const iconSprite = createTextSprite(icon, 32);
   iconSprite.position.set(-0.09, 0, 0.01);
-  group.add(iconSprite);
-
   const textSprite = createTextSprite(label, 24);
   textSprite.position.set(0.04, 0, 0.01);
-  group.add(textSprite);
+  group.add(iconSprite, textSprite);
+
+  const setHover = hovered => {
+    const intensity = hovered ? 1.5 : 1;
+    bg.material.emissiveIntensity = intensity;
+    border.material.emissiveIntensity = intensity;
+    group.scale.setScalar(hovered ? 1.05 : 1);
+  };
+
+  [bg, border, iconSprite, textSprite].forEach(obj => {
+    obj.userData.onSelect = onSelect;
+    obj.userData.onHover = setHover;
+  });
 
   return group;
 }
@@ -88,5 +99,11 @@ export function updateControllerMenu() {
 export function getControllerMenuObjects() {
   // Return all interactable meshes from the buttons
   if (!menuGroup) return [];
-  return menuGroup.children.map(buttonGroup => buttonGroup.children[0]);
+  const objects = [];
+  menuGroup.children.forEach(buttonGroup => {
+    buttonGroup.children.forEach(child => {
+      if (child.userData && child.userData.onSelect) objects.push(child);
+    });
+  });
+  return objects;
 }
