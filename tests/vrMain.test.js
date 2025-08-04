@@ -84,14 +84,16 @@ async function setupLaunch() {
 
 test('desktop fallback displays HUD without XR button', async (t) => {
   mock.reset();
-  global.navigator = {};
+  Object.defineProperty(global, 'navigator', { value: {}, writable: true, configurable: true });
   const { launchVR, showHud, bodyAppend, createButton } = await setupLaunch();
+
+  const setNavigator = (val) => Object.defineProperty(global, 'navigator', { value: val, writable: true, configurable: true });
 
   await t.test('when navigator.xr is missing', async () => {
     showHud.mock.resetCalls();
     bodyAppend.mock.resetCalls();
     createButton.mock.resetCalls();
-    global.navigator = {};
+    setNavigator({});
     await launchVR();
     assert.equal(showHud.mock.calls.length, 1);
     assert.equal(bodyAppend.mock.calls.length, 0);
@@ -102,7 +104,7 @@ test('desktop fallback displays HUD without XR button', async (t) => {
     showHud.mock.resetCalls();
     bodyAppend.mock.resetCalls();
     createButton.mock.resetCalls();
-    global.navigator = { xr: { isSessionSupported: async () => false } };
+    setNavigator({ xr: { isSessionSupported: async () => false } });
     await launchVR();
     assert.equal(showHud.mock.calls.length, 1);
     assert.equal(bodyAppend.mock.calls.length, 0);
