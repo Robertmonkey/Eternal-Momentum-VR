@@ -7,7 +7,6 @@
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
 import { getSphericalDirection } from './movement3d.js';
-import { findPath, buildNavMesh } from './navmesh.js';
 
 export function addPathObstacle(u,v,radius=0.1){
   state.pathObstacles.push({u,v,radius});
@@ -42,10 +41,9 @@ function sanitizeUv({u, v}){
 
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
   const now = Date.now();
-  // Sanitize the player's position so pathfinding never targets the poles.
+  // Sanitize the player's position to keep the target away from the poles.
   const playerUv = sanitizeUv(spherePosToUv(state.player.position, radius));
   state.player.position.copy(uvToSpherePos(playerUv.u, playerUv.v, radius));
-  const targetUv = playerUv;
 
   state.enemies.forEach(e => {
     if(e.frozenUntil && now > e.frozenUntil){
@@ -57,21 +55,8 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
     const startUv = sanitizeUv(spherePosToUv(e.position, radius));
     e.position.copy(uvToSpherePos(startUv.u, startUv.v, radius));
 
-    // Recalculate the path when the player moves or after a timeout
-    const moved = !e.lastPlayerUv ||
-      Math.abs(e.lastPlayerUv.u - targetUv.u) > 0.002 ||
-      Math.abs(e.lastPlayerUv.v - targetUv.v) > 0.002;
-    if(moved || !e.path || !e.path.length || e.pathIndex >= e.path.length ||
-       (e.lastPathCalc && Date.now()-e.lastPathCalc>500)){
-      e.path = findPath(startUv, targetUv);
-      e.pathIndex = 1;
-      e.lastPathCalc = Date.now();
-      e.lastPlayerUv = { u: targetUv.u, v: targetUv.v };
-    }
-
-    const nextUv = sanitizeUv(e.path[e.pathIndex] || targetUv);
     const pos3d = e.position.clone();
-    const target3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
+    const target3d = state.player.position.clone();
 
     if(!e.frozen){
       const dir = getSphericalDirection(pos3d, target3d);
@@ -79,11 +64,6 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
       pos3d.add(dir.multiplyScalar(dist * 0.015 * (e.speed || 1)));
       pos3d.normalize().multiplyScalar(radius);
       e.lookAt(pos3d.clone().add(dir));
-      // Advance along the path when close to the next waypoint
-      const dest3d = uvToSpherePos(nextUv.u, nextUv.v, radius);
-      if(pos3d.distanceTo(dest3d) < 0.05*radius){
-        e.pathIndex++;
-      }
     }
 
     e.position.copy(pos3d);
