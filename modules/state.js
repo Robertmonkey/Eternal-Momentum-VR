@@ -1,6 +1,8 @@
 import * as THREE from '../vendor/three.module.js';
 import { LEVELING_CONFIG, MODEL_SCALE } from './config.js';
 
+const ARENA_RADIUS = 50; // Should match arena radius in scene.js
+
 // The central state object. All game logic reads from and writes to this.
 export const state = {
     // Player and input state
@@ -132,7 +134,7 @@ export function resetGame(bossData) { // Now accepts bossData to avoid circular 
         }
     }
 
-    state.player.position.set(0, 0, 0);
+    state.player.position.set(0, 0, ARENA_RADIUS);
     state.player.health = state.player.maxHealth;
     state.player.statusEffects = [];
     state.player.activePantheonBuffs = [];
