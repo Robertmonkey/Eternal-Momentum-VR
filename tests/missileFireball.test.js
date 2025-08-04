@@ -37,7 +37,8 @@ test('missile launches fireball that explodes on target', () => {
   state.offensiveInventory = ['missile', null, null];
 
   state.player.position.set(0, 0, 50);
-  state.cursorDir.set(0, 0, -1);
+  // Intentionally misalign cursor direction; controller orientation should be used
+  state.cursorDir.set(1, 0, 0);
 
   const enemy = {
     position: new THREE.Vector3(0, 0, -50),

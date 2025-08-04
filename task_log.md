@@ -4,7 +4,7 @@
 
 * [ ] **Enemy and Boss Tracking:** Fix the bug causing enemies to move towards the poles.
 * [ ] **Power-up Functionality:**
-    * [ ] Fix the missile power-up.
+    * [x] Fix the missile power-up. — Completed
     * [ ] Ensure all other power-ups are functional.
     * [ ] Implement correct power-up controls for VR controllers.
 
