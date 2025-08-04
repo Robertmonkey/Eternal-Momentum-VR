@@ -29,11 +29,11 @@ function ensureGroup() {
     }
 }
 
-function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ffff, bgColor = 0x111122, textColor) {
+function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ffff, bgColor = 0x111122, textColor, bgOpacity = 0.8) {
     const group = new THREE.Group();
     group.name = `button_${label.replace(/\s+/g, '_')}`;
 
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(bgColor, 0.8));
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(bgColor, bgOpacity));
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
 
@@ -65,15 +65,29 @@ function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ff
 
 function createModalContainer(width, height, title, options = {}) {
     const group = new THREE.Group();
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x1e1e2f, 0.95));
+
+    const {
+        titleColor = '#eaf2ff',
+        titleShadowColor = null,
+        titleShadowBlur = 0,
+        backgroundColor = 0x1e1e2f,
+        backgroundOpacity = 0.95,
+        borderColor = 0x00ffff,
+        borderOpacity = 0.5,
+    } = options;
+
+    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(backgroundColor, backgroundOpacity));
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
-    const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(0x00ffff, 0.5));
-    border.position.z = -0.001;
-    group.add(bg, border);
+    group.add(bg);
+
+    if (borderOpacity > 0) {
+        const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(borderColor, borderOpacity));
+        border.position.z = -0.001;
+        group.add(border);
+    }
 
     if (title) {
-        const { titleColor = '#eaf2ff', titleShadowColor = null, titleShadowBlur = 0 } = options;
         const titleSprite = createTextSprite(title, 48, titleColor, 'center', titleShadowColor, titleShadowBlur);
         titleSprite.position.set(0, height / 2 - 0.1, 0.01);
         titleSprite.userData.isTitle = true; // Mark this as the title sprite
@@ -685,7 +699,10 @@ function createGameOverModal() {
     const modal = createModalContainer(1.4, 1.0, 'TIMELINE COLLAPSED', {
         titleColor: '#e74c3c',
         titleShadowColor: '#e74c3c',
-        titleShadowBlur: 15
+        titleShadowBlur: 15,
+        backgroundColor: 0x000000,
+        backgroundOpacity: 0.8,
+        borderOpacity: 0
     });
     modal.name = 'modal_gameOver';
 
@@ -700,28 +717,28 @@ function createGameOverModal() {
         // sure the primary controller is re-evaluated after a restart.
         refreshPrimaryController();
         hideModal();
-    }, btnWidth, 0.1, 0x00ffff);
+    }, btnWidth, 0.1, 0x00ffff, 0x00ffff, 0xffffff, 0.2);
     restartBtn.position.set(startX, y, 0.01);
     modal.add(restartBtn);
 
     const ascBtn = createButton('Ascension Conduit', () => {
         hideModal();
         showModal('ascension');
-    }, btnWidth, 0.1, 0xff8800);
+    }, btnWidth, 0.1, 0xff8800, 0xff8800, 0xffffff, 0.2);
     ascBtn.position.set(startX + (btnWidth + gap), y, 0.01);
     modal.add(ascBtn);
 
     const coreBtn = createButton('Aberration Cores', () => {
         hideModal();
         showModal('cores');
-    }, btnWidth, 0.1, 0x00ff00);
+    }, btnWidth, 0.1, 0x00ff00, 0x00ff00, 0xffffff, 0.2);
     coreBtn.position.set(startX + 2 * (btnWidth + gap), y, 0.01);
     modal.add(coreBtn);
 
     const stageBtn = createButton('Stage Select', () => {
         hideModal();
         showModal('levelSelect');
-    }, btnWidth, 0.1, 0x9b59b6);
+    }, btnWidth, 0.1, 0x9b59b6, 0x9b59b6, 0xffffff, 0.2);
     stageBtn.position.set(startX + 3 * (btnWidth + gap), y, 0.01);
     modal.add(stageBtn);
 
