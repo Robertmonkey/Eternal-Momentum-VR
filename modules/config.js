@@ -97,3 +97,8 @@ export const STAGE_CONFIG = [
 // Scale factor applied to all enemy projectile velocities. Can be tweaked for
 // comfort as the VR movement speed is refined.
 export const VR_PROJECTILE_SPEED_SCALE = 0.85;
+
+// Global scale factor for 3D models. Increasing this value uniformly sizes
+// the player avatar and all spawned enemies to better match the intended VR
+// proportions compared to the legacy 2D game.
+export const MODEL_SCALE = 1.3;

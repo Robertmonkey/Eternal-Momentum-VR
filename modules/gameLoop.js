@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three.module.js';
 import { state, savePlayerState } from './state.js';
-import { LEVELING_CONFIG, THEMATIC_UNLOCKS, SPAWN_WEIGHTS, STAGE_CONFIG } from './config.js';
+import { LEVELING_CONFIG, THEMATIC_UNLOCKS, SPAWN_WEIGHTS, STAGE_CONFIG, MODEL_SCALE } from './config.js';
 import { powers } from './powers.js';
 import { bossData } from './bosses.js';
 import { showUnlockNotification, showBossBanner, updateHud } from './UIManager.js';
@@ -210,6 +210,8 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             const partnerA = new AethelUmbraAI('Aethel');
             partnerA.boss = true;
             partnerA.position.copy(getSafeSpawnLocation());
+            partnerA.scale.multiplyScalar(MODEL_SCALE);
+            partnerA.r = (partnerA.r || 1) * MODEL_SCALE;
             state.enemies.push(partnerA);
             scene.add(partnerA);
 
@@ -218,6 +220,8 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             partnerA.partner = partnerB;
             partnerB.partner = partnerA;
             partnerB.position.copy(getSafeSpawnLocation());
+            partnerB.scale.multiplyScalar(MODEL_SCALE);
+            partnerB.r = (partnerB.r || 1) * MODEL_SCALE;
             state.enemies.push(partnerB);
             scene.add(partnerB);
             return partnerA;
@@ -226,6 +230,8 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             const sentinelA = new SentinelPairAI();
             sentinelA.boss = true;
             sentinelA.position.copy(getSafeSpawnLocation());
+            sentinelA.scale.multiplyScalar(MODEL_SCALE);
+            sentinelA.r = (sentinelA.r || 1) * MODEL_SCALE;
             state.enemies.push(sentinelA);
             scene.add(sentinelA);
 
@@ -234,6 +240,8 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             sentinelB.position.copy(getSafeSpawnLocation());
             sentinelA.partner = sentinelB;
             sentinelB.partner = sentinelA;
+            sentinelB.scale.multiplyScalar(MODEL_SCALE);
+            sentinelB.r = (sentinelB.r || 1) * MODEL_SCALE;
             state.enemies.push(sentinelB);
             scene.add(sentinelB);
             return sentinelA;
@@ -241,12 +249,16 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         if (bossId === 'obelisk') {
             const obelisk = new ObeliskAI();
             obelisk.boss = true;
+            obelisk.scale.multiplyScalar(MODEL_SCALE);
+            obelisk.r = (obelisk.r || 1) * MODEL_SCALE;
             state.enemies.push(obelisk);
             scene.add(obelisk); // Add Obelisk to scene
             const conduitTypes = [{ type: 'gravity', color: 0x9b59b6 }, { type: 'explosion', color: 0xe74c3c }, { type: 'lightning', color: 0xf1c40f }];
             for(let i = 0; i < 3; i++) {
                 const conduit = new ObeliskConduitAI(obelisk, conduitTypes[i].type, conduitTypes[i].color, (i / 3) * Math.PI * 2);
                 conduit.boss = true;
+                conduit.scale.multiplyScalar(MODEL_SCALE);
+                conduit.r = (conduit.r || 1) * MODEL_SCALE;
                 state.enemies.push(conduit);
                 scene.add(conduit); // Add EACH conduit to scene
             }
@@ -264,6 +276,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         enemy.speed = 2.0;
         enemy.boss = false;
         enemy.isFriendly = false;
+        enemy.r = 0.3; // base radius before global scaling
         enemy.update = function(delta) {
             if (!this.alive) return;
             const direction = state.player.position.clone().sub(this.position).normalize();
@@ -287,6 +300,13 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
     }
 
     enemy.position.copy(spawnPos);
+    // Uniformly scale enemy models and their collision radii
+    enemy.scale.multiplyScalar(MODEL_SCALE);
+    if (enemy.r !== undefined) {
+        enemy.r *= MODEL_SCALE;
+    } else {
+        enemy.r = MODEL_SCALE;
+    }
     state.enemies.push(enemy);
     scene.add(enemy); // ** THE CRITICAL FIX: Add the enemy's 3D object to the scene **
     return enemy;

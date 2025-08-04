@@ -1,12 +1,12 @@
 import * as THREE from '../vendor/three.module.js';
-import { LEVELING_CONFIG } from './config.js';
+import { LEVELING_CONFIG, MODEL_SCALE } from './config.js';
 
 // The central state object. All game logic reads from and writes to this.
 export const state = {
     // Player and input state
     player: {
         position: new THREE.Vector3(0, 1.6, 0), // Player's 3D position
-        r: 0.5, // Player's 3D radius
+        r: 0.5 * MODEL_SCALE, // Player's 3D radius
         speed: 1.0,
         baseMaxHealth: 100,
         maxHealth: 100,
