@@ -6,7 +6,7 @@
 
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
-import { getSphericalDirection } from './movement3d.js';
+import { getSphericalDirection, sanitizeUv, moveTowards } from './movement3d.js';
 
 export function addPathObstacle(u,v,radius=0.1){
   state.pathObstacles.push({u,v,radius});
@@ -32,17 +32,8 @@ const DEFAULT_RADIUS = 50;
 // math becomes unstable.  This prevents enemies from drifting toward the top
 // or bottom of the sphere when their pathing data contains values at the
 // extremes of the v range [0,1].
-const UV_EPSILON = 0.002;
-function sanitizeUv({u, v}){
-  return {
-    u: (u % 1 + 1) % 1,
-    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, v))
-  };
-}
-
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs = 16){
   const now = Date.now();
-  const deltaFactor = deltaMs / 16;
   // Sanitize the player's position to keep the target away from the poles.
   const playerUv = sanitizeUv(spherePosToUv(state.player.position, radius));
   state.player.position.copy(uvToSpherePos(playerUv.u, playerUv.v, radius));
@@ -60,18 +51,13 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
     const startUv = sanitizeUv(spherePosToUv(e.position, radius));
     e.position.copy(uvToSpherePos(startUv.u, startUv.v, radius));
 
-    const pos3d = e.position.clone();
     const target3d = state.player.position.clone();
 
     if(!e.customMovement && !e.frozen){
-      const dir = getSphericalDirection(pos3d, target3d);
-      const dist = pos3d.distanceTo(target3d);
-      pos3d.add(dir.multiplyScalar(dist * 0.015 * (e.speed || 1) * deltaFactor));
-      pos3d.normalize().multiplyScalar(radius);
-      e.lookAt(pos3d.clone().add(dir));
+      moveTowards(e.position, target3d, e.speed || 1, radius, deltaMs);
+      const faceDir = getSphericalDirection(e.position, target3d);
+      e.lookAt(e.position.clone().add(faceDir));
     }
-
-    e.position.copy(pos3d);
   });
 
   const fields = state.effects.filter(f => f.type === 'repulsion_field');

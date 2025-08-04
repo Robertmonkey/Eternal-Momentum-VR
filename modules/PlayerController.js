@@ -37,6 +37,7 @@ let gripJustPressed = false;
 const tempMatrix = new THREE.Matrix4();
 let hoveredUi = null;
 const assetManager = new AssetManager();
+let lastUpdateTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
 function onSelectStart() {
     if (!triggerDown) triggerJustPressed = true;
@@ -201,7 +202,10 @@ export function updatePlayerController() {
 
     if (!state.isPaused && state.player.stunnedUntil < Date.now()) {
         const speedMult = state.player.talent_states.phaseMomentum.active ? 1.1 : 1.0;
-        moveTowards(avatar.position, targetPoint, state.player.speed * speedMult, radius);
+        const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+        const delta = now - lastUpdateTime;
+        lastUpdateTime = now;
+        moveTowards(avatar.position, targetPoint, state.player.speed * speedMult, radius, delta);
         state.player.position.copy(avatar.position);
     }
     
