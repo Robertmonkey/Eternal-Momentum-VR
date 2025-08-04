@@ -376,6 +376,8 @@ function createStageSelectModal() {
                 const b = bossData.find(x => x.id === id);
                 return b ? b.name : 'Unknown';
             }).join(' & ');
+            const stageInfo = STAGE_CONFIG.find(s => s.stage === i);
+            const stageLabel = stageInfo?.displayName || bossNames;
 
             const startStage = () => {
                 state.currentStage = i;
@@ -392,7 +394,7 @@ function createStageSelectModal() {
 
             const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
             stageText.position.set(-0.43, 0.02, 0.01);
-            const bossText = createTextSprite(bossNames, 24, '#eaf2ff', 'left');
+            const bossText = createTextSprite(stageLabel, 24, '#eaf2ff', 'left');
             bossText.material.opacity = 0.8;
             bossText.position.set(-0.43, -0.04, 0.01);
             enableTextScroll(bossText, 0.6);
@@ -413,21 +415,26 @@ function createStageSelectModal() {
 
             row.add(stageText, bossText);
 
-            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xffffff, 0.2, 'circle');
-            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6, 0x9b59b6, 0xffffff, 0.2, 'circle');
-            mechBtn.children[1].material.opacity = 0.8;
-            loreBtn.children[1].material.opacity = 0.8;
-            const setupInfoBtnHover = (btn) => {
+            const createInfoButton = (icon, color, label, onClick) => {
+                const btn = createButton(icon, onClick, 0.12, 0.12, color, color, 0xffffff, 0.2, 'circle');
                 const btnBg = btn.children[0];
+                const btnBorder = btn.children[1];
+                btnBorder.material.opacity = 0.8;
+                const tip = createTextSprite(label, 20, '#ffffff', 'center');
+                tip.position.set(0, 0.1, 0.02);
+                tip.visible = false;
+                btn.add(tip);
                 btn.userData.onHover = hovered => {
                     btnBg.material.opacity = hovered ? 0.4 : 0.2;
+                    tip.visible = hovered;
                     handleHover(hovered);
                 };
+                return btn;
             };
+            const mechBtn = createInfoButton('❔', 0xf1c40f, 'Mechanics', () => showBossInfo(bossIds, 'mechanics'));
+            const loreBtn = createInfoButton('ℹ️', 0x9b59b6, 'Lore', () => showBossInfo(bossIds, 'lore'));
             mechBtn.position.set(0.23, 0, 0.01);
             loreBtn.position.set(0.37, 0, 0.01);
-            setupInfoBtnHover(mechBtn);
-            setupInfoBtnHover(loreBtn);
             row.add(mechBtn, loreBtn);
 
             row.position.y = 0.4 - (i - 1) * 0.15;
