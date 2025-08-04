@@ -243,10 +243,30 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
         break;
       }
       case 'black_hole':{
+        if(!ef.mesh){
+          const geom = new THREE.SphereGeometry(1, 16, 16);
+          const mat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+          ef.mesh = new THREE.Mesh(geom, mat);
+          if(projectileGroup) projectileGroup.add(ef.mesh);
+        }
+        if(ef.mesh){
+          ef.mesh.position.copy(ef.position);
+          const scale = 0.5 + Math.min(1, (now - ef.startTime) / ef.duration);
+          ef.mesh.scale.setScalar(scale);
+        }
+
         const progress = Math.min(1, (now - ef.startTime) / ef.duration);
         const pullRadius = ef.maxRadius * progress;
         state.enemies.forEach(e=>{ if(!e.alive) return; const d = e.position.distanceTo(ef.position); if(d < pullRadius){ let pull = e.boss ? 0.02 : 0.05; pull *= deltaFactor; e.position.add(ef.position.clone().sub(e.position).multiplyScalar(pull)); if(state.player.purchasedTalents.has('unstable-singularity') && d < ef.radius && now - (ef.lastDamage.get(e)||0) > ef.damageRate){ if(canDamage(ef.caster, e)){ e.takeDamage(ef.damage, ef.caster===state.player); } ef.lastDamage.set(e, now); } }});
-        if(now > ef.endTime){ state.effects.splice(i,1); if(state.player.purchasedTalents.has('unstable-singularity')) state.effects.push({ type:'shockwave', caster: ef.caster, position: ef.position.clone(), radius:0, maxRadius:10, speed:30, startTime: now, hitEnemies:new Set(), damage:25*state.player.talent_modifiers.damage_multiplier }); }
+        if(now > ef.endTime){
+          if(ef.mesh){
+            if(projectileGroup) projectileGroup.remove(ef.mesh);
+            ef.mesh.geometry.dispose();
+            ef.mesh.material.dispose();
+          }
+          state.effects.splice(i,1);
+          if(state.player.purchasedTalents.has('unstable-singularity')) state.effects.push({ type:'shockwave', caster: ef.caster, position: ef.position.clone(), radius:0, maxRadius:10, speed:30, startTime: now, hitEnemies:new Set(), damage:25*state.player.talent_modifiers.damage_multiplier });
+        }
         break;
       }
       case 'syphon_cone':{
@@ -280,6 +300,30 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
                 p.isSeeking = true;
               }
             });
+          }
+          state.effects.splice(i,1);
+        }
+        break;
+      }
+      case 'heal_sparkle':{
+        if(!ef.mesh){
+          const geom = new THREE.SphereGeometry(0.3, 8, 8);
+          const mat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.8 });
+          ef.mesh = new THREE.Mesh(geom, mat);
+          if(projectileGroup) projectileGroup.add(ef.mesh);
+        }
+        if(ef.mesh){
+          ef.mesh.position.copy(ef.position);
+          const total = ef.endTime - ef.startTime;
+          const progress = total > 0 ? (now - ef.startTime) / total : 1;
+          ef.mesh.scale.setScalar(1 + progress);
+          ef.mesh.material.opacity = 0.8 * Math.max(0, 1 - progress);
+        }
+        if(now > ef.endTime){
+          if(ef.mesh){
+            if(projectileGroup) projectileGroup.remove(ef.mesh);
+            ef.mesh.geometry.dispose();
+            ef.mesh.material.dispose();
           }
           state.effects.splice(i,1);
         }

@@ -11,6 +11,16 @@ import { gameHelpers } from './gameHelpers.js';
 import { AssetManager } from './AssetManager.js';
 import { MODEL_SCALE } from './config.js';
 
+if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyQ') {
+            useOffensivePower();
+        } else if (e.code === 'KeyE') {
+            useDefensivePower();
+        }
+    });
+}
+
 let avatar;
 let targetPoint = new THREE.Vector3();
 let raycaster;

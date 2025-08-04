@@ -6,7 +6,7 @@ This project is a VR interpretation of the 2D game "Eternal Momentum." The core 
 
 ### Core Gameplay Concept
 
-The player stands on a circular neon grid, fighting off waves of enemies and bosses. The player's left hand has a menu attached for quick access to game functions. The right hand acts as a pointer, similar to the mouse in the 2D version, to navigate and interact with the game world projected on a massive sphere surrounding the player. The trigger and grip buttons on the VR controller will be used for primary and secondary power-ups.
+The player stands on a circular neon grid, fighting off waves of enemies and bosses. The player's left hand has a menu attached for quick access to game functions. The right hand acts as a pointer, similar to the mouse in the 2D version, to navigate and interact with the game world projected on a massive sphere surrounding the player. The trigger and grip buttons on the VR controller will be used for primary and secondary power-ups. For desktop testing without VR controllers, the **Q** key triggers the offensive power and **E** triggers the defensive power.
 
 ### Key Features to Preserve from 2D Original
 

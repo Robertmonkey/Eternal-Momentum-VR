@@ -43,6 +43,8 @@ export const powers = {
   heal:{emoji:"❤️",desc:"+30 HP",apply:()=>{
       state.player.health=Math.min(state.player.maxHealth,state.player.health+30);
       gameHelpers.play('pickupSound');
+      const now = Date.now();
+      state.effects.push({ type: 'heal_sparkle', position: state.player.position.clone(), startTime: now, endTime: now + 800 });
   }},
   shockwave:{emoji:"💥",desc:"Expanding wave damages enemies.",apply:(options = {})=>{
       const { damageModifier = 1.0, origin = state.player } = options;
