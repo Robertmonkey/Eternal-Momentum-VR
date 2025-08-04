@@ -63,7 +63,7 @@ function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ff
     return group;
 }
 
-function createModalContainer(width, height, title) {
+function createModalContainer(width, height, title, options = {}) {
     const group = new THREE.Group();
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x1e1e2f, 0.95));
     const tex = getBgTexture();
@@ -73,7 +73,8 @@ function createModalContainer(width, height, title) {
     group.add(bg, border);
 
     if (title) {
-        const titleSprite = createTextSprite(title, 48);
+        const { titleColor = '#eaf2ff', titleShadowColor = null, titleShadowBlur = 0 } = options;
+        const titleSprite = createTextSprite(title, 48, titleColor, 'center', titleShadowColor, titleShadowBlur);
         titleSprite.position.set(0, height / 2 - 0.1, 0.01);
         titleSprite.userData.isTitle = true; // Mark this as the title sprite
         group.add(titleSprite);
@@ -681,7 +682,11 @@ function createBossInfoModal() {
 function createGameOverModal() {
     // Mirror the horizontal layout of the 2D game's game over menu by making
     // the container wider and arranging the buttons in a single row.
-    const modal = createModalContainer(1.4, 1.0, 'TIMELINE COLLAPSED');
+    const modal = createModalContainer(1.4, 1.0, 'TIMELINE COLLAPSED', {
+        titleColor: '#e74c3c',
+        titleShadowColor: '#e74c3c',
+        titleShadowBlur: 15
+    });
     modal.name = 'modal_gameOver';
 
     const btnWidth = 0.3;

@@ -39,7 +39,7 @@ export function holoMaterial(color = 0x1e1e2f, opacity = 0.85) {
   });
 }
 
-export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'center') {
+export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'center', shadowColor = null, shadowBlur = 0) {
     const lines = String(text).split('\n');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -50,6 +50,13 @@ export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'ce
     canvas.width = Math.max(1, width);
     canvas.height = size * 1.2 * lines.length;
     ctx.font = `${size}px ${fontStack}`;
+    if (shadowColor) {
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = shadowBlur;
+    } else {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+    }
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
     ctx.textAlign = align;
@@ -68,7 +75,7 @@ export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'ce
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
     const scale = 0.001;
     mesh.scale.set(canvas.width * scale, canvas.height * scale, 1);
-    mesh.userData = { text, canvas, ctx, font: `${size}px ${fontStack}`, color, size, align };
+    mesh.userData = { text, canvas, ctx, font: `${size}px ${fontStack}`, color, size, align, shadowColor, shadowBlur };
     return mesh;
 }
 
@@ -76,7 +83,7 @@ export function updateTextSprite(sprite, newText) {
     if (!sprite || !sprite.userData || sprite.userData.text === newText) return; // Don't update if text is the same
 
     sprite.userData.text = newText;
-    const { ctx, canvas, font, color, size, align } = sprite.userData;
+    const { ctx, canvas, font, color, size, align, shadowColor, shadowBlur } = sprite.userData;
     if (!ctx || !canvas) return;
     ctx.font = font;
     const lines = String(newText).split('\n');
@@ -86,6 +93,13 @@ export function updateTextSprite(sprite, newText) {
     canvas.height = size * 1.2 * lines.length;
     ctx.font = font;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (shadowColor) {
+        ctx.shadowColor = shadowColor;
+        ctx.shadowBlur = shadowBlur;
+    } else {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+    }
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
     ctx.textAlign = align;
