@@ -39,6 +39,7 @@
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
     * [x] Reworked stage list to use original stage configuration and match button colors.
+    * [x] Matched text alignment, long-name scrolling, and initial scroll position to the 2D stage menu.
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
 
