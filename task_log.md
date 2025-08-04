@@ -53,3 +53,4 @@
 * [x] Applied centralized healing to the `essence-weaving` talent in `pickupPhysics3d`.
 * [x] Updated vampire core effects to use `applyPlayerHeal` for life-steal.
 * [x] Added unit tests for `clamp` and `applyPlayerHeal`.
+* [x] Centralized power-up inventory management in `PowerManager` for reliability.

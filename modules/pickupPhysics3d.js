@@ -1,8 +1,9 @@
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
-import { offensivePowers, powers, usePower } from './powers.js';
+import { powers } from './powers.js';
 import { gameHelpers } from './gameHelpers.js';
 import * as CoreManager from './CoreManager.js';
+import { addPowerToInventory } from './PowerManager.js';
 import { createTextSprite } from './UIManager.js';
 import { getScene, getCamera } from './scene.js';
 import { applyPlayerHeal } from './helpers.js';
@@ -86,17 +87,7 @@ export function updatePickups3d(radius = ARENA_RADIUS){
             if(p.customApply){
                 p.customApply();
             }else{
-                const isOff = offensivePowers.includes(p.type);
-                const inv = isOff ? state.offensiveInventory : state.defensiveInventory;
-                const maxSlots = isOff ? state.player.unlockedOffensiveSlots : state.player.unlockedDefensiveSlots;
-                const idx = inv.indexOf(null);
-                if(idx !== -1 && idx < maxSlots){
-                    inv[idx] = p.type;
-                    if(gameHelpers.updateHud) gameHelpers.updateHud();
-                }else if(state.player.purchasedTalents.has('overload-protocol')){
-                    gameHelpers.addStatusEffect('Auto-Used', powers[p.type]?.emoji || '?', 2000);
-                    usePower(p.type, true);
-                }
+                addPowerToInventory(p.type);
             }
             removeMesh(p);
             state.pickups.splice(i,1);
