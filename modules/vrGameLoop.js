@@ -24,6 +24,7 @@ function updatePhaseMomentum() {
 
 let lastSpawnTime = 0;
 let lastPowerUpTime = 0;
+let lastFrameTime = null;
 
 function handleLevelProgression() {
     const now = Date.now();
@@ -99,7 +100,12 @@ function handlePlayerEnemyCollisions() {
     });
 }
 
-export function vrGameLoop() {
+export function vrGameLoop(timestamp) {
+    if (timestamp === undefined) timestamp = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    if (lastFrameTime === null) lastFrameTime = timestamp;
+    const delta = timestamp - lastFrameTime;
+    lastFrameTime = timestamp;
+
     if (state.gameOver) return;
     if (state.activeModalId) return;
 
@@ -109,15 +115,15 @@ export function vrGameLoop() {
     updatePhaseMomentum();
 
     updateEnemies3d();
-    updateEffects3d();
-    updateProjectiles3d();
+    updateEffects3d(undefined, delta);
+    updateProjectiles3d(undefined, undefined, undefined, delta);
     updatePickups3d();
     handlePlayerEnemyCollisions();
 
     if (state.bossActive) {
         handleBossDefeat();
     }
-    
+
     CoreManager.applyCorePassives(gameHelpers);
 
     if (state.player.health <= 0) {
