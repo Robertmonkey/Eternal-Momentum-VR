@@ -42,15 +42,20 @@ function sanitizeUv({u, v}){
 
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height){
   const now = Date.now();
-  const playerPos = state.player.position.clone();
-  const targetUv = sanitizeUv(spherePosToUv(playerPos, radius));
+  // Sanitize the player's position so pathfinding never targets the poles.
+  const playerUv = sanitizeUv(spherePosToUv(state.player.position, radius));
+  state.player.position.copy(uvToSpherePos(playerUv.u, playerUv.v, radius));
+  const targetUv = playerUv;
+
   state.enemies.forEach(e => {
     if(e.frozenUntil && now > e.frozenUntil){
       e.frozen = false;
       e.frozenUntil = null;
     }
 
+    // Snap enemies to a safe latitude to prevent gradual drift toward the poles.
     const startUv = sanitizeUv(spherePosToUv(e.position, radius));
+    e.position.copy(uvToSpherePos(startUv.u, startUv.v, radius));
 
     // Recalculate the path when the player moves or after a timeout
     const moved = !e.lastPlayerUv ||
