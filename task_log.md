@@ -8,7 +8,8 @@
     * [x] Fix the missile power-up. — Completed
     * [ ] Ensure all other power-ups are functional.
         * [x] Chain lightning power adapted with 3D beam effect.
-    * [ ] Implement correct power-up controls for VR controllers.
+        * [x] Heal and black hole powers render 3D effects.
+    * [x] Implement correct power-up controls for VR controllers. — Completed
     * [x] Fix bug preventing power-ups from being collected. — Completed
 
 ## 3D Assets and Animations
@@ -18,6 +19,7 @@
     * [ ] Implement animations for all bosses, enemies, and power-ups. — In Progress
         * [x] Enabled delta-based enemy AI updates to support animations.
         * [x] Added expanding sphere visual for the `shockwave` power-up.
+        * [x] Added heal sparkle and black hole visuals.
     * [x] Create a swirling cube animation for the "glitch" enemy. — Completed
     * [ ] Ensure all animations are interpolated for VR. — In Progress (projectiles, effects, and enemy AI use delta timing)
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
