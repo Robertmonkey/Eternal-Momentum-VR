@@ -11,6 +11,46 @@ import { gameHelpers } from './gameHelpers.js';
 import { disposeGroupChildren, wrapText } from './helpers.js';
 import { STAGE_CONFIG } from './config.js';
 
+const RAF = typeof requestAnimationFrame === 'function'
+  ? requestAnimationFrame
+  : (fn) => setTimeout(() => fn(Date.now()), 16);
+const CAF = typeof cancelAnimationFrame === 'function'
+  ? cancelAnimationFrame
+  : (id) => clearTimeout(id);
+
+function enableTextScroll(sprite, visibleWidth, duration = 10000) {
+  const fullWidth = sprite.scale.x;
+  const overflow = fullWidth - visibleWidth;
+  if (overflow <= 0) return;
+  const baseX = sprite.position.x;
+  let start = 0;
+  let frameId;
+
+  function step(now) {
+    if (!sprite.userData.scrollActive) return;
+    if (!start) start = now;
+    const t = ((now - start) % duration) / duration;
+    sprite.position.x = baseX - t * overflow;
+    frameId = RAF(step);
+  }
+
+  sprite.userData.scrollStart = () => {
+    if (sprite.userData.scrollActive) return;
+    sprite.userData.scrollActive = true;
+    start = 0;
+    frameId = RAF(step);
+  };
+
+  sprite.userData.scrollStop = () => {
+    sprite.userData.scrollActive = false;
+    sprite.position.x = baseX;
+    if (frameId) {
+      CAF(frameId);
+      frameId = null;
+    }
+  };
+}
+
 let modalGroup;
 const modals = {};
 let confirmCallback;
@@ -113,8 +153,9 @@ function createModalContainer(width, height, title, options = {}) {
  * @param {number} options.viewHeight - Visible height of the list.
  * @param {number} options.topOffset - Y offset of the first item.
  * @param {number} options.x - X position for the scrollbar components.
+ * @param {('top'|'bottom')} [options.startAt='top'] - Initial scroll position.
  */
-function addScrollBar(modal, list, { itemHeight, viewHeight, topOffset, x }) {
+function addScrollBar(modal, list, { itemHeight, viewHeight, topOffset, x, startAt = 'top' }) {
     if (modal.userData.scrollGroup) {
         modal.remove(modal.userData.scrollGroup);
         modal.userData.scrollGroup = null;
@@ -157,6 +198,7 @@ function addScrollBar(modal, list, { itemHeight, viewHeight, topOffset, x }) {
 
     let offset = 0;
     const maxOffset = totalHeight - viewHeight;
+    if (startAt === 'bottom') offset = maxOffset;
 
     function update() {
         items.forEach((child, i) => {
@@ -318,24 +360,25 @@ function createStageSelectModal() {
             const border = row.children[1];
             if (row.children[2]) row.children[2].visible = false; // hide default label
 
-            const setHover = hovered => {
+            const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
+            stageText.position.set(-0.42, 0.02, 0.01);
+            const bossText = createTextSprite(bossNames, 24, '#eaf2ff', 'left');
+            bossText.position.set(-0.42, -0.04, 0.01);
+            enableTextScroll(bossText, 0.6);
+
+            const handleHover = hovered => {
                 bg.material.opacity = hovered ? 0.2 : 0.1;
                 border.material.color.setHex(hovered ? 0xffffff : 0x00ffff);
+                if (bossText.userData.scrollStart) {
+                    hovered ? bossText.userData.scrollStart() : bossText.userData.scrollStop();
+                }
             };
 
-            [bg, border].forEach(obj => {
+            [bg, border, stageText, bossText].forEach(obj => {
                 obj.userData.onSelect = startStage;
-                obj.userData.onHover = setHover;
+                obj.userData.onHover = handleHover;
             });
 
-            const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff');
-            stageText.position.set(-0.35, 0.02, 0.01);
-            const bossText = createTextSprite(bossNames, 24, '#eaf2ff');
-            bossText.position.set(-0.35, -0.04, 0.01);
-            [stageText, bossText].forEach(obj => {
-                obj.userData.onSelect = startStage;
-                obj.userData.onHover = setHover;
-            });
             row.add(stageText, bossText);
 
             const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xf1c40f, 0.2);
@@ -347,7 +390,7 @@ function createStageSelectModal() {
             row.position.y = 0.4 - (i - 1) * 0.15;
             listContainer.add(row);
         }
-        addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: 0.55 });
+        addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: 0.55, startAt: 'bottom' });
     };
 
     return modal;
@@ -464,7 +507,11 @@ export function showModal(id) {
 
 export function hideModal() {
     if (state.activeModalId && modals[state.activeModalId]) {
-        modals[state.activeModalId].visible = false;
+        const modal = modals[state.activeModalId];
+        modal.traverse(obj => {
+            if (obj.userData && obj.userData.scrollStop) obj.userData.scrollStop();
+        });
+        modal.visible = false;
         state.activeModalId = null;
         resetInputFlags();
         AudioManager.playSfx('uiModalClose');
