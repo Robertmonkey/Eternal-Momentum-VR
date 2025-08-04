@@ -12,8 +12,8 @@
 
 * [ ] **3D Models and Animations:**
     * [ ] Create 3D spherical models for all bosses and enemies.
-    * [ ] Implement animations for all bosses, enemies, and power-ups.
-    * [ ] Create a swirling cube animation for the "glitch" enemy.
+    * [ ] Implement animations for all bosses, enemies, and power-ups. — In Progress
+    * [x] Create a swirling cube animation for the "glitch" enemy. — Completed
     * [ ] Ensure all animations are interpolated for VR.
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
