@@ -7,14 +7,26 @@ const ARENA_RADIUS = 50;
 
 export class GlitchAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    // Use a wireframe material to give it a digital/glitchy look
+    // Create a group of small cubes that will swirl to form the glitch
     const material = new THREE.MeshStandardMaterial({
-        color: 0xfd79a8,
-        emissive: 0xfd79a8,
-        wireframe: true
+      color: 0xfd79a8,
+      emissive: 0xfd79a8,
+      wireframe: true
     });
-    super({ model: new THREE.Mesh(geometry, material) });
+
+    const cubeGroup = new THREE.Group();
+    const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const cubeCount = 6;
+    const radius = 2;
+    for (let i = 0; i < cubeCount; i++) {
+      const cube = new THREE.Mesh(cubeGeometry, material);
+      const angle = (i / cubeCount) * Math.PI * 2;
+      cube.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+      cubeGroup.add(cube);
+    }
+
+    super({ model: cubeGroup });
+    this.cubeGroup = cubeGroup;
 
     const bossData = { id: "glitch", name: "The Glitch", maxHP: 336 };
     this.kind = bossData.id;
@@ -28,6 +40,12 @@ export class GlitchAI extends BaseAgent {
   update(delta) {
     if (!this.alive) return;
     const now = Date.now();
+
+    // Animate the swirling cubes for a constant glitchy motion
+    const rot = delta * 0.001;
+    this.cubeGroup.rotation.x += rot * 1.2;
+    this.cubeGroup.rotation.y += rot * 1.5;
+    this.cubeGroup.rotation.z += rot;
 
     if (now - this.lastTeleportTime > 3000) {
       this.lastTeleportTime = now;
