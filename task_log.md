@@ -6,6 +6,7 @@
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
     * [ ] Ensure all other power-ups are functional.
+        * [x] Chain lightning power adapted with 3D beam effect.
     * [ ] Implement correct power-up controls for VR controllers.
 
 ## 3D Assets and Animations

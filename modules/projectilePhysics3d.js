@@ -293,10 +293,37 @@ export function updateEffects3d(radius = 50){
       }
       case 'chain_lightning':{
         const linkIndex = Math.floor((now - ef.startTime)/(ef.durationPerLink||80));
-        if(linkIndex >= ef.targets.length){ state.effects.splice(i,1); break; }
+        if(linkIndex >= ef.targets.length){
+          if(ef.beams){
+            ef.beams.forEach(b=>{
+              if(projectileGroup) projectileGroup.remove(b);
+              b.geometry.dispose();
+              b.material.dispose();
+            });
+          }
+          state.effects.splice(i,1);
+          break;
+        }
+
+        if(!ef.beams) ef.beams = [];
+        const fromOrigin = ef.caster && ef.caster.position ? ef.caster.position : state.player.position;
         for(let j=0;j<=linkIndex;j++){
+          const from = (j===0 ? fromOrigin : ef.targets[j-1].position);
           const to = ef.targets[j];
           if(!to || !to.alive) continue;
+
+          let beam = ef.beams[j];
+          const points = [from.clone(), to.position.clone()];
+          if(!beam){
+            const geom = new THREE.BufferGeometry().setFromPoints(points);
+            const mat = new THREE.LineBasicMaterial({ color: 0x99ccff, transparent: true, opacity: 0.8 });
+            beam = new THREE.Line(geom, mat);
+            if(projectileGroup) projectileGroup.add(beam);
+            ef.beams[j] = beam;
+          } else {
+            beam.geometry.setFromPoints(points);
+          }
+
           if(!ef.links) ef.links = new Set();
           if(!ef.links.has(to)){
             if(canDamage(ef.caster, to)){
@@ -308,6 +335,16 @@ export function updateEffects3d(radius = 50){
             }
           }
         }
+
+        for(let j = linkIndex+1; j < ef.beams.length; j++){
+          const beam = ef.beams[j];
+          if(beam){
+            if(projectileGroup) projectileGroup.remove(beam);
+            beam.geometry.dispose();
+            beam.material.dispose();
+          }
+        }
+        ef.beams.length = linkIndex+1;
         break;
       }
       case 'small_freeze':{
