@@ -23,8 +23,8 @@
     * [ ] Recreate all menus from the 2D game in VR.
     * [ ] Attach menus to the player's left hand.
     * [ ] Ensure menu verbiage and layout are faithful to the original.
-* [ ] **HUD:**
-    * [ ] Fix the bug preventing power-up emojis from displaying in the inventory.
+* [x] **HUD:**
+    * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
 
 ## Final Polish
 
