@@ -741,14 +741,26 @@ function createAscensionModal() {
                     } else if (canPurchase) {
                         borderColor = 0x00ff00;
                     }
+                    const onSelect = () => {
+                        if (!isMax && canPurchase) {
+                            purchaseTalent(t.id);
+                        } else if (!isMax && prereqsMet) {
+                            AudioManager.playSfx('talentError');
+                        } else {
+                            AudioManager.playSfx('uiClickSound');
+                        }
+                        modal.userData.refresh();
+                    };
                     const btn = createButton(
                         t.icon,
-                        () => { purchaseTalent(t.id); modal.userData.refresh(); },
+                        onSelect,
                         0.12,
                         0.12,
                         borderColor,
                         0x111122,
-                        0xffffff
+                        0xffffff,
+                        0.8,
+                        'circle'
                     );
                     btn.userData.talentId = t.id;
                     btn.position.copy(positions[t.id]);
