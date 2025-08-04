@@ -300,28 +300,48 @@ function createStageSelectModal() {
                 return b ? b.name : 'Unknown';
             }).join(' & ');
 
-            const row = new THREE.Group();
-            const stageBtn = createButton(`STAGE ${i}`, () => {
+            const startStage = () => {
                 state.currentStage = i;
                 resetGame(bossData);
                 hideModal();
-            }, 0.6);
-            row.add(stageBtn);
+            };
 
-            const nameSprite = createTextSprite(bossNames, 28);
-            nameSprite.position.set(-0.2, -0.07, 0.01);
-            row.add(nameSprite);
+            // Row background and border to mimic original stage-select item
+            const row = createButton('', startStage, 0.9, 0.12, 0x00ffff, 0x00ffff, 0x00ffff, 0.1);
+            const bg = row.children[0];
+            const border = row.children[1];
+            if (row.children[2]) row.children[2].visible = false; // hide default label
+
+            const setHover = hovered => {
+                bg.material.opacity = hovered ? 0.2 : 0.1;
+                border.material.color.setHex(hovered ? 0xffffff : 0x00ffff);
+            };
+
+            [bg, border].forEach(obj => {
+                obj.userData.onSelect = startStage;
+                obj.userData.onHover = setHover;
+            });
+
+            const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff');
+            stageText.position.set(-0.35, 0.02, 0.01);
+            const bossText = createTextSprite(bossNames, 24, '#eaf2ff');
+            bossText.position.set(-0.35, -0.04, 0.01);
+            [stageText, bossText].forEach(obj => {
+                obj.userData.onSelect = startStage;
+                obj.userData.onHover = setHover;
+            });
+            row.add(stageText, bossText);
 
             const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f);
-            mechBtn.position.set(0.4, 0.02, 0.01);
+            mechBtn.position.set(0.35, 0.02, 0.01);
             const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6);
-            loreBtn.position.set(0.4, -0.08, 0.01);
+            loreBtn.position.set(0.35, -0.04, 0.01);
             row.add(mechBtn, loreBtn);
 
             row.position.y = 0.4 - (i - 1) * 0.15;
             listContainer.add(row);
         }
-        addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: 0.65 });
+        addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: 0.55 });
     };
 
     return modal;
