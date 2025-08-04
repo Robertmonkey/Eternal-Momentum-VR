@@ -41,6 +41,7 @@
     * [x] Reworked stage list to use original stage configuration and match button colors.
     * [x] Matched text alignment, long-name scrolling, and initial scroll position to the 2D stage menu.
     * [x] Aligned mechanics and lore buttons horizontally with circular styling to match the 2D stage menu.
+    * [x] Synced row highlight with info button hover and matched button placement/opacity to the 2D version.
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
 

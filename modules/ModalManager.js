@@ -381,9 +381,9 @@ function createStageSelectModal() {
             if (row.children[2]) row.children[2].visible = false; // hide default label
 
             const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
-            stageText.position.set(-0.42, 0.02, 0.01);
+            stageText.position.set(-0.43, 0.02, 0.01);
             const bossText = createTextSprite(bossNames, 24, '#eaf2ff', 'left');
-            bossText.position.set(-0.42, -0.04, 0.01);
+            bossText.position.set(-0.43, -0.04, 0.01);
             enableTextScroll(bossText, 0.6);
 
             const handleHover = hovered => {
@@ -401,10 +401,19 @@ function createStageSelectModal() {
 
             row.add(stageText, bossText);
 
-            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xf1c40f, 0.2, 'circle');
-            mechBtn.position.set(0.25, 0, 0.01);
-            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6, 0x9b59b6, 0x9b59b6, 0.2, 'circle');
-            loreBtn.position.set(0.39, 0, 0.01);
+            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xffffff, 0.2, 'circle');
+            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6, 0x9b59b6, 0xffffff, 0.2, 'circle');
+            const setupInfoBtnHover = (btn) => {
+                const btnBg = btn.children[0];
+                btn.userData.onHover = hovered => {
+                    btnBg.material.opacity = hovered ? 0.4 : 0.2;
+                    handleHover(hovered);
+                };
+            };
+            mechBtn.position.set(0.19, 0, 0.01);
+            loreBtn.position.set(0.34, 0, 0.01);
+            setupInfoBtnHover(mechBtn);
+            setupInfoBtnHover(loreBtn);
             row.add(mechBtn, loreBtn);
 
             row.position.y = 0.4 - (i - 1) * 0.15;
