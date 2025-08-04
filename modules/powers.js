@@ -117,10 +117,28 @@ export const powers = {
       const { damageModifier = 1.0, origin = state.player } = options;
       gameHelpers.play('chainSound');
       let chainCount = 6 + (state.player.purchasedTalents.get('arc-cascade') || 0);
-
       const targets = [];
+
+      // Find the first target in the direction of the player's pointer
+      const aimDir = state.cursorDir ? state.cursorDir.clone() : new THREE.Vector3(0, 0, -1);
       let currentTarget = origin;
-      for (let i = 0; i < chainCount; i++) {
+      let firstTarget = null;
+      let bestDot = 0.5; // require roughly in front of the player
+      state.enemies.forEach(e => {
+          if (e.isFriendly) return;
+          const dirToEnemy = e.position.clone().sub(origin.position).normalize();
+          const dot = aimDir.dot(dirToEnemy);
+          if (dot > bestDot) {
+              bestDot = dot;
+              firstTarget = e;
+          }
+      });
+      if (firstTarget) {
+          targets.push(firstTarget);
+          currentTarget = firstTarget;
+      }
+
+      for (let i = targets.length; i < chainCount; i++) {
           let closest = null;
           let minDist = Infinity;
           state.enemies.forEach(e => {
@@ -264,10 +282,23 @@ export const powers = {
       const { damageModifier = 1.0, origin = state.player } = options;
       let bounceCount = 6;
       const damage = 10 * damageModifier;
-      const velocity = state.cursorDir.clone().multiplyScalar(0.8);
+      const controller = getPrimaryController();
+      const startPos = new THREE.Vector3();
+      const aimDir = new THREE.Vector3();
+
+      if (controller) {
+          controller.getWorldPosition(startPos);
+          controller.getWorldDirection(aimDir);
+          startPos.add(aimDir.clone().multiplyScalar(0.1));
+      } else {
+          startPos.copy(origin.position);
+          aimDir.copy(state.cursorDir);
+      }
+
+      const velocity = aimDir.multiplyScalar(0.8);
       state.effects.push({
           type: 'ricochet_projectile',
-          position: origin.position.clone(),
+          position: startPos,
           velocity: velocity,
           r: 0.3,
           damage: damage,
