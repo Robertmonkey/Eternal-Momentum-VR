@@ -721,10 +721,13 @@ function createAscensionModal() {
         name.position.set(-0.18, 0.06, 0.01);
         const desc = createTextSprite('', 24, '#ffffff', 'left');
         desc.position.set(-0.32, -0.02, 0.01);
-        const footer = createTextSprite('', 24, '#cccccc', 'left');
-        footer.position.set(-0.32, -0.11, 0.01);
-        group.add(bg, border, icon, name, desc, footer);
-        group.userData = { icon, name, desc, footer };
+        // Separate rank and cost text like the 2D menu's flex layout.
+        const rank = createTextSprite('', 24, '#cccccc', 'left');
+        rank.position.set(-0.32, -0.11, 0.01);
+        const cost = createTextSprite('', 24, '#cccccc', 'right');
+        cost.position.set(0.32, -0.11, 0.01);
+        group.add(bg, border, icon, name, desc, rank, cost);
+        group.userData = { icon, name, desc, rank, cost };
         return group;
     }
 
@@ -808,16 +811,19 @@ function createAscensionModal() {
                     btn.userData.onHover = hovered => {
                         if (hovered) {
                             AudioManager.playSfx('uiHoverSound');
-                            let displayCost;
-                            if (isMax) displayCost = 'MAXED';
-                            else displayCost = `${cost} AP`;
+                            const purchasedNow = state.player.purchasedTalents.get(t.id) || 0;
+                            const isMaxNow = !t.isInfinite && purchasedNow >= t.maxRanks;
+                            const costNow = t.isInfinite ? t.costPerRank[0] : t.costPerRank[purchasedNow];
+                            const costText = isMaxNow ? 'MAXED' : `Cost: ${costNow} AP`;
+                            const rankText =
+                                t.maxRanks > 1
+                                    ? `Rank: ${purchasedNow}/${t.isInfinite ? '∞' : t.maxRanks}`
+                                    : 'Mastery';
                             updateTextSprite(tooltip.userData.icon, t.icon);
                             updateTextSprite(tooltip.userData.name, t.name);
-                            updateTextSprite(tooltip.userData.desc, t.description(purchased + 1, isMax));
-                            updateTextSprite(
-                                tooltip.userData.footer,
-                                `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${displayCost}`
-                            );
+                            updateTextSprite(tooltip.userData.desc, t.description(purchasedNow + 1, isMaxNow));
+                            updateTextSprite(tooltip.userData.rank, rankText);
+                            updateTextSprite(tooltip.userData.cost, costText);
                             const basePos = positions[t.id];
                             let offsetX = 0.3;
                             const xBoundary = halfW - 0.4;
