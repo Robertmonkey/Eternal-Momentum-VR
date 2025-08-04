@@ -220,6 +220,42 @@ export function updateEffects3d(radius = 50){
         if(now > ef.endTime){ state.effects.splice(i,1); if(state.player.purchasedTalents.has('unstable-singularity')) state.effects.push({ type:'shockwave', caster: ef.caster, position: ef.position.clone(), radius:0, maxRadius:10, speed:30, startTime: now, hitEnemies:new Set(), damage:25*state.player.talent_modifiers.damage_multiplier }); }
         break;
       }
+      case 'syphon_cone':{
+        const total = ef.endTime - (ef.startTime || (ef.startTime = now));
+        const remaining = ef.endTime - now;
+        const coneAngle = ef.coneAngle || Math.PI / 4;
+        const coneLength = radius * 1.5;
+        if(!ef.mesh){
+          const geom = new THREE.ConeGeometry(coneLength * Math.tan(coneAngle/2), coneLength, 16, 1, true, -coneAngle/2, coneAngle);
+          const mat = new THREE.MeshBasicMaterial({ color: 0x9b59b6, transparent: true, opacity: 0, side: THREE.DoubleSide });
+          ef.mesh = new THREE.Mesh(geom, mat);
+          if(projectileGroup) projectileGroup.add(ef.mesh);
+        }
+        if(remaining > 0){
+          if(ef.source && ef.source.boss && remaining > 250){
+            ef.direction = state.player.position.clone().sub(ef.source.position).normalize();
+          }
+          ef.mesh.position.copy(ef.source.position.clone().add(ef.direction.clone().multiplyScalar(coneLength/2)));
+          ef.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), ef.direction);
+          const progress = total > 0 ? (total - remaining) / total : 1;
+          ef.mesh.material.opacity = 0.4 * progress;
+        } else {
+          if(ef.mesh){
+            if(projectileGroup) projectileGroup.remove(ef.mesh);
+            ef.mesh.geometry.dispose();
+            ef.mesh.material.dispose();
+          }
+          if(ef.source === state.player){
+            state.pickups.forEach(p => {
+              if(p.position && p.position.distanceTo(state.player.position) < radius * 0.4){
+                p.isSeeking = true;
+              }
+            });
+          }
+          state.effects.splice(i,1);
+        }
+        break;
+      }
       case 'shield_activation':{
         if(!ef.mesh){
           const geom = new THREE.SphereGeometry(state.player.r * 1.4, 16, 16);
