@@ -34,3 +34,18 @@ test('default movement advances enemy when no custom movement', () => {
   assert.notEqual(cross.length(), 0);
   assert.equal(Math.round(enemy.position.length()), 50);
 });
+
+test('updateEnemies3d ignores enemies marked as not alive', () => {
+  state.enemies.length = 0;
+  state.player.position = new THREE.Vector3(0, 0, 50);
+  const enemy = new THREE.Group();
+  enemy.position.set(50, 0, 0);
+  enemy.alive = false;
+  state.enemies.push(enemy);
+
+  updateEnemies3d(50, undefined, undefined, 32);
+  // Position should remain unchanged because enemy is skipped.
+  assert.equal(enemy.position.x, 50);
+  assert.equal(enemy.position.y, 0);
+  assert.equal(enemy.position.z, 0);
+});

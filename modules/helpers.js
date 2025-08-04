@@ -37,22 +37,22 @@ export function getCanvasPos(obj){
 /**
  * Set an object's 3D position from canvas pixel coordinates.
  *
- * @param {{position:THREE.Vector3}|THREE.Vector3} target - Object or vector to
  * update.
  * @param {number} x - Canvas x coordinate in pixels.
  * @param {number} y - Canvas y coordinate in pixels.
  * @param {number} [width=2048] - Canvas width used for conversion.
  * @param {number} [height=1024] - Canvas height used for conversion.
+ * @param {number} [radius=1] - Sphere radius for conversion.
  * @returns {THREE.Vector3} Updated position vector.
  */
-export function setPositionFromCanvas(target, x, y, width = 2048, height = 1024){
+export function setPositionFromCanvas(target, x, y, width = 2048, height = 1024, radius = 1){
   width = width > 0 ? width : 1;
   height = height > 0 ? height : 1;
   const clampedX = Math.min(width, Math.max(0, x));
   const clampedY = Math.min(height, Math.max(0, y));
   const u = ((clampedX / width) - 0.5 + 1) % 1;
   const v = clampedY / height;
-  const vec = uvToSpherePos(u, v, 1);
+  const vec = uvToSpherePos(u, v, radius);
   if (target && target.isVector3){
     return target.copy(vec);
   }

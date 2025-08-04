@@ -49,6 +49,11 @@ export function getSphericalDirection(from, to) {
       axis.set(1, 0, 0).cross(fromNorm);
     }
   }
+  // Normalize the axis so that the subsequent cross product produces a stable
+  // unit-length tangent even when the original vectors are very close to being
+  // parallel. Without this, extremely small axes could lead to precision
+  // issues and erratic movement around the poles.
+  axis.normalize();
   return new THREE.Vector3().crossVectors(axis, fromNorm).normalize();
 }
 

@@ -11,3 +11,9 @@ test('getCanvasPos and setPositionFromCanvas round-trip a vector', () => {
   setPositionFromCanvas(reconstructed, x, y);
   assert.ok(reconstructed.distanceTo(original) < 1e-6);
 });
+
+test('setPositionFromCanvas respects supplied radius', () => {
+  const vec = new THREE.Vector3();
+  setPositionFromCanvas(vec, 50, 50, 100, 100, 10);
+  assert.ok(Math.abs(vec.length() - 10) < 1e-6);
+});
