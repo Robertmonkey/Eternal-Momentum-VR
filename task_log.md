@@ -40,6 +40,7 @@
     * [x] Synced Ascension Conduit title glow and 16:9 talent grid with the 2D version.
     * [x] Aligned Ascension Point header with side-by-side label and value to match the 2D layout.
     * [x] Left-aligned Ascension Conduit title and right-aligned AP display to mirror the original menu.
+    * [x] Restored AP header styling and hover sound cues to match the 2D Ascension interface.
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
     * [x] Reworked stage list to use original stage configuration and match button colors.
