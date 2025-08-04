@@ -60,5 +60,16 @@ export const getCamera = () => camera;
 export const getRenderer = () => renderer;
 export const getArena = () => arena;
 export const getGrid = () => grid;
-export const getPrimaryController = () => state.settings.handedness === 'right' ? primaryController : secondaryController;
-export const getSecondaryController = () => state.settings.handedness === 'right' ? secondaryController : primaryController;
+// Prefer the controller matching the player's handedness but gracefully
+// fall back to whichever controller is available.  Some platforms only
+// report a single controller until the session is fully initialized which
+// previously left `primaryController` undefined and prevented input.
+export const getPrimaryController = () => {
+  const preferred = state.settings.handedness === 'right' ? primaryController : secondaryController;
+  return preferred || primaryController || secondaryController;
+};
+
+export const getSecondaryController = () => {
+  const offHand = state.settings.handedness === 'right' ? secondaryController : primaryController;
+  return offHand || primaryController || secondaryController;
+};
