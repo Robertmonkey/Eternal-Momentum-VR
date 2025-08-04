@@ -39,17 +39,26 @@ export function holoMaterial(color = 0x1e1e2f, opacity = 0.85) {
   });
 }
 
-export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'center', shadowColor = null, shadowBlur = 0) {
+export function createTextSprite(
+    text,
+    size = 32,
+    color = '#eaf2ff',
+    align = 'center',
+    shadowColor = null,
+    shadowBlur = 0,
+    fontWeight = 'normal'
+) {
     const lines = String(text).split('\n');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const fontStack = "'Segoe UI','Roboto',sans-serif";
-    ctx.font = `${size}px ${fontStack}`;
+    const font = `${fontWeight} ${size}px ${fontStack}`;
+    ctx.font = font;
     const padding = size * 0.2;
     const width = Math.ceil(Math.max(...lines.map(l => ctx.measureText(l).width))) + padding;
     canvas.width = Math.max(1, width);
     canvas.height = size * 1.2 * lines.length;
-    ctx.font = `${size}px ${fontStack}`;
+    ctx.font = font;
     if (shadowColor) {
         ctx.shadowColor = shadowColor;
         ctx.shadowBlur = shadowBlur;
@@ -75,7 +84,7 @@ export function createTextSprite(text, size = 32, color = '#eaf2ff', align = 'ce
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
     const scale = 0.001;
     mesh.scale.set(canvas.width * scale, canvas.height * scale, 1);
-    mesh.userData = { text, canvas, ctx, font: `${size}px ${fontStack}`, color, size, align, shadowColor, shadowBlur };
+    mesh.userData = { text, canvas, ctx, font, color, size, align, shadowColor, shadowBlur, fontWeight };
     return mesh;
 }
 

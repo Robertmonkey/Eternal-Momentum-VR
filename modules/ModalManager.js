@@ -643,7 +643,15 @@ function createAscensionModal() {
         const label = createTextSprite('ASCENSION POINTS', 24, '#eaf2ff', 'left');
         label.material.opacity = 0.7;
         label.material.transparent = true;
-        const value = createTextSprite(`${state.player.ascensionPoints}`, 32, '#00ffff', 'left');
+        const value = createTextSprite(
+            `${state.player.ascensionPoints}`,
+            32,
+            '#00ffff',
+            'left',
+            null,
+            0,
+            'bold'
+        );
 
         const padding = 0.02;
         function updateLayout() {
@@ -857,8 +865,12 @@ function createAscensionModal() {
         }
     };
 
-    const closeBtn = createButton('CLOSE', () => hideModal(), 0.6, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
-    closeBtn.position.set(0.45, -0.6, 0.01);
+    const footerY = -height / 2 + 0.1;
+    const closeWidth = 0.5;
+    const clearWidth = 0.8;
+
+    const closeBtn = createButton('CLOSE', () => hideModal(), closeWidth, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
+    closeBtn.position.set(width / 2 - 0.1 - closeWidth / 2, footerY, 0.01);
     modal.add(closeBtn);
 
     const clearBtn = createButton('ERASE TIMELINE', () => {
@@ -870,8 +882,8 @@ function createAscensionModal() {
                 window.location.reload();
             }
         );
-    }, 0.6, 0.1, 0xe74c3c, 0xc0392b, 0xffffff);
-    clearBtn.position.set(-0.45, -0.6, 0.01);
+    }, clearWidth, 0.1, 0xe74c3c, 0xc0392b, 0xffffff);
+    clearBtn.position.set(-width / 2 + 0.1 + clearWidth / 2, footerY, 0.01);
     modal.add(clearBtn);
 
     return modal;
