@@ -79,7 +79,7 @@ test('nexus talents use green border color', async () => {
   showModal('ascension');
   const ascensionModal = getModalObjects().find(m => m.name === 'modal_ascension');
   assert.ok(ascensionModal);
-  const grid = ascensionModal.children.find(c => c.position && c.position.y === -0.1);
+  const grid = ascensionModal.children.find(c => c.name === 'ascension_grid');
   const nexusButton = grid.children.find(c => c.userData && c.userData.talentId === 'core-nexus');
   assert.ok(nexusButton, 'core nexus button should exist');
   const border = nexusButton.children[1];

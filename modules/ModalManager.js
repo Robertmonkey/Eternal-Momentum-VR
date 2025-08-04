@@ -592,10 +592,21 @@ export function getModalByName(id) {
 }
 
 function createAscensionModal() {
-    const modal = createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT');
+    // The 2D menu uses `--primary-glow` (#00ffff) with a 10px text-shadow
+    // on the "ASCENSION CONDUIT" header. Recreate that neon title here so
+    // editors know the color and blur come from the original design.
+    const modal = createModalContainer(1.6, 1.4, 'ASCENSION CONDUIT', {
+        titleColor: '#00ffff',
+        titleShadowColor: '#00ffff',
+        titleShadowBlur: 10
+    });
     modal.name = 'modal_ascension';
+
+    // In the 2D layout the `ascension-content` div is centered with
+    // `margin:auto` and given an `aspect-ratio:16/9`. Leaving this group at
+    // the modal origin centers the grid the same way in 3D.
     const grid = new THREE.Group();
-    grid.position.y = -0.1;
+    grid.name = 'ascension_grid';
     modal.add(grid);
 
     const lines = new THREE.Group();
@@ -618,10 +629,11 @@ function createAscensionModal() {
     }
 
     const apDisplay = createApDisplay();
-    apDisplay.position.set(0.55, 0.58, 0.01);
+    apDisplay.position.set(0.55, 0.55, 0.01);
     modal.add(apDisplay);
 
-    // Divider lines to mirror the 2D modal's header and footer borders.
+    // Divider lines mirror the 1px cyan borders (`--border-color` =
+    // rgba(0,255,255,0.4)) that sit above and below the 2D modal content.
     const headerDivider = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.01), holoMaterial(0x00ffff, 0.4));
     headerDivider.position.set(0, 0.45, 0.02);
     headerDivider.name = 'ascension_header_divider';
@@ -665,7 +677,15 @@ function createAscensionModal() {
                 if (key === 'color') return;
                 const t = con[key];
                 allTalents[key] = t;
-                positions[t.id] = new THREE.Vector3((t.position.x / 50 - 1) * 0.7, (1 - t.position.y / 50) * 0.6, 0.01);
+                // The 2D grid stores talent positions on a 0–100 x/y canvas
+                // that sits inside a 1920×1080 (16:9) panel. Dividing by 50
+                // recenters those coordinates around 0, then scaling to
+                // 1.6×0.9 meters preserves the original 16:9 framing.
+                positions[t.id] = new THREE.Vector3(
+                    (t.position.x / 50 - 1) * 0.8,
+                    (1 - t.position.y / 50) * 0.45,
+                    0.01
+                );
             });
         });
 
@@ -718,11 +738,11 @@ function createAscensionModal() {
                                 `Rank: ${purchased}/${t.isInfinite ? '∞' : t.maxRanks}  Cost: ${displayCost}`
                             );
                             const basePos = positions[t.id];
-                            let offsetX = 0.25;
-                            if (basePos.x > 0.35) offsetX = -0.25;
-                            else if (basePos.x < -0.35) offsetX = 0.25;
-                            let offsetY = 0.15;
-                            if (basePos.y > 0.3) offsetY = -0.15;
+                            let offsetX = 0.3;
+                            if (basePos.x > 0.4) offsetX = -0.3;
+                            else if (basePos.x < -0.4) offsetX = 0.3;
+                            let offsetY = 0.12;
+                            if (basePos.y > 0.25) offsetY = -0.12;
                             tooltip.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
                             tooltip.visible = true;
                         } else if (tooltip) {

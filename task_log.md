@@ -37,6 +37,8 @@
     * [x] Attach menus to the player's left hand. — Completed
     * [x] Ensure menu verbiage and layout are faithful to the original. — Completed
     * [x] Refined Ascension Conduit menu with header/footer dividers and button colors matching the 2D game.
+    * [x] Synced Ascension Conduit title glow and 16:9 talent grid with the 2D version.
+    * [x] Documented 2D layout rationale inside Ascension Conduit modal comments.
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
     * [x] Reworked stage list to use original stage configuration and match button colors.
