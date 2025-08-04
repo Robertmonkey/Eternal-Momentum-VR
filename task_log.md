@@ -8,6 +8,7 @@
     * [ ] Ensure all other power-ups are functional.
         * [x] Chain lightning power adapted with 3D beam effect.
     * [ ] Implement correct power-up controls for VR controllers.
+    * [x] Fix bug preventing power-ups from being collected. — Completed
 
 ## 3D Assets and Animations
 
