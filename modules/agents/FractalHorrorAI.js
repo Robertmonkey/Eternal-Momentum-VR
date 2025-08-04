@@ -6,13 +6,7 @@ import { gameHelpers } from '../gameHelpers.js';
 export class FractalHorrorAI extends BaseAgent {
   constructor(generation = 1) {
     const size = 1.2 / generation;
-    const geometry = new THREE.DodecahedronGeometry(size, 0);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xbe2edd,
-        emissive: 0xbe2edd,
-        emissiveIntensity: 0.5
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xbe2edd });
     
     if (generation === 1) {
         const bossData = { id: "fractal_horror", name: "The Fractal Horror", maxHP: 10000 };

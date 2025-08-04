@@ -7,13 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class MiasmaAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.TorusKnotGeometry(0.8, 0.2, 100, 12);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x6ab04c,
-        emissive: 0x6ab04c,
-        emissiveIntensity: 0.4
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x6ab04c });
 
     const bossData = { id: "miasma", name: "The Miasma", maxHP: 400 };
     this.kind = bossData.id;

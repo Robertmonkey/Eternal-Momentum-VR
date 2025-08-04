@@ -11,7 +11,7 @@
 ## 3D Assets and Animations
 
 * [ ] **3D Models and Animations:**
-    * [ ] Create 3D spherical models for all bosses and enemies.
+    * [ ] Create 3D spherical models for all bosses and enemies. — In Progress (most enemies now use base spheres)
     * [ ] Implement animations for all bosses, enemies, and power-ups. — In Progress
     * [x] Create a swirling cube animation for the "glitch" enemy. — Completed
     * [ ] Ensure all animations are interpolated for VR.

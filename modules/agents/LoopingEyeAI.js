@@ -7,13 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class LoopingEyeAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.SphereGeometry(0.7, 32, 16);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xecf0f1,
-        emissive: 0xecf0f1,
-        emissiveIntensity: 0.8
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xecf0f1 });
 
     const bossData = { id: "looper", name: "Looping Eye", maxHP: 320 };
     this.kind = bossData.id;

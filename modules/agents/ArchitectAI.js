@@ -7,13 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class ArchitectAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x7f8c8d,
-        emissive: 0x7f8c8d,
-        emissiveIntensity: 0.2
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x7f8c8d });
 
     const bossData = { id: "architect", name: "The Architect", maxHP: 280 };
     this.kind = bossData.id;

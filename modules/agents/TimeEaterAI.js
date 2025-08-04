@@ -7,13 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class TimeEaterAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.TorusGeometry(0.8, 0.3, 16, 32);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xdfe6e9,
-        emissive: 0xdfe6e9,
-        emissiveIntensity: 0.1
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xdfe6e9 });
 
     const bossData = { id: "time_eater", name: "Time Eater", maxHP: 440 };
     this.kind = bossData.id;

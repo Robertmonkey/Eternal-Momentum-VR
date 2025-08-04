@@ -7,13 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class ShaperOfFateAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.OctahedronGeometry(0.9, 1);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xf1c40f,
-        emissive: 0xf1c40f,
-        emissiveIntensity: 0.6
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xf1c40f });
 
     const bossData = { id: "shaper_of_fate", name: "The Shaper of Fate", maxHP: 600 };
     this.kind = bossData.id;

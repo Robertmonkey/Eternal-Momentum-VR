@@ -5,13 +5,7 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class SyphonAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.ConeGeometry(0.6, 1.2, 16);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x9b59b6,
-        emissive: 0x9b59b6,
-        emissiveIntensity: 0.5
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x9b59b6 });
 
     const bossData = { id: "syphon", name: "The Syphon", maxHP: 450 };
     this.kind = bossData.id;
