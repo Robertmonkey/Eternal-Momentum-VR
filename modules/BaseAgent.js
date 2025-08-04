@@ -7,6 +7,10 @@ export class BaseAgent extends THREE.Group {
   constructor(options = {}) {
     super();
     const { health = 1, model = null, color = null, radius = 0.65 } = options;
+    // Store the agent's base collision radius so the game loop can scale it
+    // uniformly. Having a defined radius ensures accurate hit detection for
+    // both default sphere agents and those using custom models.
+    this.r = radius;
     this.maxHealth = health;
     this.health = health;
     this.alive = true;
