@@ -2,7 +2,7 @@
 
 ## Core Gameplay Bugs
 
-* [ ] **Enemy and Boss Tracking:** Fix the bug causing enemies to move towards the poles. — In Progress
+* [x] **Enemy and Boss Tracking:** Fix the bug causing enemies to move towards the poles. — Completed
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
     * [ ] Ensure all other power-ups are functional.
