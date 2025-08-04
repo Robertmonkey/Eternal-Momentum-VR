@@ -8,6 +8,7 @@ import { AudioManager } from './audio.js';
 import { initGameHelpers } from './gameHelpers.js';
 import { getScene } from './scene.js';
 import { uvToSpherePos } from './utils.js';
+import { applyPlayerHeal } from './helpers.js';
 
 // Import all your new 3D AI agent classes
 import { AethelUmbraAI } from './agents/AethelUmbraAI.js';
@@ -140,7 +141,7 @@ export function addEssence(amount) {
             }
             if (gainedHP > 0) {
                 state.player.maxHealth += gainedHP;
-                state.player.health += gainedHP;
+                applyPlayerHeal(gainedHP);
             }
         }
     }

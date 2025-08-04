@@ -43,3 +43,12 @@
 
 * [ ] **Code Review and Refactoring:** Review and refactor all modified code.
 * [ ] **Testing:** Thoroughly test all changes.
+
+## Additional Improvements
+
+* [x] Added `clamp` and `applyPlayerHeal` helpers to centralize healing logic.
+* [x] Updated heal power to use the new `applyPlayerHeal` helper.
+* [x] Refactored essence transmutation health gain in `gameLoop` to use `applyPlayerHeal`.
+* [x] Applied centralized healing to the `essence-weaving` talent in `pickupPhysics3d`.
+* [x] Updated vampire core effects to use `applyPlayerHeal` for life-steal.
+* [x] Added unit tests for `clamp` and `applyPlayerHeal`.
