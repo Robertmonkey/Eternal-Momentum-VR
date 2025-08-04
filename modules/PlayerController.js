@@ -103,8 +103,14 @@ export async function initPlayerController() {
     const arena = getArena();
     if (!scene || !arena) return;
 
+    // Clean up any existing controller meshes so repeated calls do not
+    // spawn duplicate avatars or laser pointers.
+    if (avatar && avatar.parent) avatar.parent.remove(avatar);
+    if (crosshair && crosshair.parent) crosshair.parent.remove(crosshair);
+    if (laser && primaryController) primaryController.remove(laser);
+
     const radius = arena.geometry.parameters.radius;
-    
+
     avatar = new THREE.Mesh(
         new THREE.SphereGeometry(0.5 * MODEL_SCALE, 16, 16),
         new THREE.MeshStandardMaterial({ color: 0x3498db, emissive: 0x3498db })
@@ -126,12 +132,12 @@ export async function initPlayerController() {
     scene.add(crosshair);
 
     raycaster = new THREE.Raycaster();
-    
+
     const laserGeometry = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1) ]);
     laser = new THREE.Line(laserGeometry, new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.7 }));
     laser.name = 'laserPointer';
     laser.scale.z = radius * 2;
-    
+
     refreshPrimaryController();
 
     if (!state.cursorDir) state.cursorDir = new THREE.Vector3();
@@ -148,6 +154,9 @@ function handleInput() {
 }
 
 export function updatePlayerController() {
+    // Controllers can appear after the session starts; keep trying to bind
+    // until one is available.
+    if (!primaryController) refreshPrimaryController();
     if (!primaryController || !raycaster) return;
 
     const camera = getCamera();

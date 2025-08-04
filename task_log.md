@@ -5,6 +5,9 @@
 * [x] **Enemy and Boss Tracking:** Fix the bug causing enemies to move towards the poles. — Completed
     * Refined spherical movement calculations to avoid pole drift on antipodal targets.
     * Consolidated movement utilities with shared UV sanitization and delta-aware stepping for player and enemies.
+* [x] **Player Movement & Avatar Duplication:** Ensured reliable controller input and single avatar instance. — Completed
+    * Added controller fallbacks to prevent missing input on platforms reporting a single controller.
+    * Cleaned up existing avatar meshes when reinitializing the player controller.
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
     * [x] Ensure all other power-ups are functional.
