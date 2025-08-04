@@ -612,6 +612,16 @@ function createAscensionModal() {
     });
     modal.name = 'modal_ascension';
 
+    // Add a subtle cyan glow behind the container to mirror the 2D game's
+    // box-shadow effect around the Ascension Conduit modal.
+    const glow = new THREE.Mesh(
+        new THREE.PlaneGeometry(width + 0.2, height + 0.2),
+        holoMaterial(0x00ffff, 0.15)
+    );
+    glow.position.z = -0.005;
+    glow.renderOrder = -1;
+    modal.add(glow);
+
     // Center the talent grid and keep a referenceable name for tests.
     const grid = new THREE.Group();
     grid.name = 'ascension_grid';
