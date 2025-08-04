@@ -118,6 +118,7 @@ function createButton(
         bg.material.emissiveIntensity = intensity;
         border.material.emissiveIntensity = intensity;
         group.scale.setScalar(hovered ? 1.05 : 1);
+        if (hovered) AudioManager.playSfx('uiHoverSound');
     };
 
     [bg, border, text].forEach(obj => {
@@ -628,8 +629,11 @@ function createAscensionModal() {
         const border = new THREE.Mesh(new THREE.PlaneGeometry(bgWidth + 0.02, bgHeight + 0.02), holoMaterial(0x00ffff, 0.4));
         border.position.z = -0.001;
 
-        // The label text uses a dimmer white to simulate 70% opacity.
-        const label = createTextSprite('ASCENSION POINTS', 24, '#cccccc', 'left');
+        // Use the same cyan/white pairing as the 2D header and tone the label
+        // opacity down to 70% to mirror its semi-transparent styling.
+        const label = createTextSprite('ASCENSION POINTS', 24, '#eaf2ff', 'left');
+        label.material.opacity = 0.7;
+        label.material.transparent = true;
         const value = createTextSprite(`${state.player.ascensionPoints}`, 32, '#00ffff', 'left');
 
         const padding = 0.02;
@@ -743,6 +747,7 @@ function createAscensionModal() {
                     btn.position.copy(positions[t.id]);
                     btn.userData.onHover = hovered => {
                         if (hovered) {
+                            AudioManager.playSfx('uiHoverSound');
                             let displayCost;
                             if (isMax) displayCost = 'MAXED';
                             else displayCost = `${cost} AP`;
