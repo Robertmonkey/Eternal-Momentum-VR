@@ -114,7 +114,7 @@ export function vrGameLoop(timestamp) {
 
     updatePhaseMomentum();
 
-    updateEnemies3d();
+    updateEnemies3d(undefined, undefined, undefined, delta);
     updateEffects3d(undefined, delta);
     updateProjectiles3d(undefined, undefined, undefined, delta);
     updatePickups3d();

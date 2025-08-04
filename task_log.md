@@ -16,8 +16,9 @@
 * [ ] **3D Models and Animations:**
     * [ ] Create 3D spherical models for all bosses and enemies. — In Progress (most enemies now use base spheres)
     * [ ] Implement animations for all bosses, enemies, and power-ups. — In Progress
+        * [x] Enabled delta-based enemy AI updates to support animations.
     * [x] Create a swirling cube animation for the "glitch" enemy. — Completed
-    * [ ] Ensure all animations are interpolated for VR. — In Progress (projectiles and effects use delta timing)
+    * [ ] Ensure all animations are interpolated for VR. — In Progress (projectiles, effects, and enemy AI use delta timing)
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
 ## UI
