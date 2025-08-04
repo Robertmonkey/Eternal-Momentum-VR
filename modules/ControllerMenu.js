@@ -3,7 +3,7 @@ import { getSecondaryController } from './scene.js';
 import { showModal } from './ModalManager.js';
 import { AudioManager } from './audio.js';
 import { state } from './state.js';
-import { holoMaterial, createTextSprite, updateTextSprite } from './UIManager.js';
+import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
 
 let menuGroup;
 let coreButton, soundBtn;
@@ -12,17 +12,24 @@ let originalUpdateIcon;
 function createButton(label, icon, onSelect) {
   const group = new THREE.Group();
   group.name = `controller_button_${label}`;
-  // Make the background slightly wider to accommodate text and icon
-  const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.05), holoMaterial(0x111122, 0.8));
+
+  // Make the background larger and apply the game's hex texture so buttons
+  // resemble their 2D counterparts.
+  const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.08), holoMaterial(0x111122, 0.8));
+  const tex = getBgTexture();
+  if (tex) {
+    bg.material.map = tex;
+    bg.material.needsUpdate = true;
+  }
   bg.userData.onSelect = onSelect;
   group.add(bg);
-  
+
   const iconSprite = createTextSprite(icon, 32);
-  iconSprite.position.set(-0.07, 0, 0.01);
+  iconSprite.position.set(-0.09, 0, 0.01);
   group.add(iconSprite);
-  
+
   const textSprite = createTextSprite(label, 24);
-  textSprite.position.set(0.02, 0, 0.01);
+  textSprite.position.set(0.04, 0, 0.01);
   group.add(textSprite);
 
   return group;
@@ -37,6 +44,9 @@ export function initControllerMenu() {
   // Position it to appear attached to the controller
   menuGroup.position.set(0, 0.1, -0.05);
   menuGroup.rotation.x = -0.7; // Angle it for readability
+  // Buttons were tiny compared to the original UI; scaling the whole menu
+  // keeps relative spacing intact while matching the 2D game's footprint.
+  menuGroup.scale.setScalar(1.5);
 
   const stageBtn = createButton('Stages', '🗺️', () => showModal('levelSelect'));
   stageBtn.position.set(0, 0.06, 0);

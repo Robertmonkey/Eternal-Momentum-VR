@@ -20,10 +20,10 @@ function ensureGroup() {
     if (!modalGroup) {
         modalGroup = new THREE.Group();
         modalGroup.name = 'modalGroup';
-        // Menus were difficult to read because they were tiny. Doubling the
-        // scale here makes every modal roughly twice as large without
-        // altering individual element sizes.
-        modalGroup.scale.setScalar(2);
+        // Menus were difficult to read because they were tiny. Tripling the
+        // scale here makes every modal roughly match the size of the 2D UI
+        // without altering individual element proportions.
+        modalGroup.scale.setScalar(3);
         const scene = getScene();
         if (scene) scene.add(modalGroup);
     }
@@ -662,12 +662,17 @@ function createLoreModal() {
 function createBossInfoModal() {
     const modal = createModalContainer(1.2, 1.0, 'BOSS INFO');
     modal.name = 'modal_bossInfo';
-    const content = createTextSprite('', 28);
-    content.position.set(0, 0.15, 0.01);
+
+    // Left-align wrapped lore text and bump the font size for readability.
+    const content = createTextSprite('', 32, '#eaf2ff', 'left');
+    content.position.set(-0.55, 0.35, 0.01);
+    content.userData.maxWidth = 1.1; // Store for wrapText updates
     modal.add(content);
+
     const closeBtn = createButton('✖', () => hideModal(), 0.12, 0.12, 0xf000ff);
     closeBtn.position.set(0.55, 0.45, 0.02);
     modal.add(closeBtn);
+
     modal.userData.contentSprite = content;
     modal.userData.titleSprite = modal.children.find(c => c.userData.isTitle);
     return modal;
@@ -740,5 +745,12 @@ export function showBossInfo(bossIds, type = 'mechanics') {
         .map(b => wrapText(type === 'lore' ? b.lore : b.mechanics_desc, 60))
         .join('\n\n');
     if (modal.userData.titleSprite) updateTextSprite(modal.userData.titleSprite, title);
-    if (modal.userData.contentSprite) updateTextSprite(modal.userData.contentSprite, content);
+    if (modal.userData.contentSprite) {
+        updateTextSprite(modal.userData.contentSprite, content);
+        const sprite = modal.userData.contentSprite;
+        // Position so text starts at the top-left corner of the modal
+        const width = sprite.scale.x;
+        const height = sprite.scale.y;
+        sprite.position.set(-width / 2, height / 2, sprite.position.z);
+    }
 }
