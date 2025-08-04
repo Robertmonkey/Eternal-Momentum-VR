@@ -100,11 +100,13 @@ function createButton(
     }
 
     const bg = new THREE.Mesh(bgGeom, holoMaterial(bgColor, bgOpacity));
+    bg.renderOrder = 0;
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
 
     const border = new THREE.Mesh(borderGeom, holoMaterial(color, 0.5));
     border.position.z = -0.001;
+    border.renderOrder = -1;
 
     const txtColor = textColor !== undefined ? textColor : color;
     const colorObj = new THREE.Color(txtColor);
@@ -145,6 +147,7 @@ function createModalContainer(width, height, title, options = {}) {
     } = options;
 
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(backgroundColor, backgroundOpacity));
+    bg.renderOrder = 0;
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
     group.add(bg);
@@ -152,6 +155,7 @@ function createModalContainer(width, height, title, options = {}) {
     if (borderOpacity > 0) {
         const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(borderColor, borderOpacity));
         border.position.z = -0.001;
+        border.renderOrder = -1;
         group.add(border);
     }
 

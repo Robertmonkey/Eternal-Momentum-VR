@@ -25,6 +25,7 @@ function createButton(label, icon, onSelect) {
 
   // Apply the game's hex texture so buttons resemble their 2D counterparts.
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth, 0.08), holoMaterial(0x111122, 0.8));
+  bg.renderOrder = 0;
   const tex = getBgTexture();
   if (tex) {
     bg.material.map = tex;
@@ -32,6 +33,7 @@ function createButton(label, icon, onSelect) {
   }
   const border = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth + 0.01, 0.09), holoMaterial(0x00ffff, 0.5));
   border.position.z = -0.001;
+  border.renderOrder = -1;
   group.add(bg, border);
 
   // Position icon and text with even padding from the left edge.

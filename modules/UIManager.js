@@ -35,7 +35,8 @@ export function holoMaterial(color = 0x1e1e2f, opacity = 0.85) {
     transparent: true,
     opacity,
     side: THREE.DoubleSide,
-    depthTest: false
+    depthTest: false,
+    depthWrite: false
   });
 }
 
@@ -79,9 +80,11 @@ export function createTextSprite(
         map: texture,
         transparent: true,
         depthTest: false,
+        depthWrite: false,
         side: THREE.DoubleSide
     });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
+    mesh.renderOrder = 1;
     const scale = 0.001;
     mesh.scale.set(canvas.width * scale, canvas.height * scale, 1);
     mesh.userData = { text, canvas, ctx, font, color, size, align, shadowColor, shadowBlur, fontWeight };
