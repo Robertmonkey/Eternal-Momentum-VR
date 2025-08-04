@@ -958,9 +958,12 @@ function createLoreModal() {
         lines.push({ text: '', color: '#eaf2ff' });
     });
 
+    const leftMargin = -modal.userData.width / 2 + 0.05;
     lines.forEach(line => {
         const sprite = createTextSprite(line.text || ' ', 32, line.color, 'left');
-        sprite.position.x = -0.55;
+        // Offset by half the sprite width so the text's left edge lines up with
+        // the modal's inner margin instead of rendering outside the container.
+        sprite.position.x = leftMargin + sprite.scale.x / 2;
         list.add(sprite);
     });
 
