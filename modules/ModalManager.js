@@ -134,6 +134,10 @@ function createButton(
 
 function createModalContainer(width, height, title, options = {}) {
     const group = new THREE.Group();
+    // Preserve the modal's unscaled dimensions so we can position the
+    // container relative to the player's height when showing it.
+    group.userData.width = width;
+    group.userData.height = height;
 
     const {
         titleColor = '#eaf2ff',
@@ -542,11 +546,17 @@ export function showModal(id) {
         return;
     }
 
-    // Place the modal group directly in front of the player's current
-    // position at head height so menus are always comfortably readable.
+    // Place the modal group directly in front of the player and lift it so
+    // the bottom of the menu is roughly at waist height for better
+    // readability.
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize();
     modalGroup.position.copy(camera.position).addScaledVector(forward, 2);
-    modalGroup.position.y = camera.position.y;
+    // Elevate menus so their bottoms sit around the player's waist height
+    // rather than intersecting the floor. We derive the modal's height from
+    // its unscaled dimensions and the group's scaling factor.
+    const modalHeight = (modal?.userData?.height || 0) * modalGroup.scale.y;
+    const waistOffset = 0.6; // approximate distance from head to waist in meters
+    modalGroup.position.y = camera.position.y - waistOffset + modalHeight / 2;
     const yawOnly = new THREE.Euler(0, camera.rotation.y, 0, 'YXZ');
     modalGroup.quaternion.setFromEuler(yawOnly);
 

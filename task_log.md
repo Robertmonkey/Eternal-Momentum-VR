@@ -48,6 +48,7 @@
     * [x] Updated controller menu Ascension button to use original 'Ascension Conduit' wording with auto-sized background.
     * [x] Bolded Ascension Point total and aligned footer buttons with modal padding to match the 2D layout.
     * [x] Resolved layering bug where menu buttons could render behind panels.
+* [x] Raised modal positions so menus appear higher with their bottoms at waist height.
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
     * [x] Reworked stage list to use original stage configuration and match button colors.
