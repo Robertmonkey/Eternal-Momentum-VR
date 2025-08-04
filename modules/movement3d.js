@@ -5,7 +5,7 @@
 // in full for completeness.  
 
 import * as THREE from '../vendor/three.module.js';
-import { spherePosToUv } from './utils.js';
+import { spherePosToUv, uvToSpherePos } from './utils.js';
 
 /**
  * Perform spherical linear interpolation (slerp) between two unit vectors.
@@ -52,6 +52,17 @@ export function getSphericalDirection(from, to) {
   return new THREE.Vector3().crossVectors(axis, fromNorm).normalize();
 }
 
+// Clamp UV coordinates away from the poles where navigation math becomes
+// unstable.  Keeping objects within this safe band prevents gradual drift
+// toward the top or bottom of the sphere.
+export const UV_EPSILON = 0.002;
+export function sanitizeUv({ u, v }) {
+  return {
+    u: (u % 1 + 1) % 1,
+    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, v)),
+  };
+}
+
 /**
  * Move an avatar toward a target position on the sphere.
  * @param {THREE.Vector3} avatarPos  Current avatar position (mutated).
@@ -60,12 +71,24 @@ export function getSphericalDirection(from, to) {
  * @param {number}        radius     Sphere radius.
  * @returns {{u:number,v:number}}    New (u,v) coords for legacy gameLoop.
  */
-export function moveTowards (avatarPos, targetPos, speedMod = 1, radius = 1) {
+export function moveTowards(
+  avatarPos,
+  targetPos,
+  speedMod = 1,
+  radius = 1,
+  deltaMs = 16
+) {
   const dist = avatarPos.distanceTo(targetPos);
   if (dist > 1e-4) {
     const dir = getSphericalDirection(avatarPos, targetPos);
-    avatarPos.add(dir.multiplyScalar(dist * 0.015 * speedMod));
+    const step = dist * 0.015 * speedMod * (deltaMs / 16);
+    avatarPos.add(dir.multiplyScalar(step));
     avatarPos.normalize().multiplyScalar(radius);
+
+    // Sanitize position so that accumulated floating point error does not
+    // push the avatar toward the poles over time.
+    const uv = sanitizeUv(spherePosToUv(avatarPos, radius));
+    avatarPos.copy(uvToSpherePos(uv.u, uv.v, radius));
   }
   return spherePosToUv(avatarPos, radius);
 }
