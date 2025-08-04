@@ -38,12 +38,26 @@ export function drawCrystal(ctx, x, y, size, color) {
 }
 
 /**
- * Draws a player‑shaped circle.  Used for echoes and shadow copies.
+ * Draws a player‑shaped circle on a 2D canvas using the player's 3D position.
+ *
+ * The player's {@link THREE.Vector3} `position` is projected onto the canvas
+ * via {@link toCanvasPos} to ensure all rendering originates from the
+ * canonical 3D state.
+ *
+ * @param {CanvasRenderingContext2D} ctx - Rendering context.
+ * @param {{position:THREE.Vector3,r:number}} player - Player object with
+ *   world-space position and radius.
+ * @param {string} color - Fill style for the player representation.
  */
 export function drawPlayer(ctx, player, color) {
+  const { x, y } = toCanvasPos(
+    player.position,
+    ctx.canvas.width,
+    ctx.canvas.height
+  );
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(player.x, player.y, player.r, 0, 2 * Math.PI);
+  ctx.arc(x, y, player.r, 0, 2 * Math.PI);
   ctx.fill();
 }
 

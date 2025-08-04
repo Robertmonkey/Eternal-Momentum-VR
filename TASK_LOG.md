@@ -461,3 +461,9 @@ Verification: node scripts/checkAssetUsage.js
 2025-10-27 – FR-07 – Canvas position helpers
 Summary: Added setPositionFromCanvas helper to convert canvas coordinates into 3D vectors and updated bosses.js to use centralized get/set functions for player position. Introduced unit test verifying round-trip conversion.
 Verification: npm test – all suites pass.
+2025-10-28 – FR-07 – drawPlayer uses 3D state
+Summary: Updated utils.drawPlayer to project the player's THREE.Vector3 position onto the canvas via toCanvasPos, removing last 2D coordinate dependency. Added drawPlayer3d test verifying canvas conversion.
+Verification: npm test – all suites pass.
+2025-10-28 – FR-07 – drawPlayer3d edge cases
+Summary: Expanded drawPlayer3d tests with negative and corner positions to ensure 3D projections map correctly to canvas coordinates.
+Verification: npm test – all suites pass.
