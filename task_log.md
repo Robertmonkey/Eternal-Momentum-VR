@@ -45,6 +45,7 @@
     * [x] Synced row highlight with info button hover and matched button placement/opacity to the 2D version.
     * [x] Matched border translucency and hover effects for rows and info buttons to mirror 2D visuals.
     * [x] Restored Lore Codex story modal and button styling to match the original game's presentation.
+    * [x] Added in-VR tooltips for Mechanics and Lore buttons and pulled stage labels from `STAGE_CONFIG` for fidelity.
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
 
