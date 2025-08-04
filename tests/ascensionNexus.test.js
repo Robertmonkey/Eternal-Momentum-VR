@@ -44,7 +44,7 @@ async function setup() {
   });
 
   await mock.module('../modules/gameHelpers.js', {
-    namedExports: { gameHelpers: {} }
+    namedExports: { gameHelpers: {}, initGameHelpers: () => {} }
   });
 
   await mock.module('../modules/UIManager.js', {
@@ -63,7 +63,8 @@ async function setup() {
       },
       updateTextSprite: () => {},
       getBgTexture: () => null,
-      showUnlockNotification: () => {}
+      showUnlockNotification: () => {},
+      showBossBanner: () => {}
     }
   });
 
