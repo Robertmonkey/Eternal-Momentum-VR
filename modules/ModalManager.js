@@ -75,15 +75,35 @@ function ensureGroup() {
     }
 }
 
-function createButton(label, onSelect, width = 0.5, height = 0.1, color = 0x00ffff, bgColor = 0x111122, textColor, bgOpacity = 0.8) {
+function createButton(
+    label,
+    onSelect,
+    width = 0.5,
+    height = 0.1,
+    color = 0x00ffff,
+    bgColor = 0x111122,
+    textColor,
+    bgOpacity = 0.8,
+    shape = 'rect'
+) {
     const group = new THREE.Group();
     group.name = `button_${label.replace(/\s+/g, '_')}`;
 
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(bgColor, bgOpacity));
+    let bgGeom, borderGeom;
+    if (shape === 'circle') {
+        const radius = width / 2;
+        bgGeom = new THREE.CircleGeometry(radius, 32);
+        borderGeom = new THREE.CircleGeometry(radius + 0.005, 32);
+    } else {
+        bgGeom = new THREE.PlaneGeometry(width, height);
+        borderGeom = new THREE.PlaneGeometry(width + 0.01, height + 0.01);
+    }
+
+    const bg = new THREE.Mesh(bgGeom, holoMaterial(bgColor, bgOpacity));
     const tex = getBgTexture();
     if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
 
-    const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.01, height + 0.01), holoMaterial(color, 0.5));
+    const border = new THREE.Mesh(borderGeom, holoMaterial(color, 0.5));
     border.position.z = -0.001;
 
     const txtColor = textColor !== undefined ? textColor : color;
@@ -381,10 +401,10 @@ function createStageSelectModal() {
 
             row.add(stageText, bossText);
 
-            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xf1c40f, 0.2);
-            mechBtn.position.set(0.35, 0.02, 0.01);
-            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6, 0x9b59b6, 0x9b59b6, 0.2);
-            loreBtn.position.set(0.35, -0.04, 0.01);
+            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xf1c40f, 0.2, 'circle');
+            mechBtn.position.set(0.25, 0, 0.01);
+            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6, 0x9b59b6, 0x9b59b6, 0.2, 'circle');
+            loreBtn.position.set(0.39, 0, 0.01);
             row.add(mechBtn, loreBtn);
 
             row.position.y = 0.4 - (i - 1) * 0.15;
