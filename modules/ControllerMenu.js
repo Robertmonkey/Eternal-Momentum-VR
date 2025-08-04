@@ -11,24 +11,33 @@ let originalUpdateIcon;
 
 function createButton(label, icon, onSelect) {
   const group = new THREE.Group();
-  group.name = `controller_button_${label}`;
+  group.name = `controller_button_${label.replace(/\s+/g, '_')}`;
 
-  // Make the background larger and apply the game's hex texture so buttons
-  // resemble their 2D counterparts.
-  const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.08), holoMaterial(0x111122, 0.8));
+  // Create text sprites first so we can size the background to fit the label
+  // exactly, mirroring the flexible width of the 2D game's buttons.
+  const iconSprite = createTextSprite(icon, 32);
+  const textSprite = createTextSprite(label, 24);
+
+  const padding = 0.02;
+  const iconWidth = iconSprite.scale.x;
+  const textWidth = textSprite.scale.x;
+  const totalWidth = padding * 3 + iconWidth + textWidth;
+
+  // Apply the game's hex texture so buttons resemble their 2D counterparts.
+  const bg = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth, 0.08), holoMaterial(0x111122, 0.8));
   const tex = getBgTexture();
   if (tex) {
     bg.material.map = tex;
     bg.material.needsUpdate = true;
   }
-  const border = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.09), holoMaterial(0x00ffff, 0.5));
+  const border = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth + 0.01, 0.09), holoMaterial(0x00ffff, 0.5));
   border.position.z = -0.001;
   group.add(bg, border);
 
-  const iconSprite = createTextSprite(icon, 32);
-  iconSprite.position.set(-0.09, 0, 0.01);
-  const textSprite = createTextSprite(label, 24);
-  textSprite.position.set(0.04, 0, 0.01);
+  // Position icon and text with even padding from the left edge.
+  const startX = -totalWidth / 2 + padding;
+  iconSprite.position.set(startX + iconWidth / 2, 0, 0.01);
+  textSprite.position.set(iconSprite.position.x + iconWidth / 2 + padding + textWidth / 2, 0, 0.01);
   group.add(iconSprite, textSprite);
 
   const setHover = hovered => {
@@ -63,7 +72,7 @@ export function initControllerMenu() {
   stageBtn.position.set(0, 0.06, 0);
   menuGroup.add(stageBtn);
 
-  const ascBtn = createButton('Ascend', '💠', () => showModal('ascension'));
+  const ascBtn = createButton('Ascension Conduit', '💠', () => showModal('ascension'));
   ascBtn.position.set(0, 0, 0);
   menuGroup.add(ascBtn);
 
