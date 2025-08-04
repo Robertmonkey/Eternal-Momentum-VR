@@ -337,7 +337,16 @@ function createStageSelectModal() {
     listContainer.position.y = -0.1;
     modal.add(listContainer);
 
-    const loreCodexBtn = createButton('LORE CODEX', () => showModal('lore'), 0.4, 0.08, 0xff8800);
+    const loreCodexBtn = createButton(
+        'LORE CODEX',
+        () => showModal('lore'),
+        0.4,
+        0.08,
+        0xff8800,
+        0xff8800,
+        0xff8800,
+        0.25
+    );
     loreCodexBtn.position.set(0.5, 0.5, 0.02);
     modal.add(loreCodexBtn);
 
@@ -764,25 +773,70 @@ function createAscensionModal() {
 }
 
 function createLoreModal() {
-    const modal = createModalContainer(1.2, 1.2, 'LORE CODEX');
+    const modal = createModalContainer(1.2, 1.2, 'ETERNAL MOMENTUM');
     modal.name = 'modal_lore';
+
     const list = new THREE.Group();
     list.position.y = -0.1;
     modal.add(list);
 
-    modal.userData.refresh = () => {
-        disposeGroupChildren(list);
-        const bosses = bossData.filter(b => b.lore);
-        bosses.forEach((b, i) => {
-            const btn = createButton(b.name, () => showBossInfo([b.id], 'lore'), 1.0);
-            btn.position.set(0, 0.4 - i * 0.12, 0.01);
-            list.add(btn);
-        });
-        addScrollBar(modal, list, { itemHeight: 0.12, viewHeight: 0.7, topOffset: 0.4, x: 0.55 });
-    };
+    const sections = [
+        {
+            heading: 'The Unraveling',
+            text:
+                "Reality is not a single thread, but an infinite, shimmering tapestry of timelines. This tapestry is fraying. A formless, silent entropy named the Unraveling consumes existence, timeline by timeline. It is a cosmic error causing reality to decohere into paradox and chaos. As each world's fundamental laws are overwritten, its echoes are twisted into monstrous Aberrations—nightmarish amalgamations of what once was."
+        },
+        {
+            heading: 'The Conduit',
+            text:
+                "Amidst the universal decay, you exist. You are the Conduit, an impossible being capable of maintaining a stable presence across fracturing realities. Your consciousness is imbued with Eternal Momentum—an innate, unyielding drive to push forward, to resist the decay, and to preserve the flickering embers of spacetime. By defeating Aberrations, you reclaim lost fragments of reality's source code, integrating them into your own being through the Ascension Conduit to grow stronger."
+        },
+        {
+            heading: 'Power-ups: Echoes of Stability',
+            text:
+                'The pickups you find scattered across the battlefield are not mere tools; they are concentrated fragments of stable realities that have not yet fully succumbed to the Unraveling. Each one is a memory of a physical law or a powerful concept—the unbreakable defense of a Shield, the impossible speed of a Momentum Drive, the focused devastation of a Missile. By absorbing them, you temporarily impose these stable concepts onto your own existence.'
+        },
+        {
+            heading: 'Aberration Cores: Controlled Chaos',
+            text:
+                "As you gain power and experience, you learn to do more than just defeat Aberrations—you learn to resonate with their very essence. The Aberration Cores are stabilized fragments of their paradoxical existence, which you can attune to your own matrix. Equipping a Core forges a symbiotic link, granting you a fraction of an Aberration's unique power. It is a dangerous and powerful process: wielding the logic of chaos as a weapon against itself."
+        },
+        {
+            heading: 'The Mission',
+            text:
+                "Your journey is a desperate pilgrimage through the collapsing remnants of countless worlds. Each \"stage\" is a pocket of spacetime you temporarily stabilize through sheer force of will. The Ascension Conduit is your means of survival and growth.\nBy defeating Aberrations, you are not merely destroying them; you are reclaiming lost fragments of reality's source code. By integrating these fragments into your own being through the Conduit, you grow stronger, turning the weapons of your enemy into the keys to your salvation."
+        },
+        {
+            heading: "The Weaver's Orrery",
+            text:
+                "The Weaver's Orrery is your greatest tool. A mysterious device left by a precursor race, it allows you to manipulate the Echoes of Creation—the residual energy left by powerful Aberrations.\nWith the Orrery, you can forge custom timelines, simulating encounters against the multiverse's most dangerous threats. This is not mere practice; it is a way to hone your skills and prepare for the ultimate confrontation against the silent, all-consuming heart of the Unraveling."
+        },
+        {
+            heading: '',
+            text: 'You are the final anchor in a storm of nonexistence. Hold the line. Maintain your momentum.'
+        }
+    ];
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
-    closeBtn.position.set(0, -0.5, 0.01);
+    const lines = [];
+    sections.forEach(sec => {
+        if (sec.heading) {
+            lines.push({ text: sec.heading, color: '#9b59b6' });
+        }
+        const wrapped = wrapText(sec.text, 60).split('\n');
+        wrapped.forEach(l => lines.push({ text: l, color: '#eaf2ff' }));
+        lines.push({ text: '', color: '#eaf2ff' });
+    });
+
+    lines.forEach(line => {
+        const sprite = createTextSprite(line.text || ' ', 32, line.color, 'left');
+        sprite.position.x = -0.55;
+        list.add(sprite);
+    });
+
+    addScrollBar(modal, list, { itemHeight: 0.06, viewHeight: 0.9, topOffset: 0.45, x: 0.55 });
+
+    const closeBtn = createButton('Close', () => showModal('levelSelect'), 0.6, 0.1, 0xf000ff);
+    closeBtn.position.set(0, -0.55, 0.01);
     modal.add(closeBtn);
     return modal;
 }
