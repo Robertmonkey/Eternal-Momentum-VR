@@ -3,6 +3,7 @@
 ## Core Gameplay Bugs
 
 * [x] **Enemy and Boss Tracking:** Fix the bug causing enemies to move towards the poles. — Completed
+    * Refined spherical movement calculations to avoid pole drift on antipodal targets.
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
     * [ ] Ensure all other power-ups are functional.

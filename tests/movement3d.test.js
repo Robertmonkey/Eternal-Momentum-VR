@@ -11,3 +11,12 @@ test('getSphericalDirection returns a tangent unit vector toward target', () => 
   assert.ok(Math.abs(dir.dot(from)) < 1e-2, 'direction should be tangent to from');
   assert.ok(dir.dot(to) > 0, 'direction should point toward target');
 });
+
+test('getSphericalDirection handles antipodal points without instability', () => {
+  const from = new THREE.Vector3(0, 0, 1);
+  const to = new THREE.Vector3(0, 0, -1);
+  const dir = getSphericalDirection(from, to);
+  assert.ok(Number.isFinite(dir.length()), 'direction should be a finite vector');
+  assert.ok(Math.abs(dir.length() - 1) < 1e-6, 'direction should be unit length');
+  assert.ok(Math.abs(dir.dot(from)) < 1e-2, 'direction should be tangent to from');
+});

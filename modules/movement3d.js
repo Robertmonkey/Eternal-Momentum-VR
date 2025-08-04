@@ -35,11 +35,21 @@ function slerpUnitVectors (start, end, t) {
 export function getSphericalDirection(from, to) {
   const fromNorm = from.clone().normalize();
   const toNorm = to.clone().normalize();
-  // Step a small amount along the great-circle arc toward the target using
-  // spherical linear interpolation. Vector3 lacks a built-in slerp on the
-  // project's Three.js version, so we compute it manually.
-  const intermediate = slerpUnitVectors(fromNorm, toNorm, 0.01);
-  return intermediate.sub(fromNorm).normalize();
+
+  // The tangent direction is obtained by rotating the start vector toward the
+  // target along the great-circle path. Using the cross-product twice avoids
+  // numerical instability when the points are near-opposite, which previously
+  // caused agents to drift toward the sphere's poles.
+  const axis = new THREE.Vector3().crossVectors(fromNorm, toNorm);
+  if (axis.lengthSq() < 1e-10) {
+    // If the vectors are parallel or antiparallel, pick an arbitrary axis
+    // orthogonal to the start vector.
+    axis.set(0, 1, 0).cross(fromNorm);
+    if (axis.lengthSq() < 1e-10) {
+      axis.set(1, 0, 0).cross(fromNorm);
+    }
+  }
+  return new THREE.Vector3().crossVectors(axis, fromNorm).normalize();
 }
 
 /**
