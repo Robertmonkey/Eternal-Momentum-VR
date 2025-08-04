@@ -212,9 +212,34 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
         break;
       }
       case 'shockwave':{
+        if(!ef.mesh){
+          const geom = new THREE.SphereGeometry(1, 16, 16);
+          const mat = new THREE.MeshBasicMaterial({
+            color: ef.color || 0xffffff,
+            transparent: true,
+            opacity: 0.3,
+            wireframe: true
+          });
+          ef.mesh = new THREE.Mesh(geom, mat);
+          if(projectileGroup) projectileGroup.add(ef.mesh);
+        }
+
         ef.radius += ef.speed * 0.05 * deltaFactor;
+        if(ef.mesh){
+          ef.mesh.position.copy(ef.position);
+          ef.mesh.scale.setScalar(Math.max(ef.radius, 0.001));
+        }
+
         state.enemies.forEach(e=>{ if(e.alive && !ef.hitEnemies.has(e) && e.position.distanceTo(ef.position) < ef.radius + (e.r||0.5)){ if(canDamage(ef.caster, e)){ e.takeDamage(ef.damage, ef.caster===state.player); } const dir = e.position.clone().sub(ef.position).normalize(); e.position.add(dir.multiplyScalar(0.5)); ef.hitEnemies.add(e); }});
-        if(ef.radius >= ef.maxRadius){ state.effects.splice(i,1); }
+
+        if(ef.radius >= ef.maxRadius){
+          if(ef.mesh){
+            if(projectileGroup) projectileGroup.remove(ef.mesh);
+            ef.mesh.geometry.dispose();
+            ef.mesh.material.dispose();
+          }
+          state.effects.splice(i,1);
+        }
         break;
       }
       case 'black_hole':{
