@@ -378,16 +378,19 @@ function createStageSelectModal() {
             const row = createButton('', startStage, 0.9, 0.12, 0x00ffff, 0x00ffff, 0x00ffff, 0.1);
             const bg = row.children[0];
             const border = row.children[1];
+            border.material.opacity = 0.4; // match rgba border from 2D menu
             if (row.children[2]) row.children[2].visible = false; // hide default label
 
             const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
             stageText.position.set(-0.43, 0.02, 0.01);
             const bossText = createTextSprite(bossNames, 24, '#eaf2ff', 'left');
+            bossText.material.opacity = 0.8;
             bossText.position.set(-0.43, -0.04, 0.01);
             enableTextScroll(bossText, 0.6);
 
             const handleHover = hovered => {
                 bg.material.opacity = hovered ? 0.2 : 0.1;
+                border.material.opacity = hovered ? 1 : 0.4;
                 border.material.color.setHex(hovered ? 0xffffff : 0x00ffff);
                 if (bossText.userData.scrollStart) {
                     hovered ? bossText.userData.scrollStart() : bossText.userData.scrollStop();
@@ -403,6 +406,8 @@ function createStageSelectModal() {
 
             const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xffffff, 0.2, 'circle');
             const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6, 0x9b59b6, 0xffffff, 0.2, 'circle');
+            mechBtn.children[1].material.opacity = 0.8;
+            loreBtn.children[1].material.opacity = 0.8;
             const setupInfoBtnHover = (btn) => {
                 const btnBg = btn.children[0];
                 btn.userData.onHover = hovered => {
@@ -410,8 +415,8 @@ function createStageSelectModal() {
                     handleHover(hovered);
                 };
             };
-            mechBtn.position.set(0.19, 0, 0.01);
-            loreBtn.position.set(0.34, 0, 0.01);
+            mechBtn.position.set(0.23, 0, 0.01);
+            loreBtn.position.set(0.37, 0, 0.01);
             setupInfoBtnHover(mechBtn);
             setupInfoBtnHover(loreBtn);
             row.add(mechBtn, loreBtn);
