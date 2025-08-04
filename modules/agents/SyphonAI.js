@@ -31,23 +31,24 @@ export class SyphonAI extends BaseAgent {
       this.isCharging = true;
       gameHelpers.play('chargeUpSound');
 
-      const targetDirection = state.player.position.clone().sub(this.position).normalize();
-
-      // Create a warning cone effect
-      state.effects.push({
+      const effect = {
         type: 'syphon_cone',
         source: this,
-        direction: targetDirection,
+        direction: state.player.position.clone().sub(this.position).normalize(),
+        startTime: now,
         endTime: now + 2500,
-      });
+      };
+
+      // Create a warning cone effect that can track the player
+      state.effects.push(effect);
 
       setTimeout(() => {
         if (!this.alive) return;
 
         const playerDirection = state.player.position.clone().sub(this.position).normalize();
-        const angle = playerDirection.angleTo(targetDirection);
+        const angle = playerDirection.angleTo(effect.direction);
 
-        if (angle < Math.PI / 8) { // Check if player is within the cone's angle
+        if (angle < Math.PI / 8) {
           const stolenPower = state.offensiveInventory[0];
           if (stolenPower) {
             gameHelpers.play('powerAbsorb');
@@ -56,7 +57,7 @@ export class SyphonAI extends BaseAgent {
             // In a fuller implementation, the boss would use the stolen power here
           }
         }
-        
+
         this.isCharging = false;
         this.lastSyphonTime = now + 2500;
       }, 2500);
