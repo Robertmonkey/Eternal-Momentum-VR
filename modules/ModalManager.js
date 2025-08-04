@@ -890,7 +890,7 @@ function createAscensionModal() {
     const clearBtn = createButton('ERASE TIMELINE', () => {
         showConfirm(
             '|| SEVER TIMELINE? ||',
-            'All Ascension progress and unlocked powers will be lost to the void. This action cannot be undone.',
+            'All Ascension progress and unlocked powers will be lost to the void.\nThis action cannot be undone.',
             () => {
                 localStorage.removeItem('eternalMomentumSave');
                 window.location.reload();

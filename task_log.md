@@ -82,3 +82,4 @@
 * [x] Matched game over title color and glow to the 2D game's design.
 * [x] Styled game over menu buttons and background to match the 2D color scheme.
 * [x] Refined confirm modal with magenta border and button colors matching the 2D game's custom confirm dialog.
+* [x] Prevented sever timeline warning text from overflowing its menu.
