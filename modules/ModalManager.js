@@ -234,24 +234,30 @@ function createSettingsModal() {
 }
 
 function createConfirmModal() {
-    const modal = createModalContainer(0.9, 0.5, 'CONFIRM');
+    // Match the 2D game's confirm dialog styling: magenta border and title,
+    // red confirm button, and a bright magenta cancel button.
+    const modal = createModalContainer(0.9, 0.5, 'CONFIRM', {
+        titleColor: '#f000ff',
+        borderColor: 0xf000ff,
+        borderOpacity: 1,
+    });
     modal.name = 'modal_confirm';
-    
+
     const text = createTextSprite('This action cannot be undone.', 32);
     text.position.set(0, 0.05, 0.01);
     modal.add(text);
-    
+
     const yesBtn = createButton('Confirm', () => {
         if (confirmCallback) confirmCallback();
         hideModal();
-    }, 0.3, 0.1, 0xe74c3c);
+    }, 0.3, 0.1, 0xe74c3c, 0xc0392b, 0xffffff);
     yesBtn.position.set(-0.2, -0.15, 0.01);
     modal.add(yesBtn);
-    
-    const noBtn = createButton('Cancel', () => hideModal(), 0.3, 0.1, 0xf000ff);
+
+    const noBtn = createButton('Cancel', () => hideModal(), 0.3, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
     noBtn.position.set(0.2, -0.15, 0.01);
     modal.add(noBtn);
-    
+
     modal.userData = { titleSprite: modal.children.find(c => c.userData.isTitle), textSprite: text };
     return modal;
 }
