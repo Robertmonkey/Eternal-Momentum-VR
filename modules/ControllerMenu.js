@@ -59,7 +59,7 @@ export function initControllerMenu() {
   // keeps relative spacing intact while matching the 2D game's footprint.
   menuGroup.scale.setScalar(1.5);
 
-  const stageBtn = createButton('Stages', '🗺️', () => showModal('levelSelect'));
+  const stageBtn = createButton('Stage Select', '🗺️', () => showModal('levelSelect'));
   stageBtn.position.set(0, 0.06, 0);
   menuGroup.add(stageBtn);
 

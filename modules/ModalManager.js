@@ -9,10 +9,16 @@ import { purchaseTalent, isTalentVisible, getConstellationColorOfTalent } from '
 import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
 import { disposeGroupChildren, wrapText } from './helpers.js';
+import { STAGE_CONFIG } from './config.js';
 
 let modalGroup;
 const modals = {};
 let confirmCallback;
+
+function getBossesForStage(stageNum) {
+    const stageData = STAGE_CONFIG.find(s => s.stage === stageNum);
+    return stageData ? stageData.bosses : [];
+}
 
 // --- UTILITY FUNCTIONS ---
 
@@ -292,9 +298,9 @@ function createStageSelectModal() {
         disposeGroupChildren(listContainer);
         arenaBtn.visible = state.player.highestStageBeaten >= 30;
         const maxStage = state.player.highestStageBeaten + 1;
-        for (let i = 1; i <= Math.min(maxStage, 30); i++) {
-            const bossIds = bossData.filter(b => b.unlock_level === (i * 5 - 5) + 10).map(b => b.id);
-            if (!bossIds.length) continue;
+        for (let i = 1; i <= maxStage; i++) {
+            const bossIds = getBossesForStage(i);
+            if (!bossIds || bossIds.length === 0) continue;
             const bossNames = bossIds.map(id => {
                 const b = bossData.find(x => x.id === id);
                 return b ? b.name : 'Unknown';
@@ -332,9 +338,9 @@ function createStageSelectModal() {
             });
             row.add(stageText, bossText);
 
-            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f);
+            const mechBtn = createButton('❔', () => showBossInfo(bossIds, 'mechanics'), 0.12, 0.12, 0xf1c40f, 0xf1c40f, 0xf1c40f, 0.2);
             mechBtn.position.set(0.35, 0.02, 0.01);
-            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6);
+            const loreBtn = createButton('ℹ️', () => showBossInfo(bossIds, 'lore'), 0.12, 0.12, 0x9b59b6, 0x9b59b6, 0x9b59b6, 0.2);
             loreBtn.position.set(0.35, -0.04, 0.01);
             row.add(mechBtn, loreBtn);
 
