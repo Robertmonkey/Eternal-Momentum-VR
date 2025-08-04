@@ -393,8 +393,6 @@ function createStageSelectModal() {
                 const b = bossData.find(x => x.id === id);
                 return b ? b.name : 'Unknown';
             }).join(' & ');
-            const stageInfo = STAGE_CONFIG.find(s => s.stage === i);
-            const stageLabel = stageInfo?.displayName || bossNames;
 
             const startStage = () => {
                 state.currentStage = i;
@@ -411,7 +409,7 @@ function createStageSelectModal() {
 
             const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
             stageText.position.set(-0.43, 0.02, 0.01);
-            const bossText = createTextSprite(stageLabel, 24, '#eaf2ff', 'left');
+            const bossText = createTextSprite(bossNames, 24, '#eaf2ff', 'left');
             bossText.material.opacity = 0.8;
             bossText.position.set(-0.43, -0.04, 0.01);
             enableTextScroll(bossText, 0.6);
