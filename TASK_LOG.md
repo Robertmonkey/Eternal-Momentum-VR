@@ -475,3 +475,6 @@ Verification: npm test – all suites pass.
 2025-10-30 – FR-05 – Shield visual effect
 Summary: Implemented a glowing sphere visual for the Shield power. `updateEffects3d` now renders `shield_activation` effects that follow the player and fade as the shield expires. Added unit test `shieldEffect.test.js` verifying mesh lifecycle and updated powers.js to enqueue timed shield effects.
 Verification: npm test – all suites pass.
+2025-10-31 – FR-07 – Particle system 3D conversion
+Summary: Reworked spawnParticles and updateParticles to store positions and velocities as THREE.Vector3 and project to canvas via toCanvasPos. Added particles3d test verifying 3D projection and lifecycle.
+Verification: npm test – all suites pass.
