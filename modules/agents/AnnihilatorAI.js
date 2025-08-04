@@ -9,13 +9,7 @@ const ARENA_RADIUS = 50;
 
 export class AnnihilatorAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.CylinderGeometry(0.5, 1, 2, 8);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xd63031,
-        emissive: 0xd63031,
-        emissiveIntensity: 0.4
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xd63031 });
 
     const bossData = { id: "annihilator", name: "The Annihilator", maxHP: 480 };
     this.kind = bossData.id;

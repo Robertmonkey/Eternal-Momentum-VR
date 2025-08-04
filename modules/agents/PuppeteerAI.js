@@ -5,13 +5,7 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class PuppeteerAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.SphereGeometry(0.7, 12, 12);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xa29bfe,
-        emissive: 0xa29bfe,
-        emissiveIntensity: 0.6
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xa29bfe });
     
     const bossData = { id: "puppeteer", name: "The Puppeteer", maxHP: 320 };
     this.kind = bossData.id;

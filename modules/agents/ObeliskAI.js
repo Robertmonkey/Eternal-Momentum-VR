@@ -8,13 +8,7 @@ const ARENA_RADIUS = 50;
 // The Conduit minions need to be defined as their own class
 export class ObeliskConduitAI extends BaseAgent {
     constructor(parentObelisk, conduitType, color, initialAngle) {
-        const geometry = new THREE.IcosahedronGeometry(0.6, 1);
-        const material = new THREE.MeshStandardMaterial({
-            color: color,
-            emissive: color,
-            emissiveIntensity: 0.7
-        });
-        super({ model: new THREE.Mesh(geometry, material) });
+        super({ color: 0x2c3e50 });
 
         this.maxHP = 250;
         this.health = this.maxHP;

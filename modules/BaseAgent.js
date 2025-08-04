@@ -6,11 +6,23 @@ import * as CoreManager from './CoreManager.js';
 export class BaseAgent extends THREE.Group {
   constructor(options = {}) {
     super();
-    const { health = 1, model = null } = options;
+    const { health = 1, model = null, color = null, radius = 0.65 } = options;
     this.maxHealth = health;
     this.health = health;
     this.alive = true;
-    if (model) this.add(model);
+    if (model) {
+      this.add(model);
+      this.model = model;
+    } else if (color !== null) {
+      const material = new THREE.MeshStandardMaterial({
+        color,
+        emissive: color,
+        emissiveIntensity: 0.5,
+      });
+      const geometry = new THREE.SphereGeometry(radius, 32, 16);
+      this.model = new THREE.Mesh(geometry, material);
+      this.add(this.model);
+    }
   }
 
   update(/* delta, player */) {

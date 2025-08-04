@@ -8,15 +8,7 @@ const ARENA_RADIUS = 50;
 
 export class JuggernautAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.CapsuleGeometry(0.8, 1.0, 4, 8);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x636e72,
-        emissive: 0x636e72,
-        emissiveIntensity: 0.2,
-        metalness: 0.8,
-        roughness: 0.3
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x636e72 });
 
     const bossData = { id: "juggernaut", name: "The Juggernaut", maxHP: 360 };
     this.kind = bossData.id;

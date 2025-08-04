@@ -6,13 +6,7 @@ const ARENA_RADIUS = 50;
 
 export class GravityAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.TorusKnotGeometry(0.7, 0.2, 64, 8);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x9b59b6,
-        emissive: 0x9b59b6,
-        emissiveIntensity: 0.5
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x9b59b6 });
 
     const bossData = { id: "gravity", name: "Gravity Tyrant", maxHP: 168 };
     this.kind = bossData.id;

@@ -10,15 +10,7 @@ import { AnnihilatorAI } from './AnnihilatorAI.js';
 
 export class PantheonAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.IcosahedronGeometry(1.2, 1);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xecf0f1,
-        emissive: 0xffffff,
-        emissiveIntensity: 0.2,
-        metalness: 1.0,
-        roughness: 0.1
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xecf0f1 });
 
     const bossData = { id: "pantheon", name: "The Pantheon", maxHP: 3000 };
     this.kind = bossData.id;

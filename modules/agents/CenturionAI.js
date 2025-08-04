@@ -7,13 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class CenturionAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xd35400,
-        emissive: 0xd35400,
-        emissiveIntensity: 0.5
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xd35400 });
 
     const bossData = { id: "centurion", name: "The Centurion", maxHP: 480 };
     this.kind = bossData.id;

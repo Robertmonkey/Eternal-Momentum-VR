@@ -5,15 +5,7 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class EpochEnderAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.SphereGeometry(0.8, 16, 16);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0xbdc3c7,
-        emissive: 0xbdc3c7,
-        emissiveIntensity: 0.2,
-        metalness: 0.9,
-        roughness: 0.4
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0xbdc3c7 });
 
     const bossData = { id: "epoch_ender", name: "The Epoch-Ender", maxHP: 550 };
     this.kind = bossData.id;

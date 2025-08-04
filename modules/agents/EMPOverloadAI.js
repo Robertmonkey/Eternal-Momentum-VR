@@ -5,13 +5,7 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class EMPOverloadAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.TorusGeometry(0.8, 0.2, 16, 32);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x3498db,
-        emissive: 0x3498db,
-        emissiveIntensity: 0.6
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x3498db });
 
     const bossData = { id: "emp", name: "EMP Overload", maxHP: 260 };
     this.kind = bossData.id;

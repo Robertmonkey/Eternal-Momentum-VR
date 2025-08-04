@@ -7,13 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class SingularityAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.IcosahedronGeometry(1.0, 2);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x000000,
-        metalness: 0.9,
-        roughness: 0.1
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x000000 });
 
     const bossData = { id: "singularity", name: "The Singularity", maxHP: 600 };
     this.kind = bossData.id;

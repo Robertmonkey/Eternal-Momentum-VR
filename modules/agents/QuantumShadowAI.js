@@ -7,15 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class QuantumShadowAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.SphereGeometry(0.7, 32, 16);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x81ecec,
-        emissive: 0x81ecec,
-        emissiveIntensity: 0.7,
-        transparent: true,
-        opacity: 1.0
-    });
-    super({ model: new THREE.Mesh(geometry, material) });
+    super({ color: 0x81ecec });
 
     const bossData = { id: "quantum_shadow", name: "Quantum Shadow", maxHP: 360 };
     this.kind = bossData.id;
