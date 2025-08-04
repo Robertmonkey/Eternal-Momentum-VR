@@ -171,4 +171,8 @@ export function resetGame(bossData) { // Now accepts bossData to avoid circular 
         bossSpawnCooldownEnd: 0,
         isPaused: false,
     });
+
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('gameReset'));
+    }
 }

@@ -79,13 +79,27 @@ export function sanitizeUv({ u, v }) {
 export function moveTowards(
   avatarPos,
   targetPos,
-  speedMod = 1,
+ speedMod = 1,
   radius = 1,
   deltaMs = 16
 ) {
-  const dist = avatarPos.distanceTo(targetPos);
+  if (targetPos.lengthSq() < 1e-6) {
+    // A zero-length target (e.g., the sphere's centre) would cause the
+    // movement math to collapse and send the avatar toward a pole. When this
+    // occurs simply hold position by returning the current coordinates.
+    return spherePosToUv(avatarPos, radius);
+  }
+
+  // Constrain the target to the sphere and away from the poles so that we
+  // always move along a well-defined great-circle path. Without this clamp the
+  // default reset target at (0,0,0) would normalize to a pole and trap all
+  // agents there.
+  const safeUv = sanitizeUv(spherePosToUv(targetPos, radius));
+  const safeTarget = uvToSpherePos(safeUv.u, safeUv.v, radius);
+
+  const dist = avatarPos.distanceTo(safeTarget);
   if (dist > 1e-4) {
-    const dir = getSphericalDirection(avatarPos, targetPos);
+    const dir = getSphericalDirection(avatarPos, safeTarget);
     const step = dist * 0.015 * speedMod * (deltaMs / 16);
     avatarPos.add(dir.multiplyScalar(step));
     avatarPos.normalize().multiplyScalar(radius);

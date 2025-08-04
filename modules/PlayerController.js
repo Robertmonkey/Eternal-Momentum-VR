@@ -39,6 +39,22 @@ let hoveredUi = null;
 const assetManager = new AssetManager();
 let lastUpdateTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
+function resetAvatarPosition() {
+    const arena = getArena();
+    if (!arena || !avatar) return;
+    const radius = arena.geometry.parameters.radius;
+    const startPos = new THREE.Vector3(0, 0, radius);
+    avatar.position.copy(startPos);
+    state.player.position.copy(startPos);
+    targetPoint.copy(startPos);
+    if (laser) laser.scale.z = radius * 2;
+    if (crosshair) crosshair.visible = false;
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('gameReset', resetAvatarPosition);
+}
+
 function onSelectStart() {
     if (!triggerDown) triggerJustPressed = true;
     triggerDown = true;
@@ -215,3 +231,5 @@ export function updatePlayerController() {
 export function getAvatar() {
     return avatar;
 }
+
+export { resetAvatarPosition as resetPlayerAvatar };
