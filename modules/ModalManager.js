@@ -633,10 +633,9 @@ function createAscensionModal() {
     function createApDisplay() {
         const group = new THREE.Group();
         // Match the 2D game's semi-transparent header box and cyan border.
-        const bgWidth = 0.5;
         const bgHeight = 0.15;
-        const bg = new THREE.Mesh(new THREE.PlaneGeometry(bgWidth, bgHeight), holoMaterial(0x000000, 0.3));
-        const border = new THREE.Mesh(new THREE.PlaneGeometry(bgWidth + 0.02, bgHeight + 0.02), holoMaterial(0x00ffff, 0.4));
+        const bg = new THREE.Mesh(new THREE.PlaneGeometry(1, bgHeight), holoMaterial(0x000000, 0.3));
+        const border = new THREE.Mesh(new THREE.PlaneGeometry(1.02, bgHeight + 0.02), holoMaterial(0x00ffff, 0.4));
         border.position.z = -0.001;
 
         // Use the same cyan/white pairing as the 2D header and tone the label
@@ -648,15 +647,25 @@ function createAscensionModal() {
 
         const padding = 0.02;
         function updateLayout() {
-            const halfBg = bgWidth / 2;
-            const valWidth = value.scale.x;
-            value.position.set(halfBg - padding - valWidth / 2, 0, 0.01);
             const labelWidth = label.scale.x;
+            const valWidth = value.scale.x;
+            const totalWidth = labelWidth + valWidth + padding * 3;
+
+            // Resize the background and border to snugly wrap the content.
+            bg.geometry.dispose();
+            bg.geometry = new THREE.PlaneGeometry(totalWidth, bgHeight);
+            border.geometry.dispose();
+            border.geometry = new THREE.PlaneGeometry(totalWidth + 0.02, bgHeight + 0.02);
+
+            const halfBg = totalWidth / 2;
+            value.position.set(halfBg - padding - valWidth / 2, 0, 0.01);
             label.position.set(value.position.x - valWidth / 2 - padding - labelWidth / 2, 0, 0.01);
+
+            group.userData.bgWidth = totalWidth;
         }
 
         group.add(bg, border, label, value);
-        group.userData = { value, updateLayout, bgWidth };
+        group.userData = { value, updateLayout, bgWidth: 0 };
         updateLayout();
         return group;
     }
@@ -842,7 +851,10 @@ function createAscensionModal() {
         });
 
         updateTextSprite(apDisplay.userData.value, `${state.player.ascensionPoints}`);
-        if (apDisplay.userData.updateLayout) apDisplay.userData.updateLayout();
+        if (apDisplay.userData.updateLayout) {
+            apDisplay.userData.updateLayout();
+            apDisplay.position.x = width / 2 - apDisplay.userData.bgWidth / 2 - 0.1;
+        }
     };
 
     const closeBtn = createButton('CLOSE', () => hideModal(), 0.6, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
