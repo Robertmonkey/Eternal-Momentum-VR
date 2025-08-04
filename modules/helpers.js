@@ -146,6 +146,9 @@ export function applyPlayerHeal(amount) {
  * @returns {string} Wrapped text.
  */
 export function wrapText(text, maxLen = 60) {
+  if (!Number.isFinite(maxLen) || maxLen <= 0) {
+    return String(text).trim();
+  }
   const lines = String(text).split('\n');
   return lines.map(line => {
     const words = line.split(' ');
