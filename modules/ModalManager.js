@@ -679,8 +679,15 @@ function createBossInfoModal() {
 }
 
 function createGameOverModal() {
-    const modal = createModalContainer(1.2, 1.0, 'TIMELINE COLLAPSED');
+    // Mirror the horizontal layout of the 2D game's game over menu by making
+    // the container wider and arranging the buttons in a single row.
+    const modal = createModalContainer(1.4, 1.0, 'TIMELINE COLLAPSED');
     modal.name = 'modal_gameOver';
+
+    const btnWidth = 0.3;
+    const gap = 0.06;
+    const startX = -0.7 + btnWidth / 2;
+    const y = -0.2;
 
     const restartBtn = createButton('Restart Stage', () => {
         resetGame(bossData);
@@ -688,20 +695,29 @@ function createGameOverModal() {
         // sure the primary controller is re-evaluated after a restart.
         refreshPrimaryController();
         hideModal();
-    }, 0.8, 0.1, 0x00ffff);
-    restartBtn.position.set(0, 0.2, 0.01);
+    }, btnWidth, 0.1, 0x00ffff);
+    restartBtn.position.set(startX, y, 0.01);
     modal.add(restartBtn);
 
-    const ascBtn = createButton('Ascension Conduit', () => { hideModal(); showModal('ascension'); }, 0.8, 0.1, 0xff8800);
-    ascBtn.position.set(0, 0.05, 0.01);
+    const ascBtn = createButton('Ascension Conduit', () => {
+        hideModal();
+        showModal('ascension');
+    }, btnWidth, 0.1, 0xff8800);
+    ascBtn.position.set(startX + (btnWidth + gap), y, 0.01);
     modal.add(ascBtn);
 
-    const coreBtn = createButton('Aberration Cores', () => { hideModal(); showModal('cores'); }, 0.8, 0.1, 0x00ff00);
-    coreBtn.position.set(0, -0.1, 0.01);
+    const coreBtn = createButton('Aberration Cores', () => {
+        hideModal();
+        showModal('cores');
+    }, btnWidth, 0.1, 0x00ff00);
+    coreBtn.position.set(startX + 2 * (btnWidth + gap), y, 0.01);
     modal.add(coreBtn);
 
-    const stageBtn = createButton('Stage Select', () => { hideModal(); showModal('levelSelect'); }, 0.8, 0.1, 0x9b59b6);
-    stageBtn.position.set(0, -0.25, 0.01);
+    const stageBtn = createButton('Stage Select', () => {
+        hideModal();
+        showModal('levelSelect');
+    }, btnWidth, 0.1, 0x9b59b6);
+    stageBtn.position.set(startX + 3 * (btnWidth + gap), y, 0.01);
     modal.add(stageBtn);
 
     return modal;
