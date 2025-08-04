@@ -44,6 +44,7 @@
     * [x] Restored AP header styling and hover sound cues to match the 2D Ascension interface.
     * [x] Realigned talent nodes and connector lines so constellations mirror the 2D arrangement exactly.
     * [x] Switched talent nodes to circular buttons and mirrored 2D click responses.
+    * [x] Updated controller menu Ascension button to use original 'Ascension Conduit' wording with auto-sized background.
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
     * [x] Reworked stage list to use original stage configuration and match button colors.
