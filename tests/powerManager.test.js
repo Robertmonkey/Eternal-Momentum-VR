@@ -49,3 +49,20 @@ test('adding power and recycling does not consume inventory', () => {
   assert.equal(updateHud.mock.calls.length, 2);
 });
 
+test('addPowerToInventory handles newly unlocked slots without placeholders', () => {
+  const updateHud = mock.fn();
+  initGameHelpers({ play: () => {}, updateHud });
+
+  // Inventory has one filled slot and capacity for two. No null placeholder for
+  // the second slot yet.
+  state.offensiveInventory = ['missile'];
+  state.player.unlockedOffensiveSlots = 2;
+  state.player.purchasedTalents = new Map();
+
+  const added = addPowerToInventory('chain');
+  assert.ok(added);
+  assert.equal(state.offensiveInventory.length, 2);
+  assert.deepEqual(state.offensiveInventory, ['missile', 'chain']);
+  assert.equal(updateHud.mock.calls.length, 1);
+});
+

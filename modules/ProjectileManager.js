@@ -40,6 +40,12 @@ export function updateProjectiles(stepFn, collisionFn) {
     }
     if (!p.alive) {
       active.splice(i, 1);
+      // Reset mutable fields so stale state doesn't leak when the projectile is
+      // reused from the pool.
+      if (p.position && p.position.isVector3) p.position.set(0, 0, 0);
+      if (p.velocity && p.velocity.isVector3) p.velocity.set(0, 0, 0);
+      p.r = 0;
+      p.damage = 0;
       pool.push(p);
     }
   }
@@ -49,7 +55,10 @@ export function resetProjectiles() {
   while (active.length) {
     const p = active.pop();
     p.alive = false;
+    if (p.position && p.position.isVector3) p.position.set(0, 0, 0);
     if (p.velocity && p.velocity.isVector3) p.velocity.set(0, 0, 0);
+    p.r = 0;
+    p.damage = 0;
     pool.push(p);
   }
 }

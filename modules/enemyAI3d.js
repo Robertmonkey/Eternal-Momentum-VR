@@ -39,6 +39,11 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
   state.player.position.copy(uvToSpherePos(playerUv.u, playerUv.v, radius));
 
   state.enemies.forEach(e => {
+    // Some systems leave defeated enemies in the array for clean-up. Skip any
+    // entity explicitly marked as not alive so they don't continue to track the
+    // player or consume CPU.
+    if (e && e.alive === false) return;
+
     if (typeof e.update === 'function') {
       e.update(deltaMs);
     }

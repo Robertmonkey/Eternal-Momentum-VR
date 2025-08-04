@@ -55,3 +55,4 @@
 * [x] Added unit tests for `clamp` and `applyPlayerHeal`.
 * [x] Centralized power-up inventory management in `PowerManager` for reliability.
 * [x] Hardened projectile pooling and coordinate helpers to reset reused objects and validate inputs.
+* [x] Improved inventory overflow handling, projectile pooling cleanup, enemy update skipping of dead entities, stable spherical direction math and optional radius parameter for canvas-to-sphere conversions.

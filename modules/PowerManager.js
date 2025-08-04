@@ -32,6 +32,15 @@ export function addPowerToInventory(powerKey) {
     return true;
   }
 
+  // When a new slot is unlocked the inventory array might not yet contain a
+  // `null` placeholder at that index. Push the power directly if we still have
+  // capacity, otherwise fall back to overload-protocol handling below.
+  if (inv.length < max) {
+    inv.push(powerKey);
+    if (gameHelpers.updateHud) gameHelpers.updateHud();
+    return true;
+  }
+
   if (state.player.purchasedTalents.has('overload-protocol')) {
     gameHelpers.addStatusEffect?.('Auto-Used', powers[powerKey]?.emoji || '?', 2000);
     usePower(powerKey, true);

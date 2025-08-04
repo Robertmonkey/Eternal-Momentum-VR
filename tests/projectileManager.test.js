@@ -4,6 +4,7 @@ import * as THREE from '../vendor/three.module.js';
 
 const {
   spawnProjectile,
+  updateProjectiles,
   resetProjectiles,
   getActiveProjectiles,
 } = await import('../modules/ProjectileManager.js');
@@ -33,5 +34,18 @@ test('resetProjectiles clears active array and marks projectiles dead', () => {
   const recycled = spawnProjectile();
   assert.ok(recycled.alive);
   assert.ok(recycled.velocity.lengthSq() === 0);
+  clearProjectiles();
+});
+
+test('updateProjectiles recycles spent projectiles and clears state', () => {
+  clearProjectiles();
+  const p = spawnProjectile({ r: 3, damage: 7, position: new THREE.Vector3(1,1,1) });
+  // Mark projectile for removal
+  updateProjectiles(() => {}, () => true);
+  assert.equal(getActiveProjectiles().length, 0);
+  const reused = spawnProjectile();
+  assert.equal(reused.r, 0);
+  assert.equal(reused.damage, 0);
+  assert.ok(reused.position.lengthSq() === 0);
   clearProjectiles();
 });
