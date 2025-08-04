@@ -57,12 +57,15 @@ async function setup() {
         opacity,
         dispose: () => {}
       }),
-      createTextSprite: () => {
+      createTextSprite: (text = '') => {
         const obj = new THREE.Object3D();
         obj.material = { color: new THREE.Color(0xffffff), dispose: () => {} };
+        obj.userData = { text };
         return obj;
       },
-      updateTextSprite: () => {},
+      updateTextSprite: (obj, newText) => {
+        obj.userData.text = newText;
+      },
       getBgTexture: () => null,
       showUnlockNotification: () => {},
       showBossBanner: () => {}
@@ -70,7 +73,7 @@ async function setup() {
   });
 
   const { initModals, showModal, getModalObjects } = await import('../modules/ModalManager.js');
-  return { scene, initModals, showModal, getModalObjects };
+  return { scene, initModals, showModal, getModalObjects, state };
 }
 
 test('nexus talents use green border color', async () => {
@@ -114,3 +117,20 @@ test('ascension modal buttons mirror 2D colors', async () => {
   assert.equal(headerLine.material.color.getHex(), 0x00ffff);
   assert.equal(footerLine.material.color.getHex(), 0x00ffff);
 });
+
+test('ascension tooltip shows Mastery and cost for unpurchased talent', async () => {
+  const { initModals, showModal, getModalObjects } = await setup();
+  initModals();
+  showModal('ascension');
+  const ascensionModal = getModalObjects().find(m => m.name === 'modal_ascension');
+  assert.ok(ascensionModal);
+  const grid = ascensionModal.children.find(c => c.name === 'ascension_grid');
+  const coreBtn = grid.children.find(c => c.userData && c.userData.talentId === 'core-nexus');
+  assert.ok(coreBtn, 'core nexus button should exist');
+  coreBtn.userData.onHover(true);
+  const tooltip = grid.children.find(c => c.userData && c.userData.rank);
+  assert.ok(tooltip, 'tooltip should exist');
+  assert.equal(tooltip.userData.rank.userData.text, 'Mastery');
+  assert.equal(tooltip.userData.cost.userData.text, 'Cost: 1 AP');
+});
+
