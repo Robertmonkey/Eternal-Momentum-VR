@@ -32,10 +32,12 @@ export function spawnProjectile(props = {}) {
 }
 
 export function updateProjectiles(stepFn, collisionFn) {
+  const doStep = typeof stepFn === 'function' ? stepFn : null;
+  const doCollide = typeof collisionFn === 'function' ? collisionFn : null;
   for (let i = active.length - 1; i >= 0; i--) {
     const p = active[i];
-    if (stepFn) stepFn(p);
-    if (collisionFn && collisionFn(p)) {
+    if (doStep) doStep(p);
+    if (doCollide && doCollide(p)) {
       p.alive = false;
     }
     if (!p.alive) {

@@ -97,6 +97,7 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
 
   if (state.player.shield) {
     state.player.shield = false;
+    state.player.shield_end_time = 0;
     CoreManager.onShieldBreak();
     return 0;
   }
@@ -110,6 +111,7 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
   } else {
     state.player.health = newHealth;
   }
+  if (state.player.health < 0) state.player.health = 0;
 
   return damage;
 }
@@ -151,6 +153,7 @@ export function wrapText(text, maxLen = 60) {
   if (!Number.isFinite(maxLen) || maxLen <= 0) {
     return String(text).trim();
   }
+  maxLen = Math.max(1, Math.floor(maxLen));
   const lines = String(text).split('\n');
   return lines.map(line => {
     const words = line.split(' ');

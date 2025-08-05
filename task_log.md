@@ -94,3 +94,4 @@
 * [x] Prevented avatar drift toward UI by locking movement target during menu interaction, including when pointing at non-interactive panels.
 * [x] Added safeguards for edge cases: spherical direction now returns zero for degenerate inputs, UV sanitization wraps v values, movement steps are clamped to avoid overshoot, player damage ignores invalid values, and ring drawing normalizes radii and alpha.
 * [x] Reapplied `bg.png` pattern overlay on modal and button backgrounds for faithful 2D-style menus.
+* [x] Fixed additional gameplay bugs: projectile updates now validate callbacks, shield timers clear on break, player health clamps non-negative, circle drawing guards against invalid contexts, and particle spawner verifies inputs.
