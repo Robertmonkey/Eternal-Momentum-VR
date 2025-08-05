@@ -16,10 +16,12 @@ let screenShakeEnd = 0;
 let screenShakeMagnitude = 0;
 
 export function drawCircle(ctx, x, y, r, c) {
-  if (r <= 0) return; // Safeguard to prevent negative radius errors
+  if (!ctx || typeof ctx.beginPath !== 'function') return;
+  const radius = Number.isFinite(r) ? r : 0;
+  if (radius <= 0) return; // Safeguard to prevent negative radius errors
   ctx.fillStyle = c;
   ctx.beginPath();
-  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.arc(x, y, radius, 0, 2 * Math.PI);
   ctx.fill();
 }
 
@@ -109,12 +111,14 @@ export function isPointInShadow(shadowCaster, point, sourceX, sourceY) {
 }
 
 export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
+  if (!Array.isArray(particles) || !Number.isFinite(n) || n <= 0) return;
   const u = ((x / 2048) - 0.5 + 1) % 1;
   const v = y / 1024;
   const center = uvToSpherePos(u, v, 1);
   const basisA = new THREE.Vector3(center.z, 0, -center.x).normalize();
   const basisB = new THREE.Vector3().crossVectors(center, basisA).normalize();
-  const speed = (spd / 2048) * 2 * Math.PI;
+  const speed = Number.isFinite(spd) ? (spd / 2048) * 2 * Math.PI : 0;
+  const lifeTicks = Number.isFinite(life) ? life : 0;
   for (let i = 0; i < n; i++) {
     const a = Math.random() * 2 * Math.PI;
     const dir = basisA.clone().multiplyScalar(Math.cos(a))
@@ -125,8 +129,8 @@ export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
       velocity: dir,
       r,
       color: c,
-      life,
-      maxLife: life,
+      life: lifeTicks,
+      maxLife: lifeTicks,
     });
   }
 }
