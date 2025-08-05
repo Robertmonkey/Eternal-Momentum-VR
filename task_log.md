@@ -54,6 +54,7 @@
     * [x] Split talent tooltips into left-aligned rank and right-aligned cost fields, using 'Mastery' and 'MAXED' phrasing like the 2D menu.
     * [x] Resolved layering bug where menu buttons could render behind panels.
     * [x] Reworked render ordering so button faces, borders, and labels always draw above their modal backgrounds.
+    * [x] Made controller hand menu buttons show their labels and frames only when hovered to reduce clutter.
 * [x] Raised modal positions so menus appear higher with their bottoms at waist height.
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
