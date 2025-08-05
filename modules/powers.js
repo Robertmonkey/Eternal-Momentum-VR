@@ -79,14 +79,12 @@ export const powers = {
           aimDir.copy(state.cursorDir);
       }
 
-      // Fire the projectile along the controller's aim direction from the
-      // controller's position.  Previously the target was computed relative to
-      // the world origin which caused missiles to shoot through the sphere's
-      // centre.  Offsetting from the start position keeps the projectile moving
-      // away from the player as intended.
-      // Target a point on the far side of the sphere relative to the player so
-      // that missiles travel away from the avatar instead of toward the centre.
-      const targetPos = origin.position.clone().add(aimDir.clone().multiplyScalar(ARENA_RADIUS * 2));
+      // Fire the projectile along the controller's aim direction from its
+      // actual start position. Computing the target from the player's origin
+      // caused missiles to steer through the sphere's centre whenever the
+      // controller was offset from the avatar. Targeting from `startPos`
+      // keeps the projectile travelling straight away from the controller.
+      const targetPos = startPos.clone().add(aimDir.clone().multiplyScalar(ARENA_RADIUS * 2));
       const velocity = targetPos.clone().sub(startPos).normalize().multiplyScalar(VR_PROJECTILE_SPEED_SCALE);
 
       state.effects.push({

@@ -12,7 +12,10 @@ await mock.module('../modules/scene.js', {
     getCamera: () => null,
     getRenderer: () => ({}),
     getPrimaryController: () => ({
-      getWorldPosition: v => v.set(0, 0, 50),
+      // Controller is offset from the player's centre to ensure the target
+      // position is computed from the controller itself and not the avatar's
+      // origin.
+      getWorldPosition: v => v.set(0.2, 0, 50),
       getWorldDirection: v => v.set(0, 0, -1)
     })
   }
@@ -41,7 +44,9 @@ test('missile launches fireball that explodes on target', () => {
   state.cursorDir.set(1, 0, 0);
 
   const enemy = {
-    position: new THREE.Vector3(0, 0, -50),
+    // Enemy sits along the controller's forward line. If the missile were to
+    // target the player's origin instead, it would miss this enemy.
+    position: new THREE.Vector3(0.2, 0, -50),
     r: 0.5,
     alive: true,
     isFriendly: false,
@@ -53,14 +58,16 @@ test('missile launches fireball that explodes on target', () => {
   const fireball = state.effects.find(e => e.type === 'fireball');
   assert.ok(fireball, 'fireball spawned');
 
-  for (let i = 0; i < 200 && state.effects.includes(fireball); i++) {
-    updateEffects3d(50);
-    updateProjectiles3d(50, 1000, 1000);
+  // Step the simulation in small increments so the fireball reliably
+  // intersects its target without skipping past it.
+  for (let i = 0; i < 1000 && state.effects.includes(fireball); i++) {
+    updateEffects3d(4);
+    updateProjectiles3d(50, 1000, 1000, 4);
   }
 
   // Run a few extra frames to process the resulting explosion
   for (let i = 0; i < 20; i++) {
-    updateEffects3d(50);
+    updateEffects3d(4);
   }
 
   assert.ok(!state.effects.includes(fireball), 'fireball resolved');
