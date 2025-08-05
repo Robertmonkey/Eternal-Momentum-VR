@@ -59,7 +59,7 @@ async function setup() {
       }),
       createTextSprite: (text = '') => {
         const obj = new THREE.Object3D();
-        obj.material = { color: new THREE.Color(0xffffff), dispose: () => {} };
+        obj.material = { color: new THREE.Color(0xffffff), opacity: 1, dispose: () => {} };
         obj.userData = { text };
         return obj;
       },
@@ -133,6 +133,11 @@ test('ascension tooltip shows Mastery and cost for unpurchased talent', async ()
   assert.ok(tooltip, 'tooltip should exist');
   assert.equal(tooltip.userData.rank.userData.text, 'Mastery');
   assert.equal(tooltip.userData.cost.userData.text, 'Cost: 1 AP');
+  // Tooltip footer text uses slightly transparent white like the 2D UI.
+  assert.equal(tooltip.userData.rank.material.opacity, 0.8);
+  assert.equal(tooltip.userData.cost.material.opacity, 0.8);
+  // Description text is more prominent but still dimmed compared to title.
+  assert.equal(tooltip.userData.desc.material.opacity, 0.9);
   const divider = tooltip.children.find(c => c.name === 'tooltip_footer_divider');
   assert.ok(divider, 'tooltip footer divider should exist');
   assert.equal(divider.material.color.getHex(), 0x00ffff);
