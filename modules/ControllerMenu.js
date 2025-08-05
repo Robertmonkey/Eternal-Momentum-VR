@@ -40,10 +40,18 @@ function createButton(label, icon, onSelect) {
   border.renderOrder = 0.5;
   group.add(bg, border);
 
-  // Position icon and text with even padding from the left edge.
+  // Position icon and text with even padding from the left edge for the
+  // expanded state.  We'll collapse to just the icon by default and restore
+  // these positions on hover.
   const startX = -totalWidth / 2 + padding;
-  iconSprite.position.set(startX + iconWidth / 2, 0, 0.01);
-  textSprite.position.set(iconSprite.position.x + iconWidth / 2 + padding + textWidth / 2, 0, 0.01);
+  const expandedIconX = startX + iconWidth / 2;
+  const expandedTextX = expandedIconX + iconWidth / 2 + padding + textWidth / 2;
+
+  // Start with the icon centered and hide the label/background so only the
+  // emoji is visible until hovered.
+  iconSprite.position.set(0, 0, 0.01);
+  textSprite.position.set(expandedTextX, 0, 0.01);
+  bg.visible = border.visible = textSprite.visible = false;
   group.add(iconSprite, textSprite);
 
   const setHover = hovered => {
@@ -51,12 +59,22 @@ function createButton(label, icon, onSelect) {
     bg.material.emissiveIntensity = intensity;
     border.material.emissiveIntensity = intensity;
     group.scale.setScalar(hovered ? 1.05 : 1);
+    bg.visible = border.visible = textSprite.visible = hovered;
+    if (hovered) {
+      iconSprite.position.x = expandedIconX;
+      textSprite.position.x = expandedTextX;
+    } else {
+      iconSprite.position.x = 0;
+    }
   };
 
   [bg, border, iconSprite, textSprite].forEach(obj => {
     obj.userData.onSelect = onSelect;
     obj.userData.onHover = setHover;
   });
+
+  // Ensure we start collapsed.
+  setHover(false);
 
   return group;
 }
