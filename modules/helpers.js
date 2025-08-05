@@ -75,7 +75,11 @@ export function setPositionFromCanvas(target, x, y, width = 2048, height = 1024,
  * @returns {number} The final damage applied after modifiers.
  */
 export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
-  let damage = amount;
+  // Ignore non-numeric or negative inputs so callers can't accidentally heal
+  // the player by passing a bad value. Previously NaN or negative damage could
+  // bubble through the core hooks and produce strange side effects.
+  let damage = Number.isFinite(amount) ? amount : 0;
+  if (damage <= 0) return 0;
 
   // Phase Momentum negates contact damage from non-boss enemies
   const pmState = state.player.talent_states.phaseMomentum;
@@ -86,10 +90,8 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
   }
 
   // Allow cores and talents to react to the hit
-  if (damage > 0) {
-    damage = CoreManager.onPlayerDamage(damage, source, gameHelpers);
-    damage *= state.player.talent_modifiers.damage_taken_multiplier;
-  }
+  damage = CoreManager.onPlayerDamage(damage, source, gameHelpers);
+  damage *= state.player.talent_modifiers.damage_taken_multiplier;
 
   if (damage <= 0) return 0;
 
