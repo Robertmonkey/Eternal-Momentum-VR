@@ -66,6 +66,8 @@
     * [x] Added in-VR tooltips for Mechanics and Lore buttons and pulled stage labels from `STAGE_CONFIG` for fidelity.
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
+    * [x] Reworked inventory HUD rendering to scale emoji sprites consistently and refresh even when hidden.
+    * [x] Documented centralized scaling constants and slot visibility logic for clearer HUD maintenance.
 
 ## Final Polish
 

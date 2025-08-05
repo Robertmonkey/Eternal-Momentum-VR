@@ -17,6 +17,11 @@ let bossContainer;
 const bossBars = new Map();
 let notificationGroup, notificationTimeout;
 const AP_RIGHT_EDGE = 0.44;
+// Text sprites are rendered to a canvas and then scaled into world units.
+// Centralizing these factors means every UI element uses the same
+// pixel-to-world conversion, making tweaks easy and avoiding magic numbers.
+const SPRITE_SCALE = 0.001; // world units per canvas pixel
+const PIXELS_PER_UNIT = 1 / SPRITE_SCALE; // helper for world->pixel math
 
 let bgTexture = null;
 export function getBgTexture() {
@@ -49,6 +54,9 @@ export function createTextSprite(
     shadowBlur = 0,
     fontWeight = 'normal'
 ) {
+    // Render the text to an offscreen canvas; its pixel dimensions will later
+    // be translated into world units using SPRITE_SCALE so every sprite obeys
+    // the shared HUD sizing rules.
     const lines = String(text).split('\n');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -85,8 +93,9 @@ export function createTextSprite(
     });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
     mesh.renderOrder = 1;
-    const scale = 0.001;
-    mesh.scale.set(canvas.width * scale, canvas.height * scale, 1);
+    // Apply the global pixel-to-world scale so changing SPRITE_SCALE adjusts
+    // all text sprites uniformly.
+    mesh.scale.set(canvas.width * SPRITE_SCALE, canvas.height * SPRITE_SCALE, 1);
     mesh.userData = { text, canvas, ctx, font, color, size, align, shadowColor, shadowBlur, fontWeight };
     return mesh;
 }
@@ -120,8 +129,7 @@ export function updateTextSprite(sprite, newText) {
         ctx.fillText(line, x, (i + 0.5) * size * 1.2);
     });
     sprite.material.map.needsUpdate = true;
-    const scale = 0.001;
-    sprite.scale.set(canvas.width * scale, canvas.height * scale, 1);
+    sprite.scale.set(canvas.width * SPRITE_SCALE, canvas.height * SPRITE_SCALE, 1);
 }
 
 function createHexGeometry(size) {
@@ -145,13 +153,13 @@ function createAbilitySlot(size, isMain = false) {
         new THREE.EdgesGeometry(geo),
         new THREE.LineBasicMaterial({ color: isMain ? 0xf000ff : 0x00ffff, transparent: true, opacity: 0.4 })
     );
-    // The text sprite expects a pixel-based font size while the rest of the
-    // UI is laid out in world units. Previously we multiplied the slot size by
-    // only 20 which resulted in ~1px fonts and the power-up emojis were not
-    // visible. Scale the font size by 1000 (the inverse of the 0.001 world
-    // unit scale used in createTextSprite) so the emoji fills the hex slot
-    // appropriately.
-    const sprite = createTextSprite('', size * (isMain ? 1.2 : 1) * 1000);
+    // The slot's `size` is given in world units, but the emoji sprite needs a
+    // canvas font size in pixels. Multiply by PIXELS_PER_UNIT (the inverse of
+    // SPRITE_SCALE) to translate the hex's dimensions into pixels so the emoji
+    // reliably fills the slot. Using the shared constants means any future
+    // scale tweak propagates automatically.
+    const spritePixels = size * (isMain ? 1.2 : 1) * PIXELS_PER_UNIT;
+    const sprite = createTextSprite('', spritePixels);
     sprite.position.z = 0.001;
     group.add(mesh, border, sprite);
     return { group, sprite };
@@ -314,7 +322,7 @@ export function showHud() { if (uiGroup) uiGroup.visible = true; }
 export function getUIRoot() { return uiGroup; }
 
 export function updateHud() {
-    if (!uiGroup || !uiGroup.visible) return;
+    if (!uiGroup) return;
     const now = Date.now();
 
     const healthPct = Math.max(0, state.player.health) / state.player.maxHealth;
@@ -332,10 +340,16 @@ export function updateHud() {
 
     const updateSlot = (slot, key, isVisible) => {
         if (!slot) return;
+        // The group stays in the scene graph so we can update hidden slots;
+        // toggle the slot container itself based on unlocked/active state.
         slot.group.visible = isVisible;
-        if (isVisible) {
-            updateTextSprite(slot.sprite, key ? powers[key].emoji : '');
-        }
+        const emoji = key && powers[key] ? powers[key].emoji : '';
+        // Refresh the sprite every frame so inventory changes while the HUD is
+        // hidden are reflected once it becomes visible again.
+        updateTextSprite(slot.sprite, emoji);
+        // Sprite visibility is explicitly tied to power presence to avoid
+        // leftover emojis lingering in empty slots.
+        slot.sprite.visible = !!emoji;
     };
 
     updateSlot(offSlots[0], state.offensiveInventory[0], true);
