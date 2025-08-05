@@ -454,10 +454,14 @@ function createStageSelectModal() {
             if (row.children[2]) row.children[2].visible = false; // hide default label
 
             const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
-            stageText.position.set(-0.43, 0.02, 0.01);
+            // Align text with the row's left edge by offsetting it by half the
+            // sprite's width. Using a fixed position caused labels to spill
+            // outside the bar.
+            const leftEdge = -0.43;
+            stageText.position.set(leftEdge + stageText.scale.x / 2, 0.02, 0.01);
             const bossText = createTextSprite(stageLabel, 24, '#eaf2ff', 'left');
             bossText.material.opacity = 0.8;
-            bossText.position.set(-0.43, -0.04, 0.01);
+            bossText.position.set(leftEdge + bossText.scale.x / 2, -0.04, 0.01);
             enableTextScroll(bossText, 0.6);
 
             const handleHover = hovered => {
@@ -1063,7 +1067,9 @@ function createGameOverModal() {
 
     const btnWidth = 0.3;
     const gap = 0.06;
-    const startX = -0.7 + btnWidth / 2;
+    // Inset the button row slightly so long labels like "Restart Stage" stay
+    // within the modal bounds.
+    const startX = -0.7 + btnWidth / 2 + 0.02;
     const y = -0.2;
 
     const restartBtn = createButton('Restart Stage', () => {
@@ -1074,6 +1080,9 @@ function createGameOverModal() {
         hideModal();
     }, btnWidth, 0.1, 0x00ffff, 0x00ffff, 0xffffff, 0.2);
     restartBtn.position.set(startX, y, 0.01);
+    // Shrink the label slightly so it doesn't spill past the button frame.
+    const restartText = restartBtn.children.find(c => c.userData?.text !== undefined);
+    if (restartText) restartText.scale.multiplyScalar(0.9);
     modal.add(restartBtn);
 
     const ascBtn = createButton('Ascension Conduit', () => {

@@ -29,9 +29,11 @@ export function getBgTexture() {
     const manager = new AssetManager();
     bgTexture = manager.getTexture('assets/bg.png');
     if (bgTexture) {
-      bgTexture.wrapS = THREE.RepeatWrapping;
-      bgTexture.wrapT = THREE.RepeatWrapping;
-      bgTexture.repeat.set(4, 4);
+      // Mirror the 2D game's single-image background by disabling texture
+      // tiling; repeating caused visible seams inside modal sections.
+      bgTexture.wrapS = THREE.ClampToEdgeWrapping;
+      bgTexture.wrapT = THREE.ClampToEdgeWrapping;
+      bgTexture.repeat.set(1, 1);
     }
   }
   return bgTexture;
