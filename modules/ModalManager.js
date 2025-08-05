@@ -746,24 +746,47 @@ function createAscensionModal() {
     function createTalentTooltip() {
         const group = new THREE.Group();
         group.visible = false;
-        const bg = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.3), holoMaterial(0x111122, 0.95));
-        const border = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 0.32), holoMaterial(0x00ffff, 0.5));
+        // Match the 2D game's #101020 tooltip background and semi-transparent
+        // cyan border.
+        const bg = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.7, 0.3),
+            holoMaterial(0x101020, 1)
+        );
+        const border = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.72, 0.32),
+            holoMaterial(0x00ffff, 0.4)
+        );
         border.position.z = -0.001;
+
         const icon = createTextSprite('', 28, '#ffffff', 'left');
         icon.position.set(-0.32, 0.06, 0.01);
+
         const name = createTextSprite('', 28, '#00ffff', 'left');
         name.position.set(-0.18, 0.06, 0.01);
-        const desc = createTextSprite('', 24, '#ffffff', 'left');
+
+        const desc = createTextSprite('', 24, '#eaf2ff', 'left');
         desc.position.set(-0.32, -0.02, 0.01);
+        // Match the 2D tooltip's slightly dimmed description text.
+        desc.material.opacity = 0.9;
+
         // Divider line and footer text mimic the 2D tooltip layout.
-        const divider = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.005), holoMaterial(0x00ffff, 0.4));
+        const divider = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.66, 0.005),
+            holoMaterial(0x00ffff, 0.4)
+        );
         divider.position.set(0, -0.06, 0.01);
         divider.name = 'tooltip_footer_divider';
-        // Separate rank and cost text like the 2D menu's flex layout.
-        const rank = createTextSprite('', 24, '#cccccc', 'left');
+
+        // Separate rank and cost text like the 2D menu's flex layout and use
+        // the same slightly transparent white tone.
+        const rank = createTextSprite('', 24, '#eaf2ff', 'left');
         rank.position.set(-0.32, -0.11, 0.01);
-        const cost = createTextSprite('', 24, '#cccccc', 'right');
+        rank.material.opacity = 0.8;
+
+        const cost = createTextSprite('', 24, '#eaf2ff', 'right');
         cost.position.set(0.32, -0.11, 0.01);
+        cost.material.opacity = 0.8;
+
         group.add(bg, border, icon, name, desc, divider, rank, cost);
         group.userData = { icon, name, desc, rank, cost };
         return group;
