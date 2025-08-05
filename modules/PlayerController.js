@@ -179,7 +179,13 @@ export function updatePlayerController() {
     const uiHit = uiHits[0];
 
     if (uiHit && uiHit.object.userData.onSelect) {
-        targetPoint.copy(uiHit.point);
+        // When interacting with UI elements, hold position instead of
+        // drifting toward the UI panel. Previously `targetPoint` was set to
+        // `uiHit.point`, which lies off the spherical arena and caused the
+        // avatar to slide toward menus when the pointer hovered over them.
+        // By locking the target to the current avatar position we keep the
+        // player stationary while still allowing UI interaction.
+        if (avatar) targetPoint.copy(avatar.position);
         laser.scale.z = uiHit.distance;
         crosshair.visible = false;
 
