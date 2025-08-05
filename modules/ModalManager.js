@@ -384,7 +384,9 @@ function createConfirmModal() {
 }
 
 function createStageSelectModal() {
-    const modal = createModalContainer(1.4, 1.2, 'SELECT STAGE');
+    const width = 1.4;
+    const height = 1.2;
+    const modal = createModalContainer(width, height, 'SELECT STAGE');
     modal.name = 'modal_levelSelect';
     const listContainer = new THREE.Group();
     listContainer.position.y = -0.1;
@@ -400,21 +402,27 @@ function createStageSelectModal() {
         0xff8800,
         0.25
     );
-    loreCodexBtn.position.set(0.5, 0.5, 0.02);
+    // Tuck the button 5cm from the top-right edge to keep it inside the panel
+    // bounds and mirror the 2D menu's margin.
+    loreCodexBtn.position.set(width / 2 - 0.05 - 0.2, height / 2 - 0.05 - 0.04, 0.02);
     modal.add(loreCodexBtn);
 
     const arenaBtn = createButton("WEAVER'S ORRERY", () => { hideModal(); showModal('orrery'); }, 0.6, 0.1, 0x9b59b6);
-    arenaBtn.position.set(-0.45, -0.5, 0.01);
+    // Center the bottom buttons with equal 5cm side margins so they no longer
+    // bleed past the container.
+    const bottomY = -height / 2 + 0.1;
+    arenaBtn.position.set(-width / 2 + 0.05 + 0.3, bottomY, 0.01);
     const frontierBtn = createButton('JUMP TO FRONTIER', () => {
         const stage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
         state.currentStage = stage;
         resetGame(bossData);
         hideModal();
     }, 0.6, 0.1, 0x00ffff, 0x00ffff, 0x1e1e2f);
-    frontierBtn.position.set(0.45, -0.5, 0.01);
+    frontierBtn.position.set(width / 2 - 0.05 - 0.3, bottomY, 0.01);
 
     const closeBtn = createButton('Close', () => hideModal(), 0.5, 0.1, 0xf000ff);
-    closeBtn.position.set(0, -0.65, 0.01);
+    // Raise the close button so its bottom edge aligns with the modal's border.
+    closeBtn.position.set(0, -height / 2 + 0.05, 0.01);
 
     modal.add(arenaBtn, frontierBtn, closeBtn);
 
@@ -1018,7 +1026,9 @@ function createLoreModal() {
 }
 
 function createBossInfoModal() {
-    const modal = createModalContainer(1.2, 1.0, 'BOSS INFO');
+    const width = 1.2;
+    const height = 1.0;
+    const modal = createModalContainer(width, height, 'BOSS INFO');
     modal.name = 'modal_bossInfo';
 
     // Left-align wrapped lore text and bump the font size for readability.
@@ -1028,7 +1038,9 @@ function createBossInfoModal() {
     modal.add(content);
 
     const closeBtn = createButton('✖', () => hideModal(), 0.12, 0.12, 0xf000ff);
-    closeBtn.position.set(0.55, 0.45, 0.02);
+    // Keep the close button inset from the top-right corner so it doesn't
+    // bleed beyond the modal's bounds.
+    closeBtn.position.set(width / 2 - 0.05 - 0.06, height / 2 - 0.05 - 0.06, 0.02);
     modal.add(closeBtn);
 
     modal.userData.contentSprite = content;
