@@ -63,6 +63,12 @@ export function updateProjectiles3d(radius = 50, width, height, deltaMs = 16){
       delete p.dx; delete p.dy;
     }
 
+    // Ensure velocity exists so that later physics steps don't throw if an
+    // effect was created without an explicit vector.
+    if(!(p.velocity instanceof THREE.Vector3)){
+      p.velocity = new THREE.Vector3();
+    }
+
     if(!mesh){
       const geom = new THREE.SphereGeometry(radius * 0.02, 6, 6);
       const mat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
@@ -76,7 +82,7 @@ export function updateProjectiles3d(radius = 50, width, height, deltaMs = 16){
     }
 
     if(p.type === 'seeking_shrapnel' || p.type === 'player_fragment'){
-      const enemies = state.enemies.filter(e => !e.isFriendly && e.position);
+      const enemies = Array.isArray(state.enemies) ? state.enemies.filter(e => !e.isFriendly && e.position) : [];
       if(enemies.length){
         const sorted = enemies.slice().sort((a,b)=>
           a.position.distanceTo(p.position) - b.position.distanceTo(p.position));
