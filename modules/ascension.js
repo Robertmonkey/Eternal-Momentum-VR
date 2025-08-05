@@ -140,9 +140,9 @@ export function getConstellationColorOfTalent(talentId) {
  */
 export function isTalentVisible(talent) {
     if (!talent) return false;
-
+    const unlockedPowers = state.player.unlockedPowers || new Set();
     const powerUnlocked = !talent.powerPrerequisite ||
-        state.player.unlockedPowers.has(talent.powerPrerequisite);
+        unlockedPowers.has(talent.powerPrerequisite);
     if (!powerUnlocked) {
         return false;
     }

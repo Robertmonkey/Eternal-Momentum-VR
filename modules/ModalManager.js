@@ -912,7 +912,8 @@ function createAscensionModal() {
                 if (key === 'color') return;
                 const t = con[key];
                 const end = positions[t.id];
-                const powerUnlocked = !t.powerPrerequisite || state.player.unlockedPowers.has(t.powerPrerequisite);
+                const powerUnlocked = !t.powerPrerequisite ||
+                    (state.player.unlockedPowers && state.player.unlockedPowers.has(t.powerPrerequisite));
                 t.prerequisites.forEach(pr => {
                     const start = positions[pr];
                     if (!start) return;
