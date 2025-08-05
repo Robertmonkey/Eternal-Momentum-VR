@@ -67,24 +67,25 @@ export const powers = {
 
       const controller = getPrimaryController();
       const startPos = new THREE.Vector3();
-      const aimDir = new THREE.Vector3();
 
+      // Aim using the cursor direction so the fireball travels toward the
+      // crosshair on the arena surface rather than shooting through the
+      // sphere's centre.  Fallback to a forward direction if the cursor
+      // vector is unavailable.
+      const aimDir = state.cursorDir?.clone().normalize() || new THREE.Vector3();
+      if (aimDir.lengthSq() === 0) aimDir.set(0, 0, -1);
+
+      // Spawn the fireball from the controller tip when available; otherwise
+      // start from the player's position.
       if (controller) {
           controller.getWorldPosition(startPos);
-          controller.getWorldDirection(aimDir);
-          // Offset forward so the fireball spawns at the pointer tip
           startPos.add(aimDir.clone().multiplyScalar(0.1));
       } else {
           startPos.copy(origin.position);
-          aimDir.copy(state.cursorDir);
       }
 
-      // Fire the projectile along the controller's aim direction from its
-      // actual start position. Computing the target from the player's origin
-      // caused missiles to steer through the sphere's centre whenever the
-      // controller was offset from the avatar. Targeting from `startPos`
-      // keeps the projectile travelling straight away from the controller.
-      const targetPos = startPos.clone().add(aimDir.clone().multiplyScalar(ARENA_RADIUS * 2));
+      // Direct the projectile toward the cursor's point on the arena.
+      const targetPos = aimDir.clone().multiplyScalar(ARENA_RADIUS);
       const velocity = targetPos.clone().sub(startPos).normalize().multiplyScalar(VR_PROJECTILE_SPEED_SCALE);
 
       state.effects.push({

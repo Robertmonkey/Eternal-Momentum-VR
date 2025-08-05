@@ -40,8 +40,8 @@ test('missile launches fireball that explodes on target', () => {
   state.offensiveInventory = ['missile', null, null];
 
   state.player.position.set(0, 0, 50);
-  // Intentionally misalign cursor direction; controller orientation should be used
-  state.cursorDir.set(1, 0, 0);
+  // Cursor points to the arena where the controller is aimed.
+  state.cursorDir.set(0.2, 0, -50).normalize();
 
   const enemy = {
     // Enemy sits along the controller's forward line. If the missile were to
