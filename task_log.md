@@ -92,6 +92,7 @@
 * [x] Styled game over menu buttons and background to match the 2D color scheme.
 * [x] Refined confirm modal with magenta border and button colors matching the 2D game's custom confirm dialog.
 * [x] Prevented sever timeline warning text from overflowing its menu.
+* [x] Repositioned Stage Select and Boss Info buttons so none bleed beyond their menu boundaries.
 * [x] Hardened general utilities: randomInRange handles reversed bounds, safeAddEventListener reports status, drawLightning clamps width, lineCircleCollision rejects zero/negative radii, and wrapText ignores non-positive lengths.
 * [x] Prevented avatar drift toward UI by locking movement target during menu interaction, including when pointing at non-interactive panels.
 * [x] Added safeguards for edge cases: spherical direction now returns zero for degenerate inputs, UV sanitization wraps v values, movement steps are clamped to avoid overshoot, player damage ignores invalid values, and ring drawing normalizes radii and alpha.
