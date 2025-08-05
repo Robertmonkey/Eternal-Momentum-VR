@@ -5,12 +5,10 @@
 // This begins the port of enemy AI logic into fully 3-D aware components.
 
 import { state } from './state.js';
-import { uvToSpherePos, spherePosToUv } from './utils.js';
 import { getSphericalDirection, sanitizeUv, moveTowards } from './movement3d.js';
 
 export function addPathObstacle(u, v, radius = 0.1) {
-  // Clamp the obstacle's coordinates away from the poles so that pathfinding
-  // never produces waypoints that sit exactly on the sphere's singularities.
+  // Normalise obstacle coordinates so callers can pass loose UV values.
   const safe = sanitizeUv({ u, v });
   state.pathObstacles.push({ u: safe.u, v: safe.v, radius });
 }
@@ -31,16 +29,11 @@ export function clearPathObstacles(){
  */
 const DEFAULT_RADIUS = 50;
 
-// Clamp UV coordinates to keep enemies away from the poles where navigation
-// math becomes unstable.  This prevents enemies from drifting toward the top
-// or bottom of the sphere when their pathing data contains values at the
-// extremes of the v range [0,1].
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs = 16){
   const now = Date.now();
   if (!Array.isArray(state.enemies) || !state.player) return;
-  // Sanitize the player's position to keep the target away from the poles.
-  const playerUv = sanitizeUv(spherePosToUv(state.player.position, radius));
-  state.player.position.copy(uvToSpherePos(playerUv.u, playerUv.v, radius));
+  // Keep the player anchored to the sphere's surface.
+  state.player.position.normalize().multiplyScalar(radius);
 
   state.enemies.forEach(e => {
     // Some systems leave defeated enemies in the array for clean-up. Skip any
@@ -56,9 +49,8 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
       e.frozenUntil = null;
     }
 
-    // Snap enemies to a safe latitude to prevent gradual drift toward the poles.
-    const startUv = sanitizeUv(spherePosToUv(e.position, radius));
-    e.position.copy(uvToSpherePos(startUv.u, startUv.v, radius));
+    // Ensure each enemy stays on the sphere.
+    e.position.normalize().multiplyScalar(radius);
 
     const target3d = state.player.position.clone();
 
@@ -83,6 +75,7 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
         const dir = enemy.position.clone().sub(field.position).normalize();
         const push = overloaded && !field.hitEnemies.has(enemy) ? 2 : 0.3;
         enemy.position.add(dir.multiplyScalar(push));
+        enemy.position.normalize().multiplyScalar(radius);
         if (overloaded) field.hitEnemies.add(enemy);
       }
     });

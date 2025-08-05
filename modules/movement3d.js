@@ -1,11 +1,14 @@
 // modules/movement3d.js – Momentum helper
 // -----------------------------------------------------------------------------
-// Moves an avatar smoothly across the inner surface of a sphere toward a
-// target point.  Used for Nexus movement.  Algorithm unchanged; file included
-// in full for completeness.  
+// Reworked spherical movement helpers that operate purely on 3‑D vectors. The
+// original port constantly converted positions to UV coordinates and clamped
+// them away from the poles, which produced visible snapping as agents crossed
+// the seams.  The new system keeps everything in Cartesian space and moves
+// objects by rotating them along great‑circle arcs.  UV coordinates are now
+// only returned when explicitly requested by legacy callers.
 
 import * as THREE from '../vendor/three.module.js';
-import { spherePosToUv, uvToSpherePos } from './utils.js';
+import { spherePosToUv } from './utils.js';
 
 /**
  * Compute the tangent direction along the surface of a sphere from one point
@@ -49,23 +52,13 @@ export function getSphericalDirection(from, to) {
   return new THREE.Vector3().crossVectors(axis, fromNorm).normalize();
 }
 
-// Clamp UV coordinates away from the poles where navigation math becomes
-// unstable.  Keeping objects within this safe band prevents gradual drift
-// toward the top or bottom of the sphere.
-export const UV_EPSILON = 0.002;
+// Wrap UV coordinates into [0,1).  Older builds clamped values away from the
+// poles which caused snapping.  The new helper simply normalises the range so
+// callers can supply loose coordinates without affecting gameplay.
 export function sanitizeUv({ u, v } = { u: 0.5, v: 0.5 }) {
-  // Guard against undefined or non-numeric inputs which previously produced
-  // NaN values and allowed agents to drift toward the poles.  Falling back to
-  // centre-of-sphere coordinates keeps callers robust.
   const safeU = Number.isFinite(u) ? (u % 1 + 1) % 1 : 0.5;
-  // Wrap v into [0,1) before clamping so callers can pass negative or
-  // oversized values (for example from noise functions) without breaking
-  // navigation.  Without the wrap enemies could get stuck off the sphere.
-  const wrappedV = Number.isFinite(v) ? (v % 1 + 1) % 1 : 0.5;
-  return {
-    u: safeU,
-    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, wrappedV)),
-  };
+  const safeV = Number.isFinite(v) ? (v % 1 + 1) % 1 : 0.5;
+  return { u: safeU, v: safeV };
 }
 
 /**
@@ -85,37 +78,39 @@ export function moveTowards(
 ) {
   // Ignore requests with invalid timing or speed so callers can safely pass
   // uninitialised values without agents shooting across the arena.
-  if (deltaMs <= 0 || speedMod <= 0) {
+  if (!avatarPos || !targetPos || deltaMs <= 0 || speedMod <= 0) {
     return spherePosToUv(avatarPos, radius);
   }
 
-  if (targetPos.lengthSq() < 1e-6) {
-    // A zero-length target (e.g., the sphere's centre) would cause the
-    // movement math to collapse and send the avatar toward a pole. When this
-    // occurs simply hold position by returning the current coordinates.
+  // Normalise inputs so we can work with pure directions.
+  const from = avatarPos.clone().normalize();
+  const to = targetPos.clone().normalize();
+
+  const angle = from.angleTo(to);
+  if (!Number.isFinite(angle) || angle < 1e-5) {
+    // If the target is extremely close, simply snap back to the sphere.
+    avatarPos.copy(from.multiplyScalar(radius));
     return spherePosToUv(avatarPos, radius);
   }
 
-  // Constrain the target to the sphere and away from the poles so that we
-  // always move along a well-defined great-circle path. Without this clamp the
-  // default reset target at (0,0,0) would normalize to a pole and trap all
-  // agents there.
-  const safeUv = sanitizeUv(spherePosToUv(targetPos, radius));
-  const safeTarget = uvToSpherePos(safeUv.u, safeUv.v, radius);
+  const step = Math.min(
+    angle,
+    angle * 0.015 * speedMod * (deltaMs / 16)
+  );
 
-  const dist = avatarPos.distanceTo(safeTarget);
-  if (Number.isFinite(dist) && dist > 1e-4) {
-    const dir = getSphericalDirection(avatarPos, safeTarget);
-    // Cap step length so extremely large deltas (e.g. a paused tab resuming)
-    // cannot overshoot the target and oscillate around it.
-    const step = Math.min(dist, dist * 0.015 * speedMod * (deltaMs / 16));
-    avatarPos.add(dir.multiplyScalar(step));
-    avatarPos.normalize().multiplyScalar(radius);
-
-    // Sanitize position so that accumulated floating point error does not
-    // push the avatar toward the poles over time.
-    const uv = sanitizeUv(spherePosToUv(avatarPos, radius));
-    avatarPos.copy(uvToSpherePos(uv.u, uv.v, radius));
+  let axis = new THREE.Vector3().crossVectors(from, to);
+  if (axis.lengthSq() < 1e-10) {
+    // Choose an arbitrary axis orthogonal to the current position when the
+    // start and target are parallel or antiparallel.
+    axis = new THREE.Vector3(0, 1, 0).cross(from);
+    if (axis.lengthSq() < 1e-10) {
+      axis = new THREE.Vector3(1, 0, 0).cross(from);
+    }
   }
+  axis.normalize();
+
+  avatarPos.applyAxisAngle(axis, step);
+  avatarPos.normalize().multiplyScalar(radius);
+
   return spherePosToUv(avatarPos, radius);
 }

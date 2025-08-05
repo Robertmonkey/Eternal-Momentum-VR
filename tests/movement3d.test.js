@@ -4,7 +4,6 @@ import * as THREE from '../vendor/three.module.js';
 import {
   getSphericalDirection,
   sanitizeUv,
-  UV_EPSILON,
   moveTowards,
 } from '../modules/movement3d.js';
 
@@ -33,16 +32,14 @@ test('getSphericalDirection returns zero vector when inputs are degenerate', () 
   assert.equal(dir.length(), 0, 'should handle zero-length vectors gracefully');
 });
 
-test('sanitizeUv keeps coordinates within safe bounds', () => {
-  const { u, v } = sanitizeUv({ u: 1.25, v: 1.5 });
+test('sanitizeUv wraps coordinates and handles non-finite values', () => {
+  const { u, v } = sanitizeUv({ u: 1.25, v: -0.5 });
   assert.ok(u >= 0 && u < 1, 'u should wrap to [0,1)');
-  assert.ok(v >= UV_EPSILON && v <= 1 - UV_EPSILON, 'v should be clamped away from poles');
-});
+  assert.ok(v >= 0 && v < 1, 'v should wrap to [0,1)');
 
-test('sanitizeUv wraps and clamps v and handles non-finite u', () => {
-  const { u, v } = sanitizeUv({ u: Infinity, v: -0.5 });
-  assert.ok(Math.abs(u - 0.5) < 1e-6, 'non-finite u should default to 0.5');
-  assert.ok(Math.abs(v - 0.5) < 1e-6, 'v should wrap into range before clamping');
+  const def = sanitizeUv({ u: Infinity, v: Infinity });
+  assert.ok(Math.abs(def.u - 0.5) < 1e-6, 'non-finite u should default to 0.5');
+  assert.ok(Math.abs(def.v - 0.5) < 1e-6, 'non-finite v should default to 0.5');
 });
 
 test('moveTowards respects delta time and stays on sphere', () => {
