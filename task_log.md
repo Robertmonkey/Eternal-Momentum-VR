@@ -12,6 +12,7 @@
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
         * Resolved controller offset so missiles spawn from the controller tip and target the correct direction.
+        * Directed fireball toward cursor so it travels to the intended point and damages enemies.
     * [x] Ensure all other power-ups are functional.
         * [x] Chain lightning power adapted with 3D beam effect.
         * [x] Heal and black hole powers render 3D effects.
