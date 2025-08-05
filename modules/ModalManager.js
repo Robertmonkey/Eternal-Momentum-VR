@@ -106,22 +106,6 @@ function createButton(
     bg.renderOrder = 1;
     group.add(bg);
 
-    const tex = getBgTexture();
-    if (tex) {
-        const pattern = new THREE.Mesh(bgGeom.clone(), new THREE.MeshBasicMaterial({
-            map: tex,
-            transparent: true,
-            opacity: 0.15,
-            depthTest: false,
-            depthWrite: false
-        }));
-        pattern.position.z = 0.001;
-        // Draw the texture overlay above the solid background but below text
-        // sprites so it doesn't occlude labels.
-        pattern.renderOrder = 1.5;
-        group.add(pattern);
-    }
-
     const border = new THREE.Mesh(borderGeom, holoMaterial(color, 0.5));
     border.position.z = -0.001;
     // The border sits behind the button face but still needs to render above
@@ -134,7 +118,7 @@ function createButton(
     const text = createTextSprite(label.substring(0, 20), 32, colorObj.getStyle());
     text.material.color.set(colorObj);
     // Text needs the highest render order so it always appears above the
-    // button face and overlay pattern.
+    // button face.
     text.renderOrder = 2;
     text.position.z = 0.002;
     group.add(text);

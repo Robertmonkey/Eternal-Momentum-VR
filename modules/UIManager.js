@@ -221,11 +221,6 @@ function createBossBar(boss) {
 function createCommandBar(width = 0.9, height = 0.25) {
     const group = new THREE.Group();
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x111122, 0.9));
-    const tex = getBgTexture();
-    if (tex) {
-        bg.material.map = tex;
-        bg.material.needsUpdate = true;
-    }
     const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(0x00ffff, 0.5));
     border.position.z = -0.001;
     group.add(bg, border);

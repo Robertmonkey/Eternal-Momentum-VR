@@ -3,7 +3,7 @@ import { getSecondaryController } from './scene.js';
 import { showModal } from './ModalManager.js';
 import { AudioManager } from './audio.js';
 import { state } from './state.js';
-import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
+import { holoMaterial, createTextSprite, updateTextSprite } from './UIManager.js';
 
 let menuGroup;
 let coreButton, soundBtn;
@@ -24,16 +24,12 @@ function createButton(label, icon, onSelect) {
   const textWidth = textSprite.scale.x;
   const totalWidth = padding * 3 + iconWidth + textWidth;
 
-  // Apply the game's hex texture so buttons resemble their 2D counterparts.
+  // Button backgrounds mirror the flat panels from the 2D game without
+  // applying the global wallpaper texture.
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth, 0.08), holoMaterial(0x111122, 0.8));
   // Ensure controller menu buttons render above any panel backing by
   // giving their faces a higher render order.
   bg.renderOrder = 1;
-  const tex = getBgTexture();
-  if (tex) {
-    bg.material.map = tex;
-    bg.material.needsUpdate = true;
-  }
   const border = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth + 0.01, 0.09), holoMaterial(0x00ffff, 0.5));
   border.position.z = -0.001;
   // Border renders behind the button face yet above any modal background.
