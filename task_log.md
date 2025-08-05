@@ -8,6 +8,7 @@
 * [x] **Player Movement & Avatar Duplication:** Ensured reliable controller input and single avatar instance. — Completed
     * Added controller fallbacks to prevent missing input on platforms reporting a single controller.
     * Cleaned up existing avatar meshes when reinitializing the player controller.
+    * Cleared stale references so repeated initialisation cannot spawn duplicate avatars or lasers.
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
     * [x] Ensure all other power-ups are functional.

@@ -104,10 +104,15 @@ export async function initPlayerController() {
     if (!scene || !arena) return;
 
     // Clean up any existing controller meshes so repeated calls do not
-    // spawn duplicate avatars or laser pointers.
+    // spawn duplicate avatars or laser pointers.  Explicitly null out
+    // references so stale objects are eligible for garbage collection and
+    // cannot accidentally be re-added to the scene elsewhere.
     if (avatar && avatar.parent) avatar.parent.remove(avatar);
     if (crosshair && crosshair.parent) crosshair.parent.remove(crosshair);
     if (laser && primaryController) primaryController.remove(laser);
+    avatar = null;
+    crosshair = null;
+    laser = null;
 
     const radius = arena.geometry.parameters.radius;
 
