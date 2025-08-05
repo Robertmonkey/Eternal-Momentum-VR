@@ -8,8 +8,11 @@ import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
 import { getSphericalDirection, sanitizeUv, moveTowards } from './movement3d.js';
 
-export function addPathObstacle(u,v,radius=0.1){
-  state.pathObstacles.push({u,v,radius});
+export function addPathObstacle(u, v, radius = 0.1) {
+  // Clamp the obstacle's coordinates away from the poles so that pathfinding
+  // never produces waypoints that sit exactly on the sphere's singularities.
+  const safe = sanitizeUv({ u, v });
+  state.pathObstacles.push({ u: safe.u, v: safe.v, radius });
 }
 
 export function clearPathObstacles(){

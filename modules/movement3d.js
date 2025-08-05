@@ -8,22 +8,6 @@ import * as THREE from '../vendor/three.module.js';
 import { spherePosToUv, uvToSpherePos } from './utils.js';
 
 /**
- * Perform spherical linear interpolation (slerp) between two unit vectors.
- * @param {THREE.Vector3} start - Normalized start vector.
- * @param {THREE.Vector3} end - Normalized end vector.
- * @param {number} t - Interpolation factor in [0,1].
- * @returns {THREE.Vector3} Interpolated unit vector.
- */
-function slerpUnitVectors (start, end, t) {
-  const theta = start.angleTo(end);
-  if (theta === 0) return start.clone();
-  const sinTheta = Math.sin(theta);
-  const coeffStart = Math.sin((1 - t) * theta) / sinTheta;
-  const coeffEnd = Math.sin(t * theta) / sinTheta;
-  return start.clone().multiplyScalar(coeffStart).add(end.clone().multiplyScalar(coeffEnd));
-}
-
-/**
  * Compute the tangent direction along the surface of a sphere from one point
  * to another. Both inputs are treated as positions on the sphere and the
  * resulting vector lies tangent to the sphere at the start point.
