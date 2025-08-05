@@ -101,18 +101,33 @@ function createButton(
 
     const bg = new THREE.Mesh(bgGeom, holoMaterial(bgColor, bgOpacity));
     bg.renderOrder = 0;
+    group.add(bg);
+
     const tex = getBgTexture();
-    if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
+    if (tex) {
+        const pattern = new THREE.Mesh(bgGeom.clone(), new THREE.MeshBasicMaterial({
+            map: tex,
+            transparent: true,
+            opacity: 0.15,
+            depthTest: false,
+            depthWrite: false
+        }));
+        pattern.position.z = 0.001;
+        pattern.renderOrder = 0.5;
+        group.add(pattern);
+    }
 
     const border = new THREE.Mesh(borderGeom, holoMaterial(color, 0.5));
     border.position.z = -0.001;
     border.renderOrder = -1;
+    group.add(border);
 
     const txtColor = textColor !== undefined ? textColor : color;
     const colorObj = new THREE.Color(txtColor);
     const text = createTextSprite(label.substring(0, 20), 32, colorObj.getStyle());
     text.material.color.set(colorObj);
     text.position.z = 0.002;
+    group.add(text);
 
     // Interactive behaviour
     const setHover = hovered => {
@@ -128,7 +143,6 @@ function createButton(
         obj.userData.onHover = setHover;
     });
 
-    group.add(bg, border, text);
     return group;
 }
 
@@ -152,9 +166,21 @@ function createModalContainer(width, height, title, options = {}) {
 
     const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(backgroundColor, backgroundOpacity));
     bg.renderOrder = 0;
-    const tex = getBgTexture();
-    if (tex) { bg.material.map = tex; bg.material.needsUpdate = true; }
     group.add(bg);
+
+    const tex = getBgTexture();
+    if (tex) {
+        const pattern = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({
+            map: tex,
+            transparent: true,
+            opacity: 0.15,
+            depthTest: false,
+            depthWrite: false
+        }));
+        pattern.position.z = 0.001;
+        pattern.renderOrder = 0.5;
+        group.add(pattern);
+    }
 
     if (borderOpacity > 0) {
         const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(borderColor, borderOpacity));

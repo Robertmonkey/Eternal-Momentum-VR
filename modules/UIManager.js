@@ -28,6 +28,11 @@ export function getBgTexture() {
   if (!bgTexture) {
     const manager = new AssetManager();
     bgTexture = manager.getTexture('assets/bg.png');
+    if (bgTexture) {
+      bgTexture.wrapS = THREE.RepeatWrapping;
+      bgTexture.wrapT = THREE.RepeatWrapping;
+      bgTexture.repeat.set(4, 4);
+    }
   }
   return bgTexture;
 }
