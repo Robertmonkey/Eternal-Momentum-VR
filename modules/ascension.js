@@ -1,6 +1,7 @@
 import { state, savePlayerState } from './state.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
 import { AudioManager } from './audio.js';
+import { updateHud } from './UIManager.js';
 
 // Create a flat map of all talents for easy lookup
 const allTalents = {};
@@ -46,6 +47,7 @@ export function purchaseTalent(talentId) {
         
         applyAllTalentEffects();
         savePlayerState();
+        updateHud();
     } else {
         AudioManager.playSfx('talentError');
         console.warn("Cannot purchase talent: Not enough AP or prerequisites not met.");
@@ -61,6 +63,7 @@ export function applyAllTalentEffects() {
     state.player.maxHealth = 100;
     state.player.speed = 1.0;
     state.player.talent_modifiers.damage_multiplier = 1.0;
+    state.player.talent_modifiers.damage_taken_multiplier = 1.0;
     state.player.talent_modifiers.pickup_radius_bonus = 0;
     state.player.talent_modifiers.essence_gain_modifier = 1.0;
     state.player.talent_modifiers.power_spawn_rate_modifier = 1.0;

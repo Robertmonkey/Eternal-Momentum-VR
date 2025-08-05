@@ -68,7 +68,8 @@ async function setup() {
       },
       getBgTexture: () => null,
       showUnlockNotification: () => {},
-      showBossBanner: () => {}
+      showBossBanner: () => {},
+      updateHud: () => {}
     }
   });
 
