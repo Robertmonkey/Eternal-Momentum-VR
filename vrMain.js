@@ -3,7 +3,7 @@ import { XRButton } from './vendor/addons/webxr/XRButton.js';
 import { initScene, getScene, getRenderer, getCamera } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
 import { initUI, updateHud, showHud } from './modules/UIManager.js';
-import { initModals, showModal } from './modules/ModalManager.js';
+import { initModals, showModal, updateActiveModalTransform } from './modules/ModalManager.js';
 import { vrGameLoop } from './modules/vrGameLoop.js';
 import { Telemetry } from './modules/telemetry.js';
 import { state, resetGame } from './modules/state.js';
@@ -24,6 +24,8 @@ function render(timestamp, frame) {
     if (state.gameOver && !state.isPaused) {
         showModal('gameOver');
     }
+
+    updateActiveModalTransform();
 
     updateHud();
     renderer.render(getScene(), getCamera());
