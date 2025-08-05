@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { initControllerMenu } from './ControllerMenu.js';
+import { setProjectileGroup } from './projectilePhysics3d.js';
 
 let scene, camera, renderer, arena, grid, primaryController, secondaryController, playerRig;
 const ARENA_RADIUS = 50;
@@ -40,6 +41,10 @@ export function initScene() {
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.rotation.x = -Math.PI / 2;
     scene.add(ring);
+
+    const projectileGroup = new THREE.Group();
+    scene.add(projectileGroup);
+    setProjectileGroup(projectileGroup);
     
     playerRig = new THREE.Group();
     playerRig.position.set(0, 1.6, 0);
