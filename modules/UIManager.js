@@ -97,7 +97,10 @@ export function createTextSprite(
         side: THREE.DoubleSide
     });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
-    mesh.renderOrder = 1;
+    // Text should always render above menu backgrounds and button frames.
+    // Giving sprites a higher renderOrder keeps them visible even when other
+    // UI elements share the same Z position or disable depth testing.
+    mesh.renderOrder = 2;
     // Apply the global pixel-to-world scale so changing SPRITE_SCALE adjusts
     // all text sprites uniformly.
     mesh.scale.set(canvas.width * SPRITE_SCALE, canvas.height * SPRITE_SCALE, 1);

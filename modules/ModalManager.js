@@ -100,7 +100,10 @@ function createButton(
     }
 
     const bg = new THREE.Mesh(bgGeom, holoMaterial(bgColor, bgOpacity));
-    bg.renderOrder = 0;
+    // Button backgrounds need to draw after the modal panel so they aren't
+    // hidden when depth testing is disabled. Raising the renderOrder keeps
+    // them consistently on top of the container background.
+    bg.renderOrder = 1;
     group.add(bg);
 
     const tex = getBgTexture();
@@ -113,19 +116,26 @@ function createButton(
             depthWrite: false
         }));
         pattern.position.z = 0.001;
-        pattern.renderOrder = 0.5;
+        // Draw the texture overlay above the solid background but below text
+        // sprites so it doesn't occlude labels.
+        pattern.renderOrder = 1.5;
         group.add(pattern);
     }
 
     const border = new THREE.Mesh(borderGeom, holoMaterial(color, 0.5));
     border.position.z = -0.001;
-    border.renderOrder = -1;
+    // The border sits behind the button face but still needs to render above
+    // the modal background so its edges remain visible.
+    border.renderOrder = 0.5;
     group.add(border);
 
     const txtColor = textColor !== undefined ? textColor : color;
     const colorObj = new THREE.Color(txtColor);
     const text = createTextSprite(label.substring(0, 20), 32, colorObj.getStyle());
     text.material.color.set(colorObj);
+    // Text needs the highest render order so it always appears above the
+    // button face and overlay pattern.
+    text.renderOrder = 2;
     text.position.z = 0.002;
     group.add(text);
 
