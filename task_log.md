@@ -65,7 +65,7 @@
     * [x] Matched border translucency and hover effects for rows and info buttons to mirror 2D visuals.
     * [x] Restored Lore Codex story modal and button styling to match the original game's presentation.
     * [x] Corrected Lore Codex text alignment so entries render within the menu bounds.
-    * [x] Added in-VR tooltips for Mechanics and Lore buttons and pulled stage labels from `STAGE_CONFIG` for fidelity.
+    * [x] Added in-VR tooltips for Mechanics and Lore buttons and restored boss-name listing to match the 2D stage menu.
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
     * [x] Reworked inventory HUD rendering to scale emoji sprites consistently and refresh even when hidden.
