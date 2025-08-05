@@ -912,7 +912,14 @@ function createAscensionModal() {
                             colorHex = new THREE.Color(getConstellationColorOfTalent(pr)).getHex();
                         }
                     }
-                    const mat = new THREE.LineBasicMaterial({ color: new THREE.Color(colorHex), transparent: true, opacity, linewidth: width });
+                    const mat = new THREE.LineBasicMaterial({
+                        color: new THREE.Color(colorHex),
+                        transparent: true,
+                        opacity,
+                        linewidth: width,
+                        depthTest: false,
+                        depthWrite: false
+                    });
                     const geom = new THREE.BufferGeometry().setFromPoints([start, end]);
                     lines.add(new THREE.Line(geom, mat));
                 });
