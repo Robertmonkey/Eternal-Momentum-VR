@@ -6,6 +6,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
+import { sanitizeUv } from './movement3d.js';
 
 let nodes = [];
 let neighbors = [];
@@ -120,19 +121,24 @@ function obstaclesHash(){
   return state.pathObstacles.map(o=>`${o.u.toFixed(2)},${o.v.toFixed(2)},${o.radius}`).join('|');
 }
 
-export function findPath(startUv,endUv,{maxIterations=2000}={}){
+export function findPath(startUv, endUv, { maxIterations = 2000 } = {}) {
   if(!nodes.length) buildNavMesh();
   const obsHash = obstaclesHash();
   if(obsHash !== lastObsHash){
     pathCache.clear();
     lastObsHash = obsHash;
   }
-  const startPos = uvToSpherePos(startUv.u,startUv.v,1);
-  const endPos   = uvToSpherePos(endUv.u,endUv.v,1);
+
+  // Sanitize inputs so callers can provide loose coordinates without agents
+  // getting stuck on the sphere's poles or outside the valid UV range.
+  const startSafe = sanitizeUv(startUv);
+  const endSafe = sanitizeUv(endUv);
+  const startPos = uvToSpherePos(startSafe.u, startSafe.v, 1);
+  const endPos   = uvToSpherePos(endSafe.u, endSafe.v, 1);
   const start = closestNodeIdx(startPos);
   const goal  = closestNodeIdx(endPos);
   if(start===goal){
-    return [startUv,endUv];
+    return [startSafe, endSafe];
   }
   const cacheKey = `${start}-${goal}-${obsHash}`;
   if(pathCache.has(cacheKey)) return pathCache.get(cacheKey);
@@ -164,15 +170,15 @@ export function findPath(startUv,endUv,{maxIterations=2000}={}){
       }
     }
   }
-  let cur=goal;
-  if(!came.has(cur) && cur!==start) return [startUv,endUv];
-  const path=[];
-  while(cur!==undefined){
+  let cur = goal;
+  if(!came.has(cur) && cur !== start) return [startSafe, endSafe];
+  const path = [];
+  while(cur !== undefined){
     path.push(cur);
-    cur=came.get(cur);
+    cur = came.get(cur);
   }
   path.reverse();
-  const result = path.map(i=>spherePosToUv(nodes[i],1));
+  const result = path.map(i => sanitizeUv(spherePosToUv(nodes[i], 1)));
   pathCache.set(cacheKey, result);
   if(pathCache.size > CACHE_LIMIT){
     const firstKey = pathCache.keys().next().value;
