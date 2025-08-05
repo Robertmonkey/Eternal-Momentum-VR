@@ -84,7 +84,8 @@ function createButton(
     bgColor = 0x111122,
     textColor,
     bgOpacity = 0.8,
-    shape = 'rect'
+    shape = 'rect',
+    hoverScale = 1.05
 ) {
     const group = new THREE.Group();
     group.name = `button_${label.replace(/\s+/g, '_')}`;
@@ -128,7 +129,7 @@ function createButton(
         const intensity = hovered ? 1.5 : 1;
         bg.material.emissiveIntensity = intensity;
         border.material.emissiveIntensity = intensity;
-        group.scale.setScalar(hovered ? 1.05 : 1);
+        group.scale.setScalar(hovered ? hoverScale : 1);
         if (hovered) AudioManager.playSfx('uiHoverSound');
     };
 
@@ -754,12 +755,16 @@ function createAscensionModal() {
         name.position.set(-0.18, 0.06, 0.01);
         const desc = createTextSprite('', 24, '#ffffff', 'left');
         desc.position.set(-0.32, -0.02, 0.01);
+        // Divider line and footer text mimic the 2D tooltip layout.
+        const divider = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.005), holoMaterial(0x00ffff, 0.4));
+        divider.position.set(0, -0.06, 0.01);
+        divider.name = 'tooltip_footer_divider';
         // Separate rank and cost text like the 2D menu's flex layout.
         const rank = createTextSprite('', 24, '#cccccc', 'left');
         rank.position.set(-0.32, -0.11, 0.01);
         const cost = createTextSprite('', 24, '#cccccc', 'right');
         cost.position.set(0.32, -0.11, 0.01);
-        group.add(bg, border, icon, name, desc, rank, cost);
+        group.add(bg, border, icon, name, desc, divider, rank, cost);
         group.userData = { icon, name, desc, rank, cost };
         return group;
     }
@@ -837,11 +842,14 @@ function createAscensionModal() {
                         0x111122,
                         0xffffff,
                         0.8,
-                        'circle'
+                        'circle',
+                        1.15
                     );
                     btn.userData.talentId = t.id;
                     btn.position.copy(positions[t.id]);
+                    const baseHover = btn.children[0].userData.onHover;
                     btn.userData.onHover = hovered => {
+                        if (baseHover) baseHover(hovered);
                         if (hovered) {
                             AudioManager.playSfx('uiHoverSound');
                             const purchasedNow = state.player.purchasedTalents.get(t.id) || 0;
