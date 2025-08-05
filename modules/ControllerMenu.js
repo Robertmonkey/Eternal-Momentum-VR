@@ -17,6 +17,7 @@ function createButton(label, icon, onSelect) {
   // exactly, mirroring the flexible width of the 2D game's buttons.
   const iconSprite = createTextSprite(icon, 32);
   const textSprite = createTextSprite(label, 24);
+  iconSprite.renderOrder = textSprite.renderOrder = 2;
 
   const padding = 0.02;
   const iconWidth = iconSprite.scale.x;
@@ -25,7 +26,9 @@ function createButton(label, icon, onSelect) {
 
   // Apply the game's hex texture so buttons resemble their 2D counterparts.
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth, 0.08), holoMaterial(0x111122, 0.8));
-  bg.renderOrder = 0;
+  // Ensure controller menu buttons render above any panel backing by
+  // giving their faces a higher render order.
+  bg.renderOrder = 1;
   const tex = getBgTexture();
   if (tex) {
     bg.material.map = tex;
@@ -33,7 +36,8 @@ function createButton(label, icon, onSelect) {
   }
   const border = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth + 0.01, 0.09), holoMaterial(0x00ffff, 0.5));
   border.position.z = -0.001;
-  border.renderOrder = -1;
+  // Border renders behind the button face yet above any modal background.
+  border.renderOrder = 0.5;
   group.add(bg, border);
 
   // Position icon and text with even padding from the left edge.
