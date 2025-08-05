@@ -178,13 +178,12 @@ export function updatePlayerController() {
     const uiHits = raycaster.intersectObjects(allUI, true);
     const uiHit = uiHits[0];
 
-    if (uiHit && uiHit.object.userData.onSelect) {
-        // When interacting with UI elements, hold position instead of
-        // drifting toward the UI panel. Previously `targetPoint` was set to
-        // `uiHit.point`, which lies off the spherical arena and caused the
-        // avatar to slide toward menus when the pointer hovered over them.
-        // By locking the target to the current avatar position we keep the
-        // player stationary while still allowing UI interaction.
+    if (uiHit) {
+        // When the pointer intersects any UI element, lock the movement target
+        // to the current avatar position so the player does not drift toward
+        // menus or panels. Previously this safeguard only applied to
+        // interactive elements, allowing passive surfaces to trigger unwanted
+        // movement toward the arena behind them.
         if (avatar) targetPoint.copy(avatar.position);
         laser.scale.z = uiHit.distance;
         crosshair.visible = false;
@@ -193,11 +192,14 @@ export function updatePlayerController() {
             if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
             hoveredUi = uiHit.object;
             if (hoveredUi.userData.onHover) hoveredUi.userData.onHover(true);
-            gameHelpers.play('uiHoverSound');
+            if (hoveredUi.userData.onHover || hoveredUi.userData.onSelect) {
+                gameHelpers.play('uiHoverSound');
+            }
         }
-        if (triggerJustPressed) {
+
+        if (triggerJustPressed && uiHit.object.userData.onSelect) {
             if (Date.now() > state.uiInteractionCooldownUntil) {
-                hoveredUi.userData.onSelect();
+                uiHit.object.userData.onSelect();
                 gameHelpers.play('uiClickSound');
             }
         }
