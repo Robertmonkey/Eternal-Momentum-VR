@@ -6,7 +6,7 @@ import { AudioManager } from './audio.js';
 import { bossData } from './bosses.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
 import { purchaseTalent, isTalentVisible, getConstellationColorOfTalent } from './ascension.js';
-import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
+import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture, hideHud, showHud } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
 import { disposeGroupChildren, wrapText } from './helpers.js';
 import { STAGE_CONFIG } from './config.js';
@@ -591,14 +591,17 @@ export function showModal(id) {
     const modalHeight = (modal?.userData?.height || 0) * modalGroup.scale.y;
     const waistOffset = 0.6; // approximate distance from head to waist in meters
     modalGroup.position.y = camera.position.y - waistOffset + modalHeight / 2;
-    const yawOnly = new THREE.Euler(0, camera.rotation.y, 0, 'YXZ');
-    modalGroup.quaternion.setFromEuler(yawOnly);
+    const lookTarget = camera.position.clone();
+    lookTarget.y = modalGroup.position.y;
+    modalGroup.lookAt(lookTarget);
+    modalGroup.rotation.y += Math.PI;
 
     state.activeModalId = id;
     // Pause the game before heavy UI creation to avoid race conditions
     state.isPaused = true;
     resetInputFlags();
     state.uiInteractionCooldownUntil = Date.now() + 250;
+    hideHud();
     modal.visible = true;
     AudioManager.playSfx('uiModalOpen');
 
@@ -625,8 +628,10 @@ export function updateActiveModalTransform() {
     const modalHeight = (modal?.userData?.height || 0) * modalGroup.scale.y;
     const waistOffset = 0.6;
     modalGroup.position.y = camera.position.y - waistOffset + modalHeight / 2;
-    const yawOnly = new THREE.Euler(0, camera.rotation.y, 0, 'YXZ');
-    modalGroup.quaternion.setFromEuler(yawOnly);
+    const lookTarget = camera.position.clone();
+    lookTarget.y = modalGroup.position.y;
+    modalGroup.lookAt(lookTarget);
+    modalGroup.rotation.y += Math.PI;
 }
 
 export function hideModal() {
@@ -640,6 +645,7 @@ export function hideModal() {
         resetInputFlags();
         AudioManager.playSfx('uiModalClose');
         state.isPaused = false; // Unpause unless another condition requires it
+        showHud();
     }
 }
 
