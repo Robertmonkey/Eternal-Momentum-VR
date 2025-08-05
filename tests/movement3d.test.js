@@ -26,10 +26,23 @@ test('getSphericalDirection handles antipodal points without instability', () =>
   assert.ok(Math.abs(dir.dot(from)) < 1e-2, 'direction should be tangent to from');
 });
 
+test('getSphericalDirection returns zero vector when inputs are degenerate', () => {
+  const from = new THREE.Vector3();
+  const to = new THREE.Vector3(1, 0, 0);
+  const dir = getSphericalDirection(from, to);
+  assert.equal(dir.length(), 0, 'should handle zero-length vectors gracefully');
+});
+
 test('sanitizeUv keeps coordinates within safe bounds', () => {
   const { u, v } = sanitizeUv({ u: 1.25, v: 1.5 });
   assert.ok(u >= 0 && u < 1, 'u should wrap to [0,1)');
   assert.ok(v >= UV_EPSILON && v <= 1 - UV_EPSILON, 'v should be clamped away from poles');
+});
+
+test('sanitizeUv wraps and clamps v and handles non-finite u', () => {
+  const { u, v } = sanitizeUv({ u: Infinity, v: -0.5 });
+  assert.ok(Math.abs(u - 0.5) < 1e-6, 'non-finite u should default to 0.5');
+  assert.ok(Math.abs(v - 0.5) < 1e-6, 'v should wrap into range before clamping');
 });
 
 test('moveTowards respects delta time and stays on sphere', () => {
@@ -42,3 +55,4 @@ test('moveTowards respects delta time and stays on sphere', () => {
   assert.ok(Math.abs(start1.length() - radius) < 1e-6, 'movement should remain on sphere');
   assert.ok(start2.distanceTo(target) < start1.distanceTo(target), 'larger delta should move farther');
 });
+

@@ -33,6 +33,14 @@ function slerpUnitVectors (start, end, t) {
  * @returns {THREE.Vector3} Normalized direction vector along the sphere.
  */
 export function getSphericalDirection(from, to) {
+  // Normalising zero-length vectors results in NaNs which then propagate
+  // through the cross‑product math and ultimately send agents flying toward
+  // the poles. Guard against this by early‑returning a zero vector when either
+  // endpoint is too close to the origin.
+  if (!from || !to || from.lengthSq() < 1e-10 || to.lengthSq() < 1e-10) {
+    return new THREE.Vector3(0, 0, 0);
+  }
+
   const fromNorm = from.clone().normalize();
   const toNorm = to.clone().normalize();
 
@@ -66,10 +74,13 @@ export function sanitizeUv({ u, v } = { u: 0.5, v: 0.5 }) {
   // NaN values and allowed agents to drift toward the poles.  Falling back to
   // centre-of-sphere coordinates keeps callers robust.
   const safeU = Number.isFinite(u) ? (u % 1 + 1) % 1 : 0.5;
-  const safeV = Number.isFinite(v) ? v : 0.5;
+  // Wrap v into [0,1) before clamping so callers can pass negative or
+  // oversized values (for example from noise functions) without breaking
+  // navigation.  Without the wrap enemies could get stuck off the sphere.
+  const wrappedV = Number.isFinite(v) ? (v % 1 + 1) % 1 : 0.5;
   return {
     u: safeU,
-    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, safeV)),
+    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, wrappedV)),
   };
 }
 
@@ -111,7 +122,9 @@ export function moveTowards(
   const dist = avatarPos.distanceTo(safeTarget);
   if (Number.isFinite(dist) && dist > 1e-4) {
     const dir = getSphericalDirection(avatarPos, safeTarget);
-    const step = dist * 0.015 * speedMod * (deltaMs / 16);
+    // Cap step length so extremely large deltas (e.g. a paused tab resuming)
+    // cannot overshoot the target and oscillate around it.
+    const step = Math.min(dist, dist * 0.015 * speedMod * (deltaMs / 16));
     avatarPos.add(dir.multiplyScalar(step));
     avatarPos.normalize().multiplyScalar(radius);
 

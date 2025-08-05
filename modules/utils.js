@@ -235,12 +235,18 @@ export function lineCircleCollision(x1, y1, x2, y2, cx, cy, r) {
  * fade the ring over time.
  */
 export function drawRing(ctx, x, y, innerR, outerR, color, alpha = 1.0) {
+  if (!ctx || typeof ctx.beginPath !== 'function') return;
+  let inner = Math.max(0, innerR);
+  let outer = Math.max(0, outerR);
+  if (inner > outer) [inner, outer] = [outer, inner];
+  if (outer === 0) return; // nothing to draw
+  const a = Number.isFinite(alpha) ? Math.min(1, Math.max(0, alpha)) : 1;
   ctx.save();
-  ctx.globalAlpha = alpha;
+  ctx.globalAlpha = a;
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(x, y, outerR, 0, Math.PI * 2);
-  ctx.arc(x, y, innerR, 0, Math.PI * 2, true);
+  ctx.arc(x, y, outer, 0, Math.PI * 2);
+  if (inner > 0) ctx.arc(x, y, inner, 0, Math.PI * 2, true);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
