@@ -24,13 +24,16 @@ const SPRITE_SCALE = 0.001; // world units per canvas pixel
 const PIXELS_PER_UNIT = 1 / SPRITE_SCALE; // helper for world->pixel math
 
 let bgTexture = null;
+// Cache the shared menu background texture and configure it to behave like the
+// 2D game's single image. We clamp the edges and force a 1x1 repeat so `bg.png`
+// doesn't tile; otherwise seams show up on modal panels and button overlays.
 export function getBgTexture() {
   if (!bgTexture) {
     const manager = new AssetManager();
     bgTexture = manager.getTexture('assets/bg.png');
     if (bgTexture) {
-      // Mirror the 2D game's single-image background by disabling texture
-      // tiling; repeating caused visible seams inside modal sections.
+      // Disable wrapping in both directions and keep a single copy of the
+      // texture so it matches the non-repeating 2D background.
       bgTexture.wrapS = THREE.ClampToEdgeWrapping;
       bgTexture.wrapT = THREE.ClampToEdgeWrapping;
       bgTexture.repeat.set(1, 1);
