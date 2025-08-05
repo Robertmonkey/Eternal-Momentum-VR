@@ -327,6 +327,7 @@ export function initUI() {
 }
 
 export function showHud() { if (uiGroup) uiGroup.visible = true; }
+export function hideHud() { if (uiGroup) uiGroup.visible = false; }
 export function getUIRoot() { return uiGroup; }
 
 export function updateHud() {
