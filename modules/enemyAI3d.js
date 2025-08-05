@@ -34,6 +34,7 @@ const DEFAULT_RADIUS = 50;
 // extremes of the v range [0,1].
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs = 16){
   const now = Date.now();
+  if (!Array.isArray(state.enemies) || !state.player) return;
   // Sanitize the player's position to keep the target away from the poles.
   const playerUv = sanitizeUv(spherePosToUv(state.player.position, radius));
   state.player.position.copy(uvToSpherePos(playerUv.u, playerUv.v, radius));
@@ -42,7 +43,7 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
     // Some systems leave defeated enemies in the array for clean-up. Skip any
     // entity explicitly marked as not alive so they don't continue to track the
     // player or consume CPU.
-    if (e && e.alive === false) return;
+    if (!e || e.alive === false || !e.position) return;
 
     if (typeof e.update === 'function') {
       e.update(deltaMs);
@@ -59,9 +60,12 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
     const target3d = state.player.position.clone();
 
     if(!e.customMovement && !e.frozen){
-      moveTowards(e.position, target3d, e.speed || 1, radius, deltaMs);
-      const faceDir = getSphericalDirection(e.position, target3d);
-      e.lookAt(e.position.clone().add(faceDir));
+      const speed = typeof e.speed === 'number' && e.speed > 0 ? e.speed : 1;
+      moveTowards(e.position, target3d, speed, radius, deltaMs);
+      if (typeof e.lookAt === 'function') {
+        const faceDir = getSphericalDirection(e.position, target3d);
+        e.lookAt(e.position.clone().add(faceDir));
+      }
     }
   });
 

@@ -61,10 +61,15 @@ export function getSphericalDirection(from, to) {
 // unstable.  Keeping objects within this safe band prevents gradual drift
 // toward the top or bottom of the sphere.
 export const UV_EPSILON = 0.002;
-export function sanitizeUv({ u, v }) {
+export function sanitizeUv({ u, v } = { u: 0.5, v: 0.5 }) {
+  // Guard against undefined or non-numeric inputs which previously produced
+  // NaN values and allowed agents to drift toward the poles.  Falling back to
+  // centre-of-sphere coordinates keeps callers robust.
+  const safeU = Number.isFinite(u) ? (u % 1 + 1) % 1 : 0.5;
+  const safeV = Number.isFinite(v) ? v : 0.5;
   return {
-    u: (u % 1 + 1) % 1,
-    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, v)),
+    u: safeU,
+    v: Math.min(1 - UV_EPSILON, Math.max(UV_EPSILON, safeV)),
   };
 }
 
@@ -79,10 +84,16 @@ export function sanitizeUv({ u, v }) {
 export function moveTowards(
   avatarPos,
   targetPos,
- speedMod = 1,
+  speedMod = 1,
   radius = 1,
   deltaMs = 16
 ) {
+  // Ignore requests with invalid timing or speed so callers can safely pass
+  // uninitialised values without agents shooting across the arena.
+  if (deltaMs <= 0 || speedMod <= 0) {
+    return spherePosToUv(avatarPos, radius);
+  }
+
   if (targetPos.lengthSq() < 1e-6) {
     // A zero-length target (e.g., the sphere's centre) would cause the
     // movement math to collapse and send the avatar toward a pole. When this
@@ -98,7 +109,7 @@ export function moveTowards(
   const safeTarget = uvToSpherePos(safeUv.u, safeUv.v, radius);
 
   const dist = avatarPos.distanceTo(safeTarget);
-  if (dist > 1e-4) {
+  if (Number.isFinite(dist) && dist > 1e-4) {
     const dir = getSphericalDirection(avatarPos, safeTarget);
     const step = dist * 0.015 * speedMod * (deltaMs / 16);
     avatarPos.add(dir.multiplyScalar(step));
