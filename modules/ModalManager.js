@@ -430,23 +430,21 @@ function createStageSelectModal() {
                 hideModal();
             };
 
+            const rowWidth = width - 0.1;
             // Row background and border to mimic original stage-select item
-            const row = createButton('', startStage, 0.9, 0.12, 0x00ffff, 0x00ffff, 0x00ffff, 0.1);
+            const row = createButton('', startStage, rowWidth, 0.12, 0x00ffff, 0x00ffff, 0x00ffff, 0.1);
             const bg = row.children[0];
             const border = row.children[1];
             border.material.opacity = 0.4; // match rgba border from 2D menu
             if (row.children[2]) row.children[2].visible = false; // hide default label
 
             const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
-            // Align text with the row's left edge by offsetting it by half the
-            // sprite's width. Using a fixed position caused labels to spill
-            // outside the bar.
-            const leftEdge = -0.43;
+            const leftEdge = -rowWidth / 2 + 0.02;
             stageText.position.set(leftEdge + stageText.scale.x / 2, 0.02, 0.01);
             const bossText = createTextSprite(stageLabel, 24, '#eaf2ff', 'left');
             bossText.material.opacity = 0.8;
             bossText.position.set(leftEdge + bossText.scale.x / 2, -0.04, 0.01);
-            enableTextScroll(bossText, 0.6);
+            enableTextScroll(bossText, rowWidth - 0.4);
 
             const handleHover = hovered => {
                 bg.material.opacity = hovered ? 0.2 : 0.1;
@@ -482,14 +480,19 @@ function createStageSelectModal() {
             };
             const mechBtn = createInfoButton('❔', 0xf1c40f, 'Mechanics', () => showBossInfo(bossIds, 'mechanics'));
             const loreBtn = createInfoButton('ℹ️', 0x9b59b6, 'Lore', () => showBossInfo(bossIds, 'lore'));
-            mechBtn.position.set(0.23, 0, 0.01);
-            loreBtn.position.set(0.37, 0, 0.01);
+            const rightEdge = rowWidth / 2;
+            const btnRadius = 0.06;
+            const gap = 0.04;
+            const loreX = rightEdge - (btnRadius + 0.02);
+            const mechX = loreX - (btnRadius * 2 + gap);
+            mechBtn.position.set(mechX, 0, 0.01);
+            loreBtn.position.set(loreX, 0, 0.01);
             row.add(mechBtn, loreBtn);
 
             row.position.y = 0.4 - (i - 1) * 0.15;
             listContainer.add(row);
         }
-        addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: 0.55, startAt: 'bottom' });
+        addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: width / 2 - 0.05, startAt: 'bottom' });
     };
 
     return modal;
@@ -1050,10 +1053,11 @@ function createGameOverModal() {
     modal.name = 'modal_gameOver';
 
     const btnWidth = 0.3;
-    const gap = 0.06;
-    // Inset the button row slightly so long labels like "Restart Stage" stay
-    // within the modal bounds.
-    const startX = -0.7 + btnWidth / 2 + 0.02;
+    const gap = 0.04;
+    const totalWidth = btnWidth * 4 + gap * 3;
+    // Center the button row and keep a small margin so no button spills past
+    // the container edge.
+    const startX = -totalWidth / 2 + btnWidth / 2;
     const y = -0.2;
 
     const restartBtn = createButton('Restart Stage', () => {
