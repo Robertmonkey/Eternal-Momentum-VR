@@ -132,5 +132,21 @@ test('ascension tooltip shows Mastery and cost for unpurchased talent', async ()
   assert.ok(tooltip, 'tooltip should exist');
   assert.equal(tooltip.userData.rank.userData.text, 'Mastery');
   assert.equal(tooltip.userData.cost.userData.text, 'Cost: 1 AP');
+  const divider = tooltip.children.find(c => c.name === 'tooltip_footer_divider');
+  assert.ok(divider, 'tooltip footer divider should exist');
+  assert.equal(divider.material.color.getHex(), 0x00ffff);
+});
+
+test('talent button uses 1.15 hover scale', async () => {
+  const { initModals, showModal, getModalObjects } = await setup();
+  initModals();
+  showModal('ascension');
+  const ascensionModal = getModalObjects().find(m => m.name === 'modal_ascension');
+  assert.ok(ascensionModal);
+  const grid = ascensionModal.children.find(c => c.name === 'ascension_grid');
+  const coreBtn = grid.children.find(c => c.userData && c.userData.talentId === 'core-nexus');
+  assert.ok(coreBtn, 'core nexus button should exist');
+  coreBtn.userData.onHover(true);
+  assert.equal(coreBtn.scale.x, 1.15);
 });
 
