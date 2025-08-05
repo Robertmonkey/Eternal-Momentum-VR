@@ -88,3 +88,4 @@
 * [x] Refined confirm modal with magenta border and button colors matching the 2D game's custom confirm dialog.
 * [x] Prevented sever timeline warning text from overflowing its menu.
 * [x] Hardened general utilities: randomInRange handles reversed bounds, safeAddEventListener reports status, drawLightning clamps width, lineCircleCollision rejects zero/negative radii, and wrapText ignores non-positive lengths.
+* [x] Prevented avatar drift toward UI by locking movement target during menu interaction.
