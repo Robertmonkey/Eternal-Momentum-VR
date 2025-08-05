@@ -11,6 +11,7 @@
     * Cleared stale references so repeated initialisation cannot spawn duplicate avatars or lasers.
 * [ ] **Power-up Functionality:**
     * [x] Fix the missile power-up. — Completed
+        * Resolved controller offset so missiles spawn from the controller tip and target the correct direction.
     * [x] Ensure all other power-ups are functional.
         * [x] Chain lightning power adapted with 3D beam effect.
         * [x] Heal and black hole powers render 3D effects.
