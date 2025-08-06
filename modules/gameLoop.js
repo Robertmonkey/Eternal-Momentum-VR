@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three.module.js';
 import { state, savePlayerState } from './state.js';
-import { LEVELING_CONFIG, THEMATIC_UNLOCKS, SPAWN_WEIGHTS, STAGE_CONFIG, MODEL_SCALE } from './config.js';
+import { LEVELING_CONFIG, THEMATIC_UNLOCKS, SPAWN_WEIGHTS, STAGE_CONFIG, MODEL_SCALE, getBossIndex } from './config.js';
 import { powers } from './powers.js';
 import { bossData } from './bosses.js';
 import { showUnlockNotification, showBossBanner, updateHud } from './UIManager.js';
@@ -201,15 +201,17 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         console.error("Scene not available for spawning enemy.");
         return null;
     }
-    
+
     let enemy;
     const AIClass = isBoss ? bossAIClassMap[bossId] : null;
+    const bossIndex = isBoss && bossId ? getBossIndex(bossId) : 0;
 
     if (isBoss && AIClass) {
         // Special multi-part boss spawns need to be added to scene individually
         if (bossId === 'aethel_and_umbra') {
             const partnerA = new AethelUmbraAI('Aethel');
             partnerA.boss = true;
+            partnerA.bossIndex = bossIndex;
             partnerA.position.copy(getSafeSpawnLocation());
             partnerA.scale.multiplyScalar(MODEL_SCALE);
             partnerA.r = (partnerA.r || 1) * MODEL_SCALE;
@@ -218,6 +220,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
 
             const partnerB = new AethelUmbraAI('Umbra', partnerA);
             partnerB.boss = true;
+            partnerB.bossIndex = bossIndex;
             partnerA.partner = partnerB;
             partnerB.partner = partnerA;
             partnerB.position.copy(getSafeSpawnLocation());
@@ -230,6 +233,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         if (bossId === 'sentinel_pair') {
             const sentinelA = new SentinelPairAI();
             sentinelA.boss = true;
+            sentinelA.bossIndex = bossIndex;
             sentinelA.position.copy(getSafeSpawnLocation());
             sentinelA.scale.multiplyScalar(MODEL_SCALE);
             sentinelA.r = (sentinelA.r || 1) * MODEL_SCALE;
@@ -238,6 +242,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
 
             const sentinelB = new SentinelPairAI(sentinelA);
             sentinelB.boss = true;
+            sentinelB.bossIndex = bossIndex;
             sentinelB.position.copy(getSafeSpawnLocation());
             sentinelA.partner = sentinelB;
             sentinelB.partner = sentinelA;
@@ -250,6 +255,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         if (bossId === 'obelisk') {
             const obelisk = new ObeliskAI();
             obelisk.boss = true;
+            obelisk.bossIndex = bossIndex;
             obelisk.scale.multiplyScalar(MODEL_SCALE);
             obelisk.r = (obelisk.r || 1) * MODEL_SCALE;
             state.enemies.push(obelisk);
@@ -258,6 +264,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             for(let i = 0; i < 3; i++) {
                 const conduit = new ObeliskConduitAI(obelisk, conduitTypes[i].type, conduitTypes[i].color, (i / 3) * Math.PI * 2);
                 conduit.boss = true;
+                conduit.bossIndex = bossIndex;
                 conduit.scale.multiplyScalar(MODEL_SCALE);
                 conduit.r = (conduit.r || 1) * MODEL_SCALE;
                 state.enemies.push(conduit);
@@ -268,6 +275,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         // Standard single boss spawn
         enemy = new AIClass();
         enemy.boss = true;
+        enemy.bossIndex = bossIndex;
     } else if (!isBoss) {
         const minionGeo = new THREE.SphereGeometry(0.3, 8, 8);
         const minionMat = new THREE.MeshStandardMaterial({ color: 0xc0392b, emissive: 0xc0392b, emissiveIntensity: 0.3 });
