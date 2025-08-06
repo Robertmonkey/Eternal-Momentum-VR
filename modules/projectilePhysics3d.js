@@ -207,9 +207,100 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
         }
         if(ef.mesh){
           const t = ef.duration > 0 ? Math.min(1, (now - ef.startTime) / ef.duration) : 1;
-          ef.mesh.rotation.y += 0.01 * deltaFactor * (ef.stage || 1);
-          ef.mesh.rotation.x += 0.005 * deltaFactor * ((ef.stage || 1) - 1);
-          const scale = 1 + 0.4 * ((ef.stage || 1) - 1) + 0.15 * Math.sin(t * Math.PI * 2);
+          const elapsed = (now - ef.startTime) / 1000;
+          const stage = ef.stage || 1;
+          const kind = ef.mesh.userData.kind;
+          switch(kind){
+            case 'splitter':{
+              ef.mesh.children.forEach(ch=>{
+                if(ch.geometry && ch.geometry.type === 'TorusGeometry'){
+                  ch.rotation.z += 0.02 * deltaFactor;
+                } else if(ch.geometry && ch.geometry.type === 'TetrahedronGeometry'){
+                  ch.rotation.x += 0.04 * deltaFactor;
+                  ch.rotation.y += 0.03 * deltaFactor;
+                  const dir = ch.userData.rotateDir || 1;
+                  ch.position.applyAxisAngle(new THREE.Vector3(0,1,0), dir * 0.02 * deltaFactor);
+                }
+              });
+              break;
+            }
+            case 'reflector':{
+              ef.mesh.children.forEach(ch=>{
+                if(ch.geometry && ch.geometry.type === 'SphereGeometry'){
+                  const pulse = 1 + 0.1 * Math.sin(elapsed * 4);
+                  ch.scale.setScalar(pulse);
+                } else if(ch.geometry && ch.geometry.type === 'TorusGeometry'){
+                  ch.rotation.y += 0.02 * deltaFactor;
+                }
+              });
+              break;
+            }
+            case 'vampire':{
+              ef.mesh.children.forEach(ch=>{
+                if(ch.userData.baseAng !== undefined){
+                  const ang = ch.userData.baseAng + elapsed * 1.5;
+                  const rad = ch.userData.radius;
+                  ch.position.set(Math.cos(ang) * rad, Math.sin(elapsed * 3 + ch.userData.baseAng) * rad * 0.2, Math.sin(ang) * rad);
+                } else if(ch.geometry && ch.geometry.type === 'TorusGeometry'){
+                  ch.rotation.z += 0.03 * deltaFactor;
+                }
+              });
+              break;
+            }
+            case 'gravity':{
+              ef.mesh.children.forEach(ch=>{
+                if(ch.userData.baseAng !== undefined){
+                  const ang = ch.userData.baseAng + elapsed;
+                  const rad = ch.userData.radius;
+                  ch.position.set(Math.cos(ang) * rad, 0, Math.sin(ang) * rad);
+                } else if(ch.geometry && ch.geometry.type === 'TorusGeometry'){
+                  ch.rotation.z += 0.02 * deltaFactor;
+                }
+              });
+              break;
+            }
+            case 'syphon':{
+              ef.mesh.children.forEach(ch=>{
+                if(ch.geometry && ch.geometry.type === 'ConeGeometry'){
+                  ch.scale.z = 0.6 + 0.4 * Math.sin(elapsed * 3 + ch.userData.offset);
+                } else if(ch.geometry && ch.geometry.type === 'TorusGeometry'){
+                  ch.rotation.z += 0.04 * deltaFactor;
+                }
+              });
+              break;
+            }
+            case 'centurion':{
+              ef.mesh.children.forEach(ch=>{
+                if(ch.geometry && ch.geometry.type === 'BoxGeometry'){
+                  ch.rotation.y += 0.02 * deltaFactor;
+                } else if(ch.geometry && ch.geometry.type === 'TorusGeometry'){
+                  ch.rotation.z += 0.03 * deltaFactor;
+                }
+              });
+              break;
+            }
+            case 'puppeteer':{
+              ef.mesh.children.forEach(ch=>{
+                if(ch.geometry && ch.geometry.type === 'CylinderGeometry'){
+                  ch.rotation.z = 0.3 * Math.sin(elapsed * 2 + ch.userData.offset);
+                } else if(ch.geometry && ch.geometry.type === 'SphereGeometry' && ch.userData.offset !== undefined){
+                  const ang = ch.userData.offset;
+                  const rad = ch.userData.radius;
+                  ch.position.x = Math.cos(ang) * rad;
+                  ch.position.z = Math.sin(ang) * rad;
+                  ch.position.y = -ef.mesh.userData.radius * 0.5 + Math.sin(elapsed * 2 + ang) * ef.mesh.userData.radius * 0.05;
+                } else if(ch.geometry && ch.geometry.type === 'BoxGeometry'){
+                  ch.rotation.y += 0.01 * deltaFactor;
+                }
+              });
+              break;
+            }
+            default:{
+              ef.mesh.rotation.y += 0.01 * deltaFactor * stage;
+              ef.mesh.rotation.x += 0.005 * deltaFactor * (stage - 1);
+            }
+          }
+          const scale = 1 + 0.4 * (stage - 1) + 0.15 * Math.sin(t * Math.PI * 2);
           ef.mesh.scale.setScalar(scale);
           ef.mesh.traverse(child => {
             if(child.material && typeof child.material.opacity === 'number'){

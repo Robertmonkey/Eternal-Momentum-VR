@@ -28,6 +28,7 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
           const shard = new THREE.Mesh(shardGeom, baseMat.clone());
           const angle = (i / (stage * 4)) * Math.PI * 2;
           shard.position.set(Math.cos(angle) * radius * 1.4, 0, Math.sin(angle) * radius * 1.4);
+          shard.userData.rotateDir = i % 2 === 0 ? 1 : -1;
           group.add(shard);
         }
       }
@@ -67,6 +68,8 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
           const orb = new THREE.Mesh(orbGeom, baseMat.clone());
           const ang = (j / (i * 4)) * Math.PI * 2;
           orb.position.set(Math.cos(ang) * ringRadius, Math.sin(ang * 2) * radius * 0.2, Math.sin(ang) * ringRadius);
+          orb.userData.baseAng = ang;
+          orb.userData.radius = ringRadius;
           group.add(orb);
         }
       }
@@ -82,6 +85,8 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
           const sat = new THREE.Mesh(satGeom, baseMat.clone());
           const ang = (j / (i * 3)) * Math.PI * 2;
           sat.position.set(Math.cos(ang) * ringRadius, 0, Math.sin(ang) * ringRadius);
+          sat.userData.baseAng = ang;
+          sat.userData.radius = ringRadius;
           group.add(sat);
         }
       }
@@ -96,6 +101,7 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
         const cone = new THREE.Mesh(coneGeom, baseMat.clone());
         cone.rotation.x = Math.PI / 2;
         cone.scale.setScalar(0.6 + i * 0.2);
+        cone.userData.offset = i;
         group.add(cone);
       }
       break;
@@ -109,6 +115,7 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
         const bar = new THREE.Mesh(barGeom, baseMat.clone());
         const ang = (i / bars) * Math.PI * 2;
         bar.position.set(Math.cos(ang) * radius, 0, Math.sin(ang) * radius);
+        bar.userData.angle = ang;
         group.add(bar);
       }
       if (stage > 1) {
@@ -133,10 +140,14 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
         const ang = (i / 4) * Math.PI * 2;
         const thread = new THREE.Mesh(threadGeom, baseMat.clone());
         thread.position.set(Math.cos(ang) * radius * 0.5, 0, Math.sin(ang) * radius * 0.5);
+        thread.userData.offset = ang;
         group.add(thread);
         for (let j = 1; j <= stage; j++) {
           const bead = new THREE.Mesh(beadGeom, baseMat.clone());
-          bead.position.set(Math.cos(ang) * radius * (0.5 + j * 0.25), -radius * 0.5, Math.sin(ang) * radius * (0.5 + j * 0.25));
+          const dist = radius * (0.5 + j * 0.25);
+          bead.position.set(Math.cos(ang) * dist, -radius * 0.5, Math.sin(ang) * dist);
+          bead.userData.offset = ang;
+          bead.userData.radius = dist;
           group.add(bead);
         }
       }
@@ -151,6 +162,7 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
 
   group.userData.kind = kind;
   group.userData.stage = stage;
+  group.userData.radius = radius;
   return group;
 }
 

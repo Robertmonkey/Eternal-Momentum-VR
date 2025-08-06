@@ -28,7 +28,7 @@
 
 * [ ] **3D Models and Animations:**
     * [x] Create 3D spherical models for all bosses and enemies. — Completed
-    * [ ] Implement animations for all bosses, enemies, and power-ups. — In Progress
+    * [x] Implement animations for all bosses, enemies, and power-ups. — Completed
         * [x] Enabled delta-based enemy AI updates to support animations.
         * [x] Added expanding sphere visual for the `shockwave` power-up.
         * [x] Added heal sparkle and black hole visuals.
@@ -38,7 +38,8 @@
     * [x] Expanded upgrades to additional bosses so designs scale with difficulty (Syphon, Centurion, Sentinel Pair, Annihilator, Architect, Quantum Shadow, Puppeteer).
     * [x] Added extra rings, shards, and orbiting details so later bosses look increasingly epic and aligned with their lore.
     * [x] Introduced progressive ability animations with lore-based shapes for Aethel & Umbra, Splitter, and Reflector bosses.
-    * [x] Expanded ability animations for Vampire, Gravity, Syphon, Centurion, and Puppeteer bosses so effects scale with each stage.
+        * [x] Expanded ability animations for Vampire, Gravity, Syphon, Centurion, and Puppeteer bosses so effects scale with each stage.
+        * [x] Matched each boss ability to unique animations inspired by original-game lore.
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
 ## UI
