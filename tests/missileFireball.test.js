@@ -107,3 +107,26 @@ test('missile damages enemies without explicit alive flag', () => {
 
   assert.ok(enemy.takeDamage.mock.calls.length > 0, 'enemy damaged despite missing alive flag');
 });
+
+test('missile fireball explodes when firing downward through floor', () => {
+  initGameHelpers({ play: () => {}, pulseControllers: () => {}, addStatusEffect: () => {} });
+  state.effects.length = 0;
+  state.enemies.length = 0;
+  state.offensiveInventory = ['missile', null, null];
+
+  state.player.position.set(0, 0, 50);
+  state.cursorDir.set(0, -1, 0);
+
+  useOffensivePower();
+  const fireball = state.effects.find(e => e.type === 'fireball');
+  assert.ok(fireball, 'fireball spawned');
+
+  for (let i = 0; i < 1000 && state.effects.includes(fireball); i++) {
+    updateEffects3d(16);
+    updateProjectiles3d(50, 1000, 1000, 16);
+  }
+
+  assert.ok(!state.effects.includes(fireball), 'fireball resolved');
+  const explosion = state.effects.find(e => e.type === 'shockwave');
+  assert.ok(explosion, 'explosion triggered');
+});
