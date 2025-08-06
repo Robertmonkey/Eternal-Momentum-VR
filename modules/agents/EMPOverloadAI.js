@@ -5,14 +5,10 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class EMPOverloadAI extends BaseAgent {
   constructor() {
-    super({ color: 0x3498db });
-
     const bossData = { id: "emp", name: "EMP Overload", maxHP: 260 };
-    this.kind = bossData.id;
-    this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
+    super({ health: bossData.maxHP, color: 0x3498db, kind: bossData.id });
 
+    this.name = bossData.name;
     this.lastEMPTime = 0;
     this.isCharging = false;
   }

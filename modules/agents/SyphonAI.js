@@ -5,14 +5,10 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class SyphonAI extends BaseAgent {
   constructor() {
-    super({ color: 0x9b59b6 });
-
     const bossData = { id: "syphon", name: "The Syphon", maxHP: 450 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0x9b59b6, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.isCharging = false;
     this.lastSyphonTime = 0;
   }

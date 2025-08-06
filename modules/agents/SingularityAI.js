@@ -7,14 +7,10 @@ const ARENA_RADIUS = 50;
 
 export class SingularityAI extends BaseAgent {
   constructor() {
-    super({ color: 0x000000 });
-
     const bossData = { id: "singularity", name: "The Singularity", maxHP: 600 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0x000000, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.phase = 1;
     this.lastActionTime = 0;
   }

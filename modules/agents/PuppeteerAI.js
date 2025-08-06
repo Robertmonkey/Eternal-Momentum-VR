@@ -5,14 +5,10 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class PuppeteerAI extends BaseAgent {
   constructor() {
-    super({ color: 0xa29bfe });
-    
     const bossData = { id: "puppeteer", name: "The Puppeteer", maxHP: 320 };
-    this.kind = bossData.id;
-    this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
+    super({ health: bossData.maxHP, color: 0xa29bfe, kind: bossData.id });
 
+    this.name = bossData.name;
     this.lastConvertTime = 0;
   }
 

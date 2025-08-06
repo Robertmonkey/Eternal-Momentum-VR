@@ -7,14 +7,10 @@ const ARENA_RADIUS = 50;
 
 export class TimeEaterAI extends BaseAgent {
   constructor() {
-    super({ color: 0xdfe6e9 });
-
     const bossData = { id: "time_eater", name: "Time Eater", maxHP: 440 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0xdfe6e9, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.lastAbilityTime = 0;
   }
 

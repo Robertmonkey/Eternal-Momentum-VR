@@ -4,30 +4,39 @@ import * as THREE from '../vendor/three.module.js';
 import * as CoreManager from './CoreManager.js';
 import { state } from './state.js';
 import { gameHelpers as globalGameHelpers } from './gameHelpers.js';
+import { createBossModel } from './bossModelFactory.js';
 
 export class BaseAgent extends THREE.Group {
   constructor(options = {}) {
     super();
-    const { health = 1, model = null, color = null, radius = 0.65 } = options;
+    const { health = 1, model = null, color = null, radius = 0.65, kind = null } = options;
     // Store the agent's base collision radius so the game loop can scale it
     // uniformly. Having a defined radius ensures accurate hit detection for
     // both default sphere agents and those using custom models.
     this.r = radius;
+    this.kind = kind;
     this.maxHealth = health;
+    this.maxHP = health;
     this.health = health;
     this.alive = true;
     if (model) {
       this.add(model);
       this.model = model;
-    } else if (color !== null) {
-      const material = new THREE.MeshStandardMaterial({
-        color,
-        emissive: color,
-        emissiveIntensity: 0.5,
-      });
-      const geometry = new THREE.SphereGeometry(radius, 32, 16);
-      this.model = new THREE.Mesh(geometry, material);
-      this.add(this.model);
+    } else {
+      const autoModel = createBossModel(kind, color, radius);
+      if (autoModel) {
+        this.add(autoModel);
+        this.model = autoModel;
+      } else if (color !== null) {
+        const material = new THREE.MeshStandardMaterial({
+          color,
+          emissive: color,
+          emissiveIntensity: 0.5,
+        });
+        const geometry = new THREE.SphereGeometry(radius, 32, 16);
+        this.model = new THREE.Mesh(geometry, material);
+        this.add(this.model);
+      }
     }
   }
 

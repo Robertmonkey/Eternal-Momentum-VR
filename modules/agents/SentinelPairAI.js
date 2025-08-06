@@ -9,14 +9,10 @@ const ARENA_RADIUS = 50;
 
 export class SentinelPairAI extends BaseAgent {
   constructor(partner = null) {
-    super({ color: 0xf1c40f });
-    
     const bossData = { id: "sentinel_pair", name: "Sentinel Pair", maxHP: 400 };
-    this.kind = bossData.id;
-    this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
+    super({ health: bossData.maxHP, color: 0xf1c40f, kind: bossData.id });
 
+    this.name = bossData.name;
     this.partner = partner;
     if (this.partner) {
         this.partner.partner = this; // Link back

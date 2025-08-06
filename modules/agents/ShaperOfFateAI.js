@@ -7,14 +7,10 @@ const ARENA_RADIUS = 50;
 
 export class ShaperOfFateAI extends BaseAgent {
   constructor() {
-    super({ color: 0xf1c40f });
-
     const bossData = { id: "shaper_of_fate", name: "The Shaper of Fate", maxHP: 600 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0xf1c40f, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.phase = 'idle'; // idle -> prophecy -> fulfillment
     this.phaseTimer = Date.now() + 3000;
   }

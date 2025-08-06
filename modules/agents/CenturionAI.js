@@ -7,14 +7,10 @@ const ARENA_RADIUS = 50;
 
 export class CenturionAI extends BaseAgent {
   constructor() {
-    super({ color: 0xd35400 });
-
     const bossData = { id: "centurion", name: "The Centurion", maxHP: 480 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0xd35400, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.lastWallTime = 0;
   }
 

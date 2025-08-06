@@ -9,14 +9,10 @@ const ARENA_RADIUS = 50;
 
 export class AnnihilatorAI extends BaseAgent {
   constructor() {
-    super({ color: 0xd63031 });
-
     const bossData = { id: "annihilator", name: "The Annihilator", maxHP: 480 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0xd63031, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.isChargingBeam = false;
     this.lastBeamTime = 0;
 

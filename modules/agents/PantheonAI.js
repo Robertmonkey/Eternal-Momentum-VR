@@ -10,14 +10,10 @@ import { AnnihilatorAI } from './AnnihilatorAI.js';
 
 export class PantheonAI extends BaseAgent {
   constructor() {
-    super({ color: 0xecf0f1 });
-
     const bossData = { id: "pantheon", name: "The Pantheon", maxHP: 3000 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0xecf0f1, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.nextActionTime = Date.now() + 3000;
     this.activeAspects = new Map(); // Use a Map to store aspect AI instances
 

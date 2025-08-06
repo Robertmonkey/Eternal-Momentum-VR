@@ -7,14 +7,10 @@ const ARENA_RADIUS = 50;
 
 export class QuantumShadowAI extends BaseAgent {
   constructor() {
-    super({ color: 0x81ecec });
-
     const bossData = { id: "quantum_shadow", name: "Quantum Shadow", maxHP: 360 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0x81ecec, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.phase = 'seeking'; // 'seeking' or 'superposition'
     this.lastPhaseChangeTime = Date.now();
     this.invulnerable = false;

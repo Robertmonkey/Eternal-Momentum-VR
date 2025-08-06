@@ -7,14 +7,10 @@ const ARENA_RADIUS = 50;
 
 export class ArchitectAI extends BaseAgent {
   constructor() {
-    super({ color: 0x7f8c8d });
-
     const bossData = { id: "architect", name: "The Architect", maxHP: 280 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0x7f8c8d, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.lastBuildTime = 0;
   }
 

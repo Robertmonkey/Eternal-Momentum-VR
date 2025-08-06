@@ -6,20 +6,14 @@ import { gameHelpers } from '../gameHelpers.js';
 export class FractalHorrorAI extends BaseAgent {
   constructor(generation = 1) {
     const size = 1.2 / generation;
-    super({ color: 0xbe2edd });
-    
-    if (generation === 1) {
-        const bossData = { id: "fractal_horror", name: "The Fractal Horror", maxHP: 10000 };
-        this.kind = bossData.id;
-    this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-        state.fractalHorrorSharedHp = this.maxHP;
-    } else {
-        this.maxHP = 10000 / generation;
-        this.health = this.maxHP;
-    }
+    const bossData = { id: "fractal_horror", name: "The Fractal Horror", maxHP: 10000 };
+    super({ health: bossData.maxHP / generation, color: 0xbe2edd, kind: bossData.id, radius: size });
 
+    if (generation === 1) {
+        this.name = bossData.name;
+        state.fractalHorrorSharedHp = this.maxHP;
+    }
+    
     this.generation = generation;
   }
 
