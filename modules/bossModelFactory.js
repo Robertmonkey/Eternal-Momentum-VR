@@ -63,11 +63,30 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       break;
     }
     case 'syphon':
-      mesh = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.2, radius / 3, 16, 32), material);
+      // Energy ring with inward-pointing funnel
+      const syphonGroup = new THREE.Group();
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.2, radius / 3, 16, 32), material);
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(radius * 0.6, radius * 1.5, 32), material.clone());
+      cone.rotation.x = Math.PI / 2;
+      syphonGroup.add(ring);
+      syphonGroup.add(cone);
+      mesh = syphonGroup;
       break;
-    case 'centurion':
-      mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.8, radius * 0.8, radius * 2, 16), material);
+    case 'centurion': {
+      // Central pillar surrounded by cage-like energy bars
+      const group = new THREE.Group();
+      const core = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.6, radius * 0.6, radius * 1.8, 16), material);
+      group.add(core);
+      const barGeom = new THREE.BoxGeometry(radius * 0.2, radius * 2, radius * 0.2);
+      for (let i = 0; i < 4; i++) {
+        const bar = new THREE.Mesh(barGeom, material.clone());
+        const ang = (i / 4) * Math.PI * 2;
+        bar.position.set(Math.cos(ang) * radius, 0, Math.sin(ang) * radius);
+        group.add(bar);
+      }
+      mesh = group;
       break;
+    }
     case 'gravity': {
       // Massive core with orbiting satellites captured in its ring
       const group = new THREE.Group();
@@ -95,23 +114,87 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
     case 'pantheon':
       mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(radius, radius / 4, 64, 8), material);
       break;
-    case 'sentinel_pair':
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(radius * 1.2, radius * 1.2, radius * 1.2), material);
+    case 'sentinel_pair': {
+      // Twin pole wrapped by a mid-ring
+      const group = new THREE.Group();
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.5, radius * 0.5, radius * 2, 16), material);
+      const midRing = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.8, radius / 8, 16, 32), material.clone());
+      midRing.rotation.x = Math.PI / 2;
+      group.add(pillar);
+      group.add(midRing);
+      mesh = group;
       break;
-    case 'annihilator':
-      mesh = new THREE.Mesh(new THREE.ConeGeometry(radius, radius * 2, 16), material);
+    }
+    case 'annihilator': {
+      // Obelisk with a destructive tip
+      const group = new THREE.Group();
+      const obelisk = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.4, radius * 0.4, radius * 2.5, 4), material);
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(radius * 0.6, radius, 4), material.clone());
+      tip.position.y = radius * 1.25;
+      group.add(obelisk);
+      group.add(tip);
+      mesh = group;
       break;
-    case 'architect':
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(radius * 1.5, radius * 1.5, radius * 1.5), material);
+    }
+    case 'architect': {
+      // Constructive core with corner pillars
+      const group = new THREE.Group();
+      const core = new THREE.Mesh(new THREE.BoxGeometry(radius, radius, radius), material);
+      group.add(core);
+      const nodeGeom = new THREE.SphereGeometry(radius * 0.2, 8, 8);
+      [-1, 1].forEach(x => {
+        [-1, 1].forEach(y => {
+          [-1, 1].forEach(z => {
+            const node = new THREE.Mesh(nodeGeom, material.clone());
+            node.position.set(x * radius, y * radius, z * radius);
+            group.add(node);
+          });
+        });
+      });
+      mesh = group;
       break;
-    case 'quantum_shadow':
+    }
+    case 'quantum_shadow': {
+      // Layered translucent tetrahedrons to imply shifting states
       material.transparent = true;
-      material.opacity = 0.7;
-      mesh = new THREE.Mesh(new THREE.TetrahedronGeometry(radius), material);
+      material.opacity = 0.5;
+      const group = new THREE.Group();
+      for (let i = 0; i < 3; i++) {
+        const tMat = material.clone();
+        tMat.opacity = 0.3 + i * 0.2;
+        const t = new THREE.Mesh(new THREE.TetrahedronGeometry(radius), tMat);
+        t.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+        group.add(t);
+      }
+      mesh = group;
       break;
-    case 'puppeteer':
-      mesh = new THREE.Mesh(new THREE.OctahedronGeometry(radius), material);
+    }
+    case 'puppeteer': {
+      // Core orb with handle and dangling threads
+      const group = new THREE.Group();
+      const core = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.6, 16, 16), material);
+      group.add(core);
+      const crossA = new THREE.Mesh(new THREE.BoxGeometry(radius * 1.2, radius * 0.15, radius * 0.15), material.clone());
+      const crossB = new THREE.Mesh(new THREE.BoxGeometry(radius * 0.15, radius * 1.2, radius * 0.15), material.clone());
+      crossA.position.y = radius;
+      crossB.position.y = radius;
+      group.add(crossA);
+      group.add(crossB);
+      const threadGeom = new THREE.CylinderGeometry(radius * 0.05, radius * 0.05, radius, 8);
+      const offsets = [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1]
+      ];
+      offsets.forEach(([x, z]) => {
+        const thread = new THREE.Mesh(threadGeom, material.clone());
+        thread.position.set(x * radius * 0.5, radius * 0.5, z * radius * 0.5);
+        group.add(thread);
+      });
+      mesh = group;
       break;
+    }
     case 'singularity': {
       const group = new THREE.Group();
       material.metalness = 1;
