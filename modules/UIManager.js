@@ -420,15 +420,29 @@ export function updateHud() {
     }
 
     if (bossContainer) {
-        const bosses = state.enemies.filter(isBossEnemy);
-        const activeIds = new Set();
+        const allBosses = state.enemies.filter(isBossEnemy);
+        const sharedHealthIds = ['sentinel_pair', 'fractal_horror'];
+        const renderedKeys = new Set();
+        const bossesToDisplay = [];
+
+        allBosses.forEach(boss => {
+            const key = sharedHealthIds.includes(boss.id) ? boss.id : boss.instanceId;
+            if (!renderedKeys.has(key)) {
+                renderedKeys.add(key);
+                bossesToDisplay.push({ boss, key });
+            }
+        });
+
+        const activeKeys = new Set();
+        const GRID_THRESHOLD = 4;
+        const useGrid = bossesToDisplay.length >= GRID_THRESHOLD;
         let index = 0;
-        bosses.forEach(boss => {
-            activeIds.add(boss.instanceId);
-            let bar = bossBars.get(boss.instanceId);
+        bossesToDisplay.forEach(({ boss, key }) => {
+            activeKeys.add(key);
+            let bar = bossBars.get(key);
             if (!bar) {
                 bar = createBossBar(boss);
-                bossBars.set(boss.instanceId, bar);
+                bossBars.set(key, bar);
                 bossContainer.add(bar);
             }
             const cur = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.health;
@@ -437,16 +451,21 @@ export function updateHud() {
             const color = getBossColor(boss);
             bar.userData.fill.material.color.set(color);
             updateTextSprite(bar.userData.label, boss.name);
-            bar.position.set(0, -index * 0.07, 0);
+            const col = useGrid ? index % 2 : 0;
+            const row = useGrid ? Math.floor(index / 2) : index;
+            const x = useGrid ? (col === 0 ? -0.15 : 0.15) : 0;
+            const y = -row * 0.07;
+            bar.position.set(x, y, 0);
             index++;
         });
-        for (const [id, bar] of bossBars.entries()) {
-            if (!activeIds.has(id)) {
+
+        for (const [key, bar] of bossBars.entries()) {
+            if (!activeKeys.has(key)) {
                 bossContainer.remove(bar);
-                bossBars.delete(id);
+                bossBars.delete(key);
             }
         }
-        bossContainer.visible = bosses.length > 0;
+        bossContainer.visible = bossesToDisplay.length > 0;
     }
 }
 
