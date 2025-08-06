@@ -206,7 +206,16 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
           ef.mesh.position.copy(ef.owner.position);
         }
         if(ef.mesh){
+          const t = ef.duration > 0 ? Math.min(1, (now - ef.startTime) / ef.duration) : 1;
           ef.mesh.rotation.y += 0.01 * deltaFactor * (ef.stage || 1);
+          ef.mesh.rotation.x += 0.005 * deltaFactor * ((ef.stage || 1) - 1);
+          const scale = 1 + 0.4 * ((ef.stage || 1) - 1) + 0.15 * Math.sin(t * Math.PI * 2);
+          ef.mesh.scale.setScalar(scale);
+          ef.mesh.traverse(child => {
+            if(child.material && typeof child.material.opacity === 'number'){
+              child.material.opacity = 0.7 * (1 - t);
+            }
+          });
         }
         if(now - ef.startTime > ef.duration){
           if(ef.mesh){

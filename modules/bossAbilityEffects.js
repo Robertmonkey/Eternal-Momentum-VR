@@ -57,6 +57,91 @@ export function createAbilityEffect(kind = 'generic', stage = 1, color = 0xfffff
       }
       break;
     }
+    case 'vampire': {
+      // swirling crimson orbs representing stolen lifeblood
+      for (let i = 1; i <= stage; i++) {
+        const ringRadius = radius * (0.8 + i * 0.3);
+        addRing(group, ringRadius, baseMat);
+        const orbGeom = new THREE.SphereGeometry(radius * 0.15, 8, 8);
+        for (let j = 0; j < i * 4; j++) {
+          const orb = new THREE.Mesh(orbGeom, baseMat.clone());
+          const ang = (j / (i * 4)) * Math.PI * 2;
+          orb.position.set(Math.cos(ang) * ringRadius, Math.sin(ang * 2) * radius * 0.2, Math.sin(ang) * ringRadius);
+          group.add(orb);
+        }
+      }
+      break;
+    }
+    case 'gravity': {
+      // orbiting satellites caught in a gravitational well
+      for (let i = 1; i <= stage; i++) {
+        const ringRadius = radius * (0.9 + i * 0.4);
+        addRing(group, ringRadius, baseMat);
+        const satGeom = new THREE.SphereGeometry(radius * 0.12, 8, 8);
+        for (let j = 0; j < i * 3; j++) {
+          const sat = new THREE.Mesh(satGeom, baseMat.clone());
+          const ang = (j / (i * 3)) * Math.PI * 2;
+          sat.position.set(Math.cos(ang) * ringRadius, 0, Math.sin(ang) * ringRadius);
+          group.add(sat);
+        }
+      }
+      break;
+    }
+    case 'syphon': {
+      // energy ring funneling toward the center
+      for (let i = 1; i <= stage; i++) {
+        const ringRadius = radius * (0.8 + i * 0.3);
+        addRing(group, ringRadius, baseMat);
+        const coneGeom = new THREE.ConeGeometry(radius * 0.3, radius * 0.8, 16);
+        const cone = new THREE.Mesh(coneGeom, baseMat.clone());
+        cone.rotation.x = Math.PI / 2;
+        cone.scale.setScalar(0.6 + i * 0.2);
+        group.add(cone);
+      }
+      break;
+    }
+    case 'centurion': {
+      // cage-like energy bars that intensify with each stage
+      addRing(group, radius, baseMat);
+      const barGeom = new THREE.BoxGeometry(radius * 0.1, radius * 1.6, radius * 0.1);
+      const bars = stage * 2 + 2;
+      for (let i = 0; i < bars; i++) {
+        const bar = new THREE.Mesh(barGeom, baseMat.clone());
+        const ang = (i / bars) * Math.PI * 2;
+        bar.position.set(Math.cos(ang) * radius, 0, Math.sin(ang) * radius);
+        group.add(bar);
+      }
+      if (stage > 1) {
+        addRing(group, radius * 1.3, baseMat);
+      }
+      if (stage > 2) {
+        addRing(group, radius * 1.6, baseMat);
+      }
+      break;
+    }
+    case 'puppeteer': {
+      // marionette cross with dangling threads
+      const crossA = new THREE.Mesh(new THREE.BoxGeometry(radius * 1.4, radius * 0.1, radius * 0.1), baseMat.clone());
+      const crossB = new THREE.Mesh(new THREE.BoxGeometry(radius * 0.1, radius * 1.4, radius * 0.1), baseMat.clone());
+      crossA.position.y = radius * 0.6;
+      crossB.position.y = radius * 0.6;
+      group.add(crossA);
+      group.add(crossB);
+      const threadGeom = new THREE.CylinderGeometry(radius * 0.05, radius * 0.05, radius, 8);
+      const beadGeom = new THREE.SphereGeometry(radius * 0.1, 8, 8);
+      for (let i = 0; i < 4; i++) {
+        const ang = (i / 4) * Math.PI * 2;
+        const thread = new THREE.Mesh(threadGeom, baseMat.clone());
+        thread.position.set(Math.cos(ang) * radius * 0.5, 0, Math.sin(ang) * radius * 0.5);
+        group.add(thread);
+        for (let j = 1; j <= stage; j++) {
+          const bead = new THREE.Mesh(beadGeom, baseMat.clone());
+          bead.position.set(Math.cos(ang) * radius * (0.5 + j * 0.25), -radius * 0.5, Math.sin(ang) * radius * (0.5 + j * 0.25));
+          group.add(bead);
+        }
+      }
+      break;
+    }
     default: {
       for (let i = 1; i <= stage; i++) {
         addRing(group, radius * (0.8 + i * 0.3), baseMat);
