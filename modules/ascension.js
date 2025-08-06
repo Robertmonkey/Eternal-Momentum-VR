@@ -59,64 +59,78 @@ export function purchaseTalent(talentId) {
  * This should be called after loading a save or purchasing a talent.
  */
 export function applyAllTalentEffects() {
-    // Reset all modifiers to their base values before recalculating
-    state.player.maxHealth = 100;
-    state.player.speed = 1.0;
-    state.player.talent_modifiers.damage_multiplier = 1.0;
-    state.player.talent_modifiers.damage_taken_multiplier = 1.0;
-    state.player.talent_modifiers.pickup_radius_bonus = 0;
-    state.player.talent_modifiers.essence_gain_modifier = 1.0;
-    state.player.talent_modifiers.power_spawn_rate_modifier = 1.0;
+    // Reset all modifiers to their base values just like the original 2D game
+    // before applying the bonuses from purchased talents.
+    let baseMaxHealth = 100;
+    let baseSpeed = 1.0;
+    let baseDamageMultiplier = 1.0;
+    let baseDamageTakenMultiplier = 1.0;
+    let basePickupRadius = 0;
+    let baseEssenceGain = 1.0;
+    let basePowerSpawnRate = 1.0;
+    let basePullResistance = 0;
 
     state.player.purchasedTalents.forEach((rank, id) => {
-        const talent = allTalents[id];
-        if (!talent) return;
-        
-        // This is a simplified application based on your talents.js file.
-        // It directly modifies the state properties.
         switch (id) {
-            case 'exo-weave-plating':
-                const healthValues = [15, 20, 25];
-                for (let i = 0; i < rank; i++) state.player.maxHealth += healthValues[i];
+            case 'exo-weave-plating': {
+                const values = [15, 20, 25];
+                for (let i = 0; i < rank; i++) baseMaxHealth += values[i];
                 break;
-            case 'solar-wind':
-                state.player.speed += rank * 0.06;
+            }
+            case 'solar-wind': {
+                const values = [0.06, 0.06];
+                for (let i = 0; i < rank; i++) baseSpeed += values[i];
                 break;
-            case 'high-frequency-emitters':
-                const damageValues = [0.05, 0.07];
-                for (let i = 0; i < rank; i++) state.player.talent_modifiers.damage_multiplier += damageValues[i];
+            }
+            case 'high-frequency-emitters': {
+                const values = [0.05, 0.07];
+                for (let i = 0; i < rank; i++) baseDamageMultiplier += values[i];
                 break;
+            }
             case 'resonance-magnet':
-                // NOTE: This pixel value should be converted to world units where it's used
-                state.player.talent_modifiers.pickup_radius_bonus += rank * 75;
+                basePickupRadius += rank * 75;
                 break;
-            case 'essence-conduit':
-                 const essenceValues = [0.10, 0.15];
-                for (let i = 0; i < rank; i++) state.player.talent_modifiers.essence_gain_modifier += essenceValues[i];
+            case 'essence-conduit': {
+                const values = [0.10, 0.15];
+                for (let i = 0; i < rank; i++) baseEssenceGain += values[i];
                 break;
-            case 'resonant-frequencies':
-                state.player.talent_modifiers.power_spawn_rate_modifier += rank * 0.10;
+            }
+            case 'resonant-frequencies': {
+                const values = [0.10, 0.10];
+                for (let i = 0; i < rank; i++) basePowerSpawnRate += values[i];
                 break;
+            }
+            // Endless talents
             case 'core-reinforcement':
-                state.player.maxHealth += rank * 5;
+                baseMaxHealth += rank * 5;
                 break;
             case 'momentum-drive':
-                state.player.speed += rank * 0.01;
+                baseSpeed += rank * 0.01;
                 break;
             case 'weapon-calibration':
-                state.player.talent_modifiers.damage_multiplier += rank * 0.01;
+                baseDamageMultiplier += rank * 0.01;
                 break;
         }
     });
 
-    // Reset dynamic talent states
+    // Apply all calculated values to the state
+    state.player.maxHealth = baseMaxHealth;
+    state.player.speed = baseSpeed;
+    state.player.talent_modifiers.damage_multiplier = baseDamageMultiplier;
+    state.player.talent_modifiers.damage_taken_multiplier = baseDamageTakenMultiplier;
+    state.player.talent_modifiers.pickup_radius_bonus = basePickupRadius;
+    state.player.talent_modifiers.essence_gain_modifier = baseEssenceGain;
+    state.player.talent_modifiers.power_spawn_rate_modifier = basePowerSpawnRate;
+    state.player.talent_modifiers.pull_resistance_modifier = basePullResistance;
+
+    // Reset dynamic talent states to match 2D behaviour
     state.player.talent_states.phaseMomentum.active = false;
     if (state.player.purchasedTalents.has('phase-momentum')) {
         state.player.talent_states.phaseMomentum.lastDamageTime = Date.now();
     }
     state.player.talent_states.reactivePlating.lastTrigger = 0;
 
-    // After applying all maxHealth modifiers, ensure current health isn't higher.
+    // After applying maxHealth modifiers ensure current health isn't higher
     state.player.health = Math.min(state.player.health, state.player.maxHealth);
 }
 /**
