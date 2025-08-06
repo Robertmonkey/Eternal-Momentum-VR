@@ -331,6 +331,11 @@ export function initUI() {
 
     createHudElements();
 
+    // The HUD is purely informational and should never block controller
+    // rays. Disable raycasting on the entire HUD tree so the cursor can
+    // pass through without affecting player movement.
+    hudMesh.traverse(obj => { obj.raycast = () => {}; });
+
     bossContainer = new THREE.Group();
     bossContainer.name = 'bossContainer';
     bossContainer.position.set(0, 0.1, -0.05);
