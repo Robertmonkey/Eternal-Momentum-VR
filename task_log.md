@@ -36,6 +36,7 @@
     * [ ] Ensure all animations are interpolated for VR. — In Progress (projectiles, effects, and enemy AI use delta timing)
     * [x] Upgraded boss models with lore-driven shapes for progressive visual flair (Splitter, Reflector, Vampire, Gravity, Epoch Ender).
     * [x] Expanded upgrades to additional bosses so designs scale with difficulty (Syphon, Centurion, Sentinel Pair, Annihilator, Architect, Quantum Shadow, Puppeteer).
+    * [x] Added extra rings, shards, and orbiting details so later bosses look increasingly epic and aligned with their lore.
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
 ## UI
