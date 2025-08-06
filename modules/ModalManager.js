@@ -594,7 +594,6 @@ export function showModal(id) {
     const lookTarget = camera.position.clone();
     lookTarget.y = modalGroup.position.y;
     modalGroup.lookAt(lookTarget);
-    modalGroup.rotation.y += Math.PI;
 
     state.activeModalId = id;
     // Pause the game before heavy UI creation to avoid race conditions
@@ -631,7 +630,6 @@ export function updateActiveModalTransform() {
     const lookTarget = camera.position.clone();
     lookTarget.y = modalGroup.position.y;
     modalGroup.lookAt(lookTarget);
-    modalGroup.rotation.y += Math.PI;
 }
 
 export function hideModal() {
