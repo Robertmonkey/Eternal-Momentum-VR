@@ -431,7 +431,7 @@ export function updateHud() {
                 bossBars.set(boss.instanceId, bar);
                 bossContainer.add(bar);
             }
-            const cur = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.hp;
+            const cur = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.health;
             const pct = Math.max(0, cur / boss.maxHP);
             bar.userData.fill.scale.x = pct;
             const color = getBossColor(boss);

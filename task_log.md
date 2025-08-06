@@ -116,3 +116,4 @@
 * [x] Restored hit sound on fatal player damage.
 * [x] Awarded essence on enemy and boss deaths, clearing stages and resuming enemy and power-up spawns.
 * [x] Fixed ascension menu so talents render correctly even when `purchasedTalents` loads from a legacy array save, ensuring the Core Nexus is always visible.
+* [x] Corrected boss health bar logic so colored fills track each boss's `health` value instead of a nonexistent `hp` field.

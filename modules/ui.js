@@ -335,7 +335,7 @@ export function updateUI() {
             }
 
             const bar = wrapper.querySelector('.boss-hp-bar');
-            const currentHp = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.hp;
+            const currentHp = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.health;
             bar.style.backgroundColor = boss.color;
             bar.style.width = `${Math.max(0, currentHp / boss.maxHP) * 100}%`;
         });
@@ -343,7 +343,7 @@ export function updateUI() {
 
     const mainBoss = bossesToDisplay[0];
     if(mainBoss && vrBossFill){
-        const cur = mainBoss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : mainBoss.hp;
+        const cur = mainBoss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : mainBoss.health;
         const pct = Math.max(0, cur / mainBoss.maxHP);
         vrBossFill.object3D.scale.x = pct;
         vrBossFill.setAttribute('material', `color:${mainBoss.color}; emissive:${mainBoss.color}; emissiveIntensity:0.6`);
