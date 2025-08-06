@@ -32,6 +32,7 @@
         * [x] Enabled delta-based enemy AI updates to support animations.
         * [x] Added expanding sphere visual for the `shockwave` power-up.
         * [x] Added heal sparkle and black hole visuals.
+        * [x] Enhanced heal sparkle and shield activation with pulsing emissive effects.
     * [x] Create a swirling cube animation for the "glitch" enemy. — Completed
     * [ ] Ensure all animations are interpolated for VR. — In Progress (projectiles, effects, and enemy AI use delta timing)
     * [x] Upgraded boss models with lore-driven shapes for progressive visual flair (Splitter, Reflector, Vampire, Gravity, Epoch Ender).
