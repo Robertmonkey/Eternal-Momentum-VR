@@ -73,3 +73,37 @@ test('missile launches fireball that explodes on target', () => {
   assert.ok(!state.effects.includes(fireball), 'fireball resolved');
   assert.ok(enemy.takeDamage.mock.calls.length > 0, 'enemy damaged by explosion');
 });
+
+test('missile damages enemies without explicit alive flag', () => {
+  initGameHelpers({ play: () => {}, pulseControllers: () => {}, addStatusEffect: () => {} });
+
+  state.effects.length = 0;
+  state.enemies.length = 0;
+  state.offensiveInventory = ['missile', null, null];
+
+  state.player.position.set(0, 0, 50);
+  state.cursorDir.set(0.2, 0, -50).normalize();
+
+  const enemy = {
+    position: new THREE.Vector3(0.2, 0, -50),
+    r: 0.5,
+    isFriendly: false,
+    takeDamage: mock.fn()
+  };
+  state.enemies.push(enemy);
+
+  useOffensivePower();
+  const fireball = state.effects.find(e => e.type === 'fireball');
+  assert.ok(fireball, 'fireball spawned');
+
+  for (let i = 0; i < 1000 && state.effects.includes(fireball); i++) {
+    updateEffects3d(4);
+    updateProjectiles3d(50, 1000, 1000, 4);
+  }
+
+  for (let i = 0; i < 20; i++) {
+    updateEffects3d(4);
+  }
+
+  assert.ok(enemy.takeDamage.mock.calls.length > 0, 'enemy damaged despite missing alive flag');
+});

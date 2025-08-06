@@ -109,3 +109,6 @@
 * [x] Removed `bg.png` texture from buttons and HUD elements so it only serves as modal wallpaper, matching the original 2D game.
 * [x] Fixed additional gameplay bugs: projectile updates now validate callbacks, shield timers clear on break, player health clamps non-negative, circle drawing guards against invalid contexts, and particle spawner verifies inputs.
 * [x] Corrected modal orientation so menus face the player instead of showing their backs.
+* [x] Fixed missile explosions so nearby bosses and enemies take damage even if they lack an explicit `alive` flag.
+* [x] Added enemy separation logic to keep foes from occupying the same spot.
+* [x] Replaced death audio with the original 2D "stone cracking" sound effect.
