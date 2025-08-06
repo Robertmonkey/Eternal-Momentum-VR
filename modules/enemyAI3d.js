@@ -64,6 +64,29 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
     }
   });
 
+  // Prevent enemies from stacking on top of each other by applying a simple
+  // separation step after all movement has been processed. This nudges any
+  // overlapping pairs away from one another while keeping them on the
+  // spherical arena.
+  for(let i = 0; i < state.enemies.length; i++){
+    const a = state.enemies[i];
+    if(!a || a.alive === false || !a.position) continue;
+    for(let j = i + 1; j < state.enemies.length; j++){
+      const b = state.enemies[j];
+      if(!b || b.alive === false || !b.position) continue;
+      const minDist = (a.r || 0.5) + (b.r || 0.5);
+      const dist = a.position.distanceTo(b.position);
+      if(dist > 0 && dist < minDist){
+        const overlap = minDist - dist;
+        const dir = b.position.clone().sub(a.position).normalize();
+        a.position.add(dir.clone().multiplyScalar(-overlap / 2));
+        b.position.add(dir.clone().multiplyScalar(overlap / 2));
+        a.position.normalize().multiplyScalar(radius);
+        b.position.normalize().multiplyScalar(radius);
+      }
+    }
+  }
+
   const fields = state.effects.filter(f => f.type === 'repulsion_field');
   fields.forEach(field => {
     field.position.copy(state.player.position);

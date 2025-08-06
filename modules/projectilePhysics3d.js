@@ -236,7 +236,19 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
           ef.mesh.scale.setScalar(Math.max(ef.radius, 0.001));
         }
 
-        state.enemies.forEach(e=>{ if(e.alive && !ef.hitEnemies.has(e) && e.position.distanceTo(ef.position) < ef.radius + (e.r||0.5)){ if(canDamage(ef.caster, e)){ e.takeDamage(ef.damage, ef.caster===state.player); } const dir = e.position.clone().sub(ef.position).normalize(); e.position.add(dir.multiplyScalar(0.5)); ef.hitEnemies.add(e); }});
+        state.enemies.forEach(e=>{
+          if(!e || !e.position) return;
+          if(e.alive === false) return;
+          if(ef.hitEnemies.has(e)) return;
+          if(e.position.distanceTo(ef.position) < ef.radius + (e.r||0.5)){
+            if(canDamage(ef.caster, e)){
+              e.takeDamage(ef.damage, ef.caster===state.player);
+            }
+            const dir = e.position.clone().sub(ef.position).normalize();
+            e.position.add(dir.multiplyScalar(0.5));
+            ef.hitEnemies.add(e);
+          }
+        });
 
         if(ef.radius >= ef.maxRadius){
           if(ef.mesh){
