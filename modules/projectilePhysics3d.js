@@ -354,8 +354,13 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
       }
       case 'heal_sparkle':{
         if(!ef.mesh){
-          const geom = new THREE.SphereGeometry(0.3, 8, 8);
-          const mat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.8 });
+          const geom = new THREE.IcosahedronGeometry(0.3, 1);
+          const mat = new THREE.MeshStandardMaterial({
+            color: 0x00ff88,
+            emissive: 0x00ff00,
+            transparent: true,
+            opacity: 0.9
+          });
           ef.mesh = new THREE.Mesh(geom, mat);
           if(projectileGroup) projectileGroup.add(ef.mesh);
         }
@@ -363,8 +368,11 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
           ef.mesh.position.copy(ef.position);
           const total = ef.endTime - ef.startTime;
           const progress = total > 0 ? (now - ef.startTime) / total : 1;
-          ef.mesh.scale.setScalar(1 + progress);
-          ef.mesh.material.opacity = 0.8 * Math.max(0, 1 - progress);
+          ef.mesh.scale.setScalar(1 + progress * 2);
+          ef.mesh.rotation.x += 0.05 * deltaFactor;
+          ef.mesh.rotation.y += 0.08 * deltaFactor;
+          ef.mesh.material.opacity = 0.9 * Math.max(0, 1 - progress);
+          ef.mesh.material.emissiveIntensity = 1 + progress;
         }
         if(now > ef.endTime){
           if(ef.mesh){
@@ -378,8 +386,14 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
       }
       case 'shield_activation':{
         if(!ef.mesh){
-          const geom = new THREE.SphereGeometry(state.player.r * 1.4, 16, 16);
-          const mat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.4 });
+          const geom = new THREE.SphereGeometry(state.player.r * 1.4, 32, 32);
+          const mat = new THREE.MeshStandardMaterial({
+            color: 0x00ffff,
+            emissive: 0x0088ff,
+            transparent: true,
+            opacity: 0.4,
+            wireframe: true
+          });
           ef.mesh = new THREE.Mesh(geom, mat);
           if(projectileGroup) projectileGroup.add(ef.mesh);
         }
@@ -387,7 +401,11 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
           ef.mesh.position.copy(state.player.position);
           const total = ef.endTime - ef.startTime;
           const progress = total > 0 ? (now - ef.startTime) / total : 1;
+          const pulse = 1 + 0.2 * Math.sin(progress * Math.PI * 4);
+          ef.mesh.scale.setScalar(pulse);
+          ef.mesh.rotation.y += 0.01 * deltaFactor;
           ef.mesh.material.opacity = 0.4 * Math.max(0, 1 - progress);
+          ef.mesh.material.emissiveIntensity = 0.8 + 0.4 * Math.sin(progress * Math.PI * 2);
         }
         if(now > ef.endTime || !state.player.shield){
           if(ef.mesh){
