@@ -397,22 +397,57 @@ function createStageSelectModal() {
     loreCodexBtn.position.set(width / 2 - 0.05 - 0.2, height / 2 - 0.05 - 0.04, 0.02);
     modal.add(loreCodexBtn);
 
-    const arenaBtn = createButton("WEAVER'S ORRERY", () => { hideModal(); showModal('orrery'); }, 0.6, 0.1, 0x9b59b6);
+    const applyFooterHover = (btn, normalColor, hoverColor, normalOpacity = 0.8, hoverOpacity = 0.8) => {
+        const [bg, border, text] = btn.children;
+        const onHover = hovered => {
+            const intensity = hovered ? 1.5 : 1;
+            bg.material.emissiveIntensity = intensity;
+            border.material.emissiveIntensity = intensity;
+            btn.scale.setScalar(hovered ? 1.05 : 1);
+            bg.material.color.setHex(hovered ? hoverColor : normalColor);
+            border.material.color.setHex(hovered ? hoverColor : normalColor);
+            bg.material.opacity = hovered ? hoverOpacity : normalOpacity;
+        };
+        [bg, border, text].forEach(obj => obj.userData.onHover = onHover);
+    };
+
+    const arenaBtn = createButton(
+        "WEAVER'S ORRERY",
+        () => { hideModal(); showModal('orrery'); },
+        0.6,
+        0.1,
+        0x9b59b6,
+        0x9b59b6,
+        0xffffff,
+        0.4
+    );
     // Center the bottom buttons with equal 5cm side margins so they no longer
     // bleed past the container.
     const bottomY = -height / 2 + 0.1;
     arenaBtn.position.set(-width / 2 + 0.05 + 0.3, bottomY, 0.01);
-    const frontierBtn = createButton('JUMP TO FRONTIER', () => {
-        const stage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
-        state.currentStage = stage;
-        resetGame(bossData);
-        hideModal();
-    }, 0.6, 0.1, 0x00ffff, 0x00ffff, 0x1e1e2f);
-    frontierBtn.position.set(width / 2 - 0.05 - 0.3, bottomY, 0.01);
+    applyFooterHover(arenaBtn, 0x9b59b6, 0x9b59b6, 0.4, 0.6);
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.5, 0.1, 0xf000ff);
+    const frontierBtn = createButton(
+        'JUMP TO FRONTIER',
+        () => {
+            const stage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
+            state.currentStage = stage;
+            resetGame(bossData);
+            hideModal();
+        },
+        0.6,
+        0.1,
+        0x00ffff,
+        0x00ffff,
+        0x1e1e2f
+    );
+    frontierBtn.position.set(width / 2 - 0.05 - 0.3, bottomY, 0.01);
+    applyFooterHover(frontierBtn, 0x00ffff, 0xffffff);
+
+    const closeBtn = createButton('Close', () => hideModal(), 0.5, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
     // Raise the close button so its bottom edge aligns with the modal's border.
     closeBtn.position.set(0, -height / 2 + 0.05, 0.01);
+    applyFooterHover(closeBtn, 0xf000ff, 0xff40ff);
 
     modal.add(arenaBtn, frontierBtn, closeBtn);
 
