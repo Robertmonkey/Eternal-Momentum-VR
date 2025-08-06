@@ -12,11 +12,19 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       // Fracturing core surrounded by drifting shards
       const group = new THREE.Group();
       group.add(new THREE.Mesh(new THREE.OctahedronGeometry(radius * 0.6), material));
-      const shardGeom = new THREE.TetrahedronGeometry(radius * 0.3);
+      const shardGeom = new THREE.TetrahedronGeometry(radius * 0.25);
       const shardMat = material.clone();
-      [[radius, 0, 0], [-radius, 0, 0], [0, radius, 0], [0, -radius, 0]].forEach(pos => {
+      const positions = [
+        [radius, 0, 0],
+        [-radius, 0, 0],
+        [0, radius, 0],
+        [0, -radius, 0],
+        [0, 0, radius],
+        [0, 0, -radius]
+      ];
+      positions.forEach(([x, y, z]) => {
         const shard = new THREE.Mesh(shardGeom, shardMat);
-        shard.position.set(...pos);
+        shard.position.set(x, y, z);
         group.add(shard);
       });
       mesh = group;
@@ -41,6 +49,13 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       group.add(core);
       group.add(shield);
       group.add(ring);
+      const nodeGeom = new THREE.SphereGeometry(radius * 0.25, 16, 16);
+      for (let i = 0; i < 4; i++) {
+        const node = new THREE.Mesh(nodeGeom, material.clone());
+        const ang = (i / 4) * Math.PI * 2;
+        node.position.set(Math.cos(ang) * radius * 1.4, 0, Math.sin(ang) * radius * 1.4);
+        group.add(node);
+      }
       mesh = group;
       break;
     }
@@ -59,6 +74,9 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
         orb.position.set(...pos);
         group.add(orb);
       });
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.2, radius / 8, 16, 32), orbMat.clone());
+      ring.rotation.x = Math.PI / 2;
+      group.add(ring);
       mesh = group;
       break;
     }
@@ -67,9 +85,12 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       const syphonGroup = new THREE.Group();
       const ring = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.2, radius / 3, 16, 32), material);
       const cone = new THREE.Mesh(new THREE.ConeGeometry(radius * 0.6, radius * 1.5, 32), material.clone());
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(radius * 0.5, 32), material.clone());
       cone.rotation.x = Math.PI / 2;
+      disc.rotation.x = -Math.PI / 2;
       syphonGroup.add(ring);
       syphonGroup.add(cone);
+      syphonGroup.add(disc);
       mesh = syphonGroup;
       break;
     case 'centurion': {
@@ -84,6 +105,15 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
         bar.position.set(Math.cos(ang) * radius, 0, Math.sin(ang) * radius);
         group.add(bar);
       }
+      const ringGeom = new THREE.TorusGeometry(radius, radius / 10, 8, 32);
+      const topRing = new THREE.Mesh(ringGeom, material.clone());
+      const bottomRing = topRing.clone();
+      topRing.rotation.x = Math.PI / 2;
+      bottomRing.rotation.x = Math.PI / 2;
+      topRing.position.y = radius;
+      bottomRing.position.y = -radius;
+      group.add(topRing);
+      group.add(bottomRing);
       mesh = group;
       break;
     }
@@ -92,9 +122,12 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       const group = new THREE.Group();
       const sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 16), material);
       const ring = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.4, radius / 6, 8, 32), material.clone());
+      const verticalRing = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.1, radius / 8, 8, 32), material.clone());
       ring.rotation.x = Math.PI / 2;
+      verticalRing.rotation.y = Math.PI / 2;
       group.add(sphere);
       group.add(ring);
+      group.add(verticalRing);
       const satelliteGeom = new THREE.SphereGeometry(radius * 0.3, 16, 16);
       for (let i = 0; i < 3; i++) {
         const sat = new THREE.Mesh(satelliteGeom, material.clone());
@@ -120,8 +153,16 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       const pillar = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.5, radius * 0.5, radius * 2, 16), material);
       const midRing = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.8, radius / 8, 16, 32), material.clone());
       midRing.rotation.x = Math.PI / 2;
+      const topRing = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.6, radius / 8, 16, 32), material.clone());
+      const bottomRing = topRing.clone();
+      topRing.rotation.x = Math.PI / 2;
+      bottomRing.rotation.x = Math.PI / 2;
+      topRing.position.y = radius;
+      bottomRing.position.y = -radius;
       group.add(pillar);
       group.add(midRing);
+      group.add(topRing);
+      group.add(bottomRing);
       mesh = group;
       break;
     }
@@ -131,8 +172,11 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       const obelisk = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.4, radius * 0.4, radius * 2.5, 4), material);
       const tip = new THREE.Mesh(new THREE.ConeGeometry(radius * 0.6, radius, 4), material.clone());
       tip.position.y = radius * 1.25;
+      const base = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.8, radius / 10, 16, 32), material.clone());
+      base.rotation.x = Math.PI / 2;
       group.add(obelisk);
       group.add(tip);
+      group.add(base);
       mesh = group;
       break;
     }
@@ -151,6 +195,12 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
           });
         });
       });
+      const edgeMat = new THREE.LineBasicMaterial({ color });
+      const edges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(radius, radius, radius)),
+        edgeMat
+      );
+      group.add(edges);
       mesh = group;
       break;
     }
@@ -166,6 +216,8 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
         t.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
         group.add(t);
       }
+      const core = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.3, 16, 16), material.clone());
+      group.add(core);
       mesh = group;
       break;
     }
@@ -187,10 +239,14 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
         [0, 1],
         [0, -1]
       ];
+      const beadGeom = new THREE.SphereGeometry(radius * 0.1, 8, 8);
       offsets.forEach(([x, z]) => {
         const thread = new THREE.Mesh(threadGeom, material.clone());
         thread.position.set(x * radius * 0.5, radius * 0.5, z * radius * 0.5);
         group.add(thread);
+        const bead = new THREE.Mesh(beadGeom, material.clone());
+        bead.position.set(x * radius, 0, z * radius);
+        group.add(bead);
       });
       mesh = group;
       break;
@@ -233,10 +289,14 @@ export function createBossModel(kind, color = 0xffffff, radius = 0.65) {
       haloA.rotation.x = Math.PI / 2;
       haloB.rotation.y = Math.PI / 2;
       haloC.rotation.z = Math.PI / 2;
+      const innerMat = material.clone();
+      innerMat.emissiveIntensity = 1;
+      const inner = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.5, 32, 16), innerMat);
       group.add(core);
       group.add(haloA);
       group.add(haloB);
       group.add(haloC);
+      group.add(inner);
       mesh = group;
       break;
     }
