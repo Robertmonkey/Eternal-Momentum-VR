@@ -34,6 +34,7 @@
         * [x] Added heal sparkle and black hole visuals.
     * [x] Create a swirling cube animation for the "glitch" enemy. — Completed
     * [ ] Ensure all animations are interpolated for VR. — In Progress (projectiles, effects, and enemy AI use delta timing)
+    * [x] Upgraded boss models with lore-driven shapes for progressive visual flair (Splitter, Reflector, Vampire, Gravity, Epoch Ender).
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
 ## UI
