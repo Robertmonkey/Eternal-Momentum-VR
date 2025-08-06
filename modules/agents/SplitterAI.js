@@ -22,6 +22,7 @@ export class SplitterAI extends BaseAgent {
     if (!this.alive) return;
     super.die(); // This sets this.alive = false
     gameHelpers.play('splitterOnDeath');
+    this.triggerAbilityAnimation(2, 1200);
 
     const spawnInOrbit = (count, orbitRadius) => {
         const centerVec = this.position.clone().normalize();

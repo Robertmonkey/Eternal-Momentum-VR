@@ -3,7 +3,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { state } from './state.js';
 import { uvToSpherePos, spherePosToUv } from './utils.js';
-import { getRenderer } from './scene.js';
+import { getRenderer, getScene } from './scene.js';
 import { VR_PROJECTILE_SPEED_SCALE } from './config.js';
 import { usePower } from './powers.js';
 import { gameHelpers } from './gameHelpers.js';
@@ -199,6 +199,24 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
           break;
         }
         ef.position.add(step);
+        break;
+      }
+      case 'boss_ability':{
+        if(ef.owner && ef.owner.alive){
+          ef.mesh.position.copy(ef.owner.position);
+        }
+        if(ef.mesh){
+          ef.mesh.rotation.y += 0.01 * deltaFactor * (ef.stage || 1);
+        }
+        if(now - ef.startTime > ef.duration){
+          if(ef.mesh){
+            const scene = getScene && getScene();
+            if(scene) scene.remove(ef.mesh);
+            if(ef.mesh.geometry) ef.mesh.geometry.dispose();
+            if(ef.mesh.material) ef.mesh.material.dispose();
+          }
+          state.effects.splice(i,1);
+        }
         break;
       }
       case 'ricochet_projectile':{

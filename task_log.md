@@ -37,6 +37,7 @@
     * [x] Upgraded boss models with lore-driven shapes for progressive visual flair (Splitter, Reflector, Vampire, Gravity, Epoch Ender).
     * [x] Expanded upgrades to additional bosses so designs scale with difficulty (Syphon, Centurion, Sentinel Pair, Annihilator, Architect, Quantum Shadow, Puppeteer).
     * [x] Added extra rings, shards, and orbiting details so later bosses look increasingly epic and aligned with their lore.
+    * [x] Introduced progressive ability animations with lore-based shapes for Aethel & Umbra, Splitter, and Reflector bosses.
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
 ## UI

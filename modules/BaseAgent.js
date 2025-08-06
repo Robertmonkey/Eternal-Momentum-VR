@@ -5,6 +5,7 @@ import * as CoreManager from './CoreManager.js';
 import { state } from './state.js';
 import { gameHelpers as globalGameHelpers } from './gameHelpers.js';
 import { createBossModel } from './bossModelFactory.js';
+import { spawnBossAbilityEffect } from './bossAbilityEffects.js';
 
 export class BaseAgent extends THREE.Group {
   constructor(options = {}) {
@@ -67,5 +68,9 @@ export class BaseAgent extends THREE.Group {
     const idx = state.enemies.indexOf(this);
     if (idx !== -1) state.enemies.splice(idx, 1);
     if (this.parent) this.parent.remove(this);
+  }
+
+  triggerAbilityAnimation(stage = 1, duration = 1000) {
+    spawnBossAbilityEffect(this, stage, duration);
   }
 }
