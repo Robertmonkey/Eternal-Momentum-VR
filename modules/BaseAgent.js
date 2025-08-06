@@ -70,7 +70,8 @@ export class BaseAgent extends THREE.Group {
     if (this.parent) this.parent.remove(this);
   }
 
-  triggerAbilityAnimation(stage = 1, duration = 1000) {
-    spawnBossAbilityEffect(this, stage, duration);
+    triggerAbilityAnimation(stageOffset = 0, duration = 1000) {
+      const stage = (this.bossIndex || 1) + stageOffset;
+      spawnBossAbilityEffect(this, stage, duration);
+    }
   }
-}

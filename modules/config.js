@@ -93,6 +93,17 @@ export const STAGE_CONFIG = [
     { stage: 30, displayName: 'The Pantheon',         bosses: ['pantheon'] }
 ];
 
+// Flattened list of boss IDs in their encounter order.
+// Used to derive a boss's progression index regardless of stage grouping.
+export const BOSS_SEQUENCE = STAGE_CONFIG.flatMap(s => s.bosses);
+
+// Given a boss ID, return its 1-based index within the 30-boss sequence.
+// If the boss ID is not found, default to 1 so effects still render.
+export function getBossIndex(bossId) {
+    const idx = BOSS_SEQUENCE.indexOf(bossId);
+    return idx >= 0 ? idx + 1 : 1;
+}
+
 // Global tuning values for the VR prototype
 // Scale factor applied to all enemy projectile velocities. Can be tweaked for
 // comfort as the VR movement speed is refined.

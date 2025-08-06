@@ -47,6 +47,6 @@ export class AethelUmbraAI extends BaseAgent {
     const healthBonus = this.maxHP * 0.5;
     this.maxHP += healthBonus;
     this.health += healthBonus;
-    this.triggerAbilityAnimation(3, 1500);
+    this.triggerAbilityAnimation(2, 1500);
   }
 }

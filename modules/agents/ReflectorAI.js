@@ -36,7 +36,7 @@ export class ReflectorAI extends BaseAgent {
         if (this.cycles % 3 === 0) {
           this.reflecting = true;
           const stage = Math.min(3, Math.floor(this.cycles / 3));
-          this.triggerAbilityAnimation(stage, 1000);
+          this.triggerAbilityAnimation(stage - 1, 1000);
           setTimeout(() => { this.reflecting = false; }, 2000);
         }
       }
