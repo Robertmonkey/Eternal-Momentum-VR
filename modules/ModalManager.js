@@ -842,23 +842,31 @@ function createAscensionModal() {
             });
         });
 
+        const purchasedTalents =
+            state.player.purchasedTalents && typeof state.player.purchasedTalents.get === 'function'
+                ? state.player.purchasedTalents
+                : new Map(state.player.purchasedTalents || []);
+        if (purchasedTalents !== state.player.purchasedTalents) {
+            state.player.purchasedTalents = purchasedTalents;
+        }
+
         Object.values(TALENT_GRID_CONFIG).forEach(con => {
             Object.keys(con).forEach(key => {
                 if (key === 'color') return;
                 const t = con[key];
-                const purchased = state.player.purchasedTalents.get(t.id) || 0;
+                const purchased = purchasedTalents.get(t.id) || 0;
                 const isMax = !t.isInfinite && purchased >= t.maxRanks;
                 const cost = t.isInfinite ? t.costPerRank[0] : t.costPerRank[purchased];
                 const prereqsMet = t.prerequisites.every(p => {
                     const prereqTalent = allTalents[p];
                     if (!prereqTalent) return false;
                     const needed = prereqTalent.maxRanks;
-                    const current = state.player.purchasedTalents.get(p) || 0;
+                    const current = purchasedTalents.get(p) || 0;
                     return current >= needed;
                 });
                 const canPurchase = prereqsMet && state.player.ascensionPoints >= cost;
 
-                if (state.player.purchasedTalents.has(t.id) || isTalentVisible(t)) {
+                if (purchasedTalents.has(t.id) || isTalentVisible(t)) {
                     let borderColor = 0xaaaaaa;
                     if (t.isNexus || t.isInfinite) {
                         borderColor = 0x00ff00;
@@ -896,7 +904,7 @@ function createAscensionModal() {
                         if (baseHover) baseHover(hovered);
                         if (hovered) {
                             AudioManager.playSfx('uiHoverSound');
-                            const purchasedNow = state.player.purchasedTalents.get(t.id) || 0;
+                            const purchasedNow = purchasedTalents.get(t.id) || 0;
                             const isMaxNow = !t.isInfinite && purchasedNow >= t.maxRanks;
                             const costNow = t.isInfinite ? t.costPerRank[0] : t.costPerRank[purchasedNow];
                             const costText = isMaxNow ? 'MAXED' : `Cost: ${costNow} AP`;
@@ -939,7 +947,7 @@ function createAscensionModal() {
                     const start = positions[pr];
                     if (!start) return;
                     if (!powerUnlocked) return;
-                    if (!state.player.purchasedTalents.has(pr) && pr !== 'core-nexus') return;
+                    if (!purchasedTalents.has(pr) && pr !== 'core-nexus') return;
                     const prereq = allTalents[pr];
                     const nexusConnection = (t.isNexus || (prereq && prereq.isNexus));
                     let colorHex = 0xaaaaaa;
@@ -949,7 +957,7 @@ function createAscensionModal() {
                         width = 0.015;
                     }
                     const needed = prereq ? prereq.maxRanks : 1;
-                    const current = state.player.purchasedTalents.get(pr) || 0;
+                    const current = purchasedTalents.get(pr) || 0;
                     let opacity = 0.3;
                     if (current >= needed) {
                         opacity = 1.0;
