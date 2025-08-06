@@ -141,7 +141,8 @@ export function clamp(value, min, max) {
  * @returns {number} The player's updated health.
  */
 export function applyPlayerHeal(amount) {
-  const newHealth = clamp(state.player.health + amount, 0, state.player.maxHealth);
+  const amt = Number.isFinite(amount) ? amount : 0;
+  const newHealth = clamp(state.player.health + amt, 0, state.player.maxHealth);
   state.player.health = newHealth;
   return newHealth;
 }

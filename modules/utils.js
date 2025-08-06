@@ -26,13 +26,16 @@ export function drawCircle(ctx, x, y, r, c) {
 }
 
 export function drawCrystal(ctx, x, y, size, color) {
+  if (!ctx || typeof ctx.beginPath !== 'function') return;
+  const s = Number.isFinite(size) ? size : 0;
+  if (s <= 0) return;
   const sides = 6;
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(x + size * Math.cos(0), y + size * Math.sin(0));
+  ctx.moveTo(x + s * Math.cos(0), y + s * Math.sin(0));
   for (let i = 1; i <= sides; i++) {
     const angle = i * 2 * Math.PI / sides;
-    const modSize = (i % 2 === 0) ? size : size * 0.6;
+    const modSize = (i % 2 === 0) ? s : s * 0.6;
     ctx.lineTo(x + modSize * Math.cos(angle), y + modSize * Math.sin(angle));
   }
   ctx.closePath();
@@ -52,6 +55,9 @@ export function drawCrystal(ctx, x, y, size, color) {
  * @param {string} color - Fill style for the player representation.
  */
 export function drawPlayer(ctx, player, color) {
+  if (!ctx || !player || !player.position || !player.position.isVector3) return;
+  const radius = Number.isFinite(player.r) ? player.r : 0;
+  if (radius <= 0) return;
   const { x, y } = toCanvasPos(
     player.position,
     ctx.canvas.width,
@@ -59,7 +65,7 @@ export function drawPlayer(ctx, player, color) {
   );
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(x, y, player.r, 0, 2 * Math.PI);
+  ctx.arc(x, y, radius, 0, 2 * Math.PI);
   ctx.fill();
 }
 
@@ -68,8 +74,11 @@ export function drawPlayer(ctx, player, color) {
  * object.  Used for the player's Annihilator core effect.
  */
 export function drawShadowCone(ctx, sourceX, sourceY, shadowCaster, color) {
+  if (!ctx || !shadowCaster) return;
+  const r = Number.isFinite(shadowCaster.r) ? shadowCaster.r : 0;
+  if (r <= 0) return;
   const distToCaster = Math.hypot(shadowCaster.x - sourceX, shadowCaster.y - sourceY);
-  const safeRadius = shadowCaster.r * 1.5;
+  const safeRadius = r * 1.5;
   if (distToCaster <= safeRadius) return; // Source is inside the caster's safe zone
   const angleToCaster = Math.atan2(shadowCaster.y - sourceY, shadowCaster.x - sourceX);
   const angleToTangent = Math.asin(safeRadius / distToCaster);
@@ -136,11 +145,13 @@ export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
 }
 
 export function updateParticles(ctx, particles) {
+  if (!ctx || !Array.isArray(particles)) return;
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.position.add(p.velocity);
     p.life--;
-    ctx.globalAlpha = p.life / p.maxLife;
+    const alpha = p.maxLife > 0 ? p.life / p.maxLife : 0;
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
     ctx.fillStyle = p.color;
     ctx.beginPath();
     if (p.r > 0) {
@@ -154,8 +165,10 @@ export function updateParticles(ctx, particles) {
 }
 
 export function triggerScreenShake(duration, magnitude) {
-  screenShakeEnd = Date.now() + duration;
-  screenShakeMagnitude = magnitude;
+  const dur = Number.isFinite(duration) ? Math.max(0, duration) : 0;
+  const mag = Number.isFinite(magnitude) ? Math.max(0, magnitude) : 0;
+  screenShakeEnd = Date.now() + dur;
+  screenShakeMagnitude = mag;
 }
 
 export function applyScreenShake(ctx) {
