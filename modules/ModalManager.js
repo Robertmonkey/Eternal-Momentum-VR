@@ -532,9 +532,34 @@ function createCoresModal() {
         addScrollBar(modal, listContainer, { itemHeight: 0.12, viewHeight: 0.8, topOffset: 0.5, x: 0.55 });
     };
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
-    closeBtn.position.set(0, -0.6, 0.01);
-    modal.add(closeBtn);
+    const footerY = -0.6;
+    const unequipWidth = 0.8;
+    const closeWidth = 0.6;
+
+    const unequipBtn = createButton('UNEQUIP CORE', () => {
+        if (state.player.equippedAberrationCore === null) return;
+        const doUnequip = () => {
+            state.player.equippedAberrationCore = null;
+            savePlayerState();
+            modal.userData.refresh();
+            hideModal();
+            if (!state.gameOver) resetGame(bossData);
+        };
+        if (!state.gameOver) {
+            showConfirm(
+                '|| DESTABILIZE TIMELINE? ||',
+                'Attuning to nothing requires a full system recalibration.\nThe current timeline will collapse and the stage will restart.',
+                doUnequip
+            );
+        } else {
+            doUnequip();
+        }
+    }, unequipWidth, 0.1, 0xe74c3c, 0xc0392b, 0xffffff);
+    unequipBtn.position.set(-0.6 + 0.1 + unequipWidth / 2, footerY, 0.01);
+
+    const closeBtn = createButton('CLOSE', () => hideModal(), closeWidth, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
+    closeBtn.position.set(0.6 - 0.1 - closeWidth / 2, footerY, 0.01);
+    modal.add(unequipBtn, closeBtn);
 
     return modal;
 }
@@ -1175,28 +1200,113 @@ function createGameOverModal() {
 }
 
 function createOrreryModal() {
-    const modal = createModalContainer(1.6, 1.2, "WEAVER'S ORRERY");
+    const width = 1.6;
+    const height = 1.2;
+    const modal = createModalContainer(width, height, "THE WEAVER'S ORRERY");
     modal.name = 'modal_orrery';
+
+    const costs = { 1: 2, 2: 5, 3: 8 };
+    let totalEchoes = 0;
+    if (state.player.highestStageBeaten >= 30) {
+        totalEchoes += 10 + (state.player.highestStageBeaten - 30);
+        if (state.player.highestStageBeaten >= 50) totalEchoes += 15;
+        if (state.player.highestStageBeaten >= 70) totalEchoes += 20;
+        if (state.player.highestStageBeaten >= 90) totalEchoes += 25;
+    }
+    let selectedBosses = [];
+    let currentCost = 0;
+
     const list = new THREE.Group();
-    list.position.y = 0.4;
+    list.position.set(-0.6, 0.4, 0.01);
     modal.add(list);
 
-    modal.userData.refresh = () => {
+    const selection = new THREE.Group();
+    selection.position.set(0.25, 0.2, 0.01);
+    modal.add(selection);
+
+    const echoLabel = createTextSprite('ECHOES OF CREATION', 24, '#eaf2ff', 'left');
+    const echoValue = createTextSprite(`${totalEchoes}`, 32, '#00ffff', 'left');
+    echoLabel.position.set(width/2 - echoLabel.scale.x - echoValue.scale.x - 0.2, height/2 - 0.1, 0.01);
+    echoValue.position.set(width/2 - 0.1 - echoValue.scale.x/2, height/2 - 0.1, 0.01);
+    modal.add(echoLabel, echoValue);
+
+    const costLabel = createTextSprite('ECHOES SPENT:', 24, '#eaf2ff', 'left');
+    const costValue = createTextSprite('0', 32, '#00ffff', 'left');
+    costLabel.position.set(0.25, -0.1, 0.01);
+    costValue.position.set(0.25, -0.2, 0.01);
+    modal.add(costLabel, costValue);
+
+    function refresh() {
+        updateTextSprite(echoValue, `${totalEchoes - currentCost}`);
+        updateTextSprite(costValue, `${currentCost}`);
+
         disposeGroupChildren(list);
-        const costs = {1:2,2:5,3:8};
-        const bosses = bossData.filter(b=>b.difficulty_tier);
-        bosses.forEach((b,i)=>{
+        const bosses = bossData.filter(b => b.difficulty_tier).sort((a,b) => a.difficulty_tier - b.difficulty_tier);
+        bosses.forEach((b, i) => {
             const cost = costs[b.difficulty_tier] || 2;
-            const btn = createButton(`${b.name} (${cost})`, () => showBossInfo([b.id], 'mechanics'), 1.2);
-            btn.position.set(0, -i*0.12, 0.01);
+            const btn = createButton(`${b.name} (${cost})`, () => {
+                const canAfford = (totalEchoes - currentCost) >= cost;
+                if (!canAfford) {
+                    AudioManager.playSfx('talentError');
+                    return;
+                }
+                selectedBosses.push(b.id);
+                currentCost += cost;
+                refresh();
+            }, 1.0, 0.1, b.color ? new THREE.Color(b.color).getHex() : 0x00ffff, 0x111122);
+            btn.position.set(0, -i * 0.12, 0.01);
             list.add(btn);
         });
-        addScrollBar(modal, list, { itemHeight: 0.12, viewHeight: 0.8, topOffset: 0, x: 0.75 });
-    };
+        addScrollBar(modal, list, { itemHeight: 0.12, viewHeight: 0.8, topOffset: 0, x: -0.05 });
 
-    const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
-    closeBtn.position.set(0, -0.5, 0.01);
-    modal.add(closeBtn);
+        disposeGroupChildren(selection);
+        selectedBosses.forEach((id, idx) => {
+            const boss = bossData.find(b => b.id === id);
+            const icon = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.1), holoMaterial(boss.color || 0xffffff, 1));
+            icon.position.set(idx * 0.12, 0, 0.01);
+            icon.userData.onSelect = () => {
+                AudioManager.playSfx('uiClickSound');
+                selectedBosses.splice(idx, 1);
+                currentCost -= costs[boss.difficulty_tier] || 2;
+                refresh();
+            };
+            selection.add(icon);
+        });
+        updateStartButton();
+    }
+
+    const footerY = -height / 2 + 0.1;
+    const clearBtn = createButton('CLEAR ROSTER', () => {
+        selectedBosses = [];
+        currentCost = 0;
+        refresh();
+    }, 0.5, 0.1, 0xe74c3c, 0xc0392b, 0xffffff);
+    clearBtn.position.set(-width / 2 + 0.1 + 0.25, footerY, 0.01);
+
+    const startBtn = createButton('FORGE TIMELINE', () => {
+        if (selectedBosses.length === 0) return;
+        state.customOrreryBosses = [...selectedBosses];
+        state.currentStage = 999;
+        hideModal();
+        resetGame(bossData);
+    }, 0.4, 0.1, 0x00ffff, 0x00ffff, 0x1e1e2f);
+    startBtn.position.set(0, footerY, 0.01);
+
+    function updateStartButton() {
+        const active = selectedBosses.length > 0;
+        const color = active ? 0x00ffff : 0x555555;
+        startBtn.children[0].material.color.set(color);
+        startBtn.children[0].material.emissive.set(color);
+        startBtn.children[1].material.color.set(color);
+        startBtn.children[2].material.color.set(color);
+    }
+
+    const closeBtn = createButton('CLOSE', () => hideModal(), 0.4, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
+    closeBtn.position.set(width / 2 - 0.1 - 0.2, footerY, 0.01);
+
+    modal.add(clearBtn, startBtn, closeBtn);
+    modal.userData.refresh = refresh;
+    refresh();
     return modal;
 }
 
