@@ -108,10 +108,12 @@ function createButton(
     group.add(bg);
 
     const border = new THREE.Mesh(borderGeom, holoMaterial(color, 0.5));
-    border.position.z = -0.001;
-    // The border sits behind the button face but still needs to render above
-    // the modal background so its edges remain visible.
-    border.renderOrder = 0.5;
+    // Keep the border coplanar with the button face so it doesn't appear to
+    // drift relative to the background when the player moves their head.
+    border.position.z = 0.001;
+    // Draw the border just above the button background but below the label so
+    // its frame is always visible without fighting the face for depth.
+    border.renderOrder = 1.1;
     group.add(border);
 
     const txtColor = textColor !== undefined ? textColor : color;
@@ -178,9 +180,12 @@ function createModalContainer(width, height, title, options = {}) {
     }
 
     if (borderOpacity > 0) {
-        const border = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.02, height + 0.02), holoMaterial(borderColor, borderOpacity));
-        border.position.z = -0.001;
-        border.renderOrder = -1;
+        const borderGeom = new THREE.PlaneGeometry(width + 0.02, height + 0.02);
+        const border = new THREE.Mesh(borderGeom, holoMaterial(borderColor, borderOpacity));
+        // Place the border slightly in front of the background so its edge is
+        // always visible and coplanar with the panel.
+        border.position.z = 0.001;
+        border.renderOrder = 1;
         group.add(border);
     }
 
@@ -697,6 +702,7 @@ function createAscensionModal() {
     modal.add(grid);
 
     const lines = new THREE.Group();
+    lines.renderOrder = 0.5;
     grid.add(lines);
 
     function createApDisplay() {
@@ -705,7 +711,8 @@ function createAscensionModal() {
         const bgHeight = 0.15;
         const bg = new THREE.Mesh(new THREE.PlaneGeometry(1, bgHeight), holoMaterial(0x000000, 0.3));
         const border = new THREE.Mesh(new THREE.PlaneGeometry(1.02, bgHeight + 0.02), holoMaterial(0x00ffff, 0.4));
-        border.position.z = -0.001;
+        border.position.z = 0.001;
+        border.renderOrder = 1;
 
         // Use the same cyan/white pairing as the 2D header and tone the label
         // opacity down to 70% to mirror its semi-transparent styling.
@@ -754,12 +761,16 @@ function createAscensionModal() {
 
     // Divider lines to mirror the 2D modal's header and footer borders.
     const headerDivider = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.01), holoMaterial(0x00ffff, 0.4));
-    headerDivider.position.set(0, 0.45, 0.02);
+    // Keep dividers nearly coplanar with the modal so they don't appear to
+    // float above or sink behind the panel.
+    headerDivider.position.set(0, 0.45, 0.001);
+    headerDivider.renderOrder = 1;
     headerDivider.name = 'ascension_header_divider';
     modal.add(headerDivider);
 
     const footerDivider = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.01), holoMaterial(0x00ffff, 0.4));
-    footerDivider.position.set(0, -0.45, 0.02);
+    footerDivider.position.set(0, -0.45, 0.001);
+    footerDivider.renderOrder = 1;
     footerDivider.name = 'ascension_footer_divider';
     modal.add(footerDivider);
 
