@@ -140,22 +140,27 @@ export function getConstellationColorOfTalent(talentId) {
  */
 export function isTalentVisible(talent) {
     if (!talent) return false;
-    const unlockedPowers = state.player.unlockedPowers || new Set();
+    const unlocked = state.player.unlockedPowers;
     const powerUnlocked = !talent.powerPrerequisite ||
-        unlockedPowers.has(talent.powerPrerequisite);
-    if (!powerUnlocked) {
-        return false;
-    }
+        (unlocked instanceof Set
+            ? unlocked.has(talent.powerPrerequisite)
+            : Array.isArray(unlocked)
+                ? unlocked.includes(talent.powerPrerequisite)
+                : false);
+    if (!powerUnlocked) return false;
 
-    if (talent.prerequisites.length === 0) {
-        return true;
-    }
+    const prereqs = talent.prerequisites || [];
+    if (prereqs.length === 0) return true;
 
-    return talent.prerequisites.every(prereqId => {
+    const purchased = state.player.purchasedTalents && typeof state.player.purchasedTalents.get === 'function'
+        ? state.player.purchasedTalents
+        : new Map();
+
+    return prereqs.every(prereqId => {
         const prereqTalent = allTalents[prereqId];
         if (!prereqTalent) return false;
-        const ranksNeeded = prereqTalent.maxRanks;
-        const currentRank = state.player.purchasedTalents.get(prereqId) || 0;
-        return currentRank >= ranksNeeded;
+        const needed = prereqTalent.maxRanks;
+        const current = purchased.get(prereqId) || 0;
+        return current >= needed;
     });
 }

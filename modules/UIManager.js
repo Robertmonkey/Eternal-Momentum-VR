@@ -186,6 +186,13 @@ function getBossColor(boss) {
     return data ? data.color : 0xffffff;
 }
 
+export function isBossEnemy(enemy) {
+    if (!enemy) return false;
+    if (enemy.boss) return true;
+    const id = enemy.kind || enemy.id;
+    return bossData.some(b => b.id === id);
+}
+
 function createBossBar(boss) {
     const group = new THREE.Group();
 
@@ -244,15 +251,25 @@ function createHudElements() {
     healthGroup.position.set(0, 0.06, 0);
     hudMesh.add(healthGroup);
 
-    ascFill = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.02), holoMaterial(0x00ffff));
-    ascFill.position.set(-0.35, -0.1, 0.002);
-    ascText = createTextSprite('LVL 1', 20);
-    ascText.position.set(-0.35, -0.1, 0.003);
+    const levelWidth = 0.22;
+    const levelHeight = 0.04;
+    const levelMargin = 0.01;
+    const levelBg = new THREE.Mesh(new THREE.PlaneGeometry(levelWidth, levelHeight), holoMaterial(0x111122, 0.8));
+    const levelBorder = new THREE.Mesh(new THREE.PlaneGeometry(levelWidth + 0.02, levelHeight + 0.02), holoMaterial(0x00ffff, 0.4));
+    levelBorder.position.z = -0.001;
+
+    const fillGeom = new THREE.PlaneGeometry(levelWidth - levelMargin * 2, levelHeight - levelMargin * 2);
+    fillGeom.translate((levelWidth - levelMargin * 2) / -2, 0, 0);
+    ascFill = new THREE.Mesh(fillGeom, holoMaterial(0x00ffff));
+    ascFill.position.set(-levelWidth / 2 + levelMargin, 0, 0.001);
+
+    ascText = createTextSprite('LVL 1', 20, '#eaf2ff', 'left');
+    ascText.position.set(-levelWidth / 2 + levelMargin, 0, 0.002);
+
     const ascGroup = new THREE.Group();
-    ascGroup.add(new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.04), holoMaterial(0x111122, 0.8)));
-    ascGroup.add(ascFill, ascText);
-    // Position inside the command bar so it doesn't protrude
-    ascGroup.position.set(0.34, -0.02, 0);
+    ascGroup.add(levelBorder, levelBg, ascFill, ascText);
+    const ascX = AP_RIGHT_EDGE - levelWidth / 2;
+    ascGroup.position.set(ascX, -0.02, 0);
     hudMesh.add(ascGroup);
     
     apText = createTextSprite('AP: 0', 24, '#00ffff');
@@ -403,7 +420,7 @@ export function updateHud() {
     }
 
     if (bossContainer) {
-        const bosses = state.enemies.filter(e => e.boss);
+        const bosses = state.enemies.filter(isBossEnemy);
         const activeIds = new Set();
         let index = 0;
         bosses.forEach(boss => {
