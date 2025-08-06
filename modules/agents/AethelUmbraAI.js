@@ -12,7 +12,7 @@ export class AethelUmbraAI extends BaseAgent {
         emissiveIntensity: 0.5
     });
     super({ model: new THREE.Mesh(geometry, material) });
-    
+
     this.role = role;
     this.partner = partner;
     this.enraged = false;
@@ -20,6 +20,7 @@ export class AethelUmbraAI extends BaseAgent {
     this.maxHP = isAethel ? 280 * 0.75 : 280 * 1.5;
     this.health = this.maxHP;
     this.speed = isAethel ? 1.5 : 0.8;
+    this.kind = role.toLowerCase();
   }
   
   update(delta) {
@@ -46,5 +47,6 @@ export class AethelUmbraAI extends BaseAgent {
     const healthBonus = this.maxHP * 0.5;
     this.maxHP += healthBonus;
     this.health += healthBonus;
+    this.triggerAbilityAnimation(3, 1500);
   }
 }
