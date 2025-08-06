@@ -22,8 +22,6 @@ function updatePhaseMomentum() {
     }
 }
 
-let lastSpawnTime = 0;
-let lastPowerUpTime = 0;
 let lastFrameTime = null;
 
 function handleLevelProgression() {
@@ -41,20 +39,17 @@ function handleLevelProgression() {
 }
 
 function handleEnemyAndPowerSpawning() {
-    const now = Date.now();
     if (!state.bossActive) return;
-
-    if (now - lastSpawnTime > 4000) {
+    const enemyChance = 0.007 + state.player.level * 0.001;
+    if (Math.random() < enemyChance) {
         if (state.enemies.filter(e => !e.boss).length < 15) {
             spawnEnemy(false);
         }
-        lastSpawnTime = now;
     }
-
-    const spawnInterval = 6000 / state.player.talent_modifiers.power_spawn_rate_modifier;
-    if (now - lastPowerUpTime > spawnInterval) {
+    const baseSpawnChance = 0.02 + state.player.level * 0.0002;
+    const finalSpawnChance = baseSpawnChance * state.player.talent_modifiers.power_spawn_rate_modifier;
+    if (Math.random() < finalSpawnChance) {
         spawnPickup();
-        lastPowerUpTime = now;
     }
 }
 

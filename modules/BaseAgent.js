@@ -2,6 +2,8 @@
 // Import a local copy of three.js instead of relying on a global THREE
 import * as THREE from '../vendor/three.module.js';
 import * as CoreManager from './CoreManager.js';
+import { state } from './state.js';
+import { gameHelpers as globalGameHelpers } from './gameHelpers.js';
 
 export class BaseAgent extends THREE.Group {
   constructor(options = {}) {
@@ -47,9 +49,14 @@ export class BaseAgent extends THREE.Group {
   }
 
   die(gameHelpers = null) {
-    if (!gameHelpers) gameHelpers = {};
+    if (!gameHelpers) gameHelpers = globalGameHelpers;
     this.alive = false;
+    if (gameHelpers && typeof gameHelpers.addEssence === 'function') {
+      gameHelpers.addEssence(this.boss ? 300 : 20);
+    }
     CoreManager.onEnemyDeath(this, gameHelpers);
+    const idx = state.enemies.indexOf(this);
+    if (idx !== -1) state.enemies.splice(idx, 1);
     if (this.parent) this.parent.remove(this);
   }
 }

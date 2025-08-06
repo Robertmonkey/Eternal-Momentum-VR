@@ -102,6 +102,10 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
     return 0;
   }
 
+  if (gameHelpers && typeof gameHelpers.play === 'function') {
+    gameHelpers.play('hitSound');
+  }
+
   const newHealth = state.player.health - damage;
   if (newHealth <= 0) {
     if (!CoreManager.onFatalDamage(source, gameHelpers)) {

@@ -179,9 +179,10 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
         break;
       }
       case 'fireball':{
-        ef.position.add(ef.velocity.clone().multiplyScalar(deltaFactor));
-        const reached = ef.position.distanceTo(ef.target) < 0.5;
-        if(reached){
+        const step = ef.velocity.clone().multiplyScalar(deltaFactor);
+        const toTarget = ef.target.clone().sub(ef.position);
+        if (toTarget.length() <= step.length()) {
+          ef.position.copy(ef.target);
           state.effects.splice(i,1);
           state.effects.push({
             type:'shockwave',
@@ -197,6 +198,7 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
           });
           break;
         }
+        ef.position.add(step);
         break;
       }
       case 'ricochet_projectile':{

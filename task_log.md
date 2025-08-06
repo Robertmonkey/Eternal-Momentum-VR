@@ -112,3 +112,6 @@
 * [x] Fixed missile explosions so nearby bosses and enemies take damage even if they lack an explicit `alive` flag.
 * [x] Added enemy separation logic to keep foes from occupying the same spot.
 * [x] Replaced death audio with the original 2D "stone cracking" sound effect.
+* [x] Ensured missile explosions trigger even when fired through the floor.
+* [x] Restored hit sound on fatal player damage.
+* [x] Awarded essence on enemy and boss deaths, clearing stages and resuming enemy and power-up spawns.
