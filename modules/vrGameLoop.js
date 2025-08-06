@@ -124,7 +124,6 @@ export function vrGameLoop(timestamp) {
     if (state.player.health <= 0) {
         if (!CoreManager.onFatalDamage(null, gameHelpers)) {
             state.gameOver = true;
-            AudioManager.playSfx('stoneCrackingSound');
         }
     }
 }
