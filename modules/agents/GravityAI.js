@@ -6,14 +6,10 @@ const ARENA_RADIUS = 50;
 
 export class GravityAI extends BaseAgent {
   constructor() {
-    super({ color: 0x9b59b6 });
-
     const bossData = { id: "gravity", name: "Gravity Tyrant", maxHP: 168 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0x9b59b6, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.wells = [];
     this.wellObjects = new THREE.Group();
     this.add(this.wellObjects);
@@ -21,7 +17,7 @@ export class GravityAI extends BaseAgent {
     for (let i = 0; i < 8; i++) {
         const well = { angle: i * (Math.PI / 4), dist: 8, radius: 2 }; // World units
         this.wells.push(well);
-        
+
         const wellGeo = new THREE.TorusGeometry(well.radius, 0.2, 8, 24);
         const wellMat = new THREE.MeshBasicMaterial({ color: 0x9b59b6, transparent: true, opacity: 0.4 });
         const wellMesh = new THREE.Mesh(wellGeo, wellMat);

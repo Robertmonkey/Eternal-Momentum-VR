@@ -27,7 +27,7 @@
 ## 3D Assets and Animations
 
 * [ ] **3D Models and Animations:**
-    * [ ] Create 3D spherical models for all bosses and enemies. — In Progress (most enemies now use base spheres)
+    * [x] Create 3D spherical models for all bosses and enemies. — Completed
     * [ ] Implement animations for all bosses, enemies, and power-ups. — In Progress
         * [x] Enabled delta-based enemy AI updates to support animations.
         * [x] Added expanding sphere visual for the `shockwave` power-up.

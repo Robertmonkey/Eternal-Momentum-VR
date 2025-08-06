@@ -5,14 +5,10 @@ import { gameHelpers } from '../gameHelpers.js';
 
 export class EpochEnderAI extends BaseAgent {
   constructor() {
-    super({ color: 0xbdc3c7 });
-
     const bossData = { id: "epoch_ender", name: "The Epoch-Ender", maxHP: 550 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0xbdc3c7, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.damageInWindow = 0;
     this.lastStateSnapshot = { position: this.position.clone(), health: this.health };
     this.lastSnapshotTime = 0;

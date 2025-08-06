@@ -7,14 +7,10 @@ const ARENA_RADIUS = 50;
 
 export class MiasmaAI extends BaseAgent {
   constructor() {
-    super({ color: 0x6ab04c });
-
     const bossData = { id: "miasma", name: "The Miasma", maxHP: 400 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0x6ab04c, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.isGasActive = false;
     this.lastGasAttack = 0;
     this.isChargingSlam = false;

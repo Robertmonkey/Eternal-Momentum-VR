@@ -8,14 +8,10 @@ const ARENA_RADIUS = 50;
 
 export class JuggernautAI extends BaseAgent {
   constructor() {
-    super({ color: 0x636e72 });
-
     const bossData = { id: "juggernaut", name: "The Juggernaut", maxHP: 360 };
-    this.kind = bossData.id;
+    super({ health: bossData.maxHP, color: 0x636e72, kind: bossData.id });
+
     this.name = bossData.name;
-    this.maxHP = bossData.maxHP;
-    this.health = this.maxHP;
-    
     this.isCharging = false;
     this.chargeEndTime = 0;
     this.lastChargeTime = 0;
