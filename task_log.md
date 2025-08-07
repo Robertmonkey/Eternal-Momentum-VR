@@ -134,3 +134,4 @@
 * [x] Prevented boss spawn crashes by replacing nonexistent geometries, importing missing Pantheon aspects, and correcting the Annihilator's shadow check.
 * [x] Stabilized Swarm Link's tail so segments follow the spherical surface and consistently damage the player on contact.
 * [x] Reworked Mirror Mirage clone swapping to match the original game's mechanics and prevent ability-related crashes.
+* [x] Hardened rotateAroundNormal to return the original vector when given zero-length normals or invalid angles.

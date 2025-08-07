@@ -1,7 +1,8 @@
 import test, { mock } from 'node:test';
 import assert from 'node:assert/strict';
+import * as THREE from '../vendor/three.module.js';
 
-const { randomInRange, safeAddEventListener, drawLightning, lineCircleCollision } = await import('../modules/utils.js');
+const { randomInRange, safeAddEventListener, drawLightning, lineCircleCollision, rotateAroundNormal } = await import('../modules/utils.js');
 
 test('randomInRange handles reversed and invalid ranges', () => {
   const originalRandom = Math.random;
@@ -35,4 +36,12 @@ test('drawLightning clamps width to non-negative values', () => {
 test('lineCircleCollision respects radius and segment bounds', () => {
   assert.equal(lineCircleCollision(0,0,10,0,5,0,-3), false);
   assert.equal(lineCircleCollision(0,0,10,0,5,0,3), true);
+});
+
+test('rotateAroundNormal returns original vector for degenerate inputs', () => {
+  const dir = new THREE.Vector3(1, 0, 0);
+  const result = rotateAroundNormal(dir, new THREE.Vector3(0, 0, 0), Math.PI / 2);
+  assert.deepEqual(result, dir);
+  const resultNaN = rotateAroundNormal(dir, new THREE.Vector3(0, 1, 0), NaN);
+  assert.deepEqual(resultNaN, dir);
 });
