@@ -20,8 +20,8 @@ const AP_RIGHT_EDGE = 0.44;
 // Text sprites are rendered to a canvas and then scaled into world units.
 // Centralizing these factors means every UI element uses the same
 // pixel-to-world conversion, making tweaks easy and avoiding magic numbers.
-const SPRITE_SCALE = 0.001; // world units per canvas pixel
-const PIXELS_PER_UNIT = 1 / SPRITE_SCALE; // helper for world->pixel math
+export const SPRITE_SCALE = 0.001; // world units per canvas pixel
+export const PIXELS_PER_UNIT = 1 / SPRITE_SCALE; // helper for world->pixel math
 
 let bgTexture = null;
 // Cache the shared menu background texture and configure it to behave like the

@@ -32,7 +32,7 @@ async function setupLaunch() {
   });
 
   await mock.module('../modules/UIManager.js', {
-    namedExports: { initUI: mock.fn(), updateHud: mock.fn(), showHud }
+    namedExports: { initUI: mock.fn(), updateHud: mock.fn(), showHud, PIXELS_PER_UNIT: 1000 }
   });
 
     await mock.module('../modules/ModalManager.js', {

@@ -4,7 +4,7 @@ import * as THREE from '../vendor/three.module.js';
 
 // Mock UI and scene dependencies to avoid DOM and WebXR
 await mock.module('../modules/UIManager.js', {
-  namedExports: { createTextSprite: () => new THREE.Object3D() }
+  namedExports: { createTextSprite: () => new THREE.Object3D(), PIXELS_PER_UNIT: 1000 }
 });
 await mock.module('../modules/scene.js', {
   namedExports: {
