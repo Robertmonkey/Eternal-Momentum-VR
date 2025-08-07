@@ -138,3 +138,4 @@
 * [x] Hardened rotateAroundNormal to return the original vector when given zero-length normals or invalid angles.
 * [x] Fixed race condition in Miasma boss slam by using current timestamps when purifying vents.
 * [x] Corrected controller menu sound toggle to update its icon reliably in VR.
+* [x] Restored scrollbar behavior so lists scroll in the correct direction and handles can be dragged like the 2D game.

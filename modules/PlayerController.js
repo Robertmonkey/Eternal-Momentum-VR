@@ -38,6 +38,7 @@ const tempMatrix = new THREE.Matrix4();
 let hoveredUi = null;
 const assetManager = new AssetManager();
 let lastUpdateTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
+let activeDrag = null;
 
 function resetAvatarPosition() {
     const arena = getArena();
@@ -202,12 +203,23 @@ export function updatePlayerController() {
             }
         }
 
-        if (triggerJustPressed && uiHit.object.userData.onSelect) {
-            if (Date.now() > state.uiInteractionCooldownUntil) {
-                uiHit.object.userData.onSelect();
-                gameHelpers.play('uiClickSound');
+        if (triggerJustPressed) {
+            if (uiHit.object.userData.onDragStart) {
+                uiHit.object.userData.onDragStart(uiHit, raycaster);
+                activeDrag = uiHit.object;
+            } else if (uiHit.object.userData.onSelect) {
+                if (Date.now() > state.uiInteractionCooldownUntil) {
+                    uiHit.object.userData.onSelect();
+                    gameHelpers.play('uiClickSound');
+                }
             }
         }
+    } else if (activeDrag) {
+        if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
+        hoveredUi = null;
+        if (avatar) targetPoint.copy(avatar.position);
+        laser.scale.z = radius * 2;
+        if (crosshair) crosshair.visible = false;
     } else if (!state.isPaused) {
         if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);
         hoveredUi = null;
@@ -216,7 +228,7 @@ export function updatePlayerController() {
             targetPoint.copy(arenaHit.point);
             state.cursorDir.copy(arenaHit.point).normalize();
             laser.scale.z = arenaHit.distance;
-            
+
             if (crosshair) {
                 crosshair.visible = true;
                 crosshair.position.copy(arenaHit.point);
@@ -235,6 +247,15 @@ export function updatePlayerController() {
         if (crosshair) crosshair.visible = false;
     }
     
+    if (activeDrag) {
+        if (triggerDown) {
+            if (activeDrag.userData.onDragMove) activeDrag.userData.onDragMove(raycaster);
+        } else {
+            if (activeDrag.userData.onDragEnd) activeDrag.userData.onDragEnd();
+            activeDrag = null;
+        }
+    }
+
     triggerJustPressed = false;
     gripJustPressed = false;
 

@@ -265,7 +265,7 @@ function addScrollBar(modal, list, { itemHeight, viewHeight, topOffset, x, start
 
     function update() {
         items.forEach((child, i) => {
-            const y = topOffset - i * itemHeight - offset;
+            const y = topOffset - i * itemHeight + offset;
             child.position.y = y;
             child.visible = y <= topOffset && y >= topOffset - viewHeight;
         });
@@ -279,6 +279,30 @@ function addScrollBar(modal, list, { itemHeight, viewHeight, topOffset, x, start
         offset = Math.min(Math.max(offset + delta, 0), maxOffset);
         update();
     }
+
+    let dragStart = null;
+    function onDragStart(_, ray) {
+        const hit = ray.intersectObject(track, false)[0];
+        if (!hit) return;
+        dragStart = { y: hit.point.y, offset };
+    }
+    function onDragMove(ray) {
+        if (!dragStart) return;
+        const hit = ray.intersectObject(track, false)[0];
+        if (!hit) return;
+        const dy = hit.point.y - dragStart.y;
+        const range = trackHeight - handleHeight;
+        const ratio = dy / range;
+        offset = Math.min(Math.max(dragStart.offset - ratio * maxOffset, 0), maxOffset);
+        update();
+    }
+    function onDragEnd() {
+        dragStart = null;
+    }
+
+    handle.userData.onDragStart = onDragStart;
+    handle.userData.onDragMove = onDragMove;
+    handle.userData.onDragEnd = onDragEnd;
 
     update();
 }
