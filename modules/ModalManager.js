@@ -913,10 +913,17 @@ function createAscensionModal() {
             });
         });
 
-        const purchasedTalents =
-            state.player.purchasedTalents && typeof state.player.purchasedTalents.get === 'function'
-                ? state.player.purchasedTalents
-                : new Map(state.player.purchasedTalents || []);
+        // Normalize purchasedTalents in case legacy saves stored it as an array or plain object.
+        let purchasedTalents = state.player.purchasedTalents;
+        if (purchasedTalents instanceof Map) {
+            // already correct
+        } else if (Array.isArray(purchasedTalents)) {
+            purchasedTalents = new Map(purchasedTalents);
+        } else if (purchasedTalents && typeof purchasedTalents === 'object') {
+            purchasedTalents = new Map(Object.entries(purchasedTalents));
+        } else {
+            purchasedTalents = new Map();
+        }
         if (purchasedTalents !== state.player.purchasedTalents) {
             state.player.purchasedTalents = purchasedTalents;
         }

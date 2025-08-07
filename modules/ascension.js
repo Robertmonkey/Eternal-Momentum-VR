@@ -166,9 +166,20 @@ export function isTalentVisible(talent) {
     const prereqs = talent.prerequisites || [];
     if (prereqs.length === 0) return true;
 
-    const purchased = state.player.purchasedTalents && typeof state.player.purchasedTalents.get === 'function'
-        ? state.player.purchasedTalents
-        : new Map();
+    // Handle legacy saves where purchasedTalents may be an array or plain object.
+    let purchased = state.player.purchasedTalents;
+    if (purchased instanceof Map) {
+        // already good
+    } else if (Array.isArray(purchased)) {
+        purchased = new Map(purchased);
+    } else if (purchased && typeof purchased === 'object') {
+        purchased = new Map(Object.entries(purchased));
+    } else {
+        purchased = new Map();
+    }
+    if (purchased !== state.player.purchasedTalents) {
+        state.player.purchasedTalents = purchased;
+    }
 
     return prereqs.every(prereqId => {
         const prereqTalent = allTalents[prereqId];
