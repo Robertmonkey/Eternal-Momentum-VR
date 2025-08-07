@@ -89,3 +89,15 @@ test('ascension modal shows core nexus with array purchasedTalents', async () =>
   const nexusButton = grid.children.find(c => c.userData && c.userData.talentId === 'core-nexus');
   assert.ok(nexusButton, 'core nexus button should exist');
 });
+
+// Also handle legacy saves where purchasedTalents was a plain object.
+test('ascension modal shows core nexus with object purchasedTalents', async () => {
+  const { initModals, showModal, getModalObjects } = await setup({});
+  initModals();
+  showModal('ascension');
+  const ascensionModal = getModalObjects().find(m => m.name === 'modal_ascension');
+  assert.ok(ascensionModal);
+  const grid = ascensionModal.children.find(c => c.name === 'ascension_grid');
+  const nexusButton = grid.children.find(c => c.userData && c.userData.talentId === 'core-nexus');
+  assert.ok(nexusButton, 'core nexus button should exist');
+});
