@@ -49,6 +49,9 @@ function createButton(label, icon, onSelect) {
   textSprite.position.set(expandedTextX, 0, 0.01);
   bg.visible = border.visible = textSprite.visible = false;
   group.add(iconSprite, textSprite);
+  // Expose sprites for later updates without relying on child order
+  group.userData.iconSprite = iconSprite;
+  group.userData.textSprite = textSprite;
 
   const setHover = hovered => {
     const intensity = hovered ? 1.5 : 1;
@@ -106,8 +109,8 @@ export function initControllerMenu() {
     if (originalUpdateIcon) originalUpdateIcon.call(AudioManager); // Call the original function if it exists
     const icon = AudioManager.userMuted ? '🔇' : '🔊';
     if (soundBtn) {
-        const iconSprite = soundBtn.children[1]; // The icon is the second child
-        updateTextSprite(iconSprite, icon);
+        const iconSprite = soundBtn.userData.iconSprite;
+        if (iconSprite) updateTextSprite(iconSprite, icon);
     }
   };
   AudioManager.updateButtonIcon(); // Set initial state
