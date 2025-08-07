@@ -70,7 +70,8 @@ async function setup(purchasedTalents) {
       showBossBanner: () => {},
       updateHud: () => {},
       showHud: () => {},
-      hideHud: () => {}
+      hideHud: () => {},
+      PIXELS_PER_UNIT: 1000
     }
   });
 

@@ -24,7 +24,7 @@ test('initPlayerController resets previous avatar meshes', async () => {
       getCamera: () => ({})
     }
   });
-  await mock.module('../modules/UIManager.js', { namedExports: { attachBossUI: mock.fn() } });
+  await mock.module('../modules/UIManager.js', { namedExports: { attachBossUI: mock.fn(), PIXELS_PER_UNIT: 1000 } });
   await mock.module('../modules/PowerManager.js', { namedExports: { useOffensivePower: mock.fn(), useDefensivePower: mock.fn() } });
   await mock.module('../modules/CoreManager.js', { namedExports: { useCoreActive: mock.fn() } });
   await mock.module('../modules/ModalManager.js', { namedExports: { getModalObjects: () => [] } });

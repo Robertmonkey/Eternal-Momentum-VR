@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from '../vendor/three.module.js';
 
 await mock.module('../modules/UIManager.js', {
-  namedExports: { createTextSprite: () => new THREE.Object3D() }
+  namedExports: { createTextSprite: () => new THREE.Object3D(), PIXELS_PER_UNIT: 1000 }
 });
 await mock.module('../modules/scene.js', {
   namedExports: {

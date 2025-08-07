@@ -6,9 +6,9 @@ import { AudioManager } from './audio.js';
 import { bossData } from './bosses.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
 import { purchaseTalent, isTalentVisible, getConstellationColorOfTalent } from './ascension.js';
-import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture, hideHud, showHud } from './UIManager.js';
+import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture, hideHud, showHud, PIXELS_PER_UNIT } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
-import { disposeGroupChildren, wrapText } from './helpers.js';
+import { disposeGroupChildren } from './helpers.js';
 import { STAGE_CONFIG } from './config.js';
 
 const RAF = typeof requestAnimationFrame === 'function'
@@ -49,6 +49,24 @@ function enableTextScroll(sprite, visibleWidth, duration = 10000) {
       frameId = null;
     }
   };
+}
+
+function wrapTextToWidth(ctx, text, maxPx) {
+  const lines = [];
+  text.split('\n').forEach(paragraph => {
+    let line = '';
+    paragraph.split(' ').forEach(word => {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxPx && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+  });
+  return lines.join('\n');
 }
 
 let modalGroup;
@@ -1176,7 +1194,12 @@ function createLoreModal() {
         if (sec.heading) {
             lines.push({ text: sec.heading, color: '#9b59b6' });
         }
-        const wrapped = wrapText(sec.text, 60).split('\n');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const fontSize = 32;
+        ctx.font = `${fontSize}px 'Segoe UI','Roboto',sans-serif`;
+        const maxPx = (modal.userData.width - 0.1) * PIXELS_PER_UNIT;
+        const wrapped = wrapTextToWidth(ctx, sec.text, maxPx).split('\n');
         wrapped.forEach(l => lines.push({ text: l, color: '#eaf2ff' }));
         lines.push({ text: '', color: '#eaf2ff' });
     });
@@ -1205,9 +1228,14 @@ function createBossInfoModal() {
     modal.name = 'modal_bossInfo';
 
     // Left-align wrapped lore text and bump the font size for readability.
+    const margin = 0.05;
+    const topMargin = 0.15; // title margin (0.1) + inner spacing (0.05)
     const content = createTextSprite('', 32, '#eaf2ff', 'left');
-    content.position.set(-0.55, 0.35, 0.01);
-    content.userData.maxWidth = 1.1; // Store for wrapText updates
+    // Position roughly at the top-left; we'll correct for exact width after
+    // the text is set.
+    content.position.set(-width / 2 + margin, height / 2 - topMargin, 0.01);
+    // Store the usable width so `showBossInfo` can wrap text accurately.
+    content.userData.maxWidth = width - margin * 2;
     modal.add(content);
 
     const closeBtn = createButton('✖', () => hideModal(), 0.12, 0.12, 0xf000ff);
@@ -1395,19 +1423,21 @@ export function showBossInfo(bossIds, type = 'mechanics') {
     showModal('bossInfo');
     const modal = modals.bossInfo;
     if (!modal) return;
-    const bosses = bossIds.map(id => bossData.find(b => b.id === id)).filter(b => b);
+    const bosses = bossIds.map(id => bossData.find(b => b.id === id)).filter(Boolean);
     if (bosses.length === 0) return;
     const title = bosses.map(b => b.name).join(' & ');
-    const content = bosses
-        .map(b => wrapText(type === 'lore' ? b.lore : b.mechanics_desc, 60))
-        .join('\n\n');
     if (modal.userData.titleSprite) updateTextSprite(modal.userData.titleSprite, title);
     if (modal.userData.contentSprite) {
-        updateTextSprite(modal.userData.contentSprite, content);
         const sprite = modal.userData.contentSprite;
-        // Position so text starts at the top-left corner of the modal
-        const width = sprite.scale.x;
-        const height = sprite.scale.y;
-        sprite.position.set(-width / 2, height / 2, sprite.position.z);
+        const ctx = sprite.userData.ctx;
+        const maxPx = sprite.userData.maxWidth ? sprite.userData.maxWidth * PIXELS_PER_UNIT : Infinity;
+        const content = bosses
+            .map(b => wrapTextToWidth(ctx, type === 'lore' ? b.lore : b.mechanics_desc, maxPx))
+            .join('\n\n');
+        updateTextSprite(sprite, content);
+        // Anchor the top-left corner within the modal's inner margins
+        const left = -modal.userData.width / 2 + 0.05;
+        const top = modal.userData.height / 2 - 0.15;
+        sprite.position.set(left + sprite.scale.x / 2, top - sprite.scale.y / 2, sprite.position.z);
     }
 }
