@@ -132,3 +132,5 @@
 * [x] Corrected boss health bar logic so colored fills track each boss's `health` value instead of a nonexistent `hp` field.
 * [x] Disabled HUD raycasts so the cursor passes through without affecting player movement.
 * [x] Prevented boss spawn crashes by replacing nonexistent geometries, importing missing Pantheon aspects, and correcting the Annihilator's shadow check.
+* [x] Stabilized Swarm Link's tail so segments follow the spherical surface and consistently damage the player on contact.
+* [x] Reworked Mirror Mirage clone swapping to match the original game's mechanics and prevent ability-related crashes.
