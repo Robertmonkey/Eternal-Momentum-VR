@@ -135,3 +135,4 @@
 * [x] Stabilized Swarm Link's tail so segments follow the spherical surface and consistently damage the player on contact.
 * [x] Reworked Mirror Mirage clone swapping to match the original game's mechanics and prevent ability-related crashes.
 * [x] Hardened rotateAroundNormal to return the original vector when given zero-length normals or invalid angles.
+* [x] Fixed race condition in Miasma boss slam by using current timestamps when purifying vents.

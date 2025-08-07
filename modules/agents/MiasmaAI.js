@@ -56,12 +56,13 @@ export class MiasmaAI extends BaseAgent {
             if (!this.alive) return;
             gameHelpers.play('miasmaSlam');
 
+            const currentTime = Date.now();
             this.vents.forEach(vent => {
-                if (now > vent.cooldownUntil && this.position.distanceTo(vent.position) < 10) {
-                    vent.cooldownUntil = now + 10000;
+                if (currentTime > vent.cooldownUntil && this.position.distanceTo(vent.position) < 10) {
+                    vent.cooldownUntil = currentTime + 10000;
                     this.isGasActive = false;
                     state.effects = state.effects.filter(e => !(e.type === 'miasma_gas' && e.id === this.instanceId));
-                    this.lastGasAttack = now;
+                    this.lastGasAttack = currentTime;
                     gameHelpers.play('ventPurify');
                 }
             });
