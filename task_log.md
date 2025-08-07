@@ -79,6 +79,7 @@
     * [x] Corrected Lore Codex text alignment so entries render within the menu bounds.
     * [x] Added in-VR tooltips for Mechanics and Lore buttons and restored boss-name listing to match the 2D stage menu.
     * [x] Synced Stage Select footer button colors and hover behaviour with the 2D stage manager layout.
+    * [x] Centered Stage Select footer buttons when Weaver's Orrery is locked so the menu opens with aligned actions.
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
     * [x] Reworked inventory HUD rendering to scale emoji sprites consistently and refresh even when hidden.

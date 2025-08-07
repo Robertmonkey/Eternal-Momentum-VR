@@ -445,8 +445,7 @@ function createStageSelectModal() {
     applyFooterHover(frontierBtn, 0x00ffff, 0xffffff);
 
     const closeBtn = createButton('Close', () => hideModal(), 0.5, 0.1, 0xf000ff, 0xf000ff, 0xffffff);
-    // Raise the close button so its bottom edge aligns with the modal's border.
-    closeBtn.position.set(0, -height / 2 + 0.05, 0.01);
+    closeBtn.position.set(0, bottomY, 0.01);
     applyFooterHover(closeBtn, 0xf000ff, 0xff40ff);
 
     modal.add(arenaBtn, frontierBtn, closeBtn);
@@ -454,6 +453,21 @@ function createStageSelectModal() {
     modal.userData.refresh = () => {
         disposeGroupChildren(listContainer);
         arenaBtn.visible = state.player.highestStageBeaten >= 30;
+
+        // Reposition footer buttons to mirror the 2D layout whether the
+        // Weaver's Orrery button is unlocked or not.
+        if (arenaBtn.visible) {
+            arenaBtn.position.set(-width / 2 + 0.05 + 0.3, bottomY, 0.01);
+            frontierBtn.position.set(width / 2 - 0.05 - 0.3, bottomY, 0.01);
+            closeBtn.position.set(0, bottomY, 0.01);
+        } else {
+            const gap = 0.1;
+            const pairWidth = 0.6 + gap + 0.5;
+            const leftEdge = -pairWidth / 2;
+            frontierBtn.position.set(leftEdge + 0.6 / 2, bottomY, 0.01);
+            closeBtn.position.set(leftEdge + 0.6 + gap + 0.5 / 2, bottomY, 0.01);
+        }
+
         const maxStage = state.player.highestStageBeaten + 1;
         for (let i = 1; i <= maxStage; i++) {
             const bossIds = getBossesForStage(i);
