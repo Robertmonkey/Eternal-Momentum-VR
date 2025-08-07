@@ -5,8 +5,9 @@ import { gameHelpers } from '../gameHelpers.js';
 
 // Import all AI types the Pantheon can channel
 import { JuggernautAI } from './JuggernautAI.js';
-import { AnnihilatorAI } from './AnnihilatorAI.js';
-// ... and so on for all other bosses
+import { GlitchAI } from './GlitchAI.js';
+import { HelixWeaverAI } from './HelixWeaverAI.js';
+// Additional boss AIs can be imported as the Pantheon gains aspects
 
 export class PantheonAI extends BaseAgent {
   constructor() {

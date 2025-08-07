@@ -39,10 +39,13 @@ export class AnnihilatorAI extends BaseAgent {
       const playerV2 = new THREE.Vector2(playerPos.x, playerPos.z);
       const pillarV2 = new THREE.Vector2(pillarPos.x, pillarPos.z);
 
-      const line = new THREE.Line3(new THREE.Vector3(bossV2.x, 0, bossV2.y), new THREE.Vector3(playerV2.x, 0, playerV2.y));
+      const line = new THREE.Line3(
+          new THREE.Vector3(bossV2.x, 0, bossV2.y),
+          new THREE.Vector3(playerV2.x, 0, playerV2.y)
+      );
       const sphere = new THREE.Sphere(new THREE.Vector3(pillarV2.x, 0, pillarV2.y), pillarRadius);
-      
-      return line.intersectsSphere(sphere);
+
+      return sphere.intersectsLine(line);
   }
 
   update(delta) {
