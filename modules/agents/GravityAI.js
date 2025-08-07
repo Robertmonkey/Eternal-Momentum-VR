@@ -32,15 +32,25 @@ export class GravityAI extends BaseAgent {
         // Calculate well position in 3D space around the boss
         const bossPos = this.position.clone();
         const up = bossPos.clone().normalize();
-        const forward = new THREE.Vector3(0, 0, 1);
-        const right = new THREE.Vector3().crossVectors(up, forward).normalize();
-        
+
+        // Build an orthonormal basis for the tangent plane at the boss position.
+        // Pick a reference axis that is not parallel with the surface normal to
+        // avoid zero-length cross products when the boss is near the poles.
+        const reference = Math.abs(up.dot(new THREE.Vector3(0, 1, 0))) > 0.9
+            ? new THREE.Vector3(1, 0, 0)
+            : new THREE.Vector3(0, 1, 0);
+        const right = new THREE.Vector3().crossVectors(reference, up).normalize();
+        const forward = new THREE.Vector3().crossVectors(up, right).normalize();
+
         const angle = well.angle + (Date.now() * 0.0005); // Slow rotation
         const x = Math.cos(angle) * well.dist;
         const z = Math.sin(angle) * well.dist;
 
-        const wellPos = bossPos.clone().add(right.multiplyScalar(x)).add(up.clone().cross(right).multiplyScalar(z));
-        wellPos.normalize().multiplyScalar(ARENA_RADIUS);
+        const wellPos = bossPos.clone()
+            .add(right.multiplyScalar(x))
+            .add(forward.multiplyScalar(z))
+            .normalize()
+            .multiplyScalar(ARENA_RADIUS);
 
         const wellMesh = this.wellObjects.children[index];
         if(wellMesh) {

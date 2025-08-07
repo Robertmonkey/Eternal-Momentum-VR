@@ -3,6 +3,9 @@ import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import * as CoreManager from '../CoreManager.js';
 import { applyPlayerDamage } from '../helpers.js';
+import { gameHelpers } from '../gameHelpers.js';
+
+const ARENA_RADIUS = 50;
 
 export class SwarmLinkAI extends BaseAgent {
   constructor() {
@@ -40,12 +43,13 @@ export class SwarmLinkAI extends BaseAgent {
   update(delta) {
     if (!this.alive) return;
 
-    let leadSegmentPos = this.position;
+    let leadSegmentPos = this.position.clone();
     this.tailSegments.forEach(seg => {
       // Each segment smoothly follows the one in front of it
       seg.position.lerp(leadSegmentPos, 0.2);
-      seg.mesh.position.copy(seg.position);
-      leadSegmentPos = seg.position;
+      seg.position.normalize().multiplyScalar(ARENA_RADIUS);
+      seg.mesh.position.copy(seg.position.clone().sub(this.position));
+      leadSegmentPos = seg.position.clone();
 
       // Damage player on contact
       const playerPos = state.player.position;
