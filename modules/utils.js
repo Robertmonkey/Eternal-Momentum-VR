@@ -343,8 +343,14 @@ export function toCanvasPos(vec, width = 2048, height = 1024) {
  * @returns {THREE.Vector3} Rotated direction vector.
  */
 export function rotateAroundNormal(dir, normal, angle){
-  const q = new THREE.Quaternion();
-  q.setFromAxisAngle(normal.clone().normalize(), angle);
+  if(!dir || typeof dir.clone !== 'function') return new THREE.Vector3();
+  if(!normal || normal.lengthSq() === 0 || !Number.isFinite(angle)) {
+    return dir.clone();
+  }
+  const q = new THREE.Quaternion().setFromAxisAngle(
+    normal.clone().normalize(),
+    angle
+  ).normalize();
   return dir.clone().applyQuaternion(q);
 }
 
