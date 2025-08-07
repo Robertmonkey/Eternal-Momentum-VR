@@ -7,7 +7,7 @@ const ARENA_RADIUS = 50;
 
 export class BasiliskAI extends BaseAgent {
   constructor() {
-    const geometry = new THREE.CrystalGeometry(); // Placeholder for a custom crystal shape
+    const geometry = new THREE.IcosahedronGeometry(0.9, 1); // Crystal-like placeholder
     const material = new THREE.MeshStandardMaterial({
         color: 0x00b894,
         emissive: 0x00b894,
@@ -15,9 +15,7 @@ export class BasiliskAI extends BaseAgent {
         roughness: 0.2,
         metalness: 0.8
     });
-    // For now, use a simple shape
-    const placeholderGeo = new THREE.IcosahedronGeometry(0.9, 1);
-    super({ model: new THREE.Mesh(placeholderGeo, material) });
+    super({ model: new THREE.Mesh(geometry, material) });
 
     const bossData = { id: "basilisk", name: "The Basilisk", maxHP: 384 };
     this.kind = bossData.id;

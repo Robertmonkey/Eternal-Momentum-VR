@@ -131,3 +131,4 @@
 * [x] Aligned Ascension modal borders and talent nodes with their backgrounds so frames no longer flicker or drift in VR.
 * [x] Corrected boss health bar logic so colored fills track each boss's `health` value instead of a nonexistent `hp` field.
 * [x] Disabled HUD raycasts so the cursor passes through without affecting player movement.
+* [x] Prevented boss spawn crashes by replacing nonexistent geometries, importing missing Pantheon aspects, and correcting the Annihilator's shadow check.
