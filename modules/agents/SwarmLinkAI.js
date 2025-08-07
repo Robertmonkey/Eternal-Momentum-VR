@@ -43,20 +43,25 @@ export class SwarmLinkAI extends BaseAgent {
   update(delta) {
     if (!this.alive) return;
 
-    let leadSegmentPos = this.position.clone();
-    this.tailSegments.forEach(seg => {
-      // Each segment smoothly follows the one in front of it
-      seg.position.lerp(leadSegmentPos, 0.2);
-      seg.position.normalize().multiplyScalar(ARENA_RADIUS);
-      seg.mesh.position.copy(seg.position.clone().sub(this.position));
-      leadSegmentPos = seg.position.clone();
+    // Use spherical interpolation so segments follow the surface
+    let leadDir = this.position.clone().normalize();
+    const playerPos = state.player.position;
 
-      // Damage player on contact
-      const playerPos = state.player.position;
+    this.tailSegments.forEach(seg => {
+      const currentDir = seg.position.clone().normalize();
+      const axis = currentDir.clone().cross(leadDir);
+      if (axis.lengthSq() > 0) {
+        const angle = currentDir.angleTo(leadDir) * 0.2;
+        const quat = new THREE.Quaternion().setFromAxisAngle(axis.normalize(), angle);
+        currentDir.applyQuaternion(quat);
+      }
+      seg.position.copy(currentDir.multiplyScalar(ARENA_RADIUS));
+      seg.mesh.position.copy(seg.position.clone().sub(this.position));
+      leadDir = seg.position.clone().normalize();
+
       const distance = playerPos.distanceTo(seg.position);
-      if (distance < state.player.r + 0.4) { // 0.4 is segment radius
-        const damage = 0.5; // Damage per frame
-        applyPlayerDamage(damage, this, gameHelpers);
+      if (distance < state.player.r + 0.4) {
+        applyPlayerDamage(0.5, this, gameHelpers);
       }
     });
   }

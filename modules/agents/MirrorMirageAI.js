@@ -6,7 +6,6 @@ const ARENA_RADIUS = 50;
 
 export class MirrorMirageAI extends BaseAgent {
   constructor() {
-    // The main object is just a group; the visible parts are its children (clones)
     super({ model: new THREE.Group() });
 
     const bossData = { id: "mirror", name: "Mirror Mirage", maxHP: 240 };
@@ -25,65 +24,71 @@ export class MirrorMirageAI extends BaseAgent {
 
     for (let i = 0; i < 5; i++) {
         const cloneMesh = new THREE.Mesh(cloneGeo, cloneMat);
-        cloneMesh.userData.isClone = true; // Mark for raycasting
-        cloneMesh.userData.ai = this; // Link back to parent AI
+        cloneMesh.userData.isClone = true;
+        cloneMesh.userData.ai = this;
         this.clones.push(cloneMesh);
         this.model.add(cloneMesh);
     }
-    
-    this.teleportAllClones();
+
+    this.realIndex = 0;
     this.lastSwapTime = Date.now();
+    this.randomizeClones();
+    this.updateGroupPosition();
   }
-  
+
   randomPosOnSphere() {
       return new THREE.Vector3().randomDirection().multiplyScalar(ARENA_RADIUS);
   }
 
-  teleportAllClones() {
+  randomizeClones() {
       this.clones.forEach(clone => {
           clone.position.copy(this.randomPosOnSphere());
           clone.visible = true;
       });
-      // The "real" boss's position is just the position of one of its clones
-      this.position.copy(this.clones[0].position);
+  }
+
+  updateGroupPosition() {
+      const realClone = this.clones[this.realIndex];
+      const offset = realClone.position.clone();
+      this.position.copy(offset);
+      this.clones.forEach(c => c.position.sub(offset));
+  }
+
+  swapClones() {
+      const realClone = this.clones[this.realIndex];
+      let idx;
+      do {
+          idx = Math.floor(Math.random() * this.clones.length);
+      } while (idx === this.realIndex);
+      const otherClone = this.clones[idx];
+      const temp = realClone.position.clone();
+      realClone.position.copy(otherClone.position);
+      otherClone.position.copy(temp);
+      this.realIndex = idx;
+      this.updateGroupPosition();
+      gameHelpers.play('mirrorSwap');
   }
 
   update(delta) {
     if (!this.alive) return;
     const now = Date.now();
-
-    if (now - this.lastSwapTime > 4000) {
+    if (now - this.lastSwapTime > 2000) {
       this.lastSwapTime = now;
-      
-      const realClone = this.clones.find(c => c.position.equals(this.position));
-      let otherClone = this.clones[Math.floor(Math.random() * this.clones.length)];
-      while(otherClone === realClone) {
-          otherClone = this.clones[Math.floor(Math.random() * this.clones.length)];
-      }
-
-      // Swap positions
-      const tempPos = realClone.position.clone();
-      realClone.position.copy(otherClone.position);
-      otherClone.position.copy(tempPos);
-      this.position.copy(realClone.position);
-
-      gameHelpers.play('mirrorSwap');
+      this.swapClones();
     }
   }
 
   takeDamage(amount, sourceObject, hitMesh) {
     if (!this.alive) return;
+    const realClone = this.clones[this.realIndex];
 
-    // Determine if the hit mesh is the real one
-    if (hitMesh && hitMesh.position.equals(this.position)) {
-        // It's the real one
+    if (hitMesh === realClone) {
         super.takeDamage(amount, sourceObject);
-    } else if (hitMesh) {
-        // It's a decoy
+    } else if (hitMesh && this.clones.includes(hitMesh)) {
         hitMesh.visible = false;
         setTimeout(() => {
             if (this.alive) {
-                hitMesh.position.copy(this.randomPosOnSphere());
+                hitMesh.position.copy(this.randomPosOnSphere().sub(this.position));
                 hitMesh.visible = true;
             }
         }, 1500);
