@@ -28,6 +28,12 @@ test('playerHasCore returns false for falsy ids', () => {
   assert.equal(playerHasCore(null), false);
 });
 
+test('playerHasCore handles non-array buff lists', () => {
+  state.player.activePantheonBuffs = null;
+  assert.equal(playerHasCore('anything'), false);
+  state.player.activePantheonBuffs = [];
+});
+
 test('wrapText returns input when maxLen is non-positive', () => {
   assert.equal(wrapText('hello world', 0), 'hello world');
 });

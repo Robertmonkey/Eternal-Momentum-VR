@@ -121,13 +121,24 @@ export function isPointInShadow(shadowCaster, point, sourceX, sourceY) {
 
 export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
   if (!Array.isArray(particles) || !Number.isFinite(n) || n <= 0) return;
-  const u = ((x / 2048) - 0.5 + 1) % 1;
-  const v = y / 1024;
+  const xSafe = Number.isFinite(x) ? x : 0;
+  const ySafe = Number.isFinite(y) ? y : 0;
+  const u = ((xSafe / 2048) - 0.5 + 1) % 1;
+  const v = ySafe / 1024;
   const center = uvToSpherePos(u, v, 1);
-  const basisA = new THREE.Vector3(center.z, 0, -center.x).normalize();
-  const basisB = new THREE.Vector3().crossVectors(center, basisA).normalize();
+
+  // Derive an orthonormal basis around the emission point. When the center
+  // lies on the pole the initial basis degenerates to a zero vector which
+  // previously produced NaNs in particle velocities.
+  let basisA = new THREE.Vector3(center.z, 0, -center.x);
+  if (basisA.lengthSq() === 0) basisA.set(1, 0, 0);
+  basisA.normalize();
+  let basisB = new THREE.Vector3().crossVectors(center, basisA);
+  if (basisB.lengthSq() === 0) basisB.set(0, 0, 1);
+  basisB.normalize();
+
   const speed = Number.isFinite(spd) ? (spd / 2048) * 2 * Math.PI : 0;
-  const lifeTicks = Number.isFinite(life) ? life : 0;
+  const lifeTicks = Number.isFinite(life) ? Math.max(0, life) : 0;
   for (let i = 0; i < n; i++) {
     const a = Math.random() * 2 * Math.PI;
     const dir = basisA.clone().multiplyScalar(Math.cos(a))
@@ -172,6 +183,7 @@ export function triggerScreenShake(duration, magnitude) {
 }
 
 export function applyScreenShake(ctx) {
+  if (!ctx || typeof ctx.translate !== 'function') return;
   if (Date.now() < screenShakeEnd) {
     const x = (Math.random() - 0.5) * screenShakeMagnitude;
     const y = (Math.random() - 0.5) * screenShakeMagnitude;
@@ -180,10 +192,11 @@ export function applyScreenShake(ctx) {
 }
 
 export function drawLightning(ctx, x1, y1, x2, y2, color, width = 2) {
+  if (!ctx || typeof ctx.moveTo !== 'function') return;
   ctx.save();
   ctx.strokeStyle = color;
   const w = Number.isFinite(width) ? Math.max(0, width) : 0;
-  ctx.lineWidth = Math.random() * w + 1;
+  ctx.lineWidth = w > 0 ? Math.random() * w : 0;
   ctx.globalAlpha = Math.random() * 0.5 + 0.5;
   ctx.beginPath();
   ctx.moveTo(x1, y1);
@@ -275,8 +288,10 @@ export function drawRing(ctx, x, y, innerR, outerR, color, alpha = 1.0) {
  * tint the screen when the player or enemies are affected.
  */
 export function drawFog(ctx, color, alpha) {
+  if (!ctx || typeof ctx.fillRect !== 'function' || !ctx.canvas) return;
+  const a = Number.isFinite(alpha) ? alpha : 0;
   ctx.save();
-  ctx.globalAlpha = alpha;
+  ctx.globalAlpha = a;
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.restore();

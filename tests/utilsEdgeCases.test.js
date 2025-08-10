@@ -2,7 +2,16 @@ import test, { mock } from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../vendor/three.module.js';
 
-const { randomInRange, safeAddEventListener, drawLightning, lineCircleCollision, rotateAroundNormal } = await import('../modules/utils.js');
+const {
+  randomInRange,
+  safeAddEventListener,
+  drawLightning,
+  lineCircleCollision,
+  rotateAroundNormal,
+  drawFog,
+  applyScreenShake,
+  triggerScreenShake,
+} = await import('../modules/utils.js');
 
 test('randomInRange handles reversed and invalid ranges', () => {
   const originalRandom = Math.random;
@@ -30,7 +39,7 @@ test('drawLightning clamps width to non-negative values', () => {
   Math.random = () => 0.5;
   drawLightning(ctx, 0, 0, 10, 0, '#fff', -3);
   Math.random = originalRandom;
-  assert.equal(ctx.lineWidth, 1);
+  assert.equal(ctx.lineWidth, 0);
 });
 
 test('lineCircleCollision respects radius and segment bounds', () => {
@@ -44,4 +53,11 @@ test('rotateAroundNormal returns original vector for degenerate inputs', () => {
   assert.deepEqual(result, dir);
   const resultNaN = rotateAroundNormal(dir, new THREE.Vector3(0, 1, 0), NaN);
   assert.deepEqual(resultNaN, dir);
+});
+
+test('drawFog and applyScreenShake ignore invalid contexts', () => {
+  assert.doesNotThrow(() => drawFog(null, '#fff', 0.5));
+  triggerScreenShake(100, 5);
+  assert.doesNotThrow(() => applyScreenShake(null));
+  assert.doesNotThrow(() => drawLightning(null, 0, 0, 1, 1, '#fff'));
 });
