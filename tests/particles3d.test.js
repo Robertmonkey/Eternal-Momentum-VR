@@ -40,3 +40,15 @@ test('updateParticles projects 3D position to canvas', () => {
   updateParticles(ctx, particles);
   assert.equal(particles.length, 0);
 });
+
+test('spawnParticles handles polar emission and clamps life', () => {
+  const particles = [];
+  spawnParticles(particles, 0, 0, '#fff', 3, 0, -5);
+  assert.equal(particles.length, 3);
+  for (const p of particles) {
+    assert.ok(Number.isFinite(p.position.x));
+    assert.ok(Number.isFinite(p.position.y));
+    assert.ok(Number.isFinite(p.position.z));
+    assert.ok(p.life >= 0 && p.maxLife >= 0);
+  }
+});

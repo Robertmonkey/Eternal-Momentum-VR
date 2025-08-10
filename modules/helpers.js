@@ -12,7 +12,8 @@ import * as CoreManager from './CoreManager.js';
 export function playerHasCore(coreId){
   if (!coreId) return false;
   if (state.player.equippedAberrationCore === coreId) return true;
-  return state.player.activePantheonBuffs.some(buff => buff.coreId === coreId);
+  const buffs = state.player.activePantheonBuffs;
+  return Array.isArray(buffs) && buffs.some(b => b && b.coreId === coreId);
 }
 
 /**
