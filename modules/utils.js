@@ -32,8 +32,8 @@ export function drawCrystal(ctx, x, y, size, color) {
   const sides = 6;
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(x + s * Math.cos(0), y + s * Math.sin(0));
-  for (let i = 1; i <= sides; i++) {
+  ctx.moveTo(x + s, y); // start at angle 0 without redundant cos/sin
+  for (let i = 1; i < sides; i++) {
     const angle = i * 2 * Math.PI / sides;
     const modSize = (i % 2 === 0) ? s : s * 0.6;
     ctx.lineTo(x + modSize * Math.cos(angle), y + modSize * Math.sin(angle));
@@ -390,6 +390,7 @@ export function pixelsToArc(pixels, width = 2048){
  */
 export function safeAddEventListener(el, type, handler, options){
   if(!el || typeof el.addEventListener !== 'function') return false;
+  if(typeof type !== 'string' || !type) return false;
   if(typeof handler !== 'function') return false;
   el.addEventListener(type, handler, options ?? false);
   return true;
