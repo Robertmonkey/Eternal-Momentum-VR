@@ -68,6 +68,7 @@
     * [x] Added tooltip footer divider and 1.15 hover scale so Ascension talents mirror 2D visuals precisely.
     * [x] Matched talent tooltip text colors and opacity with the original 2D styling.
     * [x] Synced talent purchases with HUD updates and drew connector lines without depth testing so the Ascension grid layers exactly like the 2D menu.
+    * [x] Resolved CSS color variables so Ascension constellations use the original cyan and orange hues.
 * [x] Raised modal positions so menus appear higher with their bottoms at waist height.
 * [x] Restore backgrounds and fix scaling issues. — Completed
 * [x] Recreate stage select layout and styling to mirror the 2D game's menu.
