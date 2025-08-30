@@ -27,12 +27,12 @@ export class AssetManager {
         }
     }
 
-    loadModel(url) {
+    async loadModel(url) {
         if (this.modelCache.has(url)) {
-            return Promise.resolve(this.modelCache.get(url));
+            return this.modelCache.get(url);
         }
-        return new Promise(async (resolve, reject) => {
-            await this._ensureGltfLoader();
+        await this._ensureGltfLoader();
+        return await new Promise((resolve, reject) => {
             this.gltfLoader.load(url,
                 (gltf) => {
                     this.modelCache.set(url, gltf);

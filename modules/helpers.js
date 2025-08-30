@@ -83,8 +83,8 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
   if (damage <= 0) return 0;
 
   // Phase Momentum negates contact damage from non-boss enemies
-  const pmState = state.player.talent_states.phaseMomentum;
-  if (pmState.active && (!source || !source.boss)) {
+  const pmState = state.player.talent_states?.phaseMomentum;
+  if (pmState && pmState.active && (!source || !source.boss)) {
     pmState.lastDamageTime = Date.now();
     pmState.active = false;
     return 0;
@@ -130,6 +130,7 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
  * @returns {number} The clamped value.
  */
 export function clamp(value, min, max) {
+  value = Number.isFinite(value) ? value : 0;
   if (min > max) [min, max] = [max, min];
   return Math.min(max, Math.max(min, value));
 }
