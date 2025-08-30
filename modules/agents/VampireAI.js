@@ -2,6 +2,7 @@ import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import { gameHelpers } from '../gameHelpers.js';
+import { applyPlayerHeal } from '../helpers.js';
 
 export class VampireAI extends BaseAgent {
   constructor() {
@@ -38,12 +39,10 @@ export class VampireAI extends BaseAgent {
         emoji: '🩸',
         lifeEnd: Date.now() + 8000,
         isSeeking: true,
-        seekTarget: this,
-        customApply: (target) => {
-          if (target === this) {
-            this.health = Math.min(this.maxHP, this.health + 20);
-          }
-        }
+        seekTarget: state.player,
+        customApply: () => {
+          applyPlayerHeal(20);
+        },
       });
     }
     

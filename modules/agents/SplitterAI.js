@@ -1,6 +1,7 @@
 import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { gameHelpers } from '../gameHelpers.js';
+import { state } from '../state.js';
 
 const ARENA_RADIUS = 50;
 
