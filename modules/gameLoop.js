@@ -310,6 +310,9 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
     } else {
         enemy.r = MODEL_SCALE;
     }
+    if (typeof enemy.initialize === 'function') {
+        enemy.initialize();
+    }
     state.enemies.push(enemy);
     scene.add(enemy); // ** THE CRITICAL FIX: Add the enemy's 3D object to the scene **
     return enemy;
