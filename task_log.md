@@ -40,7 +40,8 @@
     * [x] Added extra rings, shards, and orbiting details so later bosses look increasingly epic and aligned with their lore.
     * [x] Introduced progressive ability animations with lore-based shapes for Aethel & Umbra, Splitter, and Reflector bosses.
     * [x] Expanded ability animations for Vampire, Gravity, Syphon, Centurion, and Puppeteer bosses so effects scale with each stage.
-    * [x] Stabilized Gravity Tyrant wells near poles and reattached Swarm Link tail segments.
+* [x] Stabilized Gravity Tyrant wells near poles and reattached Swarm Link tail segments.
+* [x] Fixed Gravity Tyrant well positions so they orbit the boss and affect the player.
 * [x] **Sizing:** Increase the size of the player, bosses, and enemies by 30%. — Completed
 
 ## UI
