@@ -726,8 +726,12 @@ export function showModal(id) {
     AudioManager.playSfx('uiModalOpen');
 
     if (modal.userData.refresh) {
-        // Defer refresh to the next frame so the paused state takes effect
-        requestAnimationFrame(() => {
+        // Refresh immediately so the grid is populated even if the environment
+        // lacks requestAnimationFrame (Node tests, some headsets, etc.) and
+        // schedule a second pass on the next frame using the RAF fallback
+        // defined above.
+        modal.userData.refresh();
+        RAF(() => {
             if (state.activeModalId === id) {
                 modal.userData.refresh();
             }
