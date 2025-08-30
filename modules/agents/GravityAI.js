@@ -30,7 +30,7 @@ export class GravityAI extends BaseAgent {
 
     this.wells.forEach((well, index) => {
         // Calculate well position in 3D space around the boss
-        const bossPos = this.position.clone();
+        const bossPos = this.getWorldPosition(new THREE.Vector3());
         const up = bossPos.clone().normalize();
 
         // Build an orthonormal basis for the tangent plane at the boss position.
@@ -46,23 +46,24 @@ export class GravityAI extends BaseAgent {
         const x = Math.cos(angle) * well.dist;
         const z = Math.sin(angle) * well.dist;
 
-        const wellPos = bossPos.clone()
+        const worldWellPos = bossPos.clone()
             .add(right.multiplyScalar(x))
             .add(forward.multiplyScalar(z))
             .normalize()
             .multiplyScalar(ARENA_RADIUS);
 
+        const localWellPos = worldWellPos.clone().sub(bossPos);
         const wellMesh = this.wellObjects.children[index];
-        if(wellMesh) {
-            wellMesh.position.copy(wellPos);
-            wellMesh.lookAt(0,0,0);
+        if (wellMesh) {
+            wellMesh.position.copy(localWellPos);
+            wellMesh.lookAt(this.worldToLocal(new THREE.Vector3(0, 0, 0)));
         }
 
         // Apply gravitational pull to the player
         const playerPos = state.player.position;
-        const distance = playerPos.distanceTo(wellPos);
+        const distance = playerPos.distanceTo(worldWellPos);
         if (distance < well.radius + state.player.r) {
-            const pullDirection = wellPos.clone().sub(playerPos).normalize();
+            const pullDirection = worldWellPos.clone().sub(playerPos).normalize();
             const pullStrength = 1.0 - (distance / well.radius);
             playerPos.add(pullDirection.multiplyScalar(pullStrength * 0.1));
             playerPos.normalize().multiplyScalar(ARENA_RADIUS);
