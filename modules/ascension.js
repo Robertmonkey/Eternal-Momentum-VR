@@ -13,6 +13,25 @@ Object.values(TALENT_GRID_CONFIG).forEach(constellation => {
     });
 });
 
+// Map CSS variable names to concrete hex colors so VR menus can mirror the
+// 2D game's constellation hues without relying on a DOM/CSS engine.
+const CSS_COLOR_VARS = {
+    '--primary-glow': '#00ffff',
+    '--nexus-glow': '#00ff00',
+};
+
+function resolveCssColor(value) {
+    if (!value) return '#00ffff';
+    if (value.startsWith('var(')) {
+        const match = value.match(/--[^)]+/);
+        if (match && CSS_COLOR_VARS[match[0]]) {
+            return CSS_COLOR_VARS[match[0]];
+        }
+        return '#00ffff';
+    }
+    return value;
+}
+
 /**
  * Handles the logic of purchasing a talent.
  * @param {string} talentId The ID of the talent to purchase.
@@ -141,7 +160,8 @@ export function applyAllTalentEffects() {
 export function getConstellationColorOfTalent(talentId) {
     for (const key in TALENT_GRID_CONFIG) {
         if (TALENT_GRID_CONFIG[key][talentId]) {
-            return TALENT_GRID_CONFIG[key].color || '#00ffff';
+            const raw = TALENT_GRID_CONFIG[key].color;
+            return resolveCssColor(raw);
         }
     }
     return '#00ffff';
