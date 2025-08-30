@@ -130,6 +130,7 @@
 * [x] Fixed ascension menu so talents render correctly even when `purchasedTalents` loads from a legacy array save, ensuring the Core Nexus is always visible.
 * [x] Hardened ascension menu against legacy saves storing `purchasedTalents` as plain objects so the Core Nexus always renders.
 * [x] Aligned Ascension modal borders and talent nodes with their backgrounds so frames no longer flicker or drift in VR.
+* [x] Refreshed Ascension modal immediately and added requestAnimationFrame fallback so talents always display even in RAF-free environments.
 * [x] Corrected boss health bar logic so colored fills track each boss's `health` value instead of a nonexistent `hp` field.
 * [x] Disabled HUD raycasts so the cursor passes through without affecting player movement.
 * [x] Prevented boss spawn crashes by replacing nonexistent geometries, importing missing Pantheon aspects, and correcting the Annihilator's shadow check.
