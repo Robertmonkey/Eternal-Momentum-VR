@@ -135,6 +135,7 @@
 * [x] Prevented boss spawn crashes by replacing nonexistent geometries, importing missing Pantheon aspects, and correcting the Annihilator's shadow check.
 * [x] Stabilized Swarm Link's tail so segments follow the spherical surface and consistently damage the player on contact.
 * [x] Reworked Mirror Mirage clone swapping to match the original game's mechanics and prevent ability-related crashes.
+* [x] Fixed Mirror Mirage clone spawning so decoys appear on the arena instead of the player's position.
 * [x] Hardened rotateAroundNormal to return the original vector when given zero-length normals or invalid angles.
 * [x] Fixed race condition in Miasma boss slam by using current timestamps when purifying vents.
 * [x] Corrected controller menu sound toggle to update its icon reliably in VR.

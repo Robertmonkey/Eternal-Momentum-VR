@@ -32,8 +32,6 @@ export class MirrorMirageAI extends BaseAgent {
 
     this.realIndex = 0;
     this.lastSwapTime = Date.now();
-    this.randomizeClones();
-    this.updateGroupPosition();
   }
 
   randomPosOnSphere() {
@@ -52,6 +50,18 @@ export class MirrorMirageAI extends BaseAgent {
       const offset = realClone.position.clone();
       this.position.copy(offset);
       this.clones.forEach(c => c.position.sub(offset));
+  }
+
+  // Called by the game loop after the boss has been positioned and scaled
+  initialize() {
+      // Convert any parent scaling into per-clone scaling so positions stay on the arena
+      const scale = this.scale.x || 1;
+      if (scale !== 1) {
+          this.scale.setScalar(1);
+          this.clones.forEach(clone => clone.scale.multiplyScalar(scale));
+      }
+      this.randomizeClones();
+      this.updateGroupPosition();
   }
 
   swapClones() {
