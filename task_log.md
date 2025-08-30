@@ -141,3 +141,4 @@
 * [x] Restored scrollbar behavior so lists scroll in the correct direction and handles can be dragged like the 2D game.
 * [x] Anchored boss info and lore text within their modals and wrapped long lines so menu content stays inside its container.
 * [x] Added utility safeguards: particle spawner handles polar positions and negative lifetimes, screen shake and fog drawing validate contexts, lightning rendering tolerates missing contexts, and `playerHasCore` ignores non-array buff lists.
+* [x] Debugged first 10 boss AIs, importing missing state in Splitter and redirecting Vampire blood orbs to heal the player.
