@@ -154,6 +154,7 @@
 * [x] Styled unlock notification banner with patterned background and cyan border so VR alerts mirror the 2D UI.
 * [x] Hid the arena mesh while retaining it for raycasts so gravity wells and other objects remain visible against the backdrop.
 * [x] Added a compact, semi-transparent hex platform beneath the player for orientation without blocking the view.
+* [x] Replaced pass-through view with a distant starfield skybox and refined the hex platform for a cleaner, unobstructed battlefield.
 * [x] Rebalanced Gravity Tyrant wells and Black Hole pull strength to match the original 2D tuning.
 * [x] Restored slot and aberration core unlock logic so VR progression mirrors the 2D game.
 * [x] Switched default handedness to right so the pointer starts on the right hand and the menu on the left.
