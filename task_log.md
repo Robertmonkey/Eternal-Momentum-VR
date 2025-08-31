@@ -88,6 +88,7 @@
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
     * [x] Reworked inventory HUD rendering to scale emoji sprites consistently and refresh even when hidden.
     * [x] Documented centralized scaling constants and slot visibility logic for clearer HUD maintenance.
+    * [x] Added status effect and Pantheon buff icons to the HUD to mirror the 2D game's UI.
 
 ## Final Polish
 
