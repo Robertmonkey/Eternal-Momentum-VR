@@ -136,7 +136,18 @@ function createButton(
 
     const txtColor = textColor !== undefined ? textColor : color;
     const colorObj = new THREE.Color(txtColor);
-    const text = createTextSprite(label.substring(0, 20), 32, colorObj.getStyle());
+    // Button labels in the original menus emitted a glow matching their
+    // border color.  Passing the same colour to the shadow recreates that
+    // effect in VR.
+    const text = createTextSprite(
+        label.substring(0, 20),
+        32,
+        colorObj.getStyle(),
+        'center',
+        colorObj.getStyle(),
+        8,
+        'bold'
+    );
     text.material.color.set(colorObj);
     // Text needs the highest render order so it always appears above the
     // button face.
@@ -150,11 +161,19 @@ function createButton(
         bg.material.emissiveIntensity = intensity;
         border.material.emissiveIntensity = intensity;
         group.scale.setScalar(hovered ? hoverScale : 1);
-        if (hovered) AudioManager.playSfx('uiHoverSound');
+        if (hovered && !group.userData.hovered) {
+            AudioManager.playSfx('uiHoverSound');
+        }
+        group.userData.hovered = hovered;
+    };
+
+    const handleSelect = () => {
+        AudioManager.playSfx('uiClickSound');
+        if (onSelect) onSelect();
     };
 
     [bg, border, text].forEach(obj => {
-        obj.userData.onSelect = onSelect;
+        obj.userData.onSelect = handleSelect;
         obj.userData.onHover = setHover;
     });
 
@@ -186,8 +205,10 @@ function createModalContainer(width, height, title, options = {}) {
 
     const {
         titleColor = '#eaf2ff',
-        titleShadowColor = null,
-        titleShadowBlur = 0,
+        // All menu titles in the 2D game had a cyan glow.  Apply the same
+        // shadow by default so individual modals don't need to specify it.
+        titleShadowColor = '#00ffff',
+        titleShadowBlur = 8,
         backgroundColor = 0x1e1e2f,
         backgroundOpacity = 0.95,
         borderColor = 0x00ffff,

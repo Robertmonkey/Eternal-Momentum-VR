@@ -22,6 +22,10 @@ const AP_RIGHT_EDGE = 0.44;
 // pixel-to-world conversion, making tweaks easy and avoiding magic numbers.
 export const SPRITE_SCALE = 0.001; // world units per canvas pixel
 export const PIXELS_PER_UNIT = 1 / SPRITE_SCALE; // helper for world->pixel math
+// The old 2D game used a consistent font stack across every menu.  Centralizing
+// it here keeps text rendering uniform anywhere `createTextSprite` is used so
+// VR menus mirror the original typography.
+export const FONT_STACK = "'Segoe UI','Roboto',sans-serif";
 
 let bgTexture = null;
 // Cache the shared menu background texture and configure it to behave like the
@@ -70,8 +74,7 @@ export function createTextSprite(
     const lines = String(text).split('\n');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    const fontStack = "'Segoe UI','Roboto',sans-serif";
-    const font = `${fontWeight} ${size}px ${fontStack}`;
+    const font = `${fontWeight} ${size}px ${FONT_STACK}`;
     ctx.font = font;
     const padding = size * 0.2;
     const width = Math.ceil(Math.max(...lines.map(l => ctx.measureText(l).width))) + padding;
