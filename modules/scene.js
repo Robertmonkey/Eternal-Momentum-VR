@@ -16,7 +16,13 @@ export function initScene() {
 
     const arenaGeometry = new THREE.SphereGeometry(ARENA_RADIUS, 64, 32);
     const arenaMaterial = new THREE.MeshStandardMaterial({
-        color: 0x333333, side: THREE.BackSide, metalness: 0.1, roughness: 0.8
+        color: 0x333333,
+        side: THREE.BackSide,
+        metalness: 0.1,
+        roughness: 0.8,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false
     });
     arena = new THREE.Mesh(arenaGeometry, arenaMaterial);
     arena.name = 'arena';
