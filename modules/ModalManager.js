@@ -739,24 +739,6 @@ export function showModal(id) {
     }
 }
 
-export function updateActiveModalTransform() {
-    if (!modalGroup || !state.activeModalId) return;
-    const camera = getCamera();
-    if (!camera) return;
-    const modal = modals[state.activeModalId];
-    const forward = new THREE.Vector3(0, 0, -1)
-        .applyQuaternion(camera.quaternion)
-        .setY(0)
-        .normalize();
-    modalGroup.position.copy(camera.position).addScaledVector(forward, 2);
-    const modalHeight = (modal?.userData?.height || 0) * modalGroup.scale.y;
-    const waistOffset = 0.6;
-    modalGroup.position.y = camera.position.y - waistOffset + modalHeight / 2;
-    const lookTarget = camera.position.clone();
-    lookTarget.y = modalGroup.position.y;
-    modalGroup.lookAt(lookTarget);
-}
-
 export function hideModal() {
     if (state.activeModalId && modals[state.activeModalId]) {
         const modal = modals[state.activeModalId];
