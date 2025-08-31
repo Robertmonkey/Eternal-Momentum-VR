@@ -1033,11 +1033,16 @@ function createAscensionModal() {
             new THREE.PlaneGeometry(0.7, 0.3),
             holoMaterial(0x101020, 1)
         );
-        const border = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.72, 0.32),
-            holoMaterial(0x00ffff, 0.4)
+        // The old 2D tooltip used a thin cyan outline rather than a filled
+        // rectangle.  Rendering the border as line segments avoids tinting the
+        // background and improves text legibility in VR.
+        const borderEdges = new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.72, 0.32));
+        const border = new THREE.LineSegments(
+            borderEdges,
+            new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 })
         );
-        border.position.z = -0.001;
+        border.position.z = 0.011;
+        border.name = 'tooltip_border';
 
         const icon = createTextSprite('', 28, '#ffffff', 'left');
         icon.position.set(-0.32, 0.06, 0.01);
