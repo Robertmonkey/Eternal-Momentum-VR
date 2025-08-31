@@ -15,7 +15,7 @@ export class GravityAI extends BaseAgent {
     this.add(this.wellObjects);
 
     for (let i = 0; i < 8; i++) {
-        const well = { angle: i * (Math.PI / 4), dist: 8, radius: 2 }; // World units
+        const well = { angle: i * (Math.PI / 4), dist: 5, radius: 1 }; // World units
         this.wells.push(well);
 
         const wellGeo = new THREE.TorusGeometry(well.radius, 0.2, 8, 24);
@@ -61,11 +61,10 @@ export class GravityAI extends BaseAgent {
 
         // Apply gravitational pull to the player
         const playerPos = state.player.position;
-        const distance = playerPos.distanceTo(worldWellPos);
+        const offset = worldWellPos.clone().sub(playerPos);
+        const distance = offset.length();
         if (distance < well.radius + state.player.r) {
-            const pullDirection = worldWellPos.clone().sub(playerPos).normalize();
-            const pullStrength = 1.0 - (distance / well.radius);
-            playerPos.add(pullDirection.multiplyScalar(pullStrength * 0.1));
+            playerPos.add(offset.multiplyScalar(0.05));
             playerPos.normalize().multiplyScalar(ARENA_RADIUS);
         }
     });
