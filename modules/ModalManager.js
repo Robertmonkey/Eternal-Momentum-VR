@@ -553,20 +553,32 @@ function createStageSelectModal() {
             };
 
             const rowWidth = width - 0.1;
-            // Row background and border to mimic original stage-select item
-            const row = createButton('', startStage, rowWidth, 0.12, 0x00ffff, 0x00ffff, 0x00ffff, 0.1);
-            const bg = row.children[0];
-            const border = row.children[1];
-            border.material.opacity = 0.4; // match rgba border from 2D menu
-            if (row.children[2]) row.children[2].visible = false; // hide default label
+            const rowHeight = 0.12;
+            const row = new THREE.Group();
 
-            const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
+            // Background and border planes to mirror the flat cyan rows from
+            // the 2D stage manager.  Building the geometry manually instead of
+            // using createButton avoids hidden label meshes intercepting
+            // clicks, fixing unreliable stage selection.
+            const bg = new THREE.Mesh(
+                new THREE.PlaneGeometry(rowWidth, rowHeight),
+                holoMaterial(0x00ffff, 0.1)
+            );
+            const border = new THREE.Mesh(
+                new THREE.PlaneGeometry(rowWidth, rowHeight),
+                holoMaterial(0x00ffff, 0.4)
+            );
+            border.position.z = 0.001;
+            row.add(bg, border);
+
             const leftEdge = -rowWidth / 2 + 0.02;
+            const stageText = createTextSprite(`STAGE ${i}`, 32, '#00ffff', 'left');
             stageText.position.set(leftEdge + stageText.scale.x / 2, 0.02, 0.01);
             const bossText = createTextSprite(bossNames, 24, '#eaf2ff', 'left');
             bossText.material.opacity = 0.8;
             bossText.position.set(leftEdge + bossText.scale.x / 2, -0.04, 0.01);
             enableTextScroll(bossText, rowWidth - 0.4);
+            row.add(stageText, bossText);
 
             const handleHover = hovered => {
                 bg.material.opacity = hovered ? 0.2 : 0.1;
@@ -577,12 +589,12 @@ function createStageSelectModal() {
                 }
             };
 
+            // Make the full row interactive so clicking anywhere selects a
+            // stage just like in the original 2D menu.
             [bg, border, stageText, bossText].forEach(obj => {
                 obj.userData.onSelect = startStage;
                 obj.userData.onHover = handleHover;
             });
-
-            row.add(stageText, bossText);
 
             const createInfoButton = (icon, color, label, onClick) => {
                 const btn = createButton(icon, onClick, 0.12, 0.12, color, color, 0xffffff, 0.2, 'circle');
@@ -611,7 +623,6 @@ function createStageSelectModal() {
             loreBtn.position.set(loreX, 0, 0.01);
             row.add(mechBtn, loreBtn);
 
-            row.position.y = 0.4 - (i - 1) * 0.15;
             listContainer.add(row);
         }
         addScrollBar(modal, listContainer, { itemHeight: 0.15, viewHeight: 0.8, topOffset: 0.4, x: width / 2 - 0.05, startAt: 'bottom' });
