@@ -277,9 +277,11 @@ function createHudElements() {
     hudMesh.add(apText);
 
     statusGroup = new THREE.Group();
+    statusGroup.name = 'statusGroup';
     statusGroup.position.set(-0.2, 0.12, 0.01);
     hudMesh.add(statusGroup);
     pantheonGroup = new THREE.Group();
+    pantheonGroup.name = 'pantheonGroup';
     pantheonGroup.position.set(0.2, 0.12, 0.01);
     hudMesh.add(pantheonGroup);
 
@@ -352,6 +354,75 @@ export function showHud() { if (uiGroup) uiGroup.visible = true; }
 export function hideHud() { if (uiGroup) uiGroup.visible = false; }
 export function getUIRoot() { return uiGroup; }
 
+function clearGroup(group) {
+    if (!group) return;
+    while (group.children.length) {
+        const child = group.children.pop();
+        if (child.geometry) child.geometry.dispose();
+        if (child.material?.map) child.material.map.dispose();
+        if (child.material) child.material.dispose();
+        group.remove(child);
+    }
+}
+
+function renderStatusEffects(now) {
+    if (!statusGroup) return;
+    state.player.statusEffects = state.player.statusEffects.filter(e => now < e.endTime);
+    clearGroup(statusGroup);
+    if (state.player.statusEffects.length === 0) {
+        statusGroup.visible = false;
+        return;
+    }
+    statusGroup.visible = true;
+    const spacing = 0.01;
+    state.player.statusEffects.forEach((effect, i) => {
+        const sprite = createTextSprite(effect.emoji || '', 48);
+        const width = sprite.scale.x;
+        const height = sprite.scale.y;
+        const duration = effect.endTime - effect.startTime;
+        const remaining = Math.max(0, effect.endTime - now);
+        const progress = duration > 0 ? remaining / duration : 0;
+        const overlay = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x000000, 0.7));
+        overlay.position.z = 0.001;
+        overlay.scale.y = progress;
+        overlay.position.y = -height * (1 - progress) / 2;
+        const group = new THREE.Group();
+        group.add(sprite, overlay);
+        group.position.x = i * (width + spacing);
+        statusGroup.add(group);
+    });
+}
+
+function renderPantheonBuffs(now) {
+    if (!pantheonGroup) return;
+    state.player.activePantheonBuffs = state.player.activePantheonBuffs.filter(b => now < b.endTime);
+    clearGroup(pantheonGroup);
+    if (state.player.activePantheonBuffs.length === 0) {
+        pantheonGroup.visible = false;
+        return;
+    }
+    pantheonGroup.visible = true;
+    const size = 0.04;
+    const spacing = 0.01;
+    state.player.activePantheonBuffs.forEach((buff, i) => {
+        const core = bossData.find(b => b.id === buff.coreId);
+        if (!core) return;
+        const color = core.id === 'pantheon' ? 0xffffff : parseInt(core.color.replace('#', ''), 16);
+        const base = new THREE.Mesh(new THREE.PlaneGeometry(size, size), holoMaterial(color));
+        const duration = buff.endTime - buff.startTime;
+        const remaining = Math.max(0, buff.endTime - now);
+        const progress = duration > 0 ? remaining / duration : 0;
+        const overlay = new THREE.Mesh(new THREE.PlaneGeometry(size, size), holoMaterial(0x000000, 0.7));
+        overlay.position.z = 0.001;
+        overlay.scale.y = progress;
+        overlay.position.y = -size * (1 - progress) / 2;
+        const group = new THREE.Group();
+        group.add(base, overlay);
+        group.position.x = -i * (size + spacing);
+        pantheonGroup.add(group);
+    });
+}
+
 export function updateHud() {
     if (!uiGroup) return;
     const now = Date.now();
@@ -389,6 +460,9 @@ export function updateHud() {
     updateSlot(offQueue[1], state.offensiveInventory[2], state.player.unlockedOffensiveSlots > 2);
     updateSlot(defQueue[0], state.defensiveInventory[1], state.player.unlockedDefensiveSlots > 1);
     updateSlot(defQueue[1], state.defensiveInventory[2], state.player.unlockedDefensiveSlots > 2);
+
+    renderStatusEffects(now);
+    renderPantheonBuffs(now);
 
     const coreId = state.player.equippedAberrationCore;
     coreSocket.visible = state.player.level >= 10;
