@@ -6,7 +6,7 @@ import { bossData } from './bosses.js';
 import { showUnlockNotification, showBossBanner, updateHud } from './UIManager.js';
 import { AudioManager } from './audio.js';
 import { initGameHelpers } from './gameHelpers.js';
-import { getScene } from './scene.js';
+import { getScene, getPrimaryController, getSecondaryController } from './scene.js';
 import { uvToSpherePos } from './utils.js';
 import { applyPlayerHeal } from './helpers.js';
 
@@ -60,11 +60,24 @@ const bossAIClassMap = {
     time_eater: TimeEaterAI, vampire: VampireAI
 };
 
+function pulseControllers(duration = 20, strength = 0.5) {
+    const controllers = [getPrimaryController(), getSecondaryController()];
+    for (const ctrl of controllers) {
+        const actuator = ctrl?.gamepad?.hapticActuators?.[0];
+        try {
+            actuator?.pulse?.(strength, duration);
+        } catch {
+            /* ignore unsupported haptics */
+        }
+    }
+}
+
 const gameHelpers = {
     addStatusEffect, spawnEnemy, spawnPickup,
     play: (id, obj) => AudioManager.playSfx(id, obj),
     playLooping: (id, obj) => AudioManager.playLoopingSfx(id, obj),
     stopLoopingSfx: (id) => AudioManager.stopLoopingSfx(id),
+    pulseControllers,
     addEssence,
     updateHud,
 };
