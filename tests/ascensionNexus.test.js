@@ -146,6 +146,21 @@ test('ascension tooltip shows Mastery and cost for unpurchased talent', async ()
   assert.equal(divider.material.color.getHex(), 0x00ffff);
 });
 
+test('ascension tooltip uses cyan line border', async () => {
+  const { initModals, showModal, getModalObjects } = await setup();
+  initModals();
+  showModal('ascension');
+  const ascensionModal = getModalObjects().find(m => m.name === 'modal_ascension');
+  const grid = ascensionModal.children.find(c => c.name === 'ascension_grid');
+  const coreBtn = grid.children.find(c => c.userData && c.userData.talentId === 'core-nexus');
+  coreBtn.userData.onHover(true);
+  const tooltip = grid.children.find(c => c.userData && c.userData.rank);
+  const border = tooltip.children.find(c => c.name === 'tooltip_border');
+  assert.ok(border && border.isLineSegments, 'tooltip border should be line segments');
+  assert.equal(border.material.color.getHex(), 0x00ffff);
+  assert.equal(border.material.opacity, 0.4);
+});
+
 test('talent button uses 1.15 hover scale', async () => {
   const { initModals, showModal, getModalObjects } = await setup();
   initModals();
