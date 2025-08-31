@@ -84,6 +84,7 @@
     * [x] Added in-VR tooltips for Mechanics and Lore buttons and restored boss-name listing to match the 2D stage menu.
     * [x] Synced Stage Select footer button colors and hover behaviour with the 2D stage manager layout.
     * [x] Centered Stage Select footer buttons when Weaver's Orrery is locked so the menu opens with aligned actions.
+    * [x] Rebuilt Stage Select rows with custom geometry so clicking a stage reliably starts it and visuals match the original 2D menu.
 * [x] **HUD:**
     * [x] Fix the bug preventing power-up emojis from displaying in the inventory.
     * [x] Reworked inventory HUD rendering to scale emoji sprites consistently and refresh even when hidden.
