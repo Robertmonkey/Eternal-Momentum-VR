@@ -3,7 +3,7 @@ import { getSecondaryController } from './scene.js';
 import { showModal } from './ModalManager.js';
 import { AudioManager } from './audio.js';
 import { state } from './state.js';
-import { holoMaterial, createTextSprite, updateTextSprite } from './UIManager.js';
+import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture } from './UIManager.js';
 
 let menuGroup;
 let coreButton, soundBtn;
@@ -91,6 +91,45 @@ export function initControllerMenu() {
     // Buttons were tiny compared to the original UI; scaling the whole menu
     // keeps relative spacing intact while matching the 2D game's footprint.
     menuGroup.scale.setScalar(1.5);
+
+    // Add a backing panel so the controller menu mirrors the 2D game's menus
+    // with wallpaper and a cyan border.
+    const panelWidth = 0.28;
+    const panelHeight = 0.32;
+    const panel = new THREE.Group();
+    panel.position.set(0, -0.03, -0.01);
+    const panelBg = new THREE.Mesh(
+      new THREE.PlaneGeometry(panelWidth, panelHeight),
+      holoMaterial(0x141428, 0.85)
+    );
+    panelBg.renderOrder = 0;
+    panel.add(panelBg);
+
+    const tex = getBgTexture();
+    if (tex) {
+      const pattern = new THREE.Mesh(
+        new THREE.PlaneGeometry(panelWidth, panelHeight),
+        new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          opacity: 0.15,
+          depthTest: false,
+          depthWrite: false
+        })
+      );
+      pattern.position.z = 0.001;
+      pattern.renderOrder = 0.5;
+      panel.add(pattern);
+    }
+
+    const panelBorder = new THREE.Mesh(
+      new THREE.PlaneGeometry(panelWidth + 0.01, panelHeight + 0.01),
+      holoMaterial(0x00ffff, 0.4)
+    );
+    panelBorder.position.z = 0.002;
+    panelBorder.renderOrder = 1;
+    panel.add(panelBorder);
+    menuGroup.add(panel);
 
     const stageBtn = createButton('Stage Select', '🗺️', () => showModal('levelSelect'));
     stageBtn.position.set(0, 0.06, 0);

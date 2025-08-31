@@ -159,3 +159,4 @@
 * [x] Rebalanced Gravity Tyrant wells and Black Hole pull strength to match the original 2D tuning.
 * [x] Restored slot and aberration core unlock logic so VR progression mirrors the 2D game.
 * [x] Switched default handedness to right so the pointer starts on the right hand and the menu on the left.
+* [x] Added wallpaper-backed panel to the controller menu and removed wallpaper from HUD notifications to complete the original 2D aesthetic.

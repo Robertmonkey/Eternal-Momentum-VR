@@ -579,23 +579,6 @@ export function showUnlockNotification(text, subtext = '') {
     bg.renderOrder = 0;
     notificationGroup.add(bg);
 
-    const tex = getBgTexture();
-    if (tex) {
-        const pattern = new THREE.Mesh(
-            new THREE.PlaneGeometry(width, height),
-            new THREE.MeshBasicMaterial({
-                map: tex,
-                transparent: true,
-                opacity: 0.15,
-                depthTest: false,
-                depthWrite: false
-            })
-        );
-        pattern.position.z = 0.001;
-        pattern.renderOrder = 0.5;
-        notificationGroup.add(pattern);
-    }
-
     const border = new THREE.Mesh(
         new THREE.PlaneGeometry(width + 0.02, height + 0.02),
         holoMaterial(0x00ffff, 0.4)
