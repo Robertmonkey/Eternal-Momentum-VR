@@ -80,46 +80,51 @@ function createButton(label, icon, onSelect) {
 
 export function initControllerMenu() {
   const controller = getSecondaryController();
-  if (!controller || menuGroup) return;
+  if (!controller) return;
 
-  menuGroup = new THREE.Group();
-  menuGroup.name = 'controllerMenu';
-  // Position it to appear attached to the controller
-  menuGroup.position.set(0, 0.1, -0.05);
-  menuGroup.rotation.x = -0.7; // Angle it for readability
-  // Buttons were tiny compared to the original UI; scaling the whole menu
-  // keeps relative spacing intact while matching the 2D game's footprint.
-  menuGroup.scale.setScalar(1.5);
+  if (!menuGroup) {
+    menuGroup = new THREE.Group();
+    menuGroup.name = 'controllerMenu';
+    // Position it to appear attached to the controller
+    menuGroup.position.set(0, 0.1, -0.05);
+    menuGroup.rotation.x = -0.7; // Angle it for readability
+    // Buttons were tiny compared to the original UI; scaling the whole menu
+    // keeps relative spacing intact while matching the 2D game's footprint.
+    menuGroup.scale.setScalar(1.5);
 
-  const stageBtn = createButton('Stage Select', '🗺️', () => showModal('levelSelect'));
-  stageBtn.position.set(0, 0.06, 0);
-  menuGroup.add(stageBtn);
+    const stageBtn = createButton('Stage Select', '🗺️', () => showModal('levelSelect'));
+    stageBtn.position.set(0, 0.06, 0);
+    menuGroup.add(stageBtn);
 
-  const ascBtn = createButton('Ascension Conduit', '💠', () => showModal('ascension'));
-  ascBtn.position.set(0, 0, 0);
-  menuGroup.add(ascBtn);
+    const ascBtn = createButton('Ascension Conduit', '💠', () => showModal('ascension'));
+    ascBtn.position.set(0, 0, 0);
+    menuGroup.add(ascBtn);
 
-  soundBtn = createButton('Sound', '🔊', () => AudioManager.toggleMute());
-  soundBtn.position.set(0, -0.06, 0);
-  menuGroup.add(soundBtn);
+    soundBtn = createButton('Sound', '🔊', () => AudioManager.toggleMute());
+    soundBtn.position.set(0, -0.06, 0);
+    menuGroup.add(soundBtn);
 
-  // This ensures our 3D button icon updates when the sound is toggled
-  originalUpdateIcon = AudioManager.updateButtonIcon;
-  AudioManager.updateButtonIcon = () => {
-    if (originalUpdateIcon) originalUpdateIcon.call(AudioManager); // Call the original function if it exists
-    const icon = AudioManager.userMuted ? '🔇' : '🔊';
-    if (soundBtn) {
-        const iconSprite = soundBtn.userData.iconSprite;
-        if (iconSprite) updateTextSprite(iconSprite, icon);
-    }
-  };
-  AudioManager.updateButtonIcon(); // Set initial state
+    // This ensures our 3D button icon updates when the sound is toggled
+    originalUpdateIcon = AudioManager.updateButtonIcon;
+    AudioManager.updateButtonIcon = () => {
+      if (originalUpdateIcon) originalUpdateIcon.call(AudioManager); // Call the original function if it exists
+      const icon = AudioManager.userMuted ? '🔇' : '🔊';
+      if (soundBtn) {
+          const iconSprite = soundBtn.userData.iconSprite;
+          if (iconSprite) updateTextSprite(iconSprite, icon);
+      }
+    };
+    AudioManager.updateButtonIcon(); // Set initial state
 
-  coreButton = createButton('Cores', '◎', () => showModal('cores'));
-  coreButton.position.set(0, -0.12, 0);
-  menuGroup.add(coreButton);
-  
-  controller.add(menuGroup);
+    coreButton = createButton('Cores', '◎', () => showModal('cores'));
+    coreButton.position.set(0, -0.12, 0);
+    menuGroup.add(coreButton);
+
+    controller.add(menuGroup);
+  } else if (menuGroup.parent !== controller) {
+    menuGroup.parent.remove(menuGroup);
+    controller.add(menuGroup);
+  }
 }
 
 export function updateControllerMenu() {
