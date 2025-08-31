@@ -1050,38 +1050,40 @@ function createAscensionModal() {
                     );
                     btn.userData.talentId = t.id;
                     btn.position.copy(positions[t.id]);
-                    const baseHover = btn.children[0].userData.onHover;
-                    btn.userData.onHover = hovered => {
-                        if (baseHover) baseHover(hovered);
-                        if (hovered) {
-                            AudioManager.playSfx('uiHoverSound');
-                            const purchasedNow = purchasedTalents.get(t.id) || 0;
-                            const isMaxNow = !t.isInfinite && purchasedNow >= t.maxRanks;
-                            const costNow = t.isInfinite ? t.costPerRank[0] : t.costPerRank[purchasedNow];
-                            const costText = isMaxNow ? 'MAXED' : `Cost: ${costNow} AP`;
-                            const rankText =
-                                t.maxRanks > 1
-                                    ? `Rank: ${purchasedNow}/${t.isInfinite ? '∞' : t.maxRanks}`
-                                    : 'Mastery';
-                            updateTextSprite(tooltip.userData.icon, t.icon);
-                            updateTextSprite(tooltip.userData.name, t.name);
-                            updateTextSprite(tooltip.userData.desc, t.description(purchasedNow + 1, isMaxNow));
-                            updateTextSprite(tooltip.userData.rank, rankText);
-                            updateTextSprite(tooltip.userData.cost, costText);
-                            const basePos = positions[t.id];
-                            let offsetX = 0.3;
-                            const xBoundary = halfW - 0.4;
-                            if (basePos.x > xBoundary) offsetX = -0.3;
-                            else if (basePos.x < -xBoundary) offsetX = 0.3;
-                            let offsetY = 0.12;
-                            const yBoundary = halfH - 0.2;
-                            if (basePos.y > yBoundary) offsetY = -0.12;
-                            tooltip.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
-                            tooltip.visible = true;
-                        } else if (tooltip) {
-                            tooltip.visible = false;
-                        }
-                    };
+                    btn.children.forEach(child => {
+                        const childHover = child.userData.onHover;
+                        child.userData.onHover = hovered => {
+                            if (childHover) childHover(hovered);
+                            if (hovered) {
+                                const purchasedNow = purchasedTalents.get(t.id) || 0;
+                                const isMaxNow = !t.isInfinite && purchasedNow >= t.maxRanks;
+                                const costNow = t.isInfinite ? t.costPerRank[0] : t.costPerRank[purchasedNow];
+                                const costText = isMaxNow ? 'MAXED' : `Cost: ${costNow} AP`;
+                                const rankText =
+                                    t.maxRanks > 1
+                                        ? `Rank: ${purchasedNow}/${t.isInfinite ? '∞' : t.maxRanks}`
+                                        : 'Mastery';
+                                updateTextSprite(tooltip.userData.icon, t.icon);
+                                updateTextSprite(tooltip.userData.name, t.name);
+                                updateTextSprite(tooltip.userData.desc, t.description(purchasedNow + 1, isMaxNow));
+                                updateTextSprite(tooltip.userData.rank, rankText);
+                                updateTextSprite(tooltip.userData.cost, costText);
+                                const basePos = positions[t.id];
+                                let offsetX = 0.3;
+                                const xBoundary = halfW - 0.4;
+                                if (basePos.x > xBoundary) offsetX = -0.3;
+                                else if (basePos.x < -xBoundary) offsetX = 0.3;
+                                let offsetY = 0.12;
+                                const yBoundary = halfH - 0.2;
+                                if (basePos.y > yBoundary) offsetY = -0.12;
+                                tooltip.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
+                                tooltip.visible = true;
+                            } else if (tooltip) {
+                                tooltip.visible = false;
+                            }
+                        };
+                    });
+                    btn.userData.onHover = btn.children[0].userData.onHover;
                     grid.add(btn);
                 }
             });
