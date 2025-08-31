@@ -15,8 +15,10 @@ function createButton(label, icon, onSelect) {
 
   // Create text sprites first so we can size the background to fit the label
   // exactly, mirroring the flexible width of the 2D game's buttons.
-  const iconSprite = createTextSprite(icon, 32);
-  const textSprite = createTextSprite(label, 24);
+  // All menu text in the 2D game used a subtle cyan glow.  Applying the same
+  // shadow here makes button icons and labels feel like the old UI.
+  const iconSprite = createTextSprite(icon, 32, '#eaf2ff', 'center', '#00ffff', 8);
+  const textSprite = createTextSprite(label, 24, '#eaf2ff', 'center', '#00ffff', 8, 'bold');
   iconSprite.renderOrder = textSprite.renderOrder = 2;
 
   const padding = 0.02;
@@ -59,16 +61,25 @@ function createButton(label, icon, onSelect) {
     border.material.emissiveIntensity = intensity;
     group.scale.setScalar(hovered ? 1.05 : 1);
     bg.visible = border.visible = textSprite.visible = hovered;
+    if (hovered && !group.userData.hovered) {
+      AudioManager.playSfx('uiHoverSound');
+    }
     if (hovered) {
       iconSprite.position.x = expandedIconX;
       textSprite.position.x = expandedTextX;
     } else {
       iconSprite.position.x = 0;
     }
+    group.userData.hovered = hovered;
+  };
+
+  const handleSelect = () => {
+    AudioManager.playSfx('uiClickSound');
+    if (onSelect) onSelect();
   };
 
   [bg, border, iconSprite, textSprite].forEach(obj => {
-    obj.userData.onSelect = onSelect;
+    obj.userData.onSelect = handleSelect;
     obj.userData.onHover = setHover;
   });
 
