@@ -6,7 +6,7 @@ import { AudioManager } from './audio.js';
 import { bossData } from './bosses.js';
 import { TALENT_GRID_CONFIG } from './talents.js';
 import { purchaseTalent, isTalentVisible, getConstellationColorOfTalent } from './ascension.js';
-import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture, hideHud, showHud, PIXELS_PER_UNIT } from './UIManager.js';
+import { holoMaterial, createTextSprite, updateTextSprite, getBgTexture, hideHud, showHud, PIXELS_PER_UNIT, showUnlockNotification } from './UIManager.js';
 import { gameHelpers } from './gameHelpers.js';
 import { disposeGroupChildren } from './helpers.js';
 import { STAGE_CONFIG } from './config.js';
@@ -632,33 +632,112 @@ function createStageSelectModal() {
 }
 
 function createCoresModal() {
-    const modal = createModalContainer(1.2, 1.4, 'ABERRATION CORES');
+    const width = 1.2;
+    const height = 1.4;
+    const modal = createModalContainer(width, height, 'ABERRATION CORES');
     modal.name = 'modal_cores';
+
+    // Display currently equipped core in the top-right corner
+    const equippedLabel = createTextSprite('CURRENTLY ATTUNED', 24, '#eaf2ff', 'right');
+    const equippedName = createTextSprite('None', 32, '#00ff00', 'right');
+    const rightEdge = width / 2 - 0.1;
+    equippedLabel.position.set(rightEdge - equippedLabel.scale.x / 2, height / 2 - 0.2, 0.01);
+    equippedName.position.set(rightEdge - equippedName.scale.x / 2, height / 2 - 0.3, 0.01);
+    modal.add(equippedLabel, equippedName);
+
     const listContainer = new THREE.Group();
     listContainer.position.y = -0.2;
     modal.add(listContainer);
 
     modal.userData.refresh = () => {
         disposeGroupChildren(listContainer);
-        const unlockedCores = bossData.filter(b => b.core_desc && state.player.unlockedAberrationCores.has(b.id));
 
-        unlockedCores.forEach((core, i) => {
-            const btn = createButton(core.name, () => {
+        const equippedId = state.player.equippedAberrationCore;
+        const equippedData = equippedId ? bossData.find(b => b.id === equippedId) : null;
+        updateTextSprite(equippedName, equippedData ? equippedData.name : 'None');
+        equippedName.material.color.set(equippedData?.color ? new THREE.Color(equippedData.color) : new THREE.Color(0x00ff00));
+        equippedName.position.x = rightEdge - equippedName.scale.x / 2;
+
+        const ctx = document.createElement('canvas').getContext('2d');
+        const coresWithActiveAbility = new Set(['juggernaut', 'syphon', 'gravity', 'architect', 'annihilator', 'looper']);
+
+        const cores = bossData.filter(b => b.core_desc);
+        cores.forEach(core => {
+            if (!state.player.unlockedAberrationCores.has(core.id) && state.player.level >= core.unlock_level) {
+                state.player.unlockedAberrationCores.add(core.id);
+                savePlayerState();
+            }
+        });
+
+        cores.forEach((core, i) => {
+            const isUnlocked = state.player.unlockedAberrationCores.has(core.id);
+            const isEquipped = state.player.equippedAberrationCore === core.id;
+
+            const rowWidth = width - 0.2;
+            const rowHeight = 0.18;
+            const row = new THREE.Group();
+
+            const bgColor = isEquipped ? 0x00ff00 : 0x00ff00;
+            const bgOpacity = isEquipped ? 0.15 : 0.05;
+            const borderColor = isUnlocked ? 0x00ff00 : 0x808080;
+            const borderOpacity = isEquipped ? 0.8 : 0.4;
+            const bg = new THREE.Mesh(new THREE.PlaneGeometry(rowWidth, rowHeight), holoMaterial(bgColor, bgOpacity));
+            const border = new THREE.Mesh(new THREE.PlaneGeometry(rowWidth, rowHeight), holoMaterial(borderColor, borderOpacity));
+            border.position.z = 0.001;
+            row.add(bg, border);
+
+            const leftEdge = -rowWidth / 2 + 0.06;
+            const iconRadius = 0.06;
+            const iconColor = core.id === 'pantheon'
+                ? 0xffffff
+                : core.color ? new THREE.Color(core.color).getHex() : 0x00ff00;
+            const icon = new THREE.Mesh(new THREE.CircleGeometry(iconRadius, 32), holoMaterial(iconColor, 1));
+            icon.position.set(leftEdge + iconRadius, 0, 0.01);
+            row.add(icon);
+
+            const nameColor = isUnlocked ? '#00ff00' : '#aaaaaa';
+            const nameText = createTextSprite(
+                isUnlocked ? core.name : `LOCKED // LEVEL ${core.unlock_level}`,
+                28,
+                nameColor,
+                'left'
+            );
+            nameText.position.set(leftEdge + iconRadius * 2 + 0.05 + nameText.scale.x / 2, 0.04, 0.01);
+            row.add(nameText);
+
+            let desc = isUnlocked ? core.core_desc : '????????????????';
+            if (isUnlocked && coresWithActiveAbility.has(core.id)) {
+                desc += '\nCore Power: [LMB+RMB]';
+            }
+            const maxPx = (rowWidth - (iconRadius * 2 + 0.15)) * PIXELS_PER_UNIT;
+            const wrapped = wrapTextToWidth(ctx, desc, maxPx);
+            const descText = createTextSprite(wrapped, 22, '#eaf2ff', 'left');
+            descText.position.set(leftEdge + iconRadius * 2 + 0.05 + descText.scale.x / 2, -0.04, 0.01);
+            row.add(descText);
+
+            const onSelect = () => {
+                if (!isUnlocked) return;
                 state.player.equippedAberrationCore = core.id;
                 savePlayerState();
                 modal.userData.refresh();
-            }, 1.0, 0.1, core.color ? new THREE.Color(core.color).getHex() : 0x00ffff, 0x111122);
-            btn.position.y = 0.5 - i * 0.12;
-            btn.children[0].material.color.set(core.color || '#ffffff');
-            btn.children[0].material.emissive.set(core.color || '#ffffff');
-            btn.children[1].material.color.set(core.color || '#ffffff');
-            if (state.player.equippedAberrationCore === core.id) {
-                btn.scale.setScalar(1.1);
-                btn.children[1].material.color.set(0x00ff00);
-            }
-            listContainer.add(btn);
+                hideModal();
+                if (!state.gameOver) resetGame(bossData);
+            };
+            const handleHover = hovered => {
+                if (!isUnlocked) return;
+                bg.material.opacity = hovered ? 0.1 : bgOpacity;
+                border.material.opacity = hovered ? 1 : borderOpacity;
+                border.material.color.setHex(hovered ? 0xffffff : borderColor);
+            };
+            [bg, border, icon, nameText, descText].forEach(obj => {
+                obj.userData.onSelect = onSelect;
+                obj.userData.onHover = handleHover;
+            });
+
+            listContainer.add(row);
         });
-        addScrollBar(modal, listContainer, { itemHeight: 0.12, viewHeight: 0.8, topOffset: 0.5, x: 0.55 });
+
+        addScrollBar(modal, listContainer, { itemHeight: 0.18, viewHeight: 0.8, topOffset: 0.5, x: width / 2 - 0.05 });
     };
 
     const footerY = -0.6;
@@ -714,9 +793,14 @@ export function initModals() {
 
 export function showModal(id) {
     ensureGroup();
-
     const prevId = state.activeModalId;
     const prevModal = prevId ? modals[prevId] : null;
+
+    if (id === 'cores' && state.player.level < 10) {
+        showUnlockNotification('SYSTEM LOCKED', 'Requires Player Level 10');
+        return;
+    }
+
     if (prevModal) prevModal.visible = false;
 
     if (!modals[id]) {
