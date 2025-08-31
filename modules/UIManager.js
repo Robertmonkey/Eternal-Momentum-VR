@@ -478,21 +478,68 @@ export function showUnlockNotification(text, subtext = '') {
     if (notificationTimeout) clearTimeout(notificationTimeout);
     while (notificationGroup.children.length) {
         const child = notificationGroup.children[0];
-        if (child.material.map) child.material.map.dispose();
+        if (child.geometry) child.geometry.dispose();
+        if (child.material?.map) child.material.map.dispose();
         if (child.material) child.material.dispose();
         notificationGroup.remove(child);
     }
+
+    const sprites = [];
     if (subtext) {
-        const titleSprite = createTextSprite(subtext, 32, '#ffffff');
-        titleSprite.position.y = 0.03;
-        notificationGroup.add(titleSprite);
-        const textSprite = createTextSprite(text, 48, '#00ffff');
-        textSprite.position.y = -0.03;
-        notificationGroup.add(textSprite);
+        sprites.push(createTextSprite(subtext, 32, '#ffffff'));
+        sprites.push(createTextSprite(text, 48, '#00ffff'));
     } else {
-        const textSprite = createTextSprite(text, 48, '#00ffff');
-        notificationGroup.add(textSprite);
+        sprites.push(createTextSprite(text, 48, '#00ffff'));
     }
+
+    const padding = 20 * SPRITE_SCALE;
+    const spacing = 10 * SPRITE_SCALE;
+    const totalTextHeight = sprites.reduce((h, s) => h + s.scale.y, 0) + (sprites.length - 1) * spacing;
+    const height = totalTextHeight + padding * 2;
+    const width = Math.max(...sprites.map(s => s.scale.x)) + padding * 2;
+
+    const bg = new THREE.Mesh(
+        new THREE.PlaneGeometry(width, height),
+        holoMaterial(0x141428, 0.85)
+    );
+    bg.renderOrder = 0;
+    notificationGroup.add(bg);
+
+    const tex = getBgTexture();
+    if (tex) {
+        const pattern = new THREE.Mesh(
+            new THREE.PlaneGeometry(width, height),
+            new THREE.MeshBasicMaterial({
+                map: tex,
+                transparent: true,
+                opacity: 0.15,
+                depthTest: false,
+                depthWrite: false
+            })
+        );
+        pattern.position.z = 0.001;
+        pattern.renderOrder = 0.5;
+        notificationGroup.add(pattern);
+    }
+
+    const border = new THREE.Mesh(
+        new THREE.PlaneGeometry(width + 0.02, height + 0.02),
+        holoMaterial(0x00ffff, 0.4)
+    );
+    border.position.z = 0.001;
+    border.renderOrder = 1;
+    notificationGroup.add(border);
+
+    if (sprites.length === 2) {
+        const h1 = sprites[0].scale.y;
+        const h2 = sprites[1].scale.y;
+        sprites[0].position.y = (h2 + spacing) / 2;
+        sprites[1].position.y = -(h1 + spacing) / 2;
+    } else {
+        sprites[0].position.y = 0;
+    }
+    sprites.forEach(sprite => notificationGroup.add(sprite));
+
     notificationGroup.visible = true;
     notificationTimeout = setTimeout(() => {
         notificationGroup.visible = false;
