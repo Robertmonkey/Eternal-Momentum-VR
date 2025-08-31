@@ -111,6 +111,7 @@
 * [x] Matched game over title color and glow to the 2D game's design.
 * [x] Styled game over menu buttons and background to match the 2D color scheme.
 * [x] Added missing Aberration Core and Orrery footer buttons to mirror the 2D menus and restore their functionality.
+* [x] Rebuilt Aberration Core menu with icons, descriptions, and locked-state visuals to match the original game's layout and behavior.
 * [x] Refined confirm modal with magenta border and button colors matching the 2D game's custom confirm dialog.
 * [x] Prevented sever timeline warning text from overflowing its menu.
 * [x] Repositioned Stage Select and Boss Info buttons so none bleed beyond their menu boundaries.
