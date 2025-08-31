@@ -177,3 +177,43 @@ html, body {
     text-shadow: 0 0 15px var(--health-low);
     box-shadow: 0 0 25px rgba(231, 76, 60, 0.5);
 }
+
+#unlock-notification {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ui-bg);
+  color: var(--primary-glow);
+  padding: 15px 30px;
+  border-radius: 10px;
+  border: 2px solid var(--primary-glow);
+  box-shadow: 0 0 20px var(--primary-glow);
+  font-size: 1.5rem;
+  font-weight: bold;
+  z-index: 200;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
+}
+
+#unlock-notification.show {
+  opacity: 1;
+  top: 40px;
+}
+
+#unlock-notification .unlock-title {
+  font-size: 1.2rem;
+  color: white;
+  opacity: 0.8;
+  display: block;
+  margin-bottom: 5px;
+}
+
+#unlock-notification .unlock-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
