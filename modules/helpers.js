@@ -118,6 +118,15 @@ export function applyPlayerDamage(amount, source = null, gameHelpers = {}) {
   }
   if (state.player.health < 0) state.player.health = 0;
 
+  if (gameHelpers && typeof gameHelpers.pulseControllers === 'function') {
+    const intensity = Math.min(1, 0.3 + damage / 20);
+    const duration = 40 + Math.min(200, damage * 8);
+    gameHelpers.pulseControllers(duration, intensity);
+    if (damage > 5) {
+      setTimeout(() => gameHelpers.pulseControllers(duration * 0.6, intensity * 0.8), 60);
+    }
+  }
+
   return damage;
 }
 

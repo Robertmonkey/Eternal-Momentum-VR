@@ -327,11 +327,17 @@ export function usePower(powerKey, isFreeCast = false, options = {}){
   }
 
   power.apply(...applyArgs);
-  if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
-  
+  if (queueType === 'offensive' && gameHelpers.pulseControllers) {
+      gameHelpers.pulseControllers(25, 0.7);
+      setTimeout(() => gameHelpers.pulseControllers(35, 0.4), 40);
+  }
+
   if (stackedEffect && powerKey !== 'stack') {
       power.apply(...applyArgs);
-      if(gameHelpers.pulseControllers) gameHelpers.pulseControllers(60,0.6);
+      if (queueType === 'offensive' && gameHelpers.pulseControllers) {
+          gameHelpers.pulseControllers(25, 0.7);
+          setTimeout(() => gameHelpers.pulseControllers(35, 0.4), 40);
+      }
       if(state.stacked) {
           state.stacked = false;
           state.player.statusEffects = state.player.statusEffects.filter(e => e.name !== 'Stacked');
