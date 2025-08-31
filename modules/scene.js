@@ -34,16 +34,25 @@ export function initScene() {
     directionalLight.position.set(0, 10, 5);
     scene.add(directionalLight);
 
-    const gridSize = ARENA_RADIUS * 0.4;
-    grid = new THREE.GridHelper(gridSize, 10, 0x00ffff, 0x00ffff);
+    const platformRadius = ARENA_RADIUS * 0.1;
+    grid = new THREE.GridHelper(platformRadius * 2, 6, 0x00ffff, 0x00ffff);
     grid.material.transparent = true;
-    grid.material.opacity = 0.25;
+    grid.material.opacity = 0.15;
     scene.add(grid);
 
-    const ringGeometry = new THREE.RingGeometry(gridSize * 0.98, gridSize, 64);
-    const ringMaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ffff, side: THREE.DoubleSide
+    const platformGeometry = new THREE.CircleGeometry(platformRadius, 6);
+    const platformMaterial = new THREE.MeshBasicMaterial({
+        color: 0x0088ff,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide
     });
+    const platform = new THREE.Mesh(platformGeometry, platformMaterial);
+    platform.rotation.x = -Math.PI / 2;
+    scene.add(platform);
+
+    const ringGeometry = new THREE.RingGeometry(platformRadius * 1.05, platformRadius * 1.15, 32);
+    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide });
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.rotation.x = -Math.PI / 2;
     scene.add(ring);

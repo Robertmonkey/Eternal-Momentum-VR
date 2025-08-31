@@ -153,3 +153,4 @@
 * [x] Fixed controller handedness swaps so the cursor and menu stay on their intended hands.
 * [x] Styled unlock notification banner with patterned background and cyan border so VR alerts mirror the 2D UI.
 * [x] Hid the arena mesh while retaining it for raycasts so gravity wells and other objects remain visible against the backdrop.
+* [x] Added a compact, semi-transparent hex platform beneath the player for orientation without blocking the view.
