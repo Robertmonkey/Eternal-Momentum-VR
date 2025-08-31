@@ -156,3 +156,4 @@
 * [x] Added a compact, semi-transparent hex platform beneath the player for orientation without blocking the view.
 * [x] Rebalanced Gravity Tyrant wells and Black Hole pull strength to match the original 2D tuning.
 * [x] Restored slot and aberration core unlock logic so VR progression mirrors the 2D game.
+* [x] Switched default handedness to right so the pointer starts on the right hand and the menu on the left.
