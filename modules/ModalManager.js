@@ -161,6 +161,22 @@ function createButton(
     return group;
 }
 
+function createRoundedRectGeometry(width, height, radius) {
+    const hw = width / 2;
+    const hh = height / 2;
+    const shape = new THREE.Shape();
+    shape.moveTo(-hw + radius, -hh);
+    shape.lineTo(hw - radius, -hh);
+    shape.quadraticCurveTo(hw, -hh, hw, -hh + radius);
+    shape.lineTo(hw, hh - radius);
+    shape.quadraticCurveTo(hw, hh, hw - radius, hh);
+    shape.lineTo(-hw + radius, hh);
+    shape.quadraticCurveTo(-hw, hh, -hw, hh - radius);
+    shape.lineTo(-hw, -hh + radius);
+    shape.quadraticCurveTo(-hw, -hh, -hw + radius, -hh);
+    return new THREE.ShapeGeometry(shape);
+}
+
 function createModalContainer(width, height, title, options = {}) {
     const group = new THREE.Group();
     // Preserve the modal's unscaled dimensions so we can position the
@@ -176,16 +192,25 @@ function createModalContainer(width, height, title, options = {}) {
         backgroundOpacity = 0.95,
         borderColor = 0x00ffff,
         borderOpacity = 0.5,
-        titleAlign = 'center'
+        titleAlign = 'center',
+        cornerRadius = 0
     } = options;
 
-    const bg = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(backgroundColor, backgroundOpacity));
+    group.userData.cornerRadius = cornerRadius;
+
+    const bgGeom = cornerRadius > 0
+        ? createRoundedRectGeometry(width, height, cornerRadius)
+        : new THREE.PlaneGeometry(width, height);
+    const bg = new THREE.Mesh(bgGeom, holoMaterial(backgroundColor, backgroundOpacity));
     bg.renderOrder = 0;
     group.add(bg);
 
     const tex = getBgTexture();
     if (tex) {
-        const pattern = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({
+        const patternGeom = cornerRadius > 0
+            ? createRoundedRectGeometry(width, height, cornerRadius)
+            : new THREE.PlaneGeometry(width, height);
+        const pattern = new THREE.Mesh(patternGeom, new THREE.MeshBasicMaterial({
             map: tex,
             transparent: true,
             opacity: 0.15,
@@ -198,7 +223,9 @@ function createModalContainer(width, height, title, options = {}) {
     }
 
     if (borderOpacity > 0) {
-        const borderGeom = new THREE.PlaneGeometry(width + 0.02, height + 0.02);
+        const borderGeom = cornerRadius > 0
+            ? createRoundedRectGeometry(width + 0.02, height + 0.02, cornerRadius + 0.01)
+            : new THREE.PlaneGeometry(width + 0.02, height + 0.02);
         const border = new THREE.Mesh(borderGeom, holoMaterial(borderColor, borderOpacity));
         // Place the border slightly in front of the background so its edge is
         // always visible and coplanar with the panel.
@@ -784,18 +811,21 @@ function createAscensionModal() {
         titleColor: '#00ffff',
         titleShadowColor: '#00ffff',
         titleShadowBlur: 10,
-        titleAlign: 'left'
+        titleAlign: 'left',
+        borderOpacity: 1,
+        cornerRadius: 0.05
     });
     modal.name = 'modal_ascension';
 
     // Add a subtle cyan glow behind the container to mirror the 2D game's
     // box-shadow effect around the Ascension Conduit modal.
     const glow = new THREE.Mesh(
-        new THREE.PlaneGeometry(width + 0.2, height + 0.2),
-        holoMaterial(0x00ffff, 0.15)
+        new THREE.PlaneGeometry(width + 0.3, height + 0.3),
+        holoMaterial(0x00ffff, 0.25)
     );
     glow.position.z = -0.005;
     glow.renderOrder = -1;
+    glow.name = 'ascension_modal_glow';
     modal.add(glow);
 
     // Center the talent grid and keep a referenceable name for tests.
@@ -811,8 +841,9 @@ function createAscensionModal() {
         const group = new THREE.Group();
         // Match the 2D game's semi-transparent header box and cyan border.
         const bgHeight = 0.15;
-        const bg = new THREE.Mesh(new THREE.PlaneGeometry(1, bgHeight), holoMaterial(0x000000, 0.3));
-        const border = new THREE.Mesh(new THREE.PlaneGeometry(1.02, bgHeight + 0.02), holoMaterial(0x00ffff, 0.4));
+        const corner = 0.03;
+        const bg = new THREE.Mesh(createRoundedRectGeometry(1, bgHeight, corner), holoMaterial(0x000000, 0.3));
+        const border = new THREE.Mesh(createRoundedRectGeometry(1.02, bgHeight + 0.02, corner + 0.01), holoMaterial(0x00ffff, 0.4));
         border.position.z = 0.001;
         border.renderOrder = 1;
 
@@ -839,9 +870,9 @@ function createAscensionModal() {
 
             // Resize the background and border to snugly wrap the content.
             bg.geometry.dispose();
-            bg.geometry = new THREE.PlaneGeometry(totalWidth, bgHeight);
+            bg.geometry = createRoundedRectGeometry(totalWidth, bgHeight, corner);
             border.geometry.dispose();
-            border.geometry = new THREE.PlaneGeometry(totalWidth + 0.02, bgHeight + 0.02);
+            border.geometry = createRoundedRectGeometry(totalWidth + 0.02, bgHeight + 0.02, corner + 0.01);
 
             const halfBg = totalWidth / 2;
             value.position.set(halfBg - padding - valWidth / 2, 0, 0.01);
