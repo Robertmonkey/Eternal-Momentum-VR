@@ -36,7 +36,7 @@ async function setupLaunch() {
   });
 
     await mock.module('../modules/ModalManager.js', {
-      namedExports: { initModals: mock.fn(), showModal: mock.fn(), updateActiveModalTransform: mock.fn() }
+      namedExports: { initModals: mock.fn(), showModal: mock.fn() }
     });
 
   await mock.module('../modules/vrGameLoop.js', {
