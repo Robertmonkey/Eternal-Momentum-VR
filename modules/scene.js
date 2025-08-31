@@ -3,12 +3,18 @@ import { state } from './state.js';
 import { initControllerMenu } from './ControllerMenu.js';
 import { setProjectileGroup } from './projectilePhysics3d.js';
 
-let scene, camera, renderer, arena, grid, leftController, rightController, playerRig;
+let scene, camera, renderer, arena, leftController, rightController, playerRig;
 const ARENA_RADIUS = 50;
 
 export function initScene() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a1a);
+    const bgTexture = new THREE.TextureLoader().load('assets/bg.png');
+    bgTexture.wrapS = bgTexture.wrapT = THREE.RepeatWrapping;
+    bgTexture.repeat.set(8, 8);
+    const skyGeo = new THREE.SphereGeometry(1000, 32, 32);
+    const skyMat = new THREE.MeshBasicMaterial({ map: bgTexture, side: THREE.BackSide });
+    const sky = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(sky);
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -35,24 +41,24 @@ export function initScene() {
     scene.add(directionalLight);
 
     const platformRadius = ARENA_RADIUS * 0.1;
-    grid = new THREE.GridHelper(platformRadius * 2, 6, 0x00ffff, 0x00ffff);
-    grid.material.transparent = true;
-    grid.material.opacity = 0.15;
-    scene.add(grid);
-
     const platformGeometry = new THREE.CircleGeometry(platformRadius, 6);
     const platformMaterial = new THREE.MeshBasicMaterial({
-        color: 0x0088ff,
+        color: 0x00ffff,
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.1,
         side: THREE.DoubleSide
     });
     const platform = new THREE.Mesh(platformGeometry, platformMaterial);
     platform.rotation.x = -Math.PI / 2;
     scene.add(platform);
 
-    const ringGeometry = new THREE.RingGeometry(platformRadius * 1.05, platformRadius * 1.15, 32);
-    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide });
+    const ringGeometry = new THREE.RingGeometry(platformRadius * 0.98, platformRadius, 6);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.5
+    });
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.rotation.x = -Math.PI / 2;
     scene.add(ring);
@@ -98,7 +104,6 @@ export const getScene = () => scene;
 export const getCamera = () => camera;
 export const getRenderer = () => renderer;
 export const getArena = () => arena;
-export const getGrid = () => grid;
 // Prefer the controller matching the player's handedness but gracefully
 // fall back to whichever controller is available. Some platforms only
 // report a single controller until the session is fully initialized which
