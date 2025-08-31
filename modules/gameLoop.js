@@ -102,17 +102,37 @@ export function handleThematicUnlock(stageJustCleared) {
     const unlockData = THEMATIC_UNLOCKS[unlockLevel];
     if (!unlockData) return;
     const unlocks = Array.isArray(unlockData) ? unlockData : [unlockData];
+    let hudNeedsUpdate = false;
     for (const unlock of unlocks) {
         if (unlock.type === 'power' && !state.player.unlockedPowers.has(unlock.id)) {
             state.player.unlockedPowers.add(unlock.id);
             const powerName = powers[unlock.id]?.desc || unlock.id;
             showUnlockNotification(`Power Unlocked: ${powers[unlock.id].emoji} ${powerName}`);
+            hudNeedsUpdate = true;
         } else if (unlock.type === 'slot') {
-             // Logic for unlocking slots...
+            if (unlock.id === 'queueSlot1') {
+                if (state.player.unlockedOffensiveSlots < 2) state.player.unlockedOffensiveSlots++;
+                if (state.player.unlockedDefensiveSlots < 2) state.player.unlockedDefensiveSlots++;
+            } else if (unlock.id === 'queueSlot2') {
+                if (state.player.unlockedOffensiveSlots < 3) state.player.unlockedOffensiveSlots++;
+                if (state.player.unlockedDefensiveSlots < 3) state.player.unlockedDefensiveSlots++;
+            }
+            showUnlockNotification(`Inventory Slot Unlocked!`);
+            hudNeedsUpdate = true;
         } else if (unlock.type === 'bonus') {
             state.player.ascensionPoints += unlock.value;
             showUnlockNotification(`Bonus: +${unlock.value} Ascension Points!`);
         }
+    }
+    if (hudNeedsUpdate) updateHud();
+}
+
+function handleCoreUnlocks(newLevel) {
+    const coreData = bossData.find(b => b.unlock_level === newLevel);
+    if (coreData && !state.player.unlockedAberrationCores.has(coreData.id)) {
+        state.player.unlockedAberrationCores.add(coreData.id);
+        showUnlockNotification(`Aberration Core Unlocked: ${coreData.name}`, 'New Attunement Possible');
+        AudioManager.playSfx('finalBossPhaseSound');
     }
 }
 
@@ -122,6 +142,10 @@ function levelUp() {
     state.player.essenceToNextLevel = LEVELING_CONFIG.BASE_XP + (state.player.level - 1) * LEVELING_CONFIG.ADDITIONAL_XP_PER_LEVEL;
     state.player.ascensionPoints += 1;
     showUnlockNotification(`Level ${state.player.level}`, 'Level Up!');
+    if (state.player.level === 10 && state.player.unlockedAberrationCores.size === 0) {
+        showUnlockNotification('SYSTEM ONLINE', 'Aberration Core Socket Unlocked');
+    }
+    handleCoreUnlocks(state.player.level);
     savePlayerState();
 }
 

@@ -155,3 +155,4 @@
 * [x] Hid the arena mesh while retaining it for raycasts so gravity wells and other objects remain visible against the backdrop.
 * [x] Added a compact, semi-transparent hex platform beneath the player for orientation without blocking the view.
 * [x] Rebalanced Gravity Tyrant wells and Black Hole pull strength to match the original 2D tuning.
+* [x] Restored slot and aberration core unlock logic so VR progression mirrors the 2D game.
