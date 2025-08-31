@@ -3,7 +3,7 @@ import { state } from './state.js';
 import { initControllerMenu } from './ControllerMenu.js';
 import { setProjectileGroup } from './projectilePhysics3d.js';
 
-let scene, camera, renderer, arena, grid, primaryController, secondaryController, playerRig;
+let scene, camera, renderer, arena, grid, leftController, rightController, playerRig;
 const ARENA_RADIUS = 50;
 
 export function initScene() {
@@ -50,11 +50,30 @@ export function initScene() {
     playerRig.position.set(0, 1.6, 0);
     playerRig.add(camera);
     scene.add(playerRig);
-    
-    primaryController = renderer.xr.getController(0);
-    secondaryController = renderer.xr.getController(1);
-    playerRig.add(primaryController);
-    playerRig.add(secondaryController);
+
+    const controller1 = renderer.xr.getController(0);
+    const controller2 = renderer.xr.getController(1);
+    playerRig.add(controller1);
+    playerRig.add(controller2);
+
+    const assign = (controller, evt) => {
+        const hand = evt?.data?.handedness;
+        if (hand === 'left') {
+            leftController = controller;
+        } else if (hand === 'right') {
+            rightController = controller;
+        }
+        initControllerMenu();
+    };
+    const clear = controller => {
+        if (controller === leftController) leftController = null;
+        if (controller === rightController) rightController = null;
+    };
+
+    controller1.addEventListener('connected', e => assign(controller1, e));
+    controller2.addEventListener('connected', e => assign(controller2, e));
+    controller1.addEventListener('disconnected', () => clear(controller1));
+    controller2.addEventListener('disconnected', () => clear(controller2));
 
     initControllerMenu();
 }
@@ -66,15 +85,15 @@ export const getRenderer = () => renderer;
 export const getArena = () => arena;
 export const getGrid = () => grid;
 // Prefer the controller matching the player's handedness but gracefully
-// fall back to whichever controller is available.  Some platforms only
+// fall back to whichever controller is available. Some platforms only
 // report a single controller until the session is fully initialized which
 // previously left `primaryController` undefined and prevented input.
 export const getPrimaryController = () => {
-  const preferred = state.settings.handedness === 'right' ? primaryController : secondaryController;
-  return preferred || primaryController || secondaryController;
+  const preferred = state.settings.handedness === 'right' ? rightController : leftController;
+  return preferred || leftController || rightController;
 };
 
 export const getSecondaryController = () => {
-  const offHand = state.settings.handedness === 'right' ? secondaryController : primaryController;
-  return offHand || primaryController || secondaryController;
+  const offHand = state.settings.handedness === 'right' ? leftController : rightController;
+  return offHand || leftController || rightController;
 };

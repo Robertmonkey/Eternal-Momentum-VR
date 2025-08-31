@@ -147,3 +147,4 @@
 * [x] Anchored boss info and lore text within their modals and wrapped long lines so menu content stays inside its container.
 * [x] Added utility safeguards: particle spawner handles polar positions and negative lifetimes, screen shake and fog drawing validate contexts, lightning rendering tolerates missing contexts, and `playerHasCore` ignores non-array buff lists.
 * [x] Debugged first 10 boss AIs, importing missing state in Splitter and redirecting Vampire blood orbs to heal the player.
+* [x] Fixed controller handedness swaps so the cursor and menu stay on their intended hands.
