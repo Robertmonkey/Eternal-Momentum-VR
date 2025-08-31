@@ -304,7 +304,29 @@ export function updateEffects3d(radius = 50, deltaMs = 16){
 
         const progress = Math.min(1, (now - ef.startTime) / ef.duration);
         const pullRadius = ef.maxRadius * progress;
-        state.enemies.forEach(e=>{ if(!e.alive) return; const d = e.position.distanceTo(ef.position); if(d < pullRadius){ let pull = e.boss ? 0.02 : 0.05; pull *= deltaFactor; e.position.add(ef.position.clone().sub(e.position).multiplyScalar(pull)); if(state.player.purchasedTalents.has('unstable-singularity') && d < ef.radius && now - (ef.lastDamage.get(e)||0) > ef.damageRate){ if(canDamage(ef.caster, e)){ e.takeDamage(ef.damage, ef.caster===state.player); } ef.lastDamage.set(e, now); } }});
+        state.enemies.forEach(e => {
+          if(!e.alive) return;
+          const d = e.position.distanceTo(ef.position);
+          if(d < pullRadius){
+            let pull = e.boss ? 0.03 : 0.1;
+            pull *= deltaFactor;
+            e.position.add(ef.position.clone().sub(e.position).multiplyScalar(pull));
+            if(state.player.purchasedTalents.has('unstable-singularity') && d < ef.radius && now - (ef.lastDamage.get(e)||0) > ef.damageRate){
+              if(canDamage(ef.caster, e)){
+                e.takeDamage(ef.damage, ef.caster===state.player);
+              }
+              ef.lastDamage.set(e, now);
+            }
+          }
+        });
+        if(ef.caster !== state.player){
+          const pd = state.player.position.distanceTo(ef.position);
+          if(pd < pullRadius){
+            const pullPlayer = 0.08 * deltaFactor;
+            state.player.position.add(ef.position.clone().sub(state.player.position).multiplyScalar(pullPlayer));
+            state.player.position.normalize().multiplyScalar(radius);
+          }
+        }
         if(now > ef.endTime){
           if(ef.mesh){
             if(projectileGroup) projectileGroup.remove(ef.mesh);

@@ -243,7 +243,7 @@ export const powers = {
   black_hole: {emoji: "⚫", desc: "Pulls and damages enemies for 4s", apply:(options = {}) => {
       const { damageModifier = 1.0, origin = state.player } = options;
       let damage = (((state.player.berserkUntil > Date.now()) ? 6 : 3) * state.player.talent_modifiers.damage_multiplier) * damageModifier;
-      let radius = 20; // World units
+      let radius = 11; // World units (~350px in the original game)
       const blackHoleEffect = {
           type: 'black_hole',
           position: state.cursorDir.clone().multiplyScalar(ARENA_RADIUS),
