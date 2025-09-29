@@ -1035,54 +1035,199 @@ function createAscensionModal() {
     function createTalentTooltip() {
         const group = new THREE.Group();
         group.visible = false;
-        // Match the 2D game's #101020 tooltip background and semi-transparent
-        // cyan border.
-        const bg = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.7, 0.3),
-            holoMaterial(0x101020, 1)
+
+        const paddingX = 0.085;
+        const paddingY = 0.08;
+        const headerGap = 0.045;
+        const headerSpacing = 0.045;
+        const footerSpacing = 0.06;
+        const MIN_WIDTH = 0.6;
+        const MAX_DESC_WIDTH = 0.68;
+
+        const glow = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            new THREE.MeshBasicMaterial({
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.12,
+                depthWrite: false,
+                depthTest: false,
+                side: THREE.DoubleSide
+            })
         );
+        glow.position.z = 0.003;
+
+        const bg = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            holoMaterial(0x0a0d19, 0.92)
+        );
+        bg.position.z = 0.004;
+
+        const headerBar = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            holoMaterial(0x11253a, 0.95)
+        );
+        headerBar.position.z = 0.005;
+
         // The old 2D tooltip used a thin cyan outline rather than a filled
-        // rectangle.  Rendering the border as line segments avoids tinting the
+        // rectangle. Rendering the border as line segments avoids tinting the
         // background and improves text legibility in VR.
-        const borderEdges = new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.72, 0.32));
+        const borderEdges = new THREE.EdgesGeometry(new THREE.PlaneGeometry(1, 1));
         const border = new THREE.LineSegments(
             borderEdges,
             new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 })
         );
-        border.position.z = 0.011;
+        border.position.z = 0.006;
         border.name = 'tooltip_border';
 
-        const icon = createTextSprite('', 28, '#ffffff', 'left');
-        icon.position.set(-0.32, 0.06, 0.01);
+        const icon = createTextSprite('', 32, '#ffffff', 'left', 'rgba(0,0,0,0.55)', 8, '600');
+        icon.position.z = 0.01;
 
-        const name = createTextSprite('', 28, '#00ffff', 'left');
-        name.position.set(-0.18, 0.06, 0.01);
+        const name = createTextSprite('', 30, '#9ff7ff', 'left', 'rgba(0,0,0,0.7)', 10, '600');
+        name.position.z = 0.01;
 
-        const desc = createTextSprite('', 24, '#eaf2ff', 'left');
-        desc.position.set(-0.32, -0.02, 0.01);
+        const desc = createTextSprite('', 24, '#eaf2ff', 'left', 'rgba(0,0,0,0.55)', 6);
+        desc.position.z = 0.01;
         // Match the 2D tooltip's slightly dimmed description text.
         desc.material.opacity = 0.9;
 
         // Divider line and footer text mimic the 2D tooltip layout.
         const divider = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.66, 0.005),
+            new THREE.PlaneGeometry(1, 0.005),
             holoMaterial(0x00ffff, 0.4)
         );
-        divider.position.set(0, -0.06, 0.01);
+        divider.position.z = 0.009;
         divider.name = 'tooltip_footer_divider';
 
         // Separate rank and cost text like the 2D menu's flex layout and use
         // the same slightly transparent white tone.
-        const rank = createTextSprite('', 24, '#eaf2ff', 'left');
-        rank.position.set(-0.32, -0.11, 0.01);
+        const rank = createTextSprite('', 24, '#eaf2ff', 'left', 'rgba(0,0,0,0.35)', 4);
         rank.material.opacity = 0.8;
+        rank.position.z = 0.01;
 
-        const cost = createTextSprite('', 24, '#eaf2ff', 'right');
-        cost.position.set(0.32, -0.11, 0.01);
+        const cost = createTextSprite('', 24, '#eaf2ff', 'right', 'rgba(0,0,0,0.35)', 4);
         cost.material.opacity = 0.8;
+        cost.position.z = 0.01;
 
-        group.add(bg, border, icon, name, desc, divider, rank, cost);
-        group.userData = { icon, name, desc, rank, cost };
+        let layoutWidth = MIN_WIDTH;
+        let layoutHeight = 0.32;
+
+        const updateLayout = () => {
+            const iconW = Math.max(0.001, icon.scale.x);
+            const iconH = Math.max(0.001, icon.scale.y);
+            const nameW = Math.max(0.001, name.scale.x);
+            const nameH = Math.max(0.001, name.scale.y);
+            const descW = Math.max(0.001, desc.scale.x);
+            const descH = Math.max(0.001, desc.scale.y);
+            const rankW = Math.max(0.001, rank.scale.x);
+            const rankH = Math.max(0.001, rank.scale.y);
+            const costW = Math.max(0.001, cost.scale.x);
+            const costH = Math.max(0.001, cost.scale.y);
+
+            const headerWidth = iconW + headerGap + nameW;
+            const footerWidth = rankW + costW + 0.06;
+            const contentWidth = Math.max(headerWidth, descW, footerWidth);
+            layoutWidth = Math.max(MIN_WIDTH, contentWidth + paddingX * 2);
+            const headerHeight = Math.max(iconH, nameH);
+            const footerHeight = Math.max(rankH, costH);
+            layoutHeight = paddingY * 2 + headerHeight + headerSpacing + descH + footerSpacing + footerHeight;
+
+            const left = -layoutWidth / 2 + paddingX;
+            const right = layoutWidth / 2 - paddingX;
+            const top = layoutHeight / 2 - paddingY;
+            const bottom = -layoutHeight / 2 + paddingY;
+
+            const headerY = top - headerHeight / 2;
+            icon.position.set(left + iconW / 2, headerY, icon.position.z);
+            name.position.set(icon.position.x + iconW / 2 + headerGap + nameW / 2, headerY, name.position.z);
+
+            const descY = headerY - headerHeight / 2 - headerSpacing - descH / 2;
+            desc.position.set(left + descW / 2, descY, desc.position.z);
+
+            divider.scale.set(layoutWidth - paddingX * 2, divider.scale.y, 1);
+            divider.position.set(0, descY - descH / 2 - footerSpacing / 2, divider.position.z);
+
+            const footerY = bottom + Math.max(rankH, costH) / 2;
+            rank.position.set(left + rankW / 2, footerY, rank.position.z);
+            cost.position.set(right - costW / 2, footerY, cost.position.z);
+
+            glow.scale.set(layoutWidth + 0.12, layoutHeight + 0.12, 1);
+            bg.scale.set(layoutWidth, layoutHeight, 1);
+            headerBar.scale.set(
+                Math.max(0.001, layoutWidth - paddingX * 2),
+                Math.max(headerHeight + 0.02, 0.02),
+                1
+            );
+            headerBar.position.set(0, headerY, headerBar.position.z);
+            border.scale.set(layoutWidth + 0.02, layoutHeight + 0.02, 1);
+        };
+
+        const populate = ({ iconText, nameText, descText, rankText, costText }) => {
+            updateTextSprite(icon, iconText);
+            updateTextSprite(name, nameText);
+            let formattedDesc = descText;
+            const descCtx = desc.userData && desc.userData.ctx;
+            const descFont = desc.userData && desc.userData.font;
+            if (descCtx && descFont) {
+                descCtx.font = descFont;
+                formattedDesc = wrapTextToWidth(descCtx, descText, MAX_DESC_WIDTH * PIXELS_PER_UNIT);
+            }
+            updateTextSprite(desc, formattedDesc);
+            updateTextSprite(rank, rankText);
+            updateTextSprite(cost, costText);
+            updateLayout();
+        };
+
+        const show = (basePos, offsetX, offsetY) => {
+            group.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
+            group.visible = true;
+        };
+
+        const hide = () => {
+            group.visible = false;
+        };
+
+        const computeOffsets = (basePos, halfW, halfH) => {
+            const safePadding = 0.05;
+            let offsetX = layoutWidth / 2 + safePadding;
+            let offsetY = layoutHeight / 2 + safePadding;
+
+            if (basePos.x + offsetX + layoutWidth / 2 > halfW) {
+                offsetX = -(layoutWidth / 2 + safePadding);
+            } else if (basePos.x - offsetX - layoutWidth / 2 < -halfW) {
+                offsetX = layoutWidth / 2 + safePadding;
+            }
+
+            if (basePos.y + offsetY + layoutHeight / 2 > halfH) {
+                offsetY = -(layoutHeight / 2 + safePadding);
+            } else if (basePos.y - offsetY - layoutHeight / 2 < -halfH) {
+                offsetY = layoutHeight / 2 + safePadding;
+            }
+
+            return { offsetX, offsetY };
+        };
+
+        group.add(glow, bg, headerBar, border, icon, name, desc, divider, rank, cost);
+        group.userData = {
+            icon,
+            name,
+            desc,
+            rank,
+            cost,
+            divider,
+            populate,
+            updateLayout,
+            show,
+            hide,
+            computeOffsets,
+            get layoutWidth() {
+                return layoutWidth;
+            },
+            get layoutHeight() {
+                return layoutHeight;
+            }
+        };
+        updateLayout();
         return group;
     }
 
@@ -1192,23 +1337,18 @@ function createAscensionModal() {
                                     t.maxRanks > 1
                                         ? `Rank: ${purchasedNow}/${t.isInfinite ? '∞' : t.maxRanks}`
                                         : 'Mastery';
-                                updateTextSprite(tooltip.userData.icon, t.icon);
-                                updateTextSprite(tooltip.userData.name, t.name);
-                                updateTextSprite(tooltip.userData.desc, t.description(purchasedNow + 1, isMaxNow));
-                                updateTextSprite(tooltip.userData.rank, rankText);
-                                updateTextSprite(tooltip.userData.cost, costText);
+                                tooltip.userData.populate({
+                                    iconText: t.icon,
+                                    nameText: t.name,
+                                    descText: t.description(purchasedNow + 1, isMaxNow),
+                                    rankText,
+                                    costText
+                                });
                                 const basePos = positions[t.id];
-                                let offsetX = 0.3;
-                                const xBoundary = halfW - 0.4;
-                                if (basePos.x > xBoundary) offsetX = -0.3;
-                                else if (basePos.x < -xBoundary) offsetX = 0.3;
-                                let offsetY = 0.12;
-                                const yBoundary = halfH - 0.2;
-                                if (basePos.y > yBoundary) offsetY = -0.12;
-                                tooltip.position.copy(basePos).add(new THREE.Vector3(offsetX, offsetY, 0));
-                                tooltip.visible = true;
+                                const { offsetX, offsetY } = tooltip.userData.computeOffsets(basePos, halfW, halfH);
+                                tooltip.userData.show(basePos, offsetX, offsetY);
                             } else if (tooltip) {
-                                tooltip.visible = false;
+                                tooltip.userData.hide();
                             }
                         };
                     });
