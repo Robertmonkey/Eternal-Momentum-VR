@@ -22,7 +22,9 @@ export class BasiliskAI extends BaseAgent {
     this.name = bossData.name;
     this.maxHP = bossData.maxHP;
     this.health = this.maxHP;
-    
+    this.maxHealth = this.maxHP;
+    this.bossId = bossData.id;
+
     this.zones = [];
     const zonePositions = [
         new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),

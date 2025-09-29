@@ -20,6 +20,8 @@ export class HelixWeaverAI extends BaseAgent {
     this.name = bossData.name;
     this.maxHP = bossData.maxHP;
     this.health = this.maxHP;
+    this.maxHealth = this.maxHP;
+    this.bossId = bossData.id;
 
     this.position.set(0, 0, 0); // Stays at the center
     this.angle = 0;
