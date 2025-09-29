@@ -2,6 +2,7 @@ import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import { gameHelpers } from '../gameHelpers.js';
+import { getScene } from '../scene.js';
 
 // Import all AI types the Pantheon can channel
 import { JuggernautAI } from './JuggernautAI.js';
@@ -42,8 +43,9 @@ export class PantheonAI extends BaseAgent {
         if (!this.activeAspects.has(aspectInfo.id)) {
             const aspectAI = new aspectInfo.AI();
             aspectAI.health = Infinity; // Aspect minions are invulnerable
-            this.add(aspectAI.model); // Add the model to the Pantheon group
-            
+            const parent = getScene() || this;
+            parent.add(aspectAI);
+
             this.activeAspects.set(aspectInfo.id, {
                 ai: aspectAI,
                 type: poolName,
@@ -55,14 +57,21 @@ export class PantheonAI extends BaseAgent {
     }
 
     // Update and expire active aspects
+    let aspectIndex = 0;
+    const totalAspects = this.activeAspects.size || 1;
     for (const [id, aspect] of this.activeAspects.entries()) {
         if (now > aspect.endTime) {
-            this.remove(aspect.ai.model);
+            if (aspect.ai?.parent) {
+                aspect.ai.parent.remove(aspect.ai);
+            }
             this.activeAspects.delete(id);
         } else {
             // Position the aspect minion relative to the Pantheon
-            aspect.ai.position.copy(this.position).add(new THREE.Vector3(this.activeAspects.size * 2 - 2, 0, 0));
+            const angle = (aspectIndex / totalAspects) * Math.PI * 2;
+            const offset = new THREE.Vector3(Math.cos(angle) * 4, 0, Math.sin(angle) * 4);
+            aspect.ai.position.copy(this.position).add(offset);
             aspect.ai.update(delta);
+            aspectIndex++;
         }
     }
   }
@@ -70,7 +79,9 @@ export class PantheonAI extends BaseAgent {
   die() {
       // Clean up all aspect minions on death
       for (const aspect of this.activeAspects.values()) {
-          this.remove(aspect.ai.model);
+          if (aspect.ai?.parent) {
+              aspect.ai.parent.remove(aspect.ai);
+          }
       }
       this.activeAspects.clear();
       super.die();

@@ -293,10 +293,11 @@ export function updateUI() {
     allBosses.forEach(boss => {
         currentBossIdsOnScreen.add(boss.instanceId.toString());
         const sharedHealthIds = ['sentinel_pair', 'fractal_horror'];
-        if (sharedHealthIds.includes(boss.id)) {
-            if (!renderedBossTypes.has(boss.id)) {
+        const bossIdentifier = boss.bossId || boss.kind || boss.id;
+        if (sharedHealthIds.includes(bossIdentifier)) {
+            if (!renderedBossTypes.has(bossIdentifier)) {
                 bossesToDisplay.push(boss);
-                renderedBossTypes.add(boss.id);
+                renderedBossTypes.add(bossIdentifier);
             }
         } else {
             bossesToDisplay.push(boss);
@@ -335,7 +336,8 @@ export function updateUI() {
             }
 
             const bar = wrapper.querySelector('.boss-hp-bar');
-            const currentHp = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.health;
+            const bossIdentifier = boss.bossId || boss.kind || boss.id;
+            const currentHp = bossIdentifier === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.health;
             bar.style.backgroundColor = boss.color;
             bar.style.width = `${Math.max(0, currentHp / boss.maxHP) * 100}%`;
         });
@@ -343,7 +345,8 @@ export function updateUI() {
 
     const mainBoss = bossesToDisplay[0];
     if(mainBoss && vrBossFill){
-        const cur = mainBoss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : mainBoss.health;
+        const mainId = mainBoss.bossId || mainBoss.kind || mainBoss.id;
+        const cur = mainId === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : mainBoss.health;
         const pct = Math.max(0, cur / mainBoss.maxHP);
         vrBossFill.object3D.scale.x = pct;
         vrBossFill.setAttribute('material', `color:${mainBoss.color}; emissive:${mainBoss.color}; emissiveIntensity:0.6`);

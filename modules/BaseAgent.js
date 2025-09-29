@@ -17,10 +17,12 @@ export class BaseAgent extends THREE.Group {
     // both default sphere agents and those using custom models.
     this.r = radius;
     this.kind = kind;
+    this.bossId = kind || null;
     this.maxHealth = health;
     this.maxHP = health;
     this.health = health;
     this.alive = true;
+    this.instanceId = Date.now() + Math.random();
     if (model) {
       this.add(model);
       this.model = model;

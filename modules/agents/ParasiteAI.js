@@ -7,34 +7,35 @@ export class ParasiteAI extends BaseAgent {
   constructor() {
     // A more organic shape for the Parasite
     const geometry = new THREE.SphereGeometry(0.7, 16, 8);
-    geometry.morphAttributes.position = [];
     const positions = geometry.attributes.position;
-    const spherePositions = [];
+    const spherePositions = new Float32Array(positions.count * 3);
     for (let i = 0; i < positions.count; i++) {
         const x = positions.getX(i);
         const y = positions.getY(i);
         const z = positions.getZ(i);
-        spherePositions.push(
-            x * Math.sqrt(1 - (y * y / 2) - (z * z / 2) + (y * y * z * z / 3)),
-            y * Math.sqrt(1 - (z * z / 2) - (x * x / 2) + (z * z * x * x / 3)),
-            z * Math.sqrt(1 - (x * x / 2) - (y * y / 2) + (x * x * y * y / 3))
-        );
+        spherePositions[i * 3] = x * Math.sqrt(1 - (y * y / 2) - (z * z / 2) + (y * y * z * z / 3));
+        spherePositions[i * 3 + 1] = y * Math.sqrt(1 - (z * z / 2) - (x * x / 2) + (z * z * x * x / 3));
+        spherePositions[i * 3 + 2] = z * Math.sqrt(1 - (x * x / 2) - (y * y / 2) + (x * x * y * y / 3));
     }
-    geometry.setAttribute('morphTarget0', new THREE.Float32BufferAttribute(spherePositions, 3));
+    geometry.morphAttributes.position = [
+        new THREE.Float32BufferAttribute(spherePositions, 3)
+    ];
 
     const material = new THREE.MeshStandardMaterial({
         color: 0x55efc4,
         emissive: 0x55efc4,
-        emissiveIntensity: 0.4,
-        morphTargets: true
+        emissiveIntensity: 0.4
     });
-    super({ model: new THREE.Mesh(geometry, material) });
+    const mesh = new THREE.Mesh(geometry, material);
+    super({ model: mesh });
 
     const bossData = { id: "parasite", name: "The Parasite", maxHP: 416 };
     this.kind = bossData.id;
     this.name = bossData.name;
     this.maxHP = bossData.maxHP;
     this.health = this.maxHP;
+    this.maxHealth = this.maxHP;
+    this.bossId = bossData.id;
   }
 
   infect(target) {

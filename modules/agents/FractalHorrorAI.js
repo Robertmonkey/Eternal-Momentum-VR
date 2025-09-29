@@ -2,6 +2,9 @@ import * as THREE from "../../vendor/three.module.js";
 import { BaseAgent } from '../BaseAgent.js';
 import { state } from '../state.js';
 import { gameHelpers } from '../gameHelpers.js';
+import { getScene } from '../scene.js';
+
+const ARENA_RADIUS = 50;
 
 export class FractalHorrorAI extends BaseAgent {
   constructor(generation = 1) {
@@ -33,13 +36,22 @@ export class FractalHorrorAI extends BaseAgent {
   split() {
     if (!this.alive) return;
     gameHelpers.play('fractalSplit');
+    const parent = this.parent || getScene();
+    const spawnRadius = this.position.length() || ARENA_RADIUS;
+    const scaleFactor = this.scale?.x || 1;
     for (let i = 0; i < 2; i++) {
         const child = new FractalHorrorAI(this.generation + 1);
+        child.boss = true;
+        child.bossIndex = this.bossIndex;
+        child.bossId = this.bossId || 'fractal_horror';
+        child.kind = 'fractal_horror';
         const offset = new THREE.Vector3().randomDirection().multiplyScalar(this.r * 2);
-        child.position.copy(this.position).add(offset);
+        const targetPos = this.position.clone().add(offset).normalize().multiplyScalar(spawnRadius);
+        child.position.copy(targetPos);
+        child.scale.multiplyScalar(scaleFactor);
+        child.r = (child.r || 1) * scaleFactor;
         state.enemies.push(child);
-        // In a real scene graph, you would add child to the scene:
-        // this.parent.add(child);
+        parent?.add(child);
     }
     this.die(false); // Die without triggering on-death effects
   }
@@ -61,6 +73,7 @@ export class FractalHorrorAI extends BaseAgent {
       if (index > -1) state.enemies.splice(index, 1);
       this.alive = false;
       this.model.visible = false;
+      if (this.parent) this.parent.remove(this);
 
       // If this is the very last fragment, trigger the actual boss death
       if (isFinal && state.enemies.filter(e => e.kind === 'fractal_horror').length === 0) {

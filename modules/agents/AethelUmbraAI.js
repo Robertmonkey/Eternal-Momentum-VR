@@ -19,8 +19,10 @@ export class AethelUmbraAI extends BaseAgent {
     this.name = role;
     this.maxHP = isAethel ? 280 * 0.75 : 280 * 1.5;
     this.health = this.maxHP;
+    this.maxHealth = this.maxHP;
     this.speed = isAethel ? 1.5 : 0.8;
-    this.kind = role.toLowerCase();
+    this.kind = 'aethel_and_umbra';
+    this.bossId = 'aethel_and_umbra';
   }
   
   update(delta) {

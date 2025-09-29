@@ -249,6 +249,8 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             const partnerA = new AethelUmbraAI('Aethel');
             partnerA.boss = true;
             partnerA.bossIndex = bossIndex;
+            partnerA.bossId = bossId;
+            if (!partnerA.kind) partnerA.kind = bossId;
             partnerA.position.copy(getSafeSpawnLocation());
             partnerA.scale.multiplyScalar(MODEL_SCALE);
             partnerA.r = (partnerA.r || 1) * MODEL_SCALE;
@@ -260,6 +262,8 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             partnerB.bossIndex = bossIndex;
             partnerA.partner = partnerB;
             partnerB.partner = partnerA;
+            partnerB.bossId = bossId;
+            if (!partnerB.kind) partnerB.kind = bossId;
             partnerB.position.copy(getSafeSpawnLocation());
             partnerB.scale.multiplyScalar(MODEL_SCALE);
             partnerB.r = (partnerB.r || 1) * MODEL_SCALE;
@@ -271,6 +275,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             const sentinelA = new SentinelPairAI();
             sentinelA.boss = true;
             sentinelA.bossIndex = bossIndex;
+            sentinelA.bossId = bossId;
             sentinelA.position.copy(getSafeSpawnLocation());
             sentinelA.scale.multiplyScalar(MODEL_SCALE);
             sentinelA.r = (sentinelA.r || 1) * MODEL_SCALE;
@@ -283,6 +288,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             sentinelB.position.copy(getSafeSpawnLocation());
             sentinelA.partner = sentinelB;
             sentinelB.partner = sentinelA;
+            sentinelB.bossId = bossId;
             sentinelB.scale.multiplyScalar(MODEL_SCALE);
             sentinelB.r = (sentinelB.r || 1) * MODEL_SCALE;
             state.enemies.push(sentinelB);
@@ -293,6 +299,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
             const obelisk = new ObeliskAI();
             obelisk.boss = true;
             obelisk.bossIndex = bossIndex;
+            obelisk.bossId = bossId;
             obelisk.scale.multiplyScalar(MODEL_SCALE);
             obelisk.r = (obelisk.r || 1) * MODEL_SCALE;
             state.enemies.push(obelisk);
@@ -302,6 +309,7 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
                 const conduit = new ObeliskConduitAI(obelisk, conduitTypes[i].type, conduitTypes[i].color, (i / 3) * Math.PI * 2);
                 conduit.boss = true;
                 conduit.bossIndex = bossIndex;
+                conduit.bossId = `${bossId}_conduit`;
                 conduit.scale.multiplyScalar(MODEL_SCALE);
                 conduit.r = (conduit.r || 1) * MODEL_SCALE;
                 state.enemies.push(conduit);
@@ -313,12 +321,15 @@ export function spawnEnemy(isBoss = false, bossId = null, location = null) {
         enemy = new AIClass();
         enemy.boss = true;
         enemy.bossIndex = bossIndex;
+        enemy.bossId = bossId;
+        if (!enemy.kind && bossId) enemy.kind = bossId;
     } else if (!isBoss) {
         const minionGeo = new THREE.SphereGeometry(0.3, 8, 8);
         const minionMat = new THREE.MeshStandardMaterial({ color: 0xc0392b, emissive: 0xc0392b, emissiveIntensity: 0.3 });
         const minionModel = new THREE.Mesh(minionGeo, minionMat);
         enemy = new BaseAgent({ health: 20, model: minionModel });
         enemy.kind = 'minion';
+        enemy.bossId = 'minion';
         enemy.speed = 2.0;
         enemy.boss = false;
         enemy.isFriendly = false;

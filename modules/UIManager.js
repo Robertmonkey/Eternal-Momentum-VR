@@ -184,7 +184,7 @@ function createAbilitySlot(size, isMain = false) {
 function getBossColor(boss) {
     if (!boss) return 0xffffff;
     if (boss.color) return boss.color;
-    const id = boss.kind || boss.id || (boss.role ? 'aethel_and_umbra' : null);
+    const id = boss.bossId || boss.kind || boss.id || (boss.role ? 'aethel_and_umbra' : null);
     const data = bossData.find(b => b.id === id);
     return data ? data.color : 0xffffff;
 }
@@ -192,7 +192,7 @@ function getBossColor(boss) {
 export function isBossEnemy(enemy) {
     if (!enemy) return false;
     if (enemy.boss) return true;
-    const id = enemy.kind || enemy.id;
+    const id = enemy.kind || enemy.bossId || enemy.id;
     return bossData.some(b => b.id === id);
 }
 
@@ -581,7 +581,8 @@ export function updateHud() {
         const bossesToDisplay = [];
 
         allBosses.forEach(boss => {
-            const key = sharedHealthIds.includes(boss.id) ? boss.id : boss.instanceId;
+            const bossIdentifier = boss.bossId || boss.kind || boss.id;
+            const key = sharedHealthIds.includes(bossIdentifier) ? bossIdentifier : boss.instanceId;
             if (!renderedKeys.has(key)) {
                 renderedKeys.add(key);
                 bossesToDisplay.push({ boss, key });
@@ -600,7 +601,8 @@ export function updateHud() {
                 bossBars.set(key, bar);
                 bossContainer.add(bar);
             }
-            const cur = boss.id === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.health;
+            const currentId = boss.bossId || boss.kind || boss.id;
+            const cur = currentId === 'fractal_horror' ? (state.fractalHorrorSharedHp ?? 0) : boss.health;
             const pct = Math.max(0, cur / boss.maxHP);
             bar.userData.fill.scale.x = pct;
             const color = getBossColor(boss);
