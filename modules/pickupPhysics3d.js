@@ -11,6 +11,7 @@ import { applyPlayerHeal } from './helpers.js';
 const ARENA_RADIUS = 50; // Should match arena radius in scene.js
 
 const meshMap = new Map();
+const WHITE = new THREE.Color(0xffffff);
 
 function createMesh(pickup){
     const group = new THREE.Group();
@@ -28,7 +29,16 @@ function createMesh(pickup){
     group.add(sphere, sprite);
     const scene = getScene();
     if(scene) scene.add(group);
-    meshMap.set(pickup, { group, sphere, sprite });
+    meshMap.set(pickup, {
+        group,
+        sphere,
+        sprite,
+        baseSphereScale: sphere.scale.clone(),
+        baseSpriteScale: sprite.scale.clone(),
+        baseEmissive: typeof material.emissiveIntensity === 'number' ? material.emissiveIntensity : 0,
+        baseColor: material.color ? material.color.clone() : null,
+        animation: null
+    });
 }
 
 function removeMesh(pickup){
@@ -65,8 +75,49 @@ export function updatePickups3d(radius = ARENA_RADIUS){
             const dir = playerPos.clone().sub(p.position).normalize();
             p.position.add(dir.multiplyScalar(speed * 0.05)).normalize().multiplyScalar(radius);
         }
-        data.group.position.copy(p.position);
-        data.group.rotation.y += 0.03;
+        if(!data.animation){
+            data.animation = {
+                phase: Math.random() * Math.PI * 2,
+                speed: 0.002 + Math.random() * 0.0015,
+                height: Math.max(0.25, p.r * 0.8),
+                lastTime: now
+            };
+        }
+        const anim = data.animation;
+        const elapsed = anim.lastTime ? now - anim.lastTime : 16;
+        const delta = Math.min(120, Math.max(1, elapsed));
+        anim.lastTime = now;
+        anim.phase = (anim.phase + anim.speed * delta) % (Math.PI * 2);
+
+        const normal = p.position.clone().normalize();
+        const bobOffset = normal.multiplyScalar(Math.sin(anim.phase) * anim.height);
+        data.group.position.copy(p.position.clone().add(bobOffset));
+        data.group.rotation.y += delta * 0.0015;
+
+        if (data.sphere && data.baseSphereScale) {
+            const pulse = 1 + Math.sin(anim.phase * 2) * 0.18;
+            data.sphere.scale.set(
+                data.baseSphereScale.x * pulse,
+                data.baseSphereScale.y * pulse,
+                data.baseSphereScale.z * pulse
+            );
+            if (data.baseColor && data.sphere.material?.color) {
+                data.sphere.material.color.copy(data.baseColor);
+                data.sphere.material.color.lerp(WHITE, Math.max(0, Math.sin(anim.phase + Math.PI / 2)) * 0.2);
+            }
+            if (typeof data.baseEmissive === 'number' && typeof data.sphere.material?.emissiveIntensity === 'number') {
+                const glow = data.baseEmissive + Math.max(0, Math.sin(anim.phase * 1.5)) * 0.6;
+                data.sphere.material.emissiveIntensity = glow;
+            }
+        }
+        if (data.sprite && data.baseSpriteScale) {
+            const spritePulse = 1 + Math.sin(anim.phase * 2 + Math.PI / 3) * 0.12;
+            data.sprite.scale.set(
+                data.baseSpriteScale.x * spritePulse,
+                data.baseSpriteScale.y * spritePulse,
+                data.baseSpriteScale.z * spritePulse
+            );
+        }
         const cam = getCamera();
         if (cam) data.sprite.lookAt(cam.position);
         if(dist < state.player.r + p.r){

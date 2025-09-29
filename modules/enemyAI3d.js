@@ -6,6 +6,7 @@
 
 import { state } from './state.js';
 import { getSphericalDirection, sanitizeUv, moveTowards } from './movement3d.js';
+import { updateAgentAnimation } from './agentAnimations.js';
 
 export function addPathObstacle(u, v, radius = 0.1) {
   // Normalise obstacle coordinates so callers can pass loose UV values.
@@ -44,6 +45,7 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
     if (typeof e.update === 'function') {
       e.update(deltaMs);
     }
+    updateAgentAnimation(e, deltaMs);
     if(e.frozenUntil && now > e.frozenUntil){
       e.frozen = false;
       e.frozenUntil = null;
