@@ -6,6 +6,7 @@ import { state } from './state.js';
 import { gameHelpers as globalGameHelpers } from './gameHelpers.js';
 import { createBossModel } from './bossModelFactory.js';
 import { spawnBossAbilityEffect } from './bossAbilityEffects.js';
+import { notifyAgentDamaged } from './agentAnimations.js';
 
 export class BaseAgent extends THREE.Group {
   constructor(options = {}) {
@@ -48,6 +49,7 @@ export class BaseAgent extends THREE.Group {
   takeDamage(amount = 0, fromPlayer = false, gameHelpers = null) {
     if (!this.alive) return;
     if (!gameHelpers) gameHelpers = {};
+    if (amount > 0) notifyAgentDamaged(this, amount);
     if (this.petrifiedUntil && this.petrifiedUntil > Date.now()) {
       amount *= 1.2;
     }
@@ -70,8 +72,8 @@ export class BaseAgent extends THREE.Group {
     if (this.parent) this.parent.remove(this);
   }
 
-    triggerAbilityAnimation(stageOffset = 0, duration = 1000) {
-      const stage = (this.bossIndex || 1) + stageOffset;
-      spawnBossAbilityEffect(this, stage, duration);
-    }
+  triggerAbilityAnimation(stageOffset = 0, duration = 1000) {
+    const stage = (this.bossIndex || 1) + stageOffset;
+    spawnBossAbilityEffect(this, stage, duration);
   }
+}

@@ -28,13 +28,15 @@
 
 * [ ] **3D Models and Animations:**
     * [x] Create 3D spherical models for all bosses and enemies. — Completed
-    * [ ] Implement animations for all bosses, enemies, and power-ups. — In Progress
-        * [x] Enabled delta-based enemy AI updates to support animations.
-        * [x] Added expanding sphere visual for the `shockwave` power-up.
-        * [x] Added heal sparkle and black hole visuals.
-        * [x] Enhanced heal sparkle and shield activation with pulsing emissive effects.
+* [x] Implement animations for all bosses, enemies, and power-ups. — Completed
+    * [x] Enabled delta-based enemy AI updates to support animations.
+    * [x] Added expanding sphere visual for the `shockwave` power-up.
+    * [x] Added heal sparkle and black hole visuals.
+    * [x] Enhanced heal sparkle and shield activation with pulsing emissive effects.
+    * [x] Introduced shared idle animation system so every enemy and boss breathes, floats, and flashes on damage.
+    * [x] Added bobbing, pulsating VR pickup visuals with emissive glow tied to delta timing.
     * [x] Create a swirling cube animation for the "glitch" enemy. — Completed
-    * [ ] Ensure all animations are interpolated for VR. — In Progress (projectiles, effects, and enemy AI use delta timing)
+* [x] Ensure all animations are interpolated for VR. — Completed (projectiles, effects, enemy AI, and pickups use delta timing)
     * [x] Upgraded boss models with lore-driven shapes for progressive visual flair (Splitter, Reflector, Vampire, Gravity, Epoch Ender).
     * [x] Expanded upgrades to additional bosses so designs scale with difficulty (Syphon, Centurion, Sentinel Pair, Annihilator, Architect, Quantum Shadow, Puppeteer).
     * [x] Added extra rings, shards, and orbiting details so later bosses look increasingly epic and aligned with their lore.
@@ -107,6 +109,7 @@
 * [x] Added unit tests for `clamp` and `applyPlayerHeal`.
 * [x] Centralized power-up inventory management in `PowerManager` for reliability.
 * [x] Hardened projectile pooling and coordinate helpers to reset reused objects and validate inputs.
+* [x] Added reusable animation module for agents with idle pulses, hit flashes, and cleanup helpers.
 * [x] Improved inventory overflow handling, projectile pooling cleanup, enemy update skipping of dead entities, stable spherical direction math and optional radius parameter for canvas-to-sphere conversions.
 * [x] Reworked game over menu to mirror the 2D game's horizontal button layout.
 * [x] Matched game over title color and glow to the 2D game's design.
