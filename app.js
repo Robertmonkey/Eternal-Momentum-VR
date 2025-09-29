@@ -69,6 +69,7 @@ async function preloadAssets() {
 function setupHomeScreen() {
     const newGameBtn = document.getElementById('new-game-btn');
     const continueGameBtn = document.getElementById('continue-game-btn');
+    const ascensionHomeBtn = document.getElementById('ascension-home-btn');
     const eraseGameBtn = document.getElementById('erase-game-btn');
 
     const hasSaveData = !!localStorage.getItem('eternalMomentumSave');
@@ -80,17 +81,27 @@ function setupHomeScreen() {
         newGameBtn.style.display = 'block';
     }
 
-    const startVRSequence = (stage) => {
+    const startVRSequence = ({ stage = 1, startPaused = false, modalId = null } = {}) => {
         AudioManager.unlockAudio();
         homeScreen.style.display = 'none';
-        launchVR(stage);
+        launchVR(stage, { startPaused, initialModalId: modalId });
     };
 
-    newGameBtn.addEventListener('click', () => startVRSequence(1));
-    continueGameBtn.addEventListener('click', () => {
-        const startStage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
-        startVRSequence(startStage);
-    });
+    if (newGameBtn) {
+        newGameBtn.addEventListener('click', () => startVRSequence({ stage: 1 }));
+    }
+    if (continueGameBtn) {
+        continueGameBtn.addEventListener('click', () => {
+            const startStage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
+            startVRSequence({ stage: startStage });
+        });
+    }
+    if (ascensionHomeBtn) {
+        ascensionHomeBtn.addEventListener('click', () => {
+            const startStage = state.player.highestStageBeaten > 0 ? state.player.highestStageBeaten + 1 : 1;
+            startVRSequence({ stage: startStage, startPaused: true, modalId: 'ascension' });
+        });
+    }
     eraseGameBtn.addEventListener('click', () => {
         if (confirm("This timeline will be erased. All progress will be lost.")) {
             localStorage.removeItem('eternalMomentumSave');

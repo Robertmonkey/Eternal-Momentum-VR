@@ -168,3 +168,5 @@
 * [x] Reused HUD status and pantheon icon slots to avoid per-frame allocations and ensured meshes/textures are disposed when icons expire.
 * [x] Introduced context-aware haptic feedback: firing weapons delivers a crisp double-pulse while taking damage scales rumble intensity for deeper Quest 3 immersion.
 * [x] Standardized menu styling with the 2D game's cyan glow, font stack, hover/click audio cues, and non-repeating wallpaper so every VR menu shares the original look.
+* [x] Added a home-screen Ascension Conduit button that launches VR paused and opens the ascension modal so players can respec before entering a run.
+* [x] Remapped agent damage flashes to severity-driven targets so emissive highlights burst above idle pulses and decay back to their cached base color.
