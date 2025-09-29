@@ -7,6 +7,8 @@
 import { state } from './state.js';
 import { getSphericalDirection, sanitizeUv, moveTowards } from './movement3d.js';
 import { updateAgentAnimation } from './agentAnimations.js';
+import { findPath } from './navmesh.js';
+import { spherePosToUv, uvToSpherePos } from './utils.js';
 
 export function addPathObstacle(u, v, radius = 0.1) {
   // Normalise obstacle coordinates so callers can pass loose UV values.
@@ -29,6 +31,70 @@ export function clearPathObstacles(){
  * @param {number} deltaMs - Time since last frame in milliseconds.
  */
 const DEFAULT_RADIUS = 50;
+const PATH_RECALC_INTERVAL = 500; // ms between navmesh refresh attempts
+const PATH_GOAL_EPSILON = 0.02;   // UV distance before we consider the goal changed
+const PATH_POINT_THRESHOLD = 0.05; // fraction of radius used to advance to the next waypoint
+
+function uvDistance(a = { u: 0, v: 0 }, b = { u: 0, v: 0 }) {
+  const du = Math.abs(a.u - b.u);
+  const dv = Math.abs(a.v - b.v);
+  const wrapU = Math.min(du, 1 - du);
+  const wrapV = Math.min(dv, 1 - dv);
+  return Math.hypot(wrapU, wrapV);
+}
+
+function shouldUseNavPath(enemy, playerDir) {
+  if (!enemy || !playerDir) return false;
+  if (enemy.forceNavPath) return true;
+  if (state.pathObstacles.length > 0) return true;
+  const currentDir = enemy.position?.clone()?.normalize();
+  if (!currentDir) return false;
+  // When the enemy and player are nearly antipodal the simple cross-product
+  // steering becomes numerically unstable and agents tended to drift toward
+  // the poles. Falling back to the navmesh in that case produces a great
+  // circle path that hugs the arena instead of spiking vertically.
+  return currentDir.dot(playerDir) < -0.6;
+}
+
+function ensureNavPath(enemy, radius, playerPos, now) {
+  if (!enemy || !playerPos) return null;
+  const playerDir = playerPos.clone().normalize();
+  const useNav = shouldUseNavPath(enemy, playerDir) || enemy.navPath?.length;
+  if (!useNav) {
+    enemy.navPath = null;
+    enemy.navPathGoal = null;
+    enemy.navPathIndex = 0;
+    return null;
+  }
+
+  const startUv = spherePosToUv(enemy.position.clone().normalize(), 1);
+  const goalUv = spherePosToUv(playerDir, 1);
+  const needsRefresh =
+    !enemy.navPath ||
+    !enemy.navPathGoal ||
+    uvDistance(enemy.navPathGoal, goalUv) > PATH_GOAL_EPSILON ||
+    (now - (enemy.navPathUpdated || 0)) > PATH_RECALC_INTERVAL;
+
+  if (needsRefresh) {
+    const rawPath = findPath(startUv, goalUv);
+    const navPoints = rawPath.map(({ u, v }) => uvToSpherePos(u, v, radius));
+    enemy.navPath = navPoints;
+    enemy.navPathGoal = goalUv;
+    enemy.navPathIndex = navPoints.length > 1 ? 1 : 0;
+    enemy.navPathUpdated = now;
+  }
+
+  if (!enemy.navPath || enemy.navPath.length === 0) {
+    enemy.navPath = null;
+    enemy.navPathGoal = null;
+    enemy.navPathIndex = 0;
+    return null;
+  }
+
+  const index = Math.max(0, Math.min(enemy.navPathIndex || 0, enemy.navPath.length - 1));
+  enemy.navPathIndex = index;
+  return enemy.navPath[index];
+}
 
 export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs = 16){
   const now = Date.now();
@@ -55,12 +121,26 @@ export function updateEnemies3d(radius = DEFAULT_RADIUS, width, height, deltaMs 
     e.position.normalize().multiplyScalar(radius);
 
     const target3d = state.player.position.clone();
+    const navTarget = ensureNavPath(e, radius, target3d, now);
+    const movementTarget = navTarget || target3d;
 
     if(!e.customMovement && !e.frozen){
       const speed = typeof e.speed === 'number' && e.speed > 0 ? e.speed : 1;
-      moveTowards(e.position, target3d, speed, radius, deltaMs);
+      moveTowards(e.position, movementTarget, speed, radius, deltaMs);
+      if (navTarget && e.navPath) {
+        const reached = e.position.distanceTo(navTarget) < radius * PATH_POINT_THRESHOLD;
+        if (reached) {
+          if (e.navPathIndex < e.navPath.length - 1) {
+            e.navPathIndex += 1;
+          } else {
+            e.navPath = null;
+            e.navPathGoal = null;
+            e.navPathIndex = 0;
+          }
+        }
+      }
       if (typeof e.lookAt === 'function') {
-        const faceDir = getSphericalDirection(e.position, target3d);
+        const faceDir = getSphericalDirection(e.position, movementTarget);
         e.lookAt(e.position.clone().add(faceDir));
       }
     }
