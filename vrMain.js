@@ -29,7 +29,8 @@ function render(timestamp, frame) {
     renderer.render(getScene(), getCamera());
 }
 
-export async function launchVR(initialStage = 1) {
+export async function launchVR(initialStage = 1, options = {}) {
+    const { startPaused = false, initialModalId = null } = options;
     initScene();
     renderer = getRenderer();
     document.getElementById('vrContainer').appendChild(renderer.domElement);
@@ -43,7 +44,7 @@ export async function launchVR(initialStage = 1) {
     // Pass bossData to resetGame to prevent the crash
     resetGame(bossData);
     state.currentStage = initialStage;
-    state.isPaused = false;
+    state.isPaused = !!startPaused;
 
     renderer.setAnimationLoop(render);
 
@@ -74,6 +75,10 @@ export async function launchVR(initialStage = 1) {
             showModal('levelSelect');
         }
     });
+
+    if (initialModalId) {
+        showModal(initialModalId);
+    }
 
     // Session end will return control to the page without reloading
 }

@@ -132,8 +132,18 @@ export function notifyAgentDamaged(agent, severity = 1) {
   if (!model) return;
   const anim = ensureAnimationState(agent);
   if (!anim) return;
-  const magnitude = Math.max(0.1, severity);
-  anim.hitFlash = Math.min(anim.hitFlashMax, anim.hitFlash + magnitude * 18);
+
+  const magnitude = Math.max(0, severity);
+  if (magnitude === 0) return;
+
+  // Map incoming severity to a target flash level so heavier hits immediately
+  // brighten the emissive glow beyond any idle pulse.  Using the maximum
+  // between the current flash value and this severity-derived target mirrors
+  // the 2D game's behaviour where successive hits extend the flash rather than
+  // stacking infinitely.
+  const normalized = Math.min(1, magnitude / 6);
+  const target = normalized * anim.hitFlashMax;
+  anim.hitFlash = Math.max(anim.hitFlash, target);
 }
 
 export function resetAgentAnimation(agent) {
