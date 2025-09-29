@@ -70,6 +70,7 @@ function wrapTextToWidth(ctx, text, maxPx) {
 }
 
 let modalGroup;
+const lastModalForward = new THREE.Vector3(0, 0, -1);
 const modals = {};
 let confirmCallback;
 
@@ -847,8 +848,15 @@ export function showModal(id) {
     // Place the modal group directly in front of the player and lift it so
     // the bottom of the menu is roughly at waist height for better
     // readability.
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize();
-    modalGroup.position.copy(camera.position).addScaledVector(forward, 2);
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    const horizontal = new THREE.Vector3(forward.x, 0, forward.z);
+    if (horizontal.lengthSq() < 1e-6) {
+        horizontal.copy(lastModalForward);
+    } else {
+        horizontal.normalize();
+        lastModalForward.copy(horizontal);
+    }
+    modalGroup.position.copy(camera.position).addScaledVector(horizontal, 2);
     // Elevate menus so their bottoms sit around the player's waist height
     // rather than intersecting the floor. We derive the modal's height from
     // its unscaled dimensions and the group's scaling factor.
