@@ -357,72 +357,145 @@ export function showHud() { if (uiGroup) uiGroup.visible = true; }
 export function hideHud() { if (uiGroup) uiGroup.visible = false; }
 export function getUIRoot() { return uiGroup; }
 
+function disposeMaterial(mat) {
+    if (!mat) return;
+    if (Array.isArray(mat)) {
+        mat.forEach(disposeMaterial);
+        return;
+    }
+    if (mat.map) {
+        mat.map.dispose?.();
+    }
+    mat.dispose?.();
+}
+
+function disposeObject(root) {
+    if (!root) return;
+    root.traverse(obj => {
+        if (obj.geometry) obj.geometry.dispose?.();
+        if (obj.material) disposeMaterial(obj.material);
+    });
+}
+
 function clearGroup(group) {
     if (!group) return;
     while (group.children.length) {
-        const child = group.children.pop();
-        if (child.geometry) child.geometry.dispose();
-        if (child.material?.map) child.material.map.dispose();
-        if (child.material) child.material.dispose();
+        const child = group.children[group.children.length - 1];
         group.remove(child);
+        disposeObject(child);
     }
+}
+
+function ensureChildCount(group, desired, factory) {
+    if (!group) return;
+    while (group.children.length < desired) {
+        group.add(factory());
+    }
+    while (group.children.length > desired) {
+        const child = group.children[group.children.length - 1];
+        group.remove(child);
+        disposeObject(child);
+    }
+}
+
+function createStatusSlot() {
+    const slot = new THREE.Group();
+    const sprite = createTextSprite('', 48);
+    sprite.position.z = 0.002;
+    const overlay = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), holoMaterial(0x000000, 0.7));
+    overlay.position.z = 0.001;
+    slot.add(sprite, overlay);
+    slot.userData = { sprite, overlay, width: 0, height: 0 };
+    return slot;
+}
+
+function createPantheonSlot(size) {
+    const slot = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.PlaneGeometry(size, size), holoMaterial(0xffffff));
+    const overlay = new THREE.Mesh(new THREE.PlaneGeometry(size, size), holoMaterial(0x000000, 0.7));
+    overlay.position.z = 0.001;
+    slot.add(base, overlay);
+    slot.userData = { base, overlay };
+    return slot;
 }
 
 function renderStatusEffects(now) {
     if (!statusGroup) return;
     state.player.statusEffects = state.player.statusEffects.filter(e => now < e.endTime);
-    clearGroup(statusGroup);
-    if (state.player.statusEffects.length === 0) {
-        statusGroup.visible = false;
+    const effects = state.player.statusEffects;
+    statusGroup.visible = effects.length > 0;
+    if (!effects.length) {
+        clearGroup(statusGroup);
         return;
     }
-    statusGroup.visible = true;
+
+    ensureChildCount(statusGroup, effects.length, createStatusSlot);
+
     const spacing = 0.01;
-    state.player.statusEffects.forEach((effect, i) => {
-        const sprite = createTextSprite(effect.emoji || '', 48);
+    let cursor = 0;
+
+    effects.forEach((effect, i) => {
+        const slot = statusGroup.children[i];
+        const { sprite, overlay } = slot.userData;
+        updateTextSprite(sprite, effect.emoji || '');
+
         const width = sprite.scale.x;
         const height = sprite.scale.y;
+        slot.userData.width = width;
+        slot.userData.height = height;
+
         const duration = effect.endTime - effect.startTime;
         const remaining = Math.max(0, effect.endTime - now);
         const progress = duration > 0 ? remaining / duration : 0;
-        const overlay = new THREE.Mesh(new THREE.PlaneGeometry(width, height), holoMaterial(0x000000, 0.7));
-        overlay.position.z = 0.001;
-        overlay.scale.y = progress;
+
+        overlay.visible = progress > 0;
+        overlay.scale.x = width;
+        overlay.scale.y = height * progress;
         overlay.position.y = -height * (1 - progress) / 2;
-        const group = new THREE.Group();
-        group.add(sprite, overlay);
-        group.position.x = i * (width + spacing);
-        statusGroup.add(group);
+
+        slot.position.x = cursor;
+        cursor += width + spacing;
     });
 }
 
 function renderPantheonBuffs(now) {
     if (!pantheonGroup) return;
     state.player.activePantheonBuffs = state.player.activePantheonBuffs.filter(b => now < b.endTime);
-    clearGroup(pantheonGroup);
-    if (state.player.activePantheonBuffs.length === 0) {
-        pantheonGroup.visible = false;
+    const buffs = state.player.activePantheonBuffs;
+    pantheonGroup.visible = buffs.length > 0;
+    if (!buffs.length) {
+        clearGroup(pantheonGroup);
         return;
     }
-    pantheonGroup.visible = true;
+
     const size = 0.04;
     const spacing = 0.01;
-    state.player.activePantheonBuffs.forEach((buff, i) => {
+    ensureChildCount(pantheonGroup, buffs.length, () => createPantheonSlot(size));
+
+    let cursor = 0;
+    buffs.forEach((buff, i) => {
+        const slot = pantheonGroup.children[i];
+        const { base, overlay } = slot.userData;
         const core = bossData.find(b => b.id === buff.coreId);
-        if (!core) return;
+        if (!core) {
+            base.visible = overlay.visible = false;
+            return;
+        }
+        base.visible = true;
+        overlay.visible = true;
         const color = core.id === 'pantheon' ? 0xffffff : parseInt(core.color.replace('#', ''), 16);
-        const base = new THREE.Mesh(new THREE.PlaneGeometry(size, size), holoMaterial(color));
+        base.material.color.set(color);
+
         const duration = buff.endTime - buff.startTime;
         const remaining = Math.max(0, buff.endTime - now);
         const progress = duration > 0 ? remaining / duration : 0;
-        const overlay = new THREE.Mesh(new THREE.PlaneGeometry(size, size), holoMaterial(0x000000, 0.7));
-        overlay.position.z = 0.001;
-        overlay.scale.y = progress;
+
+        overlay.scale.x = size;
+        overlay.scale.y = size * progress;
         overlay.position.y = -size * (1 - progress) / 2;
-        const group = new THREE.Group();
-        group.add(base, overlay);
-        group.position.x = -i * (size + spacing);
-        pantheonGroup.add(group);
+
+        slot.position.x = -cursor;
+        cursor += size + spacing;
     });
 }
 
