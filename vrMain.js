@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import { XRButton } from './vendor/addons/webxr/XRButton.js';
-import { initScene, getScene, getRenderer, getCamera } from './modules/scene.js';
+import { initScene, getScene, getRenderer, getCamera, updateSceneVisuals } from './modules/scene.js';
 import { initPlayerController, updatePlayerController } from './modules/PlayerController.js';
 import { initUI, updateHud, showHud } from './modules/UIManager.js';
 import { initModals, showModal } from './modules/ModalManager.js';
@@ -12,9 +12,13 @@ import { AudioManager } from './modules/audio.js';
 import { bossData } from './modules/bosses.js'; // Import bossData here
 
 let renderer;
+let lastRenderTime = 0;
 
 function render(timestamp, frame) {
+    const delta = lastRenderTime ? (timestamp - lastRenderTime) : 16;
+    lastRenderTime = timestamp;
     Telemetry.recordFrame();
+    updateSceneVisuals(delta);
     updatePlayerController();
 
     if (!state.isPaused) {
