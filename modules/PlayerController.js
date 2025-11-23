@@ -192,7 +192,12 @@ export function updatePlayerController() {
         // movement toward the arena behind them.
         if (avatar) targetPoint.copy(avatar.position);
         laser.scale.z = uiHit.distance;
-        crosshair.visible = false;
+        if (crosshair) {
+            crosshair.visible = true;
+            crosshair.position.copy(uiHit.point);
+            crosshair.lookAt(camera.position);
+            crosshair.scale.set(0.06, 0.06, 1);
+        }
 
         if (hoveredUi !== uiHit.object) {
             if (hoveredUi && hoveredUi.userData.onHover) hoveredUi.userData.onHover(false);

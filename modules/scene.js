@@ -1,5 +1,4 @@
 import * as THREE from '../vendor/three.module.js';
-import { state } from './state.js';
 import { initControllerMenu } from './ControllerMenu.js';
 import { setProjectileGroup } from './projectilePhysics3d.js';
 
@@ -8,13 +7,43 @@ const ARENA_RADIUS = 50;
 
 export function initScene() {
     scene = new THREE.Scene();
-    const bgTexture = new THREE.TextureLoader().load('assets/bg.png');
-    bgTexture.wrapS = bgTexture.wrapT = THREE.RepeatWrapping;
-    bgTexture.repeat.set(8, 8);
-    const skyGeo = new THREE.SphereGeometry(1000, 32, 32);
-    const skyMat = new THREE.MeshBasicMaterial({ map: bgTexture, side: THREE.BackSide });
+    const skyGeo = new THREE.SphereGeometry(1000, 64, 64);
+    const skyMat = new THREE.ShaderMaterial({
+        side: THREE.BackSide,
+        uniforms: {
+            topColor: { value: new THREE.Color(0x111a35) },
+            bottomColor: { value: new THREE.Color(0x05070f) },
+            glowStrength: { value: 1.4 }
+        },
+        vertexShader: `varying vec2 vUv;\nvoid main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+        fragmentShader: `uniform vec3 topColor; uniform vec3 bottomColor; uniform float glowStrength; varying vec2 vUv;\nvoid main() {\n  float t = smoothstep(0.0, 1.0, vUv.y);\n  vec3 base = mix(bottomColor, topColor, pow(t, glowStrength));\n  float vignette = smoothstep(1.0, 0.3, length(vUv - 0.5));\n  vec3 color = mix(base * 0.6, base, vignette);\n  gl_FragColor = vec4(color, 1.0);\n}`
+    });
     const sky = new THREE.Mesh(skyGeo, skyMat);
     scene.add(sky);
+
+    const starCount = 1200;
+    const starPositions = new Float32Array(starCount * 3);
+    const starColor = new THREE.Color(0x8dd6ff);
+    for (let i = 0; i < starCount; i++) {
+        const dir = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.25, Math.random() - 0.5).normalize();
+        const distance = 940 + Math.random() * 80;
+        const idx = i * 3;
+        starPositions[idx] = dir.x * distance;
+        starPositions[idx + 1] = dir.y * distance;
+        starPositions[idx + 2] = dir.z * distance;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMat = new THREE.PointsMaterial({
+        color: starColor,
+        size: 1.5,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0.75
+    });
+    const stars = new THREE.Points(starGeo, starMat);
+    stars.name = 'cosmicStars';
+    scene.add(stars);
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -104,16 +133,17 @@ export const getScene = () => scene;
 export const getCamera = () => camera;
 export const getRenderer = () => renderer;
 export const getArena = () => arena;
-// Prefer the controller matching the player's handedness but gracefully
-// fall back to whichever controller is available. Some platforms only
-// report a single controller until the session is fully initialized which
-// previously left `primaryController` undefined and prevented input.
+// Always keep the pointer on the right controller when available and
+// reserve the left controller for the hand menu. Gracefully fall back to
+// whichever controller exists on platforms that only expose a single hand.
 export const getPrimaryController = () => {
-  const preferred = state.settings.handedness === 'right' ? rightController : leftController;
-  return preferred || leftController || rightController;
+  if (rightController) return rightController;
+  if (leftController) return leftController;
+  return null;
 };
 
 export const getSecondaryController = () => {
-  const offHand = state.settings.handedness === 'right' ? leftController : rightController;
-  return offHand || leftController || rightController;
+  if (leftController) return leftController;
+  if (rightController) return rightController;
+  return null;
 };

@@ -411,14 +411,9 @@ function createSettingsModal() {
     const modal = createModalContainer(0.8, 1.0, 'Settings');
     modal.name = 'modal_settings';
 
-    const handedBtn = createButton(`Handedness: ${state.settings.handedness}`, () => {
-        state.settings.handedness = state.settings.handedness === 'right' ? 'left' : 'right';
-        updateTextSprite(handedBtn.children.find(c => c.type === 'Sprite'), `Handedness: ${state.settings.handedness}`);
-        savePlayerState();
-        refreshPrimaryController();
-    }, 0.6);
-    handedBtn.position.set(0, 0.2, 0.01);
-    modal.add(handedBtn);
+    const handedLabel = createButton('Pointer: Right Hand | Menu: Left Hand', null, 0.7, 0.1, 0x00ffff, 0x111122, undefined, 0.6);
+    handedLabel.position.set(0, 0.2, 0.01);
+    modal.add(handedLabel);
     
     const musicLabel = createTextSprite('Music Volume: (WIP)', 32);
     musicLabel.position.set(0, 0, 0.01);
