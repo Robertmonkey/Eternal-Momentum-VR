@@ -73,6 +73,7 @@ let modalGroup;
 const lastModalForward = new THREE.Vector3(0, 0, -1);
 const modals = {};
 let confirmCallback;
+let modalBackdrop;
 
 function getBossesForStage(stageNum) {
     const stageData = STAGE_CONFIG.find(s => s.stage === stageNum);
@@ -91,7 +92,57 @@ function ensureGroup() {
         modalGroup.scale.setScalar(3);
         const scene = getScene();
         if (scene) scene.add(modalGroup);
+
+        modalBackdrop = createModalBackdrop();
+        modalBackdrop.visible = false;
+        modalGroup.add(modalBackdrop);
     }
+}
+
+function createModalBackdrop() {
+    const group = new THREE.Group();
+    group.name = 'modal_backdrop';
+    group.position.z = -0.05;
+
+    // Match the 2D game's darkened blur layer by placing a large translucent
+    // backing behind every modal. This knocks down brightness in VR and lets
+    // the wallpaper pattern read clearly without overwhelming the menu.
+    const width = 6;
+    const height = 3.5;
+    const base = new THREE.Mesh(
+        new THREE.PlaneGeometry(width, height),
+        new THREE.MeshBasicMaterial({
+            color: 0x080a15,
+            transparent: true,
+            opacity: 0.75,
+            depthTest: false,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        })
+    );
+    base.renderOrder = -3;
+    base.userData.nonInteractive = true;
+    group.add(base);
+
+    const tex = getBgTexture();
+    if (tex) {
+        const wallpaper = new THREE.Mesh(
+            new THREE.PlaneGeometry(width, height),
+            new THREE.MeshBasicMaterial({
+                map: tex,
+                transparent: true,
+                opacity: 0.18,
+                depthTest: false,
+                depthWrite: false,
+                side: THREE.DoubleSide
+            })
+        );
+        wallpaper.renderOrder = -2;
+        wallpaper.userData.nonInteractive = true;
+        group.add(wallpaper);
+    }
+
+    return group;
 }
 
 function createButton(
@@ -212,6 +263,7 @@ function createModalContainer(width, height, title, options = {}) {
         titleShadowBlur = 8,
         backgroundColor = 0x1e1e2f,
         backgroundOpacity = 0.95,
+        patternOpacity = 0.15,
         borderColor = 0x00ffff,
         borderOpacity = 0.5,
         titleAlign = 'center',
@@ -235,7 +287,7 @@ function createModalContainer(width, height, title, options = {}) {
         const pattern = new THREE.Mesh(patternGeom, new THREE.MeshBasicMaterial({
             map: tex,
             transparent: true,
-            opacity: 0.15,
+            opacity: patternOpacity,
             depthTest: false,
             depthWrite: false
         }));
@@ -862,6 +914,10 @@ export function showModal(id) {
     lookTarget.y = modalGroup.position.y;
     modalGroup.lookAt(lookTarget);
 
+    if (modalBackdrop) {
+        modalBackdrop.visible = true;
+    }
+
     state.activeModalId = id;
     // Pause the game before heavy UI creation to avoid race conditions
     state.isPaused = true;
@@ -892,6 +948,7 @@ export function hideModal() {
             if (obj.userData && obj.userData.scrollStop) obj.userData.scrollStop();
         });
         modal.visible = false;
+        if (modalBackdrop) modalBackdrop.visible = false;
         state.activeModalId = null;
         resetInputFlags();
         AudioManager.playSfx('uiModalClose');
@@ -931,6 +988,9 @@ function createAscensionModal() {
         titleShadowColor: '#00ffff',
         titleShadowBlur: 10,
         titleAlign: 'left',
+        backgroundColor: 0x0a0d19,
+        backgroundOpacity: 0.9,
+        patternOpacity: 0.22,
         borderOpacity: 1,
         cornerRadius: 0.05
     });
@@ -940,7 +1000,7 @@ function createAscensionModal() {
     // box-shadow effect around the Ascension Conduit modal.
     const glow = new THREE.Mesh(
         new THREE.PlaneGeometry(width + 0.3, height + 0.3),
-        holoMaterial(0x00ffff, 0.25)
+        holoMaterial(0x00ffff, 0.18)
     );
     glow.position.z = -0.005;
     glow.renderOrder = -1;
