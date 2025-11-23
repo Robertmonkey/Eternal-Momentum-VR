@@ -40,6 +40,7 @@ export async function launchVR(initialStage = 1, options = {}) {
     initUI();
     initModals();
     AudioManager.setup(getCamera());
+    AudioManager.applySettings(state.settings);
 
     // Pass bossData to resetGame to prevent the crash
     resetGame(bossData);

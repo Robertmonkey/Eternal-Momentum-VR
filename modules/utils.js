@@ -11,6 +11,7 @@
 // builds without exposing THREE globally.
 import * as THREE from '../vendor/three.module.js';
 import { getRenderer } from './scene.js';
+import { state } from './state.js';
 
 let screenShakeEnd = 0;
 let screenShakeMagnitude = 0;
@@ -121,6 +122,9 @@ export function isPointInShadow(shadowCaster, point, sourceX, sourceY) {
 
 export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
   if (!Array.isArray(particles) || !Number.isFinite(n) || n <= 0) return;
+  const density = state?.settings ? Math.min(1, Math.max(0, Number(state.settings.particleDensity ?? 1))) : 1;
+  const count = Math.round(n * density);
+  if (count <= 0) return;
   const xSafe = Number.isFinite(x) ? x : 0;
   const ySafe = Number.isFinite(y) ? y : 0;
   const u = ((xSafe / 2048) - 0.5 + 1) % 1;
@@ -139,7 +143,7 @@ export function spawnParticles(particles, x, y, c, n, spd, life, r = 3) {
 
   const speed = Number.isFinite(spd) ? (spd / 2048) * 2 * Math.PI : 0;
   const lifeTicks = Number.isFinite(life) ? Math.max(0, life) : 0;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < count; i++) {
     const a = Math.random() * 2 * Math.PI;
     const dir = basisA.clone().multiplyScalar(Math.cos(a))
       .add(basisB.clone().multiplyScalar(Math.sin(a)))

@@ -51,6 +51,9 @@ export const state = {
         handedness: 'right',
         musicVolume: 75,
         sfxVolume: 85,
+        particleDensity: 1,
+        hapticsEnabled: true,
+        hapticsStrength: 1,
     },
     cursorDir: new THREE.Vector3(0, 0, -1),
 

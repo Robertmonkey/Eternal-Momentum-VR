@@ -173,3 +173,5 @@
 * [x] Locked the pointer to the right-hand controller and the hand menu to the left controller to stop accidental swaps.
 * [x] Kept the crosshair visible on UI targets so menus are easier to hit while open.
 * [x] Recolored the sky sphere with a neutral cosmic gradient and starfield instead of tiling the wallpaper texture.
+* [x] Added a Settings modal with handedness toggle, audio sliders, particle density profiles, and haptics strength controls accessible from the controller menu.
+* [x] Applied player-configurable particle density and haptic strength to gameplay systems so comfort and performance settings affect effects and controller feedback.

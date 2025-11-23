@@ -60,12 +60,15 @@ const bossAIClassMap = {
     time_eater: TimeEaterAI, vampire: VampireAI
 };
 
-function pulseControllers(duration = 20, strength = 0.5) {
-    const controllers = [getPrimaryController(), getSecondaryController()];
+export function pulseControllers(duration = 20, strength = 0.5, controllersOverride = null) {
+    const settings = state.settings || {};
+    if (!settings.hapticsEnabled || (settings.hapticsStrength ?? 1) <= 0) return;
+    const intensity = Math.min(1, Math.max(0, strength * (settings.hapticsStrength ?? 1)));
+    const controllers = controllersOverride || [getPrimaryController(), getSecondaryController()];
     for (const ctrl of controllers) {
         const actuator = ctrl?.gamepad?.hapticActuators?.[0];
         try {
-            actuator?.pulse?.(strength, duration);
+            actuator?.pulse?.(intensity, duration);
         } catch {
             /* ignore unsupported haptics */
         }

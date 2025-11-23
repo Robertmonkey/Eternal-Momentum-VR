@@ -57,7 +57,7 @@ async function setupLaunch() {
   });
 
   await mock.module('../modules/audio.js', {
-    namedExports: { AudioManager: { setup: mock.fn() } }
+    namedExports: { AudioManager: { setup: mock.fn(), applySettings: mock.fn() } }
   });
 
   await mock.module('../modules/bosses.js', {
