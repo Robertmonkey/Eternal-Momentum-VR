@@ -20,7 +20,8 @@ async function setupLaunch() {
         setAnimationLoop: mock.fn(),
         xr: { enabled: false, addEventListener: mock.fn() }
       }),
-      getCamera: () => ({})
+      getCamera: () => ({}),
+      updateSceneVisuals: mock.fn()
     }
   });
 
