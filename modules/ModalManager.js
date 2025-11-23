@@ -1118,14 +1118,59 @@ function createAscensionModal() {
     glow.name = 'ascension_modal_glow';
     modal.add(glow);
 
+    const GRID_WIDTH = 1.55; // matches header/footer divider width
+    const GRID_HEIGHT = GRID_WIDTH * 9 / 16;
+
     // Center the talent grid and keep a referenceable name for tests.
     const grid = new THREE.Group();
     grid.name = 'ascension_grid';
     modal.add(grid);
 
+    // Lay down a dedicated grid plate so the Ascension nodes sit on the same
+    // cyan-framed panel seen in the 2D conduit. Keeping this separate from
+    // the dynamic children prevents refresh calls from wiping out the
+    // decorative framing.
+    const gridFrame = new THREE.Mesh(
+        createRoundedRectGeometry(GRID_WIDTH + 0.08, GRID_HEIGHT + 0.08, 0.035),
+        holoMaterial(0x0b1024, 0.78)
+    );
+    gridFrame.position.z = 0.0005;
+    gridFrame.renderOrder = 0.2;
+    grid.add(gridFrame);
+
+    const gridOutline = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.PlaneGeometry(GRID_WIDTH + 0.08, GRID_HEIGHT + 0.08)),
+        new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.35, depthTest: false, depthWrite: false })
+    );
+    gridOutline.position.z = gridFrame.position.z + 0.0005;
+    gridOutline.renderOrder = 0.25;
+    grid.add(gridOutline);
+
     const lines = new THREE.Group();
     lines.renderOrder = 0.5;
     grid.add(lines);
+
+    const dynamicNodes = [];
+
+    const overlayGroup = new THREE.Group();
+    overlayGroup.name = 'ascension_overlays';
+    grid.add(overlayGroup);
+
+    const pointerShape = new THREE.Shape();
+    pointerShape.moveTo(-0.03, -0.055);
+    pointerShape.lineTo(0.04, 0);
+    pointerShape.lineTo(-0.03, 0.055);
+    pointerShape.lineTo(-0.01, 0);
+    pointerShape.closePath();
+    const pointer = new THREE.Mesh(
+        new THREE.ShapeGeometry(pointerShape),
+        new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.85, depthTest: false, depthWrite: false })
+    );
+    pointer.position.z = 0.03;
+    pointer.renderOrder = 2.8;
+    pointer.visible = false;
+    pointer.userData.nonInteractive = true;
+    overlayGroup.add(pointer);
 
     function createApDisplay() {
         const group = new THREE.Group();
@@ -1222,18 +1267,21 @@ function createAscensionModal() {
             })
         );
         glow.position.z = 0.003;
+        glow.renderOrder = 2.5;
 
         const bg = new THREE.Mesh(
             new THREE.PlaneGeometry(1, 1),
             holoMaterial(0x0a0d19, 0.92)
         );
         bg.position.z = 0.004;
+        bg.renderOrder = 2.6;
 
         const headerBar = new THREE.Mesh(
             new THREE.PlaneGeometry(1, 1),
             holoMaterial(0x11253a, 0.95)
         );
         headerBar.position.z = 0.005;
+        headerBar.renderOrder = 2.65;
 
         // The old 2D tooltip used a thin cyan outline rather than a filled
         // rectangle. Rendering the border as line segments avoids tinting the
@@ -1244,16 +1292,20 @@ function createAscensionModal() {
             new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 })
         );
         border.position.z = 0.006;
+        border.renderOrder = 2.7;
         border.name = 'tooltip_border';
 
         const icon = createTextSprite('', 32, '#ffffff', 'left', 'rgba(0,0,0,0.55)', 8, '600');
         icon.position.z = 0.01;
+        icon.renderOrder = 2.8;
 
         const name = createTextSprite('', 30, '#9ff7ff', 'left', 'rgba(0,0,0,0.7)', 10, '600');
         name.position.z = 0.01;
+        name.renderOrder = 2.8;
 
         const desc = createTextSprite('', 24, '#eaf2ff', 'left', 'rgba(0,0,0,0.55)', 6);
         desc.position.z = 0.01;
+        desc.renderOrder = 2.8;
         // Match the 2D tooltip's slightly dimmed description text.
         desc.material.opacity = 0.9;
 
@@ -1263,6 +1315,7 @@ function createAscensionModal() {
             holoMaterial(0x00ffff, 0.4)
         );
         divider.position.z = 0.009;
+        divider.renderOrder = 2.75;
         divider.name = 'tooltip_footer_divider';
 
         // Separate rank and cost text like the 2D menu's flex layout and use
@@ -1270,10 +1323,12 @@ function createAscensionModal() {
         const rank = createTextSprite('', 24, '#eaf2ff', 'left', 'rgba(0,0,0,0.35)', 4);
         rank.material.opacity = 0.8;
         rank.position.z = 0.01;
+        rank.renderOrder = 2.8;
 
         const cost = createTextSprite('', 24, '#eaf2ff', 'right', 'rgba(0,0,0,0.35)', 4);
         cost.material.opacity = 0.8;
         cost.position.z = 0.01;
+        cost.renderOrder = 2.8;
 
         let layoutWidth = MIN_WIDTH;
         let layoutHeight = 0.32;
@@ -1398,9 +1453,27 @@ function createAscensionModal() {
     }
 
     modal.userData.refresh = () => {
-        disposeGroupChildren(grid);
-        grid.add(lines);
+        pointer.visible = false;
         disposeGroupChildren(lines);
+        dynamicNodes.forEach(node => {
+            if (!node) return;
+            disposeGroupChildren(node);
+            if (node.parent) node.parent.remove(node);
+            if (node.geometry && typeof node.geometry.dispose === 'function') node.geometry.dispose();
+            if (node.material && typeof node.material.dispose === 'function') node.material.dispose();
+            if (typeof node.traverse === 'function') {
+                node.traverse(child => {
+                    if (child === node) return;
+                    if (child.geometry && typeof child.geometry.dispose === 'function') child.geometry.dispose();
+                    if (child.material && typeof child.material.dispose === 'function') child.material.dispose();
+                });
+            }
+        });
+        dynamicNodes.length = 0;
+        if (tooltip) {
+            disposeGroupChildren(tooltip);
+            if (tooltip.parent) tooltip.parent.remove(tooltip);
+        }
         tooltip = createTalentTooltip();
         grid.add(tooltip);
         const positions = {};
@@ -1408,8 +1481,8 @@ function createAscensionModal() {
         // The 2D game used a 16:9 talent grid nested inside the modal with
         // small horizontal padding.  Mirror that exact layout so constellations
         // line up with their original coordinates.
-        const gridWidth = 1.55; // matches header/footer divider width
-        const gridHeight = gridWidth * 9 / 16;
+        const gridWidth = GRID_WIDTH;
+        const gridHeight = GRID_HEIGHT;
         const halfW = gridWidth / 2;
         const halfH = gridHeight / 2;
 
@@ -1513,12 +1586,18 @@ function createAscensionModal() {
                                 const basePos = positions[t.id];
                                 const { offsetX, offsetY } = tooltip.userData.computeOffsets(basePos, halfW, halfH);
                                 tooltip.userData.show(basePos, offsetX, offsetY);
+                                const pointerColor = canPurchase ? 0x00ffff : prereqsMet ? 0xffb347 : 0xff4f6d;
+                                pointer.material.color.setHex(pointerColor);
+                                pointer.visible = true;
+                                pointer.position.set(basePos.x - 0.075, basePos.y - 0.075, pointer.position.z);
                             } else if (tooltip) {
                                 tooltip.userData.hide();
+                                pointer.visible = false;
                             }
                         };
                     });
                     btn.userData.onHover = btn.children[0].userData.onHover;
+                    dynamicNodes.push(btn);
                     grid.add(btn);
                 }
             });
