@@ -51,6 +51,25 @@ export const AudioManager = {
     this.updateButtonIcon();
   },
 
+  /**
+   * Apply persisted user settings for audio. Accepts percentage inputs so the
+   * UI can present whole numbers while the audio graph uses normalized 0-1
+   * gains internally.
+   * @param {{musicVolume?:number,sfxVolume?:number,userMuted?:boolean}} settings
+   */
+  applySettings(settings = {}) {
+    const clamp = (v, min = 0, max = 100) => Math.min(max, Math.max(min, Number.isFinite(v) ? v : min));
+    if (settings.userMuted !== undefined) {
+      this.userMuted = !!settings.userMuted;
+    }
+    if (settings.musicVolume !== undefined) {
+      this.setMusicVolume(clamp(settings.musicVolume) / 100);
+    }
+    if (settings.sfxVolume !== undefined) {
+      this.setSfxVolume(clamp(settings.sfxVolume) / 100);
+    }
+  },
+
   updateButtonIcon() {
     if (!this.soundBtn) return;
     if (this.soundBtn.tagName && this.soundBtn.tagName.toLowerCase() === 'a-text') {

@@ -192,7 +192,7 @@ function createButton(
     // border color.  Passing the same colour to the shadow recreates that
     // effect in VR.
     const text = createTextSprite(
-        label.substring(0, 20),
+        label.substring(0, 60),
         32,
         colorObj.getStyle(),
         'center',
@@ -228,6 +228,10 @@ function createButton(
         obj.userData.onSelect = handleSelect;
         obj.userData.onHover = setHover;
     });
+
+    group.userData.textSprite = text;
+    group.userData.bg = bg;
+    group.userData.border = border;
 
     return group;
 }
@@ -463,22 +467,129 @@ function createSettingsModal() {
     const modal = createModalContainer(0.8, 1.0, 'Settings');
     modal.name = 'modal_settings';
 
-    const handedLabel = createButton('Pointer: Right Hand | Menu: Left Hand', null, 0.7, 0.1, 0x00ffff, 0x111122, undefined, 0.6);
-    handedLabel.position.set(0, 0.2, 0.01);
-    modal.add(handedLabel);
-    
-    const musicLabel = createTextSprite('Music Volume: (WIP)', 32);
-    musicLabel.position.set(0, 0, 0.01);
-    modal.add(musicLabel);
+    const clampPercent = (v) => Math.min(100, Math.max(0, Math.round(Number.isFinite(v) ? v : 0)));
+    const clampStrength = (v) => Math.min(2, Math.max(0, Math.round((Number.isFinite(v) ? v : 0) * 100) / 100));
+    const applyAudioSettings = () => AudioManager.applySettings(state.settings);
+    const persistSettings = () => {
+        savePlayerState();
+        applyAudioSettings();
+    };
 
-    const sfxLabel = createTextSprite('SFX Volume: (WIP)', 32);
-    sfxLabel.position.set(0, -0.1, 0.01);
+    const handedLabel = createButton('Pointer: Right Hand | Menu: Left Hand', () => {
+        state.settings.handedness = state.settings.handedness === 'left' ? 'right' : 'left';
+        persistSettings();
+        refresh();
+    }, 0.7, 0.1, 0x00ffff, 0x111122, undefined, 0.6);
+    handedLabel.position.set(0, 0.3, 0.01);
+    modal.add(handedLabel);
+
+    const performanceModes = [
+        { label: 'Cinematic', value: 1 },
+        { label: 'Balanced', value: 0.7 },
+        { label: 'Performance', value: 0.45 },
+    ];
+    const performanceBtn = createButton('Particle Density: Cinematic', () => {
+        const current = state.settings.particleDensity ?? 1;
+        let idx = performanceModes.findIndex(m => Math.abs(m.value - current) < 0.001);
+        idx = (idx + 1) % performanceModes.length;
+        state.settings.particleDensity = performanceModes[idx].value;
+        persistSettings();
+        refresh();
+    }, 0.7, 0.1, 0x00ffff, 0x111122, undefined, 0.7);
+    performanceBtn.position.set(0, 0.15, 0.01);
+    modal.add(performanceBtn);
+
+    const musicLabel = createTextSprite('', 32, '#eaf2ff', 'center', '#00ffff', 8, 'bold');
+    musicLabel.position.set(0, 0.02, 0.01);
+    modal.add(musicLabel);
+    const musicDown = createButton('−', () => {
+        state.settings.musicVolume = clampPercent((state.settings.musicVolume ?? 0) - 5);
+        persistSettings();
+        refresh();
+    }, 0.12, 0.08, 0x00ffff, 0x111122, undefined, 0.9, 'circle');
+    musicDown.position.set(-0.32, 0.02, 0.01);
+    modal.add(musicDown);
+    const musicUp = createButton('+', () => {
+        state.settings.musicVolume = clampPercent((state.settings.musicVolume ?? 0) + 5);
+        persistSettings();
+        refresh();
+    }, 0.12, 0.08, 0x00ffff, 0x111122, undefined, 0.9, 'circle');
+    musicUp.position.set(0.32, 0.02, 0.01);
+    modal.add(musicUp);
+
+    const sfxLabel = createTextSprite('', 32, '#eaf2ff', 'center', '#00ffff', 8, 'bold');
+    sfxLabel.position.set(0, -0.12, 0.01);
     modal.add(sfxLabel);
+    const sfxDown = createButton('−', () => {
+        state.settings.sfxVolume = clampPercent((state.settings.sfxVolume ?? 0) - 5);
+        persistSettings();
+        refresh();
+    }, 0.12, 0.08, 0x00ffff, 0x111122, undefined, 0.9, 'circle');
+    sfxDown.position.set(-0.32, -0.12, 0.01);
+    modal.add(sfxDown);
+    const sfxUp = createButton('+', () => {
+        state.settings.sfxVolume = clampPercent((state.settings.sfxVolume ?? 0) + 5);
+        persistSettings();
+        refresh();
+    }, 0.12, 0.08, 0x00ffff, 0x111122, undefined, 0.9, 'circle');
+    sfxUp.position.set(0.32, -0.12, 0.01);
+    modal.add(sfxUp);
+
+    const hapticsBtn = createButton('Haptics: On', () => {
+        state.settings.hapticsEnabled = !state.settings.hapticsEnabled;
+        persistSettings();
+        refresh();
+    }, 0.7, 0.1, 0x00ffff, 0x111122, undefined, 0.7);
+    hapticsBtn.position.set(0, -0.26, 0.01);
+    modal.add(hapticsBtn);
+
+    const hapticsLabel = createTextSprite('', 30, '#eaf2ff', 'center', '#00ffff', 8, 'bold');
+    hapticsLabel.position.set(0, -0.35, 0.01);
+    modal.add(hapticsLabel);
+    const hapticsDown = createButton('−', () => {
+        state.settings.hapticsStrength = clampStrength((state.settings.hapticsStrength ?? 1) - 0.1);
+        persistSettings();
+        refresh();
+    }, 0.12, 0.08, 0x00ffff, 0x111122, undefined, 0.9, 'circle');
+    hapticsDown.position.set(-0.32, -0.35, 0.01);
+    modal.add(hapticsDown);
+    const hapticsUp = createButton('+', () => {
+        state.settings.hapticsStrength = clampStrength((state.settings.hapticsStrength ?? 1) + 0.1);
+        persistSettings();
+        refresh();
+    }, 0.12, 0.08, 0x00ffff, 0x111122, undefined, 0.9, 'circle');
+    hapticsUp.position.set(0.32, -0.35, 0.01);
+    modal.add(hapticsUp);
 
     const closeBtn = createButton('Close', () => hideModal(), 0.6, 0.1, 0xf000ff);
-    closeBtn.position.set(0, -0.4, 0.01);
+    closeBtn.position.set(0, -0.46, 0.01);
     modal.add(closeBtn);
-    
+
+    function refresh() {
+        const handedText = state.settings.handedness === 'left'
+            ? 'Pointer: Left Hand | Menu: Right Hand'
+            : 'Pointer: Right Hand | Menu: Left Hand';
+        if (handedLabel.userData.textSprite) {
+            updateTextSprite(handedLabel.userData.textSprite, handedText);
+        }
+
+        const currentPerf = state.settings.particleDensity ?? 1;
+        const perfEntry = performanceModes.reduce((closest, mode) => {
+            return Math.abs(mode.value - currentPerf) < Math.abs((closest?.value ?? 1) - currentPerf) ? mode : closest;
+        }, performanceModes[0]);
+        updateTextSprite(performanceBtn.userData.textSprite, `Particle Density: ${perfEntry.label}`);
+
+        updateTextSprite(musicLabel, `Music Volume: ${clampPercent(state.settings.musicVolume ?? 75)}%`);
+        updateTextSprite(sfxLabel, `SFX Volume: ${clampPercent(state.settings.sfxVolume ?? 85)}%`);
+
+        const hapticsStatus = state.settings.hapticsEnabled ? 'On' : 'Off';
+        updateTextSprite(hapticsBtn.userData.textSprite, `Haptics: ${hapticsStatus}`);
+        updateTextSprite(hapticsLabel, `Feedback Strength: ${Math.round(clampStrength(state.settings.hapticsStrength ?? 1) * 100)}%`);
+    }
+
+    modal.userData.refresh = refresh;
+    refresh();
+
     return modal;
 }
 

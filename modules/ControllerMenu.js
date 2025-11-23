@@ -154,6 +154,10 @@ export function initControllerMenu() {
     soundBtn.position.set(0, -0.06, 0);
     menuGroup.add(soundBtn);
 
+    const settingsBtn = createButton('Settings', '⚙️', () => showModal('settings'));
+    settingsBtn.position.set(0, -0.12, 0);
+    menuGroup.add(settingsBtn);
+
     // This ensures our 3D button icon updates when the sound is toggled
     originalUpdateIcon = AudioManager.updateButtonIcon;
     AudioManager.updateButtonIcon = () => {
@@ -167,7 +171,7 @@ export function initControllerMenu() {
     AudioManager.updateButtonIcon(); // Set initial state
 
     coreButton = createButton('Cores', '◎', () => showModal('cores'));
-    coreButton.position.set(0, -0.12, 0);
+    coreButton.position.set(0, -0.18, 0);
     menuGroup.add(coreButton);
 
     controller.add(menuGroup);
