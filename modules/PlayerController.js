@@ -27,6 +27,9 @@ let raycaster;
 let laser;
 let crosshair;
 let primaryController;
+const UI_CROSSHAIR_SCALE = 0.12;
+const WORLD_CROSSHAIR_SCALE = 0.08;
+const CROSSHAIR_OFFSET = 0.01;
 
 // Input state flags
 let triggerDown = false;
@@ -130,9 +133,9 @@ export async function initPlayerController() {
 
     const chTex = await assetManager.loadTexture("assets/cursors/crosshair.cur");
     chTex.magFilter = THREE.NearestFilter;
-    const chMat = new THREE.SpriteMaterial({ map: chTex, depthTest: false, sizeAttenuation: false });
+    const chMat = new THREE.SpriteMaterial({ map: chTex, depthTest: false, sizeAttenuation: false, opacity: 0.95 });
     crosshair = new THREE.Sprite(chMat);
-    crosshair.scale.set(0.05, 0.05, 1);
+    crosshair.scale.set(WORLD_CROSSHAIR_SCALE, WORLD_CROSSHAIR_SCALE, 1);
     crosshair.visible = false;
     crosshair.name = "crosshair";
     scene.add(crosshair);
@@ -193,10 +196,11 @@ export function updatePlayerController() {
         if (avatar) targetPoint.copy(avatar.position);
         laser.scale.z = uiHit.distance;
         if (crosshair) {
+            const offset = camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(CROSSHAIR_OFFSET);
             crosshair.visible = true;
-            crosshair.position.copy(uiHit.point);
+            crosshair.position.copy(uiHit.point).add(offset);
             crosshair.lookAt(camera.position);
-            crosshair.scale.set(0.06, 0.06, 1);
+            crosshair.scale.set(UI_CROSSHAIR_SCALE, UI_CROSSHAIR_SCALE, 1);
         }
 
         if (hoveredUi !== uiHit.object) {
@@ -235,9 +239,11 @@ export function updatePlayerController() {
             laser.scale.z = arenaHit.distance;
 
             if (crosshair) {
+                const offset = camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(CROSSHAIR_OFFSET);
                 crosshair.visible = true;
-                crosshair.position.copy(arenaHit.point);
+                crosshair.position.copy(arenaHit.point).add(offset);
                 crosshair.lookAt(camera.position);
+                crosshair.scale.set(WORLD_CROSSHAIR_SCALE, WORLD_CROSSHAIR_SCALE, 1);
             }
             handleInput();
         } else {

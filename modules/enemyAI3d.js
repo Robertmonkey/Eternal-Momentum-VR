@@ -34,6 +34,7 @@ const DEFAULT_RADIUS = 50;
 const PATH_RECALC_INTERVAL = 500; // ms between navmesh refresh attempts
 const PATH_GOAL_EPSILON = 0.02;   // UV distance before we consider the goal changed
 const PATH_POINT_THRESHOLD = 0.05; // fraction of radius used to advance to the next waypoint
+const POLAR_GUARD = 0.65;         // y-normal threshold that counts as "near the poles"
 
 function uvDistance(a = { u: 0, v: 0 }, b = { u: 0, v: 0 }) {
   const du = Math.abs(a.u - b.u);
@@ -49,11 +50,18 @@ function shouldUseNavPath(enemy, playerDir) {
   if (state.pathObstacles.length > 0) return true;
   const currentDir = enemy.position?.clone()?.normalize();
   if (!currentDir) return false;
+  // When an agent gets pushed near the poles its movement math becomes
+  // numerically noisy, which previously manifested as enemies rocketing to
+  // the top of the sphere before resuming their pursuit. Forcing navmesh
+  // traversal when an enemy drifts into the polar bands pulls them back onto
+  // a stable great-circle route.
+  const nearPole = Math.abs(currentDir.y) > POLAR_GUARD;
   // When the enemy and player are nearly antipodal the simple cross-product
   // steering becomes numerically unstable and agents tended to drift toward
   // the poles. Falling back to the navmesh in that case produces a great
   // circle path that hugs the arena instead of spiking vertically.
-  return currentDir.dot(playerDir) < -0.6;
+  const unstableDot = currentDir.dot(playerDir) < -0.2;
+  return nearPole || unstableDot;
 }
 
 function ensureNavPath(enemy, radius, playerPos, now) {
