@@ -57,7 +57,12 @@ export function getSphericalDirection(from, to) {
 // callers can supply loose coordinates without affecting gameplay.
 export function sanitizeUv({ u, v } = { u: 0.5, v: 0.5 }) {
   const safeU = Number.isFinite(u) ? (u % 1 + 1) % 1 : 0.5;
-  const safeV = Number.isFinite(v) ? (v % 1 + 1) % 1 : 0.5;
+  // V represents latitude; wrapping it causes south‑pole values (v≈1) to jump
+  // back to the north pole (v≈0). Clamp instead of wrapping so agents never
+  // request nav paths that teleport across hemispheres and trigger pole
+  // spikes. Keep a tiny buffer away from 0/1 to avoid precision issues.
+  const clampedV = Number.isFinite(v) ? Math.min(Math.max(v, 0), 1) : 0.5;
+  const safeV = Math.min(0.998, Math.max(0.002, clampedV));
   return { u: safeU, v: safeV };
 }
 

@@ -101,6 +101,9 @@
 
 ## Additional Improvements
 
+* [x] Clamped navmesh UV latitude to stop hemisphere wrapping that pulled enemies toward the poles.
+* [x] Rebuilt Ascension Conduit grid framing with a visible pointer and stable tooltips to mirror the original 2D menu readability.
+* [x] Softened the cosmic sky shader so the arena aura animates with nebula-like falloff instead of hard edges.
 * [x] Added `clamp` and `applyPlayerHeal` helpers to centralize healing logic.
 * [x] Updated heal power to use the new `applyPlayerHeal` helper.
 * [x] Refactored essence transmutation health gain in `gameLoop` to use `applyPlayerHeal`.
