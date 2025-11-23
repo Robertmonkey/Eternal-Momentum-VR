@@ -170,3 +170,6 @@
 * [x] Standardized menu styling with the 2D game's cyan glow, font stack, hover/click audio cues, and non-repeating wallpaper so every VR menu shares the original look.
 * [x] Added a home-screen Ascension Conduit button that launches VR paused and opens the ascension modal so players can respec before entering a run.
 * [x] Remapped agent damage flashes to severity-driven targets so emissive highlights burst above idle pulses and decay back to their cached base color.
+* [x] Locked the pointer to the right-hand controller and the hand menu to the left controller to stop accidental swaps.
+* [x] Kept the crosshair visible on UI targets so menus are easier to hit while open.
+* [x] Recolored the sky sphere with a neutral cosmic gradient and starfield instead of tiling the wallpaper texture.
